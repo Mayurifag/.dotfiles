@@ -1,0 +1,18 @@
+[user]
+    name = MY_NAME
+		email = MY_EMAIL_ADDRESS
+[alias]
+	up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+	dev = !git checkout dev && git pull origin dev
+	staging = !git checkout staging && git pull origin staging
+	master = !git checkout master && git pull origin
+	st = status
+	remove-tags = "!f() { git tag -l ${1} | xargs -I % echo \"git tag -d % && git push --delete origin %\" | sh; }; f"
+
+[core]
+	autocrlf = input
+	editor = nano
+[credential]
+	helper = cache --timeout=3600
+[color]
+	ui = auto
