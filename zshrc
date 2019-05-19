@@ -1,51 +1,91 @@
-source ~/.private_exports
-source /usr/share/zsh/share/antigen.zsh
+export NVM_LAZY_LOAD=true
+# You may need to manually set your language environment
+export LC_ALL=en_US.UTF-8
+export LANG=ru_RU.UTF8
 
-antigen use oh-my-zsh
+export VISUAL=code
+export EDITOR=nano
+export SUDO_EDITOR=nano
+export QT_QPA_PLATFORMTHEME=qt5ct
 
-antigen bundle gem
-antigen bundle git
-antigen bundle docker
-antigen bundle capistrano
-antigen bundle bundler
-antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle zsh-users/zsh-autosuggestions
-antigen bundle zsh-users/zsh-completions src
-antigen bundle archlinux
-antigen bundle sudo
+export KEYTIMEOUT=1 # Shorter delay typing
 
-antigen theme candy
+# Update Zsh plugins
+uz(){
+  antibody bundle <~/.dotfiles/zsh/plugins.txt >~/.zsh_plugins.sh
+  antibody update
+}
 
-# Tell Antigen that you're done.
-antigen apply
+source ~/.zsh_plugins.sh # Load zsh plugins
 
-setopt AUTOCD
-setopt COMPLETE_ALIASES
+setopt hash_list_all            # hash everything before completion
+setopt completealiases          # complete alisases
+setopt always_to_end            # when completing from the middle of a word, move the cursor to the end of the word
+setopt complete_in_word         # allow completion from within a word/phrase
+setopt list_ambiguous           # complete as much of a completion until it gets ambiguous.
+setopt auto_remove_slash        # self explicit
+setopt chase_links              # resolve symlinks
 
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+# History
+HISTSIZE=10000 # Lines of history to keep in memory for current session
+HISTFILESIZE=10000 # Number of commands to save in the file
+SAVEHIST=10000 # Number of history entries to save to disk
+HISTFILE=~/.zsh_history # Where to save history to disk
+HISTDUP=erase # Erase duplicates in the history file
+setopt hist_ignore_dups # Ignore duplicates
 
-# allow functions to have local options
-setopt LOCAL_OPTIONS
-# allow functions to have local traps
-setopt LOCAL_TRAPS
-# share history between sessions ???
-setopt SHARE_HISTORY
-# adds history
-setopt APPEND_HISTORY
-# adds history incrementally and share it across sessions
-setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
-# don't record dupes in history
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_REDUCE_BLANKS
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_VERIFY
-setopt HIST_EXPIRE_DUPS_FIRST
+# Options - `man zshoptions`
+setopt append_history # Append history to the history file (no overwriting)
+setopt share_history # Share history across terminals
+setopt inc_append_history # Immediately append to the history file, not just when a term is killed
+setopt extended_glob # Use extended globbing syntax
+setopt auto_cd # Auto change to a dir without typing cd
 
-zstyle ':completion:*' rehash true
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+# COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+DISABLE_AUTO_UPDATE="true"
+
+alias prg='git branch --merged | grep -v "\*" | grep -v "master" | grep -v "develop" | grep -v "staging" | xargs -n 1 git branch -D'
+alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias ..='cd ..'
+alias df='df -h'
+alias diff='colordiff'              # requires colordiff package
+alias du='du -c -h'
+alias free='free -m'                # show sizes in MB
+alias grep='grep --color=auto'
+alias grep='grep --color=tty -d skip'
+alias mkdir='mkdir -p -v'
+alias more='less'
+alias nano='nano -w'
+alias ping='ping -c 5'
+alias scat='sudo cat'
+alias svim='sudo vim'
+alias root='sudo su'
+alias reboot='sudo reboot'
+alias halt='sudo halt'
+alias ls='ls -hF --color=auto'
+alias lr='ls -R'                    # recursive ls
+alias ll='ls -alh'
+alias la='ll -A'
+alias lm='la | less'
+alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection
+
+
+# cd places
+alias arm='cd ~/arm/'
+alias dq='cd ~/Downloads'
 
 start() {
   sudo systemctl start $1.service
@@ -66,27 +106,28 @@ disable() {
   sudo systemctl disable $1.service
 }
 
-alias docker='sudo docker'
-alias docker_delete_exited='docker rm $(docker ps -a -q -f status=exited)'
-alias grep='grep --color'
-alias less="LESS='-RS#3NM~g' less"
-alias rc='rails console'
-
 # Create a new directory and enter it
 function mk() {
   mkdir -p "$@" && cd "$@"
 }
 
-export EDITOR='nano'
-export VISUAL='atom'
-export BROWSER='firefox'
-export NVM_LAZY_LOAD=true
-export ZSH_AUTOSUGGEST_USE_ASYNC=1
+# Speeds up load time
+DISABLE_UPDATE_PROMPT=true
 
-# Go
-export PATH="$PATH:$HOME/go/bin"
+_zpcompinit_custom() {
+  setopt extendedglob local_options
+  autoload -Uz compinit
+  local zcd=${ZDOTDIR:-$HOME}/.zcompdump
+  local zcdc="$zcd.zwc"
+  # Compile the completion dump to increase startup speed, if dump is newer or doesn't exist,
+  # in the background as this is doesn't affect the current session
+  if [[ -f "$zcd"(#qN.m+1) ]]; then
+        compinit -i -d "$zcd"
+        { rm -f "$zcdc" && zcompile "$zcd" } &!
+  else
+        compinit -C -d "$zcd"
+        { [[ ! -f "$zcdc" || "$zcd" -nt "$zcdc" ]] && rm -f "$zcdc" && zcompile "$zcd" } &!
+  fi
+}
 
-# Rbenv
-# export PATH="$HOME/.rbenv/bin:$PATH"
-
-eval "$(rbenv init -)"
+eval "$(rbenv init - --no-rehash)"
