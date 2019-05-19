@@ -1,0 +1,7 @@
+mafredri/zsh-async
+zsh-users/zsh-completions
+zsh-users/zsh-autosuggestions branch:develop
+geometry-zsh/geometry
+zsh-users/zsh-history-substring-search
+zsh-users/zsh-syntax-highlighting
+lukechilds/zsh-nvm

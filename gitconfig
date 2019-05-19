@@ -1,14 +1,10 @@
 [user]
-    name = MY_NAME
-		email = MY_EMAIL_ADDRESS
+	name = Ponomarev Vladislav
+	email = vladislav.ponomarev@s-telematics.ru
 [alias]
-	up = !git pull --rebase --prune $@ && git submodule update --init --recursive
-	dev = !git checkout dev && git pull origin dev
-	staging = !git checkout staging && git pull origin staging
-	master = !git checkout master && git pull origin
+	co = checkout
 	st = status
-	remove-tags = "!f() { git tag -l ${1} | xargs -I % echo \"git tag -d % && git push --delete origin %\" | sh; }; f"
-
+	prg = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -D
 [core]
 	autocrlf = input
 	editor = nano
@@ -16,3 +12,5 @@
 	helper = cache --timeout=3600
 [color]
 	ui = auto
+[commit]
+	gpgSign = false

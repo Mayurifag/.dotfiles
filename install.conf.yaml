@@ -1,0 +1,16 @@
+# Settings
+- defaults:
+    link:
+      relink: true
+
+# TODO: ?
+- clean: ["~", "~/.config"]
+
+- link:
+    ~/zsh/plugins.txt: zsh/plugins.txt
+    ~/.gitconfig: gitconfig
+    ~/.conkyrc: conkyrc
+    ~/.zprofile: zprofile
+    ~/.zshrc: zshrc
+    ~/.Xresources: Xresources
+    ~/.xinitrc: xinitrc
