@@ -1,10 +1,11 @@
 [user]
-	name = Ponomarev Vladislav
-	email = vladislav.ponomarev@s-telematics.ru
+	name = Vladislav Ponomarev
+	email = vponomarev@stdev.ru
+[github]
+	user = Mayurifag
 [alias]
 	co = checkout
 	st = status
-	prg = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs -r git branch -D
 [core]
 	autocrlf = input
 	editor = nano

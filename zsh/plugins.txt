@@ -3,5 +3,9 @@ zsh-users/zsh-completions
 zsh-users/zsh-autosuggestions branch:develop
 geometry-zsh/geometry
 zsh-users/zsh-history-substring-search
-zsh-users/zsh-syntax-highlighting
-lukechilds/zsh-nvm
+MichaelAquilina/zsh-you-should-use
+hlissner/zsh-autopair
+mroth/evalcache
+zdharma/fast-syntax-highlighting
+kiurchv/asdf.plugin.zsh
+
