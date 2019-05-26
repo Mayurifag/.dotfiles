@@ -3,3 +3,4 @@ rubocop
 pry
 brakeman
 reek
+ruby-debug-ide
