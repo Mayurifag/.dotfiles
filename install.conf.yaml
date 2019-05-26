@@ -2,15 +2,20 @@
 - defaults:
     link:
       relink: true
-
-# TODO: ?
-- clean: ["~", "~/.config"]
+      force: true
 
 - link:
-    ~/zsh/plugins.txt: zsh/plugins.txt
+    ~/.default-gems: default-gems
     ~/.gitconfig: gitconfig
     ~/.conkyrc: conkyrc
-    ~/.zprofile: zprofile
     ~/.zshrc: zshrc
-    ~/.Xresources: Xresources
-    ~/.xinitrc: xinitrc
+    ~/.asdfrc: asdfrc
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
+
+- asdf:
+  - plugin: nodejs
+    url: https://github.com/asdf-vm/asdf-nodejs.git
+  - plugin: ruby
+    url: https://github.com/asdf-vm/asdf-ruby.git
