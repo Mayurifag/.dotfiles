@@ -112,6 +112,7 @@ alias dbeaver='GTK_THEME=adwaita dbeaver'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
 
+# TODO: посмотреть
 prg() {
   git pull -a > /dev/null
 
