@@ -115,6 +115,7 @@ alias sort_gemfile='ordinare'
 
 alias a='cd $HOME/arm/'
 alias d='cd $HOME/.dotfiles/'
+alias mpp='cd $HOME/arm/ ; make pull prepare'
 
 prg() {
   git pull -a > /dev/null
