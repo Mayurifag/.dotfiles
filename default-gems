@@ -1,6 +1,8 @@
-solargraph
 rubocop
 pry
 brakeman
 reek
 ruby-debug-ide
+ordinare
+shutup
+

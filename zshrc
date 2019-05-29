@@ -111,16 +111,19 @@ alias config='code ~/.zshrc'
 alias dbeaver='GTK_THEME=adwaita dbeaver'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
+alias sort_gemfile='ordinare'
 
-# TODO: посмотреть
+alias a='cd $HOME/arm/'
+alias d='cd $HOME/.dotfiles/'
+
 prg() {
   git pull -a > /dev/null
 
-  local branches=$(git branch --merged | grep -v 'develop' | grep -v 'master' | grep -v 'qa' | sed 's/^\s*//')
+  local branches=$(git branch --merged | grep -v 'develop' | grep -v 'master' | grep -v 'qa'| grep -v "\*" | sed 's/^\s*//')
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
-    echo 'No branches to delete...'
+    echo 'No branches to delete.'
     return;
   fi
 
