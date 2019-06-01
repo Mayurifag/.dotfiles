@@ -5,4 +5,5 @@ reek
 ruby-debug-ide
 ordinare
 shutup
-
+bundler
+rake
