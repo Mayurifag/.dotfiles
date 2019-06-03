@@ -113,6 +113,9 @@ alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
 alias sort_gemfile='ordinare'
 
+# reset_file app/views/.../asd.slim
+alias reset_file'git checkout origin/master'
+
 alias a='cd $HOME/arm/'
 alias d='cd $HOME/.dotfiles/'
 alias mpp='cd $HOME/arm/ ; make pull prepare'
