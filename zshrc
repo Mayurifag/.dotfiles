@@ -95,6 +95,7 @@ alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # chec
 alias hs='history | grep'
 alias myip="curl http://ipecho.net/plain; echo"
 alias u="asdf update ; yay -Syu"
+alias i="yay -S"
 alias dcp='docker-compose'
 alias grom='git rebase -i origin/master'
 alias bi='bundle install'
