@@ -113,8 +113,8 @@ alias dbeaver='GTK_THEME=adwaita dbeaver'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
 alias sort_gemfile='ordinare'
-alias fuck_wg='sudo wg-quick down view-portion'
-alias start_wg='sudo wg-quick up view-portion'
+alias fuck_wg='sudo wg-quick down border-obey'
+alias start_wg='sudo wg-quick up border-obey'
 
 # reset_file app/views/.../asd.slim
 alias reset_file'git checkout origin/master'
