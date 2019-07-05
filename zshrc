@@ -91,9 +91,9 @@ alias rc='bundle exec rails console'
 alias dbc='bundle exec rails dbconsole'
 alias reboot='sudo reboot'
 alias ll='ls -alh'
-alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection
+alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias hs='history | grep'
-alias myip="curl http://ipecho.net/plain; echo"
+alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias u="asdf update ; yay -Syu"
 alias i="yay -S"
 alias dcp='docker-compose'
