@@ -89,6 +89,7 @@ alias se='sudo nano'
 alias rs='bundle exec rails server'
 alias rc='bundle exec rails console'
 alias dbc='bundle exec rails dbconsole'
+alias rspec='bundle exec rspec'
 alias reboot='sudo reboot'
 alias ll='ls -alh'
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
@@ -115,16 +116,16 @@ alias ttl='tail -f ./log/test.log'
 alias sort_gemfile='ordinare'
 
 # reset_file app/views/.../asd.slim
-alias reset_file'git checkout origin/master'
+alias reset_file='git checkout origin/master'
 
 alias a='cd $HOME/arm/'
 alias d='cd $HOME/.dotfiles/'
-alias mpp='cd $HOME/arm/ ; make pull prepare'
+alias mpp='make pull prepare'
 
 prg() {
   git pull -a > /dev/null
 
-  local branches=$(git branch --merged | grep -v 'develop' | grep -v 'master' | grep -v 'qa'| grep -v "\*" | sed 's/^\s*//')
+  local branches=$(git branch --merged | grep -v 'release' | grep -v 'develop' | grep -v 'master' | grep -v 'qa'| grep -v "\*" | sed 's/^\s*//')
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
