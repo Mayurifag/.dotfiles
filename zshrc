@@ -101,6 +101,7 @@ alias dcp='docker-compose'
 alias grom='git rebase -i origin/master'
 alias bi='bundle install'
 alias bu='bundle update'
+# TODO: make comment if copied and if no command found make warning
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 
 # https://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
