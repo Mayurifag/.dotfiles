@@ -8,4 +8,4 @@ hlissner/zsh-autopair
 mroth/evalcache
 zdharma/fast-syntax-highlighting
 kiurchv/asdf.plugin.zsh
-
+soimort/translate-shell
