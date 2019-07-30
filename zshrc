@@ -124,6 +124,11 @@ alias a='cd $HOME/arm/'
 alias d='cd $HOME/.dotfiles/'
 alias mpp='make pull prepare'
 
+# https://github.com/soimort/translate-shell
+# need to install first
+alias tru='trans :ru'
+alias ten='trans :en'
+
 prg() {
   git pull -a > /dev/null
 
