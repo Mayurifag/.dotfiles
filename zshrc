@@ -8,12 +8,29 @@
 # - 'N' makes the glob pattern evaluate to nothing when it doesn't match (rather than throw a globbing error)
 # - '.' matches "regular files"
 # - 'mh+24' matches files (or directories or whatever) that are older than 24 hours.
+# autoload -Uz compinit
+# if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+# 	compinit;
+# else
+# 	compinit -C;
+# fi;
+
+# This is faster than `autoload -U compinit && compinit`
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-	compinit;
+
+zcompdump_current() {
+  if [[ $(uname -s) == 'Darwin' ]]; then
+    [ "$(date +'%s')" != "$(stat -f '%Y' -t '%j' $HOME/.zcompdump)" ];
+  else
+    [ "$(date +'%s')" != "$(stat -c '%Y' $HOME/.zcompdump)" ];
+  fi
+}
+
+if zcompdump_current; then
+  compinit
 else
-	compinit -C;
-fi;
+  compinit -C
+fi
 
 # You may need to manually set your language environment
 export LC_ALL=en_US.UTF-8
@@ -103,6 +120,7 @@ alias bi='bundle install'
 alias bu='bundle update'
 # TODO: make comment if copied and if no command found make warning
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
+alias fuck_skype='flatpak run com.skype.Client'
 
 ## Copy file content
 alias cpf='xclip -sel c <'
