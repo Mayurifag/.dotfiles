@@ -113,7 +113,9 @@ alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # chec
 alias hs='history | grep'
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias u="asdf update ; yay -Syu"
+alias y="yay"
 alias i="yay -S"
+alias yt="youtube-dl"
 alias dcp='docker-compose'
 alias grom='git rebase -i origin/master'
 alias bi='bundle install'
