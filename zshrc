@@ -116,6 +116,7 @@ alias u="asdf update ; yay -Syu"
 alias y="yay"
 alias i="yay -S"
 alias yt="youtube-dl"
+alias yta="youtube-dl --extract-audio --audio-format 'mp3'"
 alias dcp='docker-compose'
 alias grom='git rebase -i origin/master'
 alias bi='bundle install'
