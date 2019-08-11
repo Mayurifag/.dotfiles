@@ -9,6 +9,8 @@ Symlinks done with https://github.com/anishathalye/dotbot
 ## Install asdf and antibody
 - git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.3
 - asdf update
+- //todo: global .tool_versions // install/update ruby nodejs go
+- //yarn?
 
 - sudo chmod 777 /usr/local/bin/
 - sudo install antibody
