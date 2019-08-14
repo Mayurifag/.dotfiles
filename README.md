@@ -11,7 +11,8 @@ Symlinks done with https://github.com/anishathalye/dotbot
 - asdf update
 - //todo: global .tool_versions // install/update ruby nodejs go
 - //yarn?
-
+bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
+npm install -g yarn
 - sudo chmod 777 /usr/local/bin/
 - sudo install antibody
 - uz
