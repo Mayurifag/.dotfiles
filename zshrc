@@ -109,6 +109,7 @@ alias dbc='bundle exec rails dbconsole'
 alias rspec='bundle exec rspec'
 alias reboot='sudo reboot'
 alias ll='ls -alh'
+alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.dotfiles/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias hs='history | grep'
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
