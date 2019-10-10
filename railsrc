@@ -1,0 +1,7 @@
+--database=postgresql
+--skip-action-cable
+--skip-action-mailer
+--skip-javascript
+--skip-keeps
+--skip-spring
+--skip-test

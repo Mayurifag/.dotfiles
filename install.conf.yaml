@@ -12,6 +12,7 @@
     ~/.conkyrc: conkyrc
     ~/.zshrc: zshrc
     ~/.asdfrc: asdfrc
+    ~/.railsrc: railsrc
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
