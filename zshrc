@@ -148,6 +148,7 @@ alias reset_file='git checkout origin/master'
 alias a='cd $HOME/arm/'
 alias d='cd $HOME/.dotfiles/'
 alias mpp='make pull prepare'
+alias dp='dip provision'
 
 # https://github.com/soimort/translate-shell
 # need to install first
