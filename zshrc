@@ -158,7 +158,7 @@ alias ten='trans :en'
 prg() {
   git pull -a > /dev/null
 
-  local branches=$(git branch --merged | grep -v 'release' | grep -v 'develop' | grep -v 'master' | grep -v 'qa'| grep -v "\*" | sed 's/^\s*//')
+  local branches=$(git branch | grep -v 'test_deploy' | grep -v 'development' | grep -v 'release' | grep -v 'develop' | grep -v 'master' | grep -v 'qa' | grep -v "\*" )
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
@@ -175,7 +175,7 @@ prg() {
   esac
 
   git remote prune origin
-  echo $branches | xargs git branch -d
+  echo $branches | xargs git branch -D
 }
 
 start() {
