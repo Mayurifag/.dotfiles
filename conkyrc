@@ -33,7 +33,6 @@ gap_x 0
 
 # Alignment
 alignment top_right
-# alignment botton_left
 
 # Interval
 update_interval 2
@@ -51,18 +50,20 @@ use_xft yes
 xftfont PF Tempesta Seven:pixelsize=8
 
 # Text alpha when using Xft
-xftalpha 0.10
+# xftalpha 0.10
 
 # to prevent window from moving
 # use_spacer none
 # minimum_size 1920 0
 
+# TODO: if up ... else no network
 TEXT
 ${color5}Date: ${color3}${time %A, %d.%m.%Y} ${color2}| \
-${color5}Weather: ${color3}${execpi 3600 ~/scripts/weather.lua} ${color2}| \
-${color5}CPU: ${color3}${cpu cpu1}% ${color3}${cpu cpu2}% ${color3}${cpu cpu3}% ${color3}${cpu cpu4}% ${color2}| \
+${color5}Weather: ${color3}${execpi 7200 curl --compressed -s "wttr.in/SVO?format=%t"} ${color2}| \
+${color5}CPU: ${color3}${cpu cpu}% ${color2}| \
 ${color5}Ram: ${color3}${mem} ${color2}| \
-${color5}Root: ${color3}${fs_free /root} free ${color2}| \
-${color5}Net: ${color4}down ${color3}${downspeed wlp3s0} ${color4}up ${color3}${upspeed wlp3s0} ${color2}| \
+${color5}Root: ${color3}${fs_free /} free ${color2}| \
+${color5}IP: ${color3}${if_up wlp2s0}${execpi 7200 curl -s "ipecho.net/plain"}${else}No network${endif}${color2} | \
+${color5}Net: ${color4}down ${color3}${downspeed wlp2s0} ${color4}up ${color3}${upspeed wlp2s0} ${color2}| \
 ${color5}Uptime: ${color3}${uptime}${color2} | \
 ${color5}Top: ${color3} ${top name 1} cpu: ${top cpu 1}
