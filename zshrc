@@ -125,6 +125,7 @@ alias bu='bundle update'
 # TODO: make comment if copied and if no command found make warning
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 alias fuck_skype='flatpak run com.skype.Client'
+alias weather='curl wttr.in/SVO'
 
 ## Copy file content
 alias cpf='xclip -sel c <'
