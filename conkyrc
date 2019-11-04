@@ -9,6 +9,7 @@ conky.config = {
 -----------------------------------------------------------------------#
 --avoid flicker
 double_buffer = true,
+-- no_buffers = true,
 
 --own window to run simultanious 2 or more conkys
 own_window = true,
@@ -17,16 +18,16 @@ own_window_type = 'desktop',
 own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 
 -- Borders
-draw_borders = false,
-border_inner_margin = 5,
-border_outer_margin = 5,
+-- draw_borders = false,
+-- border_inner_margin = 5,
+-- border_outer_margin = 5,
 
 -- Contour
-draw_outline = false,
+-- draw_outline = false,
 
 -- Shades
 draw_shades = false,
-default_shade_color = '#000000',
+-- default_shade_color = '000000',
 
 -- Position
 gap_y = 0,
@@ -39,22 +40,22 @@ alignment = 'top_right',
 update_interval = 1,
 
 -- Colors
-default_color = '#FFFFFF',
-color1 = '#1793D1',
-color2 = '#414A59',
-color3 = '#FFFFFF',
-color4 = '#D9D9D9',
-color5 = '#5294E2',
+default_color = 'ffffff',
+color1 = '1793d1',
+color2 = '414a59',
+color3 = 'ffffff',
+color4 = 'd9d9d9',
+color5 = '5294e2',
 
 -- Font
 use_xft = true,
 font = 'PF Tempesta Seven:pixelsize=8',
 
 -- Text alpha when using Xft
-xftalpha = 0.10,
+-- xftalpha = 0.10,
 
 -- to prevent window from moving
-use_spacer = none,
+-- use_spacer = none,
 -- minimum_size 1920 0
 
 -- TODO: if up ... else no network
@@ -62,12 +63,12 @@ use_spacer = none,
 
 conky.text = [[
 ${color5}Date: ${color3}${time %A, %d.%m.%Y} ${color2}| \
+${color5}Uptime: ${color3}${uptime}${color2} | \
 ${color5}Weather: ${color3}${execpi 7200 curl --compressed -s "wttr.in/SVO?format=%t"} ${color2}| \
 ${color5}CPU: ${color3}${cpu cpu}% ${color2}| \
-${color5}Ram: ${color3}${mem} ${color2}| \
+${color5}Ram: ${color3}${mem} / ${memmax} ${color2}| \
 ${color5}Root: ${color3}${fs_free /} free ${color2}| \
-${color5}IP: ${color3}${if_up wlp2s0}${execpi 7200 curl -s "ipecho.net/plain"}${else}No network${endif}${color2} | \
-${color5}Net: ${color4}down ${color3}${downspeed wlp2s0} ${color4}up ${color3}${upspeed wlp2s0} ${color2}| \
-${color5}Uptime: ${color3}${uptime}${color2} | \
+${color5}Media: ${color3}${fs_free /mnt/media} free ${color2}| \
+${color5}IP: ${color3}${if_up wlp2s0}${execpi 7200 curl -s "ipecho.net/plain"}${else}No wifi network${endif}${color2} | \
 ${color5}Top: ${color3} ${top name 1} cpu: ${top cpu 1}
 ]];
