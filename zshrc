@@ -199,7 +199,7 @@ disable() {
 }
 
 # Create a new directory and enter it
-function mkcd() {
+mkcd() {
   mkdir -p "$@" && cd "$@"
 }
 
@@ -207,3 +207,5 @@ function mkcd() {
 # _evalcache rbenv init - --no-rehash zsh
 
 bindkey "^[[3~" delete-char
+
+eval "$(dip console)"
