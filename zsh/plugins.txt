@@ -9,3 +9,4 @@ mroth/evalcache
 zdharma/fast-syntax-highlighting
 kiurchv/asdf.plugin.zsh
 soimort/translate-shell
+MichaelAquilina/zsh-auto-notify
