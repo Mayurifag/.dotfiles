@@ -16,6 +16,7 @@
 # fi;
 
 # This is faster than `autoload -U compinit && compinit`
+autoload -U +X bashcompinit && bashcompinit
 autoload -Uz compinit
 
 zcompdump_current() {
@@ -37,6 +38,7 @@ export LC_ALL=en_US.UTF-8
 export LANG=ru_RU.UTF8
 
 export VISUAL=code
+# idk maybe should try vi
 export EDITOR=nano
 export SUDO_EDITOR=nano
 export QT_QPA_PLATFORMTHEME=qt5ct
@@ -90,7 +92,6 @@ alias vdir='vdir --color=auto'
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
-alias ..='cd ..'
 alias df='df -h'
 alias diff='colordiff'              # requires colordiff package
 alias du='du -c -h'
@@ -113,19 +114,18 @@ alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.d
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias hs='history | grep'
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
-alias u="asdf update ; yay -Syu"
-alias y="yay"
-alias i="yay -S"
+alias u="yay -Syu"
 alias yt="youtube-dl -o '%(title)s.%(ext)s'"
 alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
 alias dcp='docker-compose'
 alias grom='git rebase -i origin/master'
 alias bi='bundle install'
 alias bu='bundle update'
-# TODO: make comment if copied and if no command found make warning
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 alias fuck_skype='flatpak run com.skype.Client'
 alias weather='curl wttr.in/SVO'
+alias b="bundle exec"
+alias yolo='LEFTHOOK=0 git push --force'
 
 ## Copy file content
 alias cpf='xclip -sel c <'
@@ -136,9 +136,7 @@ alias gpf='git push --force'
 alias q='git add . && git commit -m "WIP: $(curl -s https://whatthecommit.com/index.txt)" && git push origin HEAD'
 alias vboost='pamixer --allow-boost --set-volume 150'
 alias f='code .'
-alias v='code'
 alias config='code ~/.zshrc'
-alias dbeaver='GTK_THEME=adwaita dbeaver & disown'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
 alias sort_gemfile='ordinare'
@@ -146,10 +144,13 @@ alias sort_gemfile='ordinare'
 # reset_file app/views/.../asd.slim
 alias reset_file='git checkout origin/master'
 
-alias a='cd $HOME/arm/'
 alias d='cd $HOME/.dotfiles/'
 alias mpp='make pull prepare'
 alias dp='dip provision'
+
+alias vs="vagrant ssh"
+alias vp="vagrant provision"
+alias vz="vagrant destroy -f; vagrant up"
 
 # https://github.com/soimort/translate-shell
 # need to install first
@@ -159,7 +160,7 @@ alias ten='trans :en'
 prg() {
   git pull -a > /dev/null
 
-  local branches=$(git branch | grep -v 'test_deploy' | grep -v 'development' | grep -v 'release' | grep -v 'develop' | grep -v 'master' | grep -v 'qa' | grep -v "\*" )
+  local branches=$(git branch | grep -v 'development' | grep -v 'release' | grep -v 'develop' | grep -v 'master' | grep -v 'qa' | grep -v "\*" )
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
@@ -203,9 +204,8 @@ mkcd() {
   mkdir -p "$@" && cd "$@"
 }
 
-# export PATH="$HOME/.rbenv/bin:$PATH"
-# _evalcache rbenv init - --no-rehash zsh
+export PATH="$HOME/.local/bin:$PATH"
 
 bindkey "^[[3~" delete-char
 
-eval "$(dip console)"
+_evalcache dip console
