@@ -133,7 +133,7 @@ alias cpf='xclip -sel c <'
 # https://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 alias gpf='git push --force'
-alias q='git add . && git commit -m "WIP: $(curl -s https://whatthecommit.com/index.txt)" && git push origin HEAD'
+# alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
 alias vboost='pamixer --allow-boost --set-volume 150'
 alias f='code .'
 alias config='code ~/.zshrc'
