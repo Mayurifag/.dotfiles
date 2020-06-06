@@ -122,18 +122,17 @@ alias grom='git rebase -i origin/master'
 alias bi='bundle install'
 alias bu='bundle update'
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
-alias fuck_skype='flatpak run com.skype.Client'
 alias weather='curl wttr.in/SVO'
 alias b="bundle exec"
 alias yolo='LEFTHOOK=0 git push --force'
-
+alias g='git'
 ## Copy file content
 alias cpf='xclip -sel c <'
 
 # https://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 alias gpf='git push --force'
-# alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
+alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
 alias vboost='pamixer --allow-boost --set-volume 150'
 alias f='code .'
 alias config='code ~/.zshrc'
@@ -156,6 +155,13 @@ alias vz="vagrant destroy -f; vagrant up"
 # need to install first
 alias tru='trans :ru'
 alias ten='trans :en'
+# for those who struggle spelling! This will take your best guess and give you a list of what you probably meant.
+#usage: spl paranoya
+# & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
+spl () {
+    aspell -a <<< "$1"
+}
+
 
 prg() {
   git pull -a > /dev/null
