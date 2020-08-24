@@ -33,6 +33,9 @@ else
   compinit -C
 fi
 
+export GOPATH=$HOME/go
+export PATH="$PATH:$HOME/go/bin"
+
 # You may need to manually set your language environment
 export LC_ALL=en_US.UTF-8
 export LANG=ru_RU.UTF8
@@ -61,6 +64,8 @@ HISTFILE=~/.zsh_history # Where to save history to disk
 HISTDUP=erase # Erase duplicates in the history file
 setopt hist_ignore_dups # Ignore duplicates
 
+setopt NO_NOMATCH
+
 # Options - `man zshoptions`
 setopt append_history # Append history to the history file (no overwriting)
 setopt share_history # Share history across terminals
@@ -86,69 +91,61 @@ uz(){
 
 source ~/.zsh_plugins.sh # Load zsh plugins
 
-alias ls='ls --color=auto'
-alias dir='dir --color=auto'
-alias vdir='vdir --color=auto'
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-alias df='df -h'
-alias diff='colordiff'              # requires colordiff package
-alias du='du -c -h'
-alias free='free -m'                # show sizes in MB
-alias grep='grep --color=auto'
-alias mkdir='mkdir -p -v'
-alias more='less'
-alias nano='nano -w'
-alias scat='sudo cat'
-alias root='sudo su'
-alias e='nano'
-alias se='sudo nano'
-alias rs='bundle exec rails server'
-alias rc='bundle exec rails console'
-alias dbc='bundle exec rails dbconsole'
-alias rspec='bundle exec rspec'
-alias reboot='sudo reboot'
-alias ll='ls -alh'
-alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.dotfiles/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
-alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
-alias hs='history | grep'
-alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
-alias u="yay -Syu"
-alias yt="youtube-dl -o '%(title)s.%(ext)s'"
-alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
-alias dcp='docker-compose'
-alias grom='git rebase -i origin/master'
+alias b="bundle exec"
 alias bi='bundle install'
 alias bu='bundle update'
-alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
-alias weather='curl wttr.in/SVO'
-alias b="bundle exec"
-alias yolo='LEFTHOOK=0 git push --force'
-alias g='git'
-## Copy file content
+alias config='code ~/.zshrc'
 alias cpf='xclip -sel c <'
-
-# https://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
+alias d='cd $HOME/.dotfiles/'
+alias dbc='bundle exec rails dbconsole'
+alias dcp='docker-compose'
+alias df='df -h'
+alias diff='colordiff'              # requires colordiff package
+alias dir='dir --color=auto'
+alias dp='dip provision'
+alias du='du -c -h'
+alias egrep='egrep --color=auto'
+alias f='code .'
+alias fgrep='fgrep --color=auto'
+alias free='free -m'                # show sizes in MB
+alias g='git'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 alias gpf='git push --force'
+alias grep='grep --color=auto'
+alias grep='grep --color=auto'
+alias grom='LEFTHOOK=0 git rebase -i origin/master'
+alias hs='history | grep'
+alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.dotfiles/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
+alias ll='ls -alh'
+alias ls='ls --color=auto'
+alias lzg="lazygit"
+alias mkdir='mkdir -p -v'
+alias more='less'
+alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
+alias nano='nano -w'
+alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
-alias vboost='pamixer --allow-boost --set-volume 150'
-alias f='code .'
-alias config='code ~/.zshrc'
+alias rc='bundle exec rails console'
+alias reboot='sudo reboot'
+alias reset_file='git checkout origin/master'
+alias root='sudo su'
+alias rs='bundle exec rails server'
+alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
+alias rspec='bundle exec rspec'
+alias scat='sudo cat'
+alias sort_gemfile='ordinare'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
-alias sort_gemfile='ordinare'
+alias u="yay -Syu"
+alias vboost='pamixer --allow-boost --set-volume 150'
+alias vdir='vdir --color=auto'
+alias weather='curl wttr.in/SVO'
+alias yolo='LEFTHOOK=0 git push --force'
+alias yt="youtube-dl -o '%(title)s.%(ext)s'"
+alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
 
-# reset_file app/views/.../asd.slim
-alias reset_file='git checkout origin/master'
-
-alias d='cd $HOME/.dotfiles/'
-alias mpp='make pull prepare'
-alias dp='dip provision'
-
-alias vs="vagrant ssh"
 alias vp="vagrant provision"
+alias vs="vagrant ssh"
 alias vz="vagrant destroy -f; vagrant up"
 
 # https://github.com/soimort/translate-shell
@@ -162,6 +159,8 @@ spl () {
     aspell -a <<< "$1"
 }
 
+alias auto_fan="sudo echo level auto > /proc/acpi/ibm/fan"
+alias fast_fan="sudo echo level 7 > /proc/acpi/ibm/fan"
 
 prg() {
   git pull -a > /dev/null
@@ -206,8 +205,33 @@ disable() {
 }
 
 # Create a new directory and enter it
-mkcd() {
-  mkdir -p "$@" && cd "$@"
+mkcd() {   [ -n "$1" ] && mkdir -p "$@" && cd "$1";   }
+
+pskill(){
+    ps aux | grep "$1" | grep -v grep | awk '{print $2;}' | while read p; do kill -9 $p; done
+}
+
+backup() { cp "$1"{,.bak};}
+
+extract() {
+    if [ -f $1 ] ; then
+      case $1 in
+        *.tar.bz2)   tar xjf $1     ;;
+        *.tar.gz)    tar xzf $1     ;;
+        *.bz2)       bunzip2 $1     ;;
+        *.rar)       unrar e $1     ;;
+        *.gz)        gunzip $1      ;;
+        *.tar)       tar xf $1      ;;
+        *.tbz2)      tar xjf $1     ;;
+        *.tgz)       tar xzf $1     ;;
+        *.zip)       unzip $1       ;;
+        *.Z)         uncompress $1  ;;
+        *.7z)        7z x $1        ;;
+        *)     echo "'$1' cannot be extracted via extract()" ;;
+         esac
+     else
+         echo "'$1' is not a valid file"
+     fi
 }
 
 export PATH="$HOME/.local/bin:$PATH"
@@ -215,3 +239,10 @@ export PATH="$HOME/.local/bin:$PATH"
 bindkey "^[[3~" delete-char
 
 _evalcache dip console
+
+pollCommand() {
+    while true; do clear; $@; sleep 1; done
+}
+
+export LC_COLLATE=ru_RU.UTF-8
+export LC_CTYPE=ru_RU.UTF-8

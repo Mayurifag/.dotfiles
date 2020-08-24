@@ -1,6 +1,7 @@
 [user]
 	name = Vladislav Ponomarev
 	email = farazeus@gmail.com
+	signingKey = E8E136A2C8865C488DB0B5CBBCE113E227780CF7
 [github]
 	user = Mayurifag
 [alias]
@@ -16,4 +17,8 @@
 [color]
 	ui = auto
 [commit]
-	gpgSign = false
+	gpgSign = true
+[merge]
+	tool = meld
+[tag]
+	forceSignAnnotated = true
