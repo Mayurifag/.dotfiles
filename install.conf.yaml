@@ -13,6 +13,8 @@
     ~/.zshrc: zshrc
     ~/.asdfrc: asdfrc
     ~/.railsrc: railsrc
+    ~/.vuerc: vuerc
+    ~/.redshiftgrc: redshiftgrc
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]

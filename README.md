@@ -1,12 +1,16 @@
 # Yet another dotfiles repository
+
 Symlinks done with https://github.com/anishathalye/dotbot
 
-# TODO: sudo ./install_script.sh
+## TODO: sudo ./install_script.sh
 
-* Install zsh
+* Install zsh dip redshiftgrc
 * git clone git@github.com:Mayurifag/.dotfiles.git
+* cp gitconfig.example gitconfig
+* create zsh/private_aliases.zsh
 
 ## Install asdf and antibody
+
 - git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.3
 - asdf update
 - //todo: global .tool_versions // install/update ruby nodejs go
@@ -19,5 +23,6 @@ npm install -g yarn
 
 * ./install
 
-## uz
+### uz
+
 Update and initialize cached
