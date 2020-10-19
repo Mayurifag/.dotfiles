@@ -50,6 +50,7 @@ alias dbc='bundle exec rails dbconsole'
 alias rake="noglob rake" # necessary to make rake work inside of zsh (but im not sure)
 alias rc='bundle exec rails console'
 alias rs='bundle exec rails server'
+alias mig='bin/rails db:migrate:with_data RAILS_ENV=development'
 alias rspec='bundle exec rspec'
 alias sort_gemfile='ordinare'
 alias tdl='tail -f ./log/development.log'
