@@ -7,14 +7,15 @@
 - clean: ['~']
 
 - link:
+    ~/.asdfrc: asdfrc
+    ~/.conkyrc: conkyrc
     ~/.default-gems: default-gems
     ~/.gitconfig: gitconfig
-    ~/.conkyrc: conkyrc
-    ~/.zshrc: zshrc
-    ~/.asdfrc: asdfrc
     ~/.railsrc: railsrc
-    ~/.vuerc: vuerc
     ~/.redshiftgrc: redshiftgrc
+    ~/.vuerc: vuerc
+    ~/.zlogin: zlogin
+    ~/.zshrc: zshrc
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
@@ -26,3 +27,5 @@
     url: https://github.com/asdf-vm/asdf-ruby.git
   - plugin: golang
     url: https://github.com/kennyp/asdf-golang.git
+  - plugin: yarn
+    url: https://github.com/twuni/asdf-yarn.git

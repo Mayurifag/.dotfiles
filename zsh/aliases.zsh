@@ -1,19 +1,25 @@
 # Everyday Linux
-## This ZSH config
+## This ZSH config. You may do d-enter-f-enter to get this repo opened fast in vscode
 alias d='cd $HOME/.dotfiles/'
 
 ## Folders and files
 alias df='df -h'
-alias dir='dir --color=auto'
 alias du='du -c -h'
 alias ll='ls -alh'
-alias ls='ls --color=auto'
-alias diff='colordiff'              # requires colordiff package
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
+alias diff='colordiff' # requires colordiff package
 alias mkdir='mkdir -p -v'
 alias more='less'
 alias nano='nano -w'
+alias perms="stat -c '%A %a %n'" # octal+text permissions for files
+
+if command -V dircolors >/dev/null 2>&1; then 	# Only alias ls colors if dircolors is installed
+	# eval "$(dircolors -b)"
+	alias dir="dir --color=auto"
+	alias ls="ls -F --color=auto"
+	alias vdir="vdir --color=auto"
+  alias egrep='egrep --color=auto'
+  alias fgrep='fgrep --color=auto'
+fi
 
 ## Root
 alias reboot='sudo reboot'
@@ -41,6 +47,7 @@ alias b="bundle exec"
 alias bi='bundle install'
 alias bu='bundle update'
 alias dbc='bundle exec rails dbconsole'
+alias rake="noglob rake" # necessary to make rake work inside of zsh (but im not sure)
 alias rc='bundle exec rails console'
 alias rs='bundle exec rails server'
 alias rspec='bundle exec rspec'
