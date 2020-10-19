@@ -3,6 +3,7 @@
 alias d='cd $HOME/.dotfiles/'
 
 ## Folders and files
+alias cat='bat'
 alias df='df -h'
 alias du='du -c -h'
 alias ll='ls -alh'
@@ -24,7 +25,6 @@ fi
 ## Root
 alias reboot='sudo reboot'
 alias root='sudo su'
-alias scat='sudo cat'
 
 ## Other
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
