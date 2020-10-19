@@ -9,3 +9,5 @@ export PATH="$PATH:$GOPATH/bin"
 
 # Zsh
 export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
+
+export BAT_PAGER="less -RF"
