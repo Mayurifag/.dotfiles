@@ -4,7 +4,7 @@ Symlinks done with https://github.com/anishathalye/dotbot
 
 ## TODO: sudo ./install_script.sh
 
-* Install zsh dip redshiftgrc
+* Install zsh dip redshiftgrc delta colordiff
 * git clone git@github.com:Mayurifag/.dotfiles.git
 * cp gitconfig.example gitconfig
 * create zsh/private_aliases.zsh
