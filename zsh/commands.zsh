@@ -1,3 +1,10 @@
+
+# Update Zsh plugins
+uz(){
+  antibody bundle <~/.dotfiles/zsh/plugins.txt >~/.zsh_plugins.sh
+  antibody update
+}
+
 pollCommand() {
     while true; do clear; $@; sleep 1; done
 }
@@ -53,25 +60,32 @@ pskill(){
 
 backup() { cp "$1"{,.bak};}
 
-extract() {
-    if [ -f $1 ] ; then
-      case $1 in
-        *.tar.bz2)   tar xjf $1     ;;
-        *.tar.gz)    tar xzf $1     ;;
-        *.bz2)       bunzip2 $1     ;;
-        *.rar)       unrar e $1     ;;
-        *.gz)        gunzip $1      ;;
-        *.tar)       tar xf $1      ;;
-        *.tbz2)      tar xjf $1     ;;
-        *.tgz)       tar xzf $1     ;;
-        *.zip)       unzip $1       ;;
-        *.Z)         uncompress $1  ;;
-        *.7z)        7z x $1        ;;
-        *)     echo "'$1' cannot be extracted via extract()" ;;
-         esac
-     else
-         echo "'$1' is not a valid file"
-     fi
+# -------------------------------------------------------------------
+# compressed file expander
+# (from https://github.com/myfreeweb/zshuery/blob/master/zshuery.sh)
+# -------------------------------------------------------------------
+ex() {
+    if [[ -f $1 ]]; then
+        case $1 in
+            *.tar.bz2) tar xvjf $1;;
+            *.tar.gz) tar xvzf $1;;
+            *.tar.xz) tar xvJf $1;;
+            *.tar.lzma) tar --lzma xvf $1;;
+            *.bz2) bunzip $1;;
+            *.rar) unrar $1;;
+            *.gz) gunzip $1;;
+            *.tar) tar xvf $1;;
+            *.tbz2) tar xvjf $1;;
+            *.tgz) tar xvzf $1;;
+            *.zip) unzip $1;;
+            *.Z) uncompress $1;;
+            *.7z) 7z x $1;;
+            *.dmg) hdiutul mount $1;; # mount OS X disk images
+            *) echo "'$1' cannot be extracted via >ex<";;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
 }
 
 # for those who struggle spelling! This will take your best guess and give you a list of what you probably meant.
