@@ -3,7 +3,6 @@
 alias d='cd $HOME/.dotfiles/'
 
 ## Folders and files
-alias cat='bat'
 alias df='df -h'
 alias du='du -c -h'
 alias ll='ls -alh'
