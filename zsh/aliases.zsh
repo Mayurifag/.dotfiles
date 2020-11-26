@@ -39,6 +39,7 @@ alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3
 # need to install first
 alias tru='trans :ru'
 alias ten='trans :en'
+alias fstab='sudo geany /etc/fstab'
 
 # Development
 ## Rails
@@ -68,6 +69,7 @@ alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.d
 alias g='git'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 alias gpf='git push --force'
+alias gpff='git push origin HEAD --force'
 alias grc='git rebase --continue'
 alias grep='grep --color=auto'
 alias grep='grep --color=auto'
