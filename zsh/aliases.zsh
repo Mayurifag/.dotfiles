@@ -63,6 +63,7 @@ alias config='code ~/.zshrc'
 ## Docker
 alias dcp='docker-compose'
 alias dp='dip provision'
+alias k='kubectl'
 alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.dotfiles/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
 
 ## Git
