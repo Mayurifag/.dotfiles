@@ -9,7 +9,6 @@ bundler
 rake
 dip
 lefthook
-spicerack-styleguide
 solargraph
 fasterer
 standard
