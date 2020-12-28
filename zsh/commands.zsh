@@ -1,4 +1,3 @@
-
 # Update Zsh plugins
 uz(){
   antibody bundle <~/.dotfiles/zsh/plugins.txt >~/.zsh_plugins.sh
@@ -12,7 +11,7 @@ pollCommand() {
 prg() {
   git pull -a > /dev/null
 
-  local branches=$(git branch | grep -v 'development' | grep -v 'release' | grep -v 'develop' | grep -v 'master' | grep -v 'qa' | grep -v "\*" )
+  local branches=$(git branch | grep -v 'release' | grep -v 'master' | grep -v "\*" )
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
@@ -59,6 +58,7 @@ pskill(){
 }
 
 backup() { cp "$1"{,.bak};}
+delhost() { sed -i "$1d" ~/.ssh/known_hosts }
 
 # -------------------------------------------------------------------
 # compressed file expander
