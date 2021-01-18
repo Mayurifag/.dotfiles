@@ -88,9 +88,22 @@ ex() {
     fi
 }
 
-# for those who struggle spelling! This will take your best guess and give you a list of what you probably meant.
-#usage: spl paranoya
+# Usage: spl paranoya
 # & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
 spl () {
-    aspell -a <<< "$1"
+  aspell -a <<< "$1"
+}
+
+vk () {
+  fusermount -uz ~/VkMusicFs
+  vk_music_fs ~/VkMusicFs
+  sleep 0.1
+  mkdir ~/VkMusicFs/My\ audios/1-1000
+  sleep 0.5
+  gst123 -Z ~/VkMusicFs/My\ audios
+}
+
+lock () {
+  cd ~/Code/windowed-game-mouse-lock
+  npm start
 }
