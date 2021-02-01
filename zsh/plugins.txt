@@ -7,4 +7,5 @@ hlissner/zsh-autopair
 mroth/evalcache
 zdharma/fast-syntax-highlighting
 soimort/translate-shell
-agkozak/zsh-z
+hcgraf/zsh-sudo
+b4b4r07/enhancd
