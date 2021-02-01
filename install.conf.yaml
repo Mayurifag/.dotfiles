@@ -2,9 +2,12 @@
 - defaults:
     link:
       relink: true
-      force: true
 
 - clean: ['~']
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
+  - [mkdir -p ~/.config/nvim]
 
 - link:
     ~/.asdfrc: asdfrc
@@ -13,12 +16,13 @@
     ~/.gitconfig: gitconfig
     ~/.railsrc: railsrc
     ~/.redshiftgrc: redshiftgrc
+    ~/.config/nvim/:
+      path: nvim/*
+      relink: true
+      glob: true
     ~/.vuerc: vuerc
-    ~/.zlogin: zlogin
+    ~/.zprofile: zprofile
     ~/.zshrc: zshrc
-
-- shell:
-  - [git submodule update --init --recursive, Installing submodules]
 
 - asdf:
   - plugin: nodejs
