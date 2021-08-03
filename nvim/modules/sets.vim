@@ -25,7 +25,7 @@ set scrolloff=3       " Start scrolling when the cursor is 3 lines away from the
 set laststatus=2      " Always display the status line
 set cursorline        " Highlight the current line
 set autoread          " Automatically reload the file when it is changed from an outside program
-" set nohlsearch        " Don't highlight search results
+set nohlsearch        " Don't highlight search results
 set expandtab         " Use spaces instead of tabs
 set termguicolors
 

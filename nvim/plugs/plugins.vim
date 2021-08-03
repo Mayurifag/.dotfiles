@@ -18,5 +18,20 @@ Plug 'scrooloose/nerdtree-project-plugin'
 Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
 Plug 'vim-airline/vim-airline' " bottom line prettified
 Plug 'editorconfig/editorconfig-vim'
+Plug 'thoughtbot/vim-rspec'
+Plug 'dense-analysis/ale'
+Plug 'jiangmiao/auto-pairs'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-bundler'
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+Plug 'cakebaker/scss-syntax.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'MaxMEllon/vim-jsx-pretty'
+Plug 'vim-ruby/vim-ruby'
+Plug 'tpope/vim-rails'
+Plug 'terryma/vim-multiple-cursors'
 call plug#end()
-
