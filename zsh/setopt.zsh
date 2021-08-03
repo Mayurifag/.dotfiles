@@ -42,7 +42,6 @@ setopt transient_rprompt # only show the rprompt on the current prompt
 setopt multios # perform implicit tees or cats when multiple redirections are attempted
 
 
-
 setopt hash_list_all            # hash everything before completion
 setopt completealiases          # complete alisases
 setopt list_ambiguous           # complete as much of a completion until it gets ambiguous.

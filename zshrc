@@ -6,8 +6,8 @@
 [ -f $HOME/.dotfiles/zsh/aliases.zsh ] && source $HOME/.dotfiles/zsh/aliases.zsh
 [ -f $HOME/.dotfiles/zsh/private_aliases.zsh ] && source $HOME/.dotfiles/zsh/private_aliases.zsh
 [ -f $HOME/.dotfiles/zsh/asdf.zsh ] && source $HOME/.dotfiles/zsh/asdf.zsh
+[ -f $HOME/.dotfiles/zsh/exports.zsh ] && source $HOME/.dotfiles/zsh/exports.zsh
 [ -f $HOME/.dotfiles/zsh/bindkeys.zsh ] && source $HOME/.dotfiles/zsh/bindkeys.zsh
 [ -f $HOME/.dotfiles/zsh/history.zsh ] && source $HOME/.dotfiles/zsh/history.zsh
 [ -f /usr/share/doc/pkgfile/command-not-found.zsh ] && source /usr/share/doc/pkgfile/command-not-found.zsh
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
