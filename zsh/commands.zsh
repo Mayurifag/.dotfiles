@@ -95,16 +95,22 @@ spl () {
   aspell -a <<< "$1"
 }
 
-vk () {
-  fusermount -uz ~/VkMusicFs
-  vk_music_fs ~/VkMusicFs
-  sleep 0.1
-  mkdir ~/VkMusicFs/My\ audios/1-1000
-  sleep 0.5
-  gst123 -Z ~/VkMusicFs/My\ audios
-}
-
 lock () {
   cd ~/Code/windowed-game-mouse-lock
   npm start
+}
+
+# Delete a given line number in the known_hosts file.
+# Alternative: ssh-keygen -R 182.123.212.21
+knownrm() {
+ re='^[0-9]+$'
+ if ! [[ $1 =~ $re ]] ; then
+   echo "error: line number missing" >&2;
+ else
+   sed -i '' "$1d" ~/.ssh/known_hosts
+ fi
+}
+
+gcd() {
+  git clone "$1" && cd "$(basename "$1" .git)"
 }
