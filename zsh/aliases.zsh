@@ -40,6 +40,11 @@ alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3
 alias tru='trans :ru'
 alias ten='trans :en'
 alias fstab='sudo geany /etc/fstab'
+alias docker-clean=' \
+  docker container prune -f ; \
+  docker image prune -f ; \
+  docker network prune -f ; \
+  docker volume prune -f '
 
 # Development
 ## Rails
@@ -67,15 +72,16 @@ alias k='kubectl'
 alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.dotfiles/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
 
 ## Git
+alias ci='glab pipeline ci view'
 alias g='git'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
-alias gpf='git push --force'
-alias gpff='git push origin HEAD --force'
-alias grc='git rebase --continue'
-alias grep='grep --color=auto'
+alias gpf='LEFTHOOK=0 git push --force'
+alias gpff='LEFTHOOK=0 git push origin HEAD --force'
+alias grc='LEFTHOOK=0 git rebase --continue'
 alias grep='grep --color=auto'
 alias grom='LEFTHOOK=0 git rebase -i origin/master'
 alias lzg="lazygit"
+alias lg="git log --pretty=format:'%h %an %s'"
 alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
 alias reset_file='git checkout origin/master'
 alias yolo='LEFTHOOK=0 git push --force'
