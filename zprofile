@@ -14,18 +14,3 @@ export BAT_PAGER="less -RF"
 export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
 export DISABLE_AUTO_UPDATE="true"
-
-# Development
-## Local binaries
-export PATH="$HOME/.local/bin:$PATH"
-
-## Golang
-export GOPATH=$HOME/go
-export PATH="$PATH:$GOPATH/bin"
-
-if type rg &> /dev/null; then
-  export FZF_DEFAULT_COMMAND='rg --files --hidden'
-  export FZF_DEFAULT_OPTS='-m --height 50% --border'
-fi
-
-
