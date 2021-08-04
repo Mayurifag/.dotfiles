@@ -13,7 +13,7 @@
     ~/.asdfrc: asdfrc
     ~/.conkyrc: conkyrc
     ~/.default-gems: default-gems
-    ~/.gitconfig: gitconfig
+    ~/.gitconfig: .gitconfig
     ~/.railsrc: railsrc
     ~/.redshiftgrc: redshiftgrc
     ~/.config/nvim/:
