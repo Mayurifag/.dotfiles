@@ -1,0 +1,5 @@
+gitconfig filter=git-crypt diff=git-crypt
+zsh/private_aliases.zsh filter=git-crypt diff=git-crypt
+zsh/trashed_aliases.zsh filter=git-crypt diff=git-crypt
+
+.gitattributes !filter !diff
