@@ -60,6 +60,7 @@ alias rspec='bundle exec rspec'
 alias sort_gemfile='ordinare'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
+alias cr='EDITOR=vim bin/rails credentials:edit'
 
 ## VSCode
 alias f='code .'
