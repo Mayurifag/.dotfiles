@@ -24,6 +24,7 @@ fi
 ## Root
 alias reboot='sudo reboot'
 alias root='sudo su'
+alias hosts='sudo vim /etc/hosts'
 
 ## Other
 alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
@@ -64,7 +65,7 @@ alias cr='EDITOR=vim bin/rails credentials:edit'
 
 ## VSCode
 alias f='code .'
-alias config='code ~/.zshrc'
+# alias config='code ~/.zshrc'
 
 ## Docker
 alias dcp='docker-compose'
