@@ -9,6 +9,8 @@ fi
 
 # _evalcache dip console
 
+# TODO: if installed android studio and asdf golang
+
 ## Golang
 GOV=$(asdf where golang)
 export GOROOT=$GOV/go

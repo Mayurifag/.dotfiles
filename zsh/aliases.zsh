@@ -87,6 +87,7 @@ alias lg="git log --pretty=format:'%h %an %s'"
 alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
 alias reset_file='git checkout origin/master'
 alias yolo='LEFTHOOK=0 git push --force'
+alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
 
 ## Vagrant
 alias vp="vagrant provision"

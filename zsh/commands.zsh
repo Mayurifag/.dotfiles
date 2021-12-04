@@ -1,8 +1,10 @@
 # Update Zsh plugins
 uz(){
-  antibody bundle <~/.dotfiles/zsh/plugins.txt >~/.zsh_plugins.sh
+  antibody bundle < ~/.dotfiles/zsh/plugins.txt > ~/.zsh_plugins.sh
   antibody update
   asdf plugin-update ruby
+  asdf plugin-update yarn
+  asdf plugin-update golang
 }
 
 pollCommand() {
@@ -59,7 +61,7 @@ pskill(){
 }
 
 backup() { cp "$1"{,.bak};}
-delhost() { sed -i "$1d" ~/.ssh/known_hosts }
+delhost() { sed -i "$1d" ~/.ssh/known_hosts } # i dont use that
 
 # -------------------------------------------------------------------
 # compressed file expander
