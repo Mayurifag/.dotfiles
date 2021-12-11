@@ -114,5 +114,5 @@ knownrm() {
 }
 
 gcd() {
-  git clone "$1" && cd "$(basename "$1" .git)"
+  git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)"
 }
