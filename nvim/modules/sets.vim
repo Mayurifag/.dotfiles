@@ -27,8 +27,10 @@ set cursorline        " Highlight the current line
 set autoread          " Automatically reload the file when it is changed from an outside program
 set nohlsearch        " Don't highlight search results
 set expandtab         " Use spaces instead of tabs
-set termguicolors
+
+if (has("termguicolors"))
+  set termguicolors
+endif
 
 " undo shit after weeks
-set undodir=~/.vim/undodir
 set undofile
