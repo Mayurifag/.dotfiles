@@ -95,3 +95,8 @@ alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" 
 alias vp="vagrant provision"
 alias vs="vagrant ssh"
 alias vz="vagrant destroy -f; vagrant up"
+
+## Agebox
+alias e="agebox reencrypt"
+alias dec="agebox decrypt --all --force --private-keys ./private"
+alias enc="agebox encrypt"
