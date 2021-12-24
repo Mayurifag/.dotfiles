@@ -14,6 +14,7 @@ set ignorecase        " Ignore case on searches
 set smartcase         " Use case sensitive search if there is a capital letter in the search
 set undolevels=10000  " Set the number of undos that are remembered
 set number            " Show line numbers
+set relativenumber    " Show relative numbers based on current line
 set tabstop=2         " Use 2 space tabs
 set shiftwidth=2      " Use 2 space tabs
 set incsearch         " Incremental search: jump to the first occurrence of search while the user is still searching

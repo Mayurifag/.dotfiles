@@ -67,6 +67,8 @@ alias cr='EDITOR=vim bin/rails credentials:edit'
 alias f='code .'
 # alias config='code ~/.zshrc'
 
+alias v='vim'
+
 ## Docker
 alias dcp='docker-compose'
 alias dp='dip provision'

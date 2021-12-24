@@ -2,7 +2,6 @@
 " https://medium.com/life-at-moka/step-up-your-game-with-neovim-62ba814166d7
 
 autocmd vimenter * NERDTree
-map <C-n> :NERDTreeToggle<CR> " Ctrl+N = NERDTree
 
 let g:NERDTreeShowHidden = 1
 let g:NERDTreeMinimalUI = 1 " hide helper
@@ -12,7 +11,7 @@ let g:NERDTreeQuitOnOpen = 1
 " " Close window if NERDTree is the last one
 autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " " Map to open current file in NERDTree and set size
-nnoremap <leader>pv :NERDTreeFind<bar> :vertical resize 45<CR>
+" nnoremap <leader>pv :NERDTreeFind<bar> :vertical resize 45<CR>
 
 " NERDTree Syntax Highlight
 " " Enables folder icon highlighting using exact match
