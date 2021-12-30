@@ -113,6 +113,20 @@ knownrm() {
  fi
 }
 
+gitself() {
+  echo 'Setting up user Vladisav Ponomarev <farazeus@gmail.com>'
+  git config user.name 'Vladislav Ponomarev' && git config user.email 'farazeus@gmail.com' && git config user.signingKey 'E8E136A2C8865C488DB0B5CBBCE113E227780CF7'
+}
+
+gitwork() {
+  echo 'Setting up user Vladisav Ponomarev <vladislav.ponomarev@bgaming.com>'
+  git config user.name 'Vladislav Ponomarev' && git config user.email 'vladislav.ponomarev@bgaming.com' && git config user.signingKey 'E8E136A2C8865C488DB0B5CBBCE113E227780CF7'
+}
+
 gcd() {
-  git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)"
+  git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)" && gitself
+}
+
+gitf() {
+  git filter-repo -f --prune-empty always --refs maingk $(git tag -l) --mailmap ~/.dotfiles/.mailmap
 }
