@@ -5,7 +5,7 @@ zsh-users/zsh-history-substring-search
 MichaelAquilina/zsh-you-should-use
 hlissner/zsh-autopair
 mroth/evalcache
-zdharma/fast-syntax-highlighting
+zdharma-continuum/fast-syntax-highlighting
 soimort/translate-shell
 hcgraf/zsh-sudo
 b4b4r07/enhancd
