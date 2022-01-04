@@ -5,7 +5,7 @@ alias d='cd $HOME/.dotfiles/'
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-alias ll='ls -alh'
+alias ll='ls -alh --group-directories-first'
 alias diff='colordiff' # requires colordiff package
 alias mkdir='mkdir -p -v'
 alias more='less'
