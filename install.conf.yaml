@@ -6,8 +6,9 @@
 - clean: ['~']
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
-  - [mkdir -p ~/.config/nvim ~/.config/mpv]
+  - chsh -s $(which zsh)
+  - git submodule update --init --recursive
+  - mkdir -p ~/.config/nvim ~/.config/mpv
 
 - link:
     ~/.asdfrc: asdfrc
