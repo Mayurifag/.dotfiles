@@ -7,7 +7,7 @@
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
-  - [mkdir -p ~/.config/nvim]
+  - [mkdir -p ~/.config/nvim ~/.config/mpv]
 
 - link:
     ~/.asdfrc: asdfrc
@@ -17,6 +17,10 @@
     ~/.redshiftgrc: redshiftgrc
     ~/.config/nvim/:
       path: nvim/*
+      relink: true
+      glob: true
+    ~/.config/mpv/:
+      path: mpv/*
       relink: true
       glob: true
     ~/.vuerc: vuerc
