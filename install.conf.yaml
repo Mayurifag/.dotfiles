@@ -14,7 +14,6 @@
     ~/.conkyrc: conkyrc
     ~/.default-gems: default-gems
     ~/.gitconfig: .gitconfig
-    ~/.railsrc: railsrc
     ~/.redshiftgrc: redshiftgrc
     ~/.config/nvim/:
       path: nvim/*
