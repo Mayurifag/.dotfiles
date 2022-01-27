@@ -131,3 +131,8 @@ gcd() {
 gitf() {
   git filter-repo -f --prune-empty always --refs maingk $(git tag -l) --mailmap ~/.dotfiles/.mailmap
 }
+
+grom() {
+  LEFTHOOK=0 git rebase -i origin/master
+  git submodule update --init --recursive
+}

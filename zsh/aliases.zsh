@@ -83,7 +83,6 @@ alias gpf='LEFTHOOK=0 git push --force'
 alias gpff='LEFTHOOK=0 git push origin HEAD --force'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias grep='grep --color=auto'
-alias grom='LEFTHOOK=0 git rebase -i origin/master'
 alias lzg="lazygit"
 alias lg="git log --pretty=format:'%h %an %s'"
 alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
