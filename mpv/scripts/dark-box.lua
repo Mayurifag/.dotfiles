@@ -37,15 +37,15 @@ local user_opts = {
 	font = "mpv-osd-symbols",	-- default osc font
     layout = "default",			-- default only!!
     seekbarstyle = "knob",      -- bar, diamond or knob
-    seekbarhandlesize = 3,	-- size ratio of the diamond and knob handle
+    seekbarhandlesize = 3,	    -- size ratio of the diamond and knob handle
     seekrangestyle = "bar",		-- bar, line, slider, inverted or none
     seekrangeseparate = true,   -- wether the seekranges overlay on the bar-style seekbar
     seekrangealpha = 200,       -- transparency of seekranges
     seekbarkeyframes = true,    -- use keyframes when dragging the seekbar
-    title = "　${media-title}",   -- string compatible with property-expansion
+    title = "　${media-title}", -- string compatible with property-expansion
                                 -- to be shown as OSC title
     tooltipborder = 1,          -- border of tooltip in bottom/topbar
-    timetotal = true,          -- display total time instead of remaining time?
+    timetotal = true,           -- display total time instead of remaining time?
     timems = false,             -- display timecodes with milliseconds?
     visibility = "auto",        -- only used at init to set visibility_mode(...)
     boxmaxchars = 44,           -- title crop threshold for box layout
@@ -1311,13 +1311,16 @@ layouts["default"] = function ()
     lo.button.maxchars = user_opts.boxmaxchars
 
     lo = add_layout("cy_audio")
-    lo.geometry = {x = refX + osc_geo.w - 135, y = refY + 47, an = 4, w = 64, h = 30}
+    lo.geometry = {x = refX + osc_geo.w - 145, y = refY + 47, an = 4, w = 64, h = 30}
     lo.style = osc_styles.cyButton
 
     lo = add_layout("cy_sub")
-    lo.geometry = {x = refX + osc_geo.w - 70, y = refY + 47, an = 4, w = 64, h = 30}
+    lo.geometry = {x = refX + osc_geo.w - 85, y = refY + 47, an = 4, w = 64, h = 30}
     lo.style = osc_styles.cyButton
 
+    lo = add_layout("volume")
+    lo.geometry = {x = refX + osc_geo.w - 25, y = refY + 47, an = 4, w = 64, h = 30}
+    lo.style = osc_styles.cyButton
 end
 
 -- Validate string type user options

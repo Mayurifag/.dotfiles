@@ -31,6 +31,7 @@ alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 alias free='free -m'                # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
+alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
 alias vboost='pamixer --allow-boost --set-volume 150'
 alias u="yay -Syu"
 alias weather='curl wttr.in/SVO'
@@ -79,13 +80,14 @@ alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.d
 alias ci='glab pipeline ci view'
 alias g='git'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
-alias gpf='LEFTHOOK=0 git push --force'
-alias gpff='LEFTHOOK=0 git push origin HEAD --force'
+# alias gpf='LEFTHOOK=0 git push --force'
+alias gpf='LEFTHOOK=0 git push origin HEAD --force'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias grep='grep --color=auto'
 alias lzg="lazygit"
 alias lg="git log --pretty=format:'%h %an %s'"
-alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && git push origin HEAD'
+alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && LEFTHOOK=0 git push origin HEAD'
+alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 alias yolo='LEFTHOOK=0 git push --force'
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'

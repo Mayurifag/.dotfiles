@@ -6,8 +6,8 @@ export LC_CTYPE=ru_RU.UTF-8
 export VISUAL=code
 export EDITOR=nano
 export SUDO_EDITOR=nano
-# copy pasted to /etc/profile
-export QT_QPA_PLATFORMTHEME=qt5ct # something for qt to use gtk theme idk / not sure if working
+
+# export QT_QPA_PLATFORMTHEME=qt5ct # something for qt to use gtk theme idk / not sure if working
 export BAT_PAGER="less -RF"
 
 # Zsh

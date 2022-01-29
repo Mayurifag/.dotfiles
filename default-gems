@@ -12,6 +12,7 @@ rubocop
 ruby-debug-ide
 shutup
 solargraph
+solargraph-rails
 standard
 whatthegem
 mdl

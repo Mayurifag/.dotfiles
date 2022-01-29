@@ -136,3 +136,7 @@ grom() {
   LEFTHOOK=0 git rebase -i origin/master
   git submodule update --init --recursive
 }
+
+btrestart() {
+  sudo rfkill block bluetooth && sleep 0.1 && sudo rfkill unblock bluetooth
+}

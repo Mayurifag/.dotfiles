@@ -22,3 +22,5 @@
 	program = gpg
 [gui]
 	pruneDuringFetch = true
+[ssh]
+	variant = ssh
