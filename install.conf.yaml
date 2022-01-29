@@ -6,7 +6,6 @@
 - clean: ['~']
 
 - shell:
-  - chsh -s $(which zsh)
   - git submodule update --init --recursive
   - mkdir -p ~/.config/nvim ~/.config/mpv
 
