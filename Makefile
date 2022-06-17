@@ -2,18 +2,23 @@ SHELL = /bin/bash
 OS := $(shell bin/is-supported bin/is-macos macos linux)
 DOTFILES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 HOMEBREW_PREFIX := $(shell bin/is-supported bin/is-arm64 /opt/homebrew /usr/local)
-PATH := $(HOME)/.asdf/shims:$(HOME)/.asdf/bin:$(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(PATH)
 export XDG_CONFIG_HOME = $(HOME)/.config
 export STOW_DIR = $(DOTFILES_DIR)
 export ACCEPT_EULA=Y
 
 .PHONY: test
 
-all: $(OS)
+all: $(OS) set-path-$(OS)
 
 macos: sudo core-macos link asdf packages
 
 linux: core-linux link asdf
+
+set-path-linux:
+	export PATH = $(DOTFILES_DIR)/bin:$(PATH)
+
+set-path-mac:
+	export PATH = $(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(PATH)
 
 core-macos: brew bash git
 
