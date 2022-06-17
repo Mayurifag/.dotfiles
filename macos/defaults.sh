@@ -20,18 +20,18 @@ sudo scutil --set HostName "$COMPUTER_NAME"
 sudo scutil --set LocalHostName "$COMPUTER_NAME"
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$COMPUTER_NAME"
 
-# TODO
-# Set language and text formats
-defaults write NSGlobalDomain AppleLanguages -array "en" "ru"
-defaults write NSGlobalDomain AppleLocale -string "en_US@currency=USD"
-defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
-defaults write NSGlobalDomain AppleMetricUnits -bool true
+# # TODO
+# # Set language and text formats
+# defaults write NSGlobalDomain AppleLanguages -array "en" "ru"
+# defaults write NSGlobalDomain AppleLocale -string "en_US@currency=USD"
+# defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
+# defaults write NSGlobalDomain AppleMetricUnits -bool true
 
-# Set the timezone (see `sudo systemsetup -listtimezones` for other values)
-sudo systemsetup -settimezone "Europe/Tbilisi" > /dev/null
+# # Set the timezone (see `sudo systemsetup -listtimezones` for other values)
+# sudo systemsetup -settimezone "Europe/Tbilisi" > /dev/null
 
-# Set standby delay to 24 hours (default is 1 hour)
-sudo pmset -a standbydelay 86400
+# # Set standby delay to 24 hours (default is 1 hour)
+# sudo pmset -a standbydelay 86400
 
 # Disable Sudden Motion Sensor
 sudo pmset -a sms 0
@@ -77,16 +77,16 @@ defaults write com.apple.CrashReporter DialogType -string "none"
 # Restart automatically if the computer freezes
 sudo systemsetup -setrestartfreeze on
 
-# Disable Notification Center and remove the menu bar icon
-launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
+# # Disable Notification Center and remove the menu bar icon
+# launchctl unload -w /System/Library/LaunchAgents/com.apple.notificationcenterui.plist 2> /dev/null
 
 ###############################################################################
 # Keyboard & Input                                                            #
 ###############################################################################
 
-# Disable smart quotes and dashes as they’re annoying when typing code
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+# # Disable smart quotes and dashes as they’re annoying when typing code
+# defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+# defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
 # Enable full keyboard access for all controls
 # (e.g. enable Tab in modal dialogs)
@@ -102,8 +102,8 @@ defaults write NSGlobalDomain InitialKeyRepeat -int 15
 # Automatically illuminate built-in MacBook keyboard in low light
 defaults write com.apple.BezelServices kDim -bool true
 
-# Turn off keyboard illumination when computer is not used for 5 minutes
-defaults write com.apple.BezelServices kDimTime -int 300
+# Turn off keyboard illumination when computer is not used for 30 sec
+defaults write com.apple.BezelServices kDimTime -int 30
 
 # Disable auto-correct
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
@@ -112,33 +112,37 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 # Trackpad, mouse, Bluetooth accessories                                      #
 ###############################################################################
 
-# Trackpad: enable tap to click for this user and for the login screen
-defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+# # Trackpad: enable tap to click for this user and for the login screen
+# defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+# defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+# defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
-# Trackpad: map bottom right corner to right-click
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
-defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
-defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
+# # Trackpad: map bottom right corner to right-click
+# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadCornerSecondaryClick -int 2
+# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadRightClick -bool true
+# defaults -currentHost write NSGlobalDomain com.apple.trackpad.trackpadCornerClickBehavior -int 1
+# defaults -currentHost write NSGlobalDomain com.apple.trackpad.enableSecondaryClick -bool true
 
-# Trackpad: swipe between pages with three fingers
-defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool true
-defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerHorizSwipeGesture -int 1
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerHorizSwipeGesture -int 1
+# # Trackpad: swipe between pages with three fingers
+# defaults write NSGlobalDomain AppleEnableSwipeNavigateWithScrolls -bool true
+# defaults -currentHost write NSGlobalDomain com.apple.trackpad.threeFingerHorizSwipeGesture -int 1
+# defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerHorizSwipeGesture -int 1
 
 # Increase sound quality for Bluetooth headphones/headsets
-defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
+# https://www.reddit.com/r/apple/comments/5rfdj6/pro_tip_significantly_improve_bluetooth_audio/
+defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 64
+
+# Display - Mouse - Disable cursor getting huge on big moves
+defaults write -globalDomain CGDisableCursorLocationMagnification -bool TRUE
 
 ###############################################################################
 # Screen                                                                      #
 ###############################################################################
 
-# Require password immediately after sleep or screen saver begins
-defaults write com.apple.screensaver askForPassword -int 1
-defaults write com.apple.screensaver askForPasswordDelay -int 0
+# # Require password immediately after sleep or screen saver begins
+# defaults write com.apple.screensaver askForPassword -int 1
+# defaults write com.apple.screensaver askForPasswordDelay -int 0
 
 # Save screenshots to the desktop
 defaults write com.apple.screencapture location -string "${HOME}/Desktop"
@@ -238,8 +242,8 @@ defaults write com.apple.dock wvous-tr-corner -int 0
 defaults write com.apple.dock wvous-bl-corner -int 0
 defaults write com.apple.dock wvous-br-corner -int 0
 
-# Don't show recently used applications in the Dock
-defaults write com.Apple.Dock show-recents -bool false
+# # Don't show recently used applications in the Dock
+# defaults write com.Apple.Dock show-recents -bool false
 
 ###############################################################################
 # Mail                                                                        #
@@ -273,9 +277,9 @@ defaults write com.apple.mail ConversationViewMarkAllAsRead -bool true
 # Disable includings results from trash in search
 defaults write com.apple.mail IndexTrash -bool false
 
-# Automatically check for new message (not every 5 minutes)
-defaults write com.apple.mail AutoFetch -bool true
-defaults write com.apple.mail PollTime -string "-1"
+# # Automatically check for new message (not every 5 minutes)
+# defaults write com.apple.mail AutoFetch -bool true
+# defaults write com.apple.mail PollTime -string "-1"
 
 # Show most recent message at the top in conversations
 defaults write com.apple.mail ConversationViewSortDescending -bool true
@@ -284,17 +288,11 @@ defaults write com.apple.mail ConversationViewSortDescending -bool true
 # Calendar                                                                    #
 ###############################################################################
 
-# Show week numbers (10.8 only)
-defaults write com.apple.iCal "Show Week Numbers" -bool true
+# # Show week numbers (10.8 only)
+# defaults write com.apple.iCal "Show Week Numbers" -bool true
 
 # Week starts on monday
 defaults write com.apple.iCal "first day of week" -int 1
-
-###############################################################################
-# Spotlight                                                                   #
-###############################################################################
-
-# Spotlight is replaced by Raycast, nothing to do.
 
 ###############################################################################
 # Terminal                                                                    #
@@ -354,3 +352,5 @@ defaults write com.apple.commerce AutoUpdateRestartRequired -bool true
 for app in "Address Book" "Calendar" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer" "iCal"; do
   killall "${app}" &> /dev/null
 done
+
+# TODO: https://github.com/mathiasbynens/dotfiles/blob/main/.macos

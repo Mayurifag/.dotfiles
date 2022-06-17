@@ -6,11 +6,6 @@ alias d='cd $HOME/.dotfiles/'
 alias df='df -h'
 alias du='du -c -h'
 alias ll='ls -alh --group-directories-first'
-alias diff='colordiff' # requires colordiff package
-alias mkdir='mkdir -p -v'
-alias more='less'
-alias nano='nano -w'
-alias perms="stat -c '%A %a %n'" # octal+text permissions for files
 
 if command -V dircolors >/dev/null 2>&1; then 	# Only alias ls colors if dircolors is installed
 	# eval "$(dircolors -b)"
@@ -27,21 +22,19 @@ alias root='sudo su'
 alias hosts='sudo vim /etc/hosts'
 
 ## Other
-alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
+# alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 alias free='free -m'                # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
 alias vboost='pamixer --allow-boost --set-volume 150'
-alias u="yay -Syu"
+# alias u="yay -Syu"
 alias weather='curl wttr.in/SVO'
 alias yt="youtube-dl -o '%(title)s.%(ext)s'"
 alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
 # https://github.com/soimort/translate-shell
-# need to install first
 alias tru='trans :ru'
 alias ten='trans :en'
-alias fstab='sudo geany /etc/fstab'
 alias docker-clean=' \
   docker container prune -f ; \
   docker image prune -f ; \
@@ -57,18 +50,16 @@ alias dbc='bundle exec rails dbconsole'
 alias rake="noglob rake" # necessary to make rake work inside of zsh (but im not sure)
 alias rc='bundle exec rails console'
 alias rs='bundle exec rails server'
-alias mig='bin/rails db:migrate:with_data RAILS_ENV=development'
+alias mig='bin/rails db:migrate RAILS_ENV=development'
 alias rspec='bundle exec rspec'
 alias sort_gemfile='ordinare'
 alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
 alias cr='EDITOR=vim bin/rails credentials:edit'
 
-## VSCode
+## Editors
 alias f='code .'
-# alias config='code ~/.zshrc'
-
-alias v='vim'
+# alias v='vim'
 
 ## Docker
 alias dcp='docker-compose'

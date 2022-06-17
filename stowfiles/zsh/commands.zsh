@@ -1,13 +1,3 @@
-# Update Zsh plugins
-uz(){
-  antibody bundle < ~/.dotfiles/zsh/plugins.txt > ~/.zsh_plugins.sh
-  antibody update
-  asdf plugin-update ruby
-  asdf plugin-update yarn
-  asdf plugin-update golang
-  asdf plugin-update nodejs
-}
-
 pollCommand() {
     while true; do clear; $@; sleep 1; done
 }
@@ -98,11 +88,6 @@ spl () {
   aspell -a <<< "$1"
 }
 
-lock () {
-  cd ~/Code/windowed-game-mouse-lock
-  npm start
-}
-
 # Delete a given line number in the known_hosts file.
 # Alternative: ssh-keygen -R 182.123.212.21
 knownrm() {
@@ -126,10 +111,6 @@ gitwork() {
 
 gcd() {
   git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)" && gitself
-}
-
-gitf() {
-  git filter-repo -f --prune-empty always --refs maingk $(git tag -l) --mailmap ~/.dotfiles/.mailmap
 }
 
 grom() {

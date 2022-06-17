@@ -9,3 +9,5 @@ dockutil --no-restart --add "/System/Applications/System Preferences.app"
 # dockutil --no-restart --add "/Applications/Spotify.app"
 
 killall Dock
+
+# TODO: keepassxc twitch code

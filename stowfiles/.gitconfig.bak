@@ -1,3 +1,9 @@
+[user]
+  email = farazeus@gmail.com
+  name = Vladislav Ponomarev
+  siginingKey = E8E136A2C8865C488DB0B5CBBCE113E227780CF7
+[github]
+	user = Mayurifag
 [alias]
 	co = checkout
 	st = status
@@ -24,3 +30,5 @@
 	pruneDuringFetch = true
 [ssh]
 	variant = ssh
+[includeIf "gitdir/i:Work/"]
+  path = .gitconfig.work

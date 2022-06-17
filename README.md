@@ -1,30 +1,5 @@
 # Yet another dotfiles repository
 
-
-* Install zsh dip redshiftgrc delta colordiff
-* git clone git@github.com:Mayurifag/.dotfiles.git
-* cp gitconfig.example gitconfig
-* create zsh/private_aliases.zsh
-
-## Install asdf and antibody
-
-- git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.3
-- asdf update
-- //todo: global .tool_versions // install/update ruby nodejs go
-- //yarn?
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-- sudo chmod 777 /usr/local/bin/
-- sudo install antibody
-- uz
-
-* ./install
-
-### uz
-
-Update and initialize cached
-
-## Since macos
-
 ## Highlights
 
 - Minimal efforts to install everything, using a [Makefile](./Makefile)
@@ -117,6 +92,11 @@ To customize the dotfiles to your likings, fork it and make sure to modify the l
 1) Check login Rubymine/Datagrip/Goland + Gitkracken
 2) https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
 3) VSCode (sync)
+4) https://www.swyx.io/new-mac-setup-2021
+5) fig / superhuman / fork / calendar app
+6) ssh config
+7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
+8) https://github.com/jamescmartinez/dotfiles/wiki/My-macOS
 
 ## Credits
 

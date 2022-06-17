@@ -9,3 +9,4 @@ zdharma-continuum/fast-syntax-highlighting
 soimort/translate-shell
 hcgraf/zsh-sudo
 b4b4r07/enhancd
+zpm-zsh/undollar
