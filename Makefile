@@ -2,7 +2,7 @@ SHELL = /bin/bash
 OS := $(shell bin/is-supported bin/is-macos macos linux)
 DOTFILES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 HOMEBREW_PREFIX := $(shell bin/is-supported bin/is-arm64 /opt/homebrew /usr/local)
-PATH := $(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(PATH)
+PATH := $(HOME)/.asdf/shims:$(HOME)/.asdf/bin:$(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(PATH)
 export XDG_CONFIG_HOME = $(HOME)/.config
 export STOW_DIR = $(DOTFILES_DIR)
 export ACCEPT_EULA=Y
@@ -11,11 +11,11 @@ export ACCEPT_EULA=Y
 
 all: $(OS)
 
-macos: sudo core-macos packages link
+macos: sudo core-macos link asdf packages
 
-linux: core-linux link
+linux: core-linux link asdf
 
-core-macos: brew bash git npm ruby
+core-macos: brew bash git
 
 core-linux:
 	apt-get update
@@ -42,6 +42,7 @@ link: stow-$(OS)
 	mkdir -p $(XDG_CONFIG_HOME)
 	stow -t $(HOME) runcom
 	stow -t $(XDG_CONFIG_HOME) config
+	source ~/.bashrc
 
 unlink: stow-$(OS)
 	stow --delete -t $(HOME) runcom
@@ -73,14 +74,6 @@ endif
 git: brew
 	brew install git git-extras
 
-# TODO: asdf
-npm: brew-packages
-# fnm install --lts
-
-# TODO: asdf
-ruby: brew
-# brew install ruby
-
 brew-packages: brew
 	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile || true
 
@@ -94,11 +87,30 @@ cask-apps: brew
 code-settings:
 	for EXT in $$(cat install/Codefile); do code --install-extension $$EXT; done
 
-# node-packages: npm
-# 	eval $$(fnm env); npm install -g $(shell cat install/npmfile)
+node-packages:
+	npm install -g $(shell cat install/npmfile)
 
-rust-packages: rust
+rust-packages:
 	cargo install $(shell cat install/Rustfile)
 
-# test:
-# 	eval $$(fnm env); bats test
+test:
+	bats test
+
+# TODO: nodejs version lts
+.PHONY: asdf
+asdf:
+	git clone https://github.com/asdf-vm/asdf.git $(HOME)/.asdf --branch v0.10.0
+	. $(HOME)/.asdf/asdf.sh
+	ls $(HOME)/.asdf/bin
+	export PATH=$(PATH)
+	cd $(pwd)
+	exec $0
+	asdf plugin-add ruby https://github.com/asdf-vm/asdf-ruby.git
+	asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+	asdf plugin-add yarn https://github.com/twuni/asdf-yarn.git
+	asdf install nodejs 18.4.0
+	asdf global nodejs 18.4.0
+	asdf install ruby latest
+	asdf global ruby latest
+	asdf install yarn latest
+	asdf global yarn latest

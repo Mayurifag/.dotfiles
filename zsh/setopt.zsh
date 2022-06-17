@@ -48,4 +48,3 @@ setopt list_ambiguous           # complete as much of a completion until it gets
 setopt auto_remove_slash        # self explicit
 setopt chase_links              # resolve symlinks
 setopt no_nomatch # if there are no matches for globs, leave them alone and execute the command
-setopt no_cdable_vars # don't use named directories in cd autocompletion

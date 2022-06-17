@@ -114,8 +114,9 @@ To customize the dotfiles to your likings, fork it and make sure to modify the l
 
 ## After bootstrap
 
-1) Install Gitkraken (+ ...)
+1) Check login Rubymine/Datagrip/Goland + Gitkracken
 2) https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
+3) VSCode (sync)
 
 ## Credits
 

@@ -21,10 +21,9 @@ if is-executable npm; then
   . <(npm completion)
 fi
 
-# fnm
-
-if is-executable fnm; then
-  . <(fnm completions)
+# asdf
+if is-executable asdf; then
+  . "$HOME/.asdf/completions/asdf.bash"
 fi
 
 # Git

@@ -10,11 +10,8 @@
   - mkdir -p ~/.config/nvim ~/.config/mpv
 
 - link:
-    ~/.asdfrc: asdfrc
-    ~/.conkyrc: conkyrc
     ~/.default-gems: default-gems
     ~/.gitconfig: .gitconfig
-    ~/.redshiftgrc: redshiftgrc
     ~/.config/nvim/:
       path: nvim/*
       relink: true
@@ -23,7 +20,6 @@
       path: mpv/*
       relink: true
       glob: true
-    ~/.vuerc: vuerc
     ~/.zprofile: zprofile
     ~/.zshrc: zshrc
 
