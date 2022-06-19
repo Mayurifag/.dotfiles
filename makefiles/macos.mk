@@ -1,5 +1,5 @@
-.PHONY: macos ci-sudo brew git stow
-macos: ci-sudo brew git stow
+.PHONY: macos ci-sudo brew git stow zsh
+macos: ci-sudo brew git stow zsh
 
 ci-sudo:
 ifndef GITHUB_ACTION
@@ -10,10 +10,28 @@ endif
 brew:
 	curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash
 
-git: brew
+git:
 	brew install git git-extras
 	mkdir -p $(HOME)/Code
 	mkdir -p $(HOME)/Work
 
-stow: brew
+stow:
 	brew install stow
+
+zsh: ZSH_BIN=$(HOMEBREW_PREFIX)/bin/zsh
+zsh: BREW_BIN=$(HOMEBREW_PREFIX)/bin/brew
+zsh: SHELLS=/private/etc/shells
+zsh: brew
+ifdef GITHUB_ACTION
+	if ! grep -q $(ZSH_BIN) $(SHELLS); then \
+		$(BREW_BIN) install zsh && \
+		sudo append $(ZSH_BIN) $(SHELLS) && \
+		sudo chsh -s $(ZSH_BIN); \
+	fi
+else
+	if ! grep -q $(ZSH_BIN) $(SHELLS); then \
+		$(BREW_BIN) install zsh && \
+		sudo append $(ZSH_BIN) $(SHELLS) && \
+		chsh -s $(ZSH_BIN); \
+	fi
+endif
