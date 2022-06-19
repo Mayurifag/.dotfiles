@@ -23,8 +23,8 @@ vm: fnm frum
 
 fnm:
 	brew install fnm
-	fnm install --lts
-	eval "$(fnm env)"; npm install -g yarn
+	eval "$(fnm env --use-on-cd)"; fnm install --lts
+	eval "$(fnm env --use-on-cd)"; npm install -g yarn
 
 frum:
 	brew install frum
