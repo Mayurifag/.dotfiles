@@ -97,6 +97,7 @@ To customize the dotfiles to your likings, fork it and make sure to modify the l
 6) ssh config
 7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
 8) https://github.com/jamescmartinez/dotfiles/wiki/My-macOS
+9) HS deck tracker ?
 
 ## Credits
 
