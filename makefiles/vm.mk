@@ -24,9 +24,9 @@ vm: fnm frum
 fnm:
 	brew install fnm
 	eval "$(fnm env --use-on-cd)"
-	fnm install --lts
+	fnm install $(NODE_VERSION)
 	eval "$(fnm env --use-on-cd)"
-	fnm current
+	fnm use $(NODE_VERSION)
 	echo $(PATH)
 	env | grep FNM_
 	npm install -g yarn
