@@ -19,6 +19,7 @@ stow: brew
 	brew install stow
 
 dock:
+	brew list dockutil &>/dev/null || brew install dockutil
 	. ./macos/dock.sh
 
 macos-settings:

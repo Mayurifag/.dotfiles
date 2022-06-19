@@ -1,5 +1,8 @@
-# asdf
-. $HOME/.asdf/asdf.sh
+# fnm
+eval "$(fnm env --use-on-cd)"
+
+# frum
+eval "$(frum init)"
 
 # Ripgrep
 if type rg &> /dev/null; then
