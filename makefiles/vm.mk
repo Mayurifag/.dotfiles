@@ -22,6 +22,7 @@ RUBY_VERSION="3.1.2"
 vm: fnm frum
 
 fnm:
+	brew install fnm
 	fnm install --lts
 	eval "$(fnm env)"; npm install -g yarn
 

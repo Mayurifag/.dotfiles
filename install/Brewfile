@@ -65,7 +65,6 @@ cask "suspicious-package"
 # tap "goles/battery"
 
 # brew "diff-so-fancy"
-# brew "fnm"
 # brew "goles/battery/battery"
 # brew "lynx"
 # brew "psgrep"
