@@ -22,14 +22,9 @@ RUBY_VERSION="3.1.2"
 vm: fnm frum
 
 fnm:
-	brew install fnm
-	eval "$(fnm env --use-on-cd)"
 	fnm install $(NODE_VERSION)
-	echo $(PATH)
-	env | grep FNM_
 	fnm use $(NODE_VERSION)
 	npm install -g yarn
 
 frum:
-	brew install frum
-	eval "$(frum init)"; frum install --with-jemalloc $(RUBY_VERSION)
+	frum install --with-jemalloc $(RUBY_VERSION)
