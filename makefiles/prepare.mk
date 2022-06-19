@@ -1,9 +1,5 @@
-.PHONY: prepare ci-sudo brew git stow zsh version-managers link
-prepare: ci-sudo brew git stow zsh link version-managers
-
-DOTFILES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-export XDG_CONFIG_HOME = $(HOME)/.config
-export STOW_DIR = $(DOTFILES_DIR)
+.PHONY: prepare ci-sudo brew git stow zsh version-managers
+prepare: ci-sudo brew git stow zsh version-managers
 
 ci-sudo:
 ifndef GITHUB_ACTION
@@ -45,16 +41,3 @@ version-managers:
 	brew install frum
 	eval "$(frum init)"
 	eval "$(fnm env --use-on-cd)"
-
-link:
-# for FILE in $$(\ls -A stowfiles); do if [ -f $(HOME)/$$FILE -a ! -h $(HOME)/$$FILE ]; then \
-# 	mv -v $(HOME)/$$FILE{,.bak}; fi; done
-	mkdir -p $(XDG_CONFIG_HOME)
-	stow -t $(HOME) stowfiles
-	stow -t $(XDG_CONFIG_HOME) config
-
-unlink:
-	stow --delete -t $(HOME) stowfiles
-	stow --delete -t $(XDG_CONFIG_HOME) config
-# for FILE in $$(\ls -A stowfiles); do if [ -f $(HOME)/$$FILE.bak ]; then \
-# 	mv -v $(HOME)/$$FILE.bak $(HOME)/$${FILE%%.bak}; fi; done
