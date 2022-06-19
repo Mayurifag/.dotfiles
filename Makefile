@@ -1,6 +1,6 @@
 .ONESHELL:
 
-all: macos link vm packages
+all: macos link vm packages macos-system-settings
 
 include ./makefiles/*.mk
 

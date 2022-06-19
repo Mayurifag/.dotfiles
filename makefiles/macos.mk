@@ -1,5 +1,5 @@
-.PHONY: macos ci-sudo brew git stow dock macos-settings fzf
-macos: ci-sudo brew git stow dock macos-settings fzf
+.PHONY: macos ci-sudo brew git stow
+macos: ci-sudo brew git stow
 
 ci-sudo:
 ifndef GITHUB_ACTION
@@ -17,10 +17,3 @@ git: brew
 
 stow: brew
 	brew install stow
-
-dock:
-	brew list dockutil &>/dev/null || brew install dockutil
-	. ./macos/dock.sh
-
-macos-settings:
-	. ./macos/defaults.sh
