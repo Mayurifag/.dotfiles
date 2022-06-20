@@ -1,0 +1,10 @@
+# Don't ask for confirmations
+assume_yes = true
+cleanup = true
+no_retry = true
+
+# Disable specific steps - same options as the command line flag
+disable = ["containers", "git_repos"]
+
+# Display the time in step titles
+display_time = true

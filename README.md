@@ -1,30 +1,124 @@
 # Yet another dotfiles repository
 
-Symlinks done with https://github.com/anishathalye/dotbot
+## Highlights
 
-## TODO: sudo ./install_script.sh
+- Minimal efforts to install everything, using a [Makefile](./Makefile)
+- Mostly based around Homebrew, Caskroom and Node.js, latest Bash + GNU Utils
+- Fast and colored prompt
+- Updated macOS defaults
+- Well-organized and easy to customize
+- The installation and runcom setup is [tested weekly on real Ubuntu and macOS
+  machines](https://github.com/Mayurifag/.dotfiles/actions) (Big Sur and Monterey;
+  Catalina should still be fine too) using [a GitHub
+  Action](./.github/workflows/ci.yml)
+- Supports both Apple Silicon (M1) and Intel chips
 
-* Install zsh dip redshiftgrc delta colordiff
-* git clone git@github.com:Mayurifag/.dotfiles.git
-* cp gitconfig.example gitconfig
-* create zsh/private_aliases.zsh
+## Packages Overview
 
-## Install asdf and antibody
+- [Homebrew](https://brew.sh) (packages: [Brewfile](./install/Brewfile))
+- [homebrew-cask](https://github.com/Homebrew/homebrew-cask) (packages: [Caskfile](./install/Caskfile))
+- [Node.js + npm LTS](https://nodejs.org/en/download/) (packages: [npmfile](./install/npmfile))
+- Latest Git, Bash 4, Python 3, GNU coreutils, curl, Ruby
+- [Mackup](https://github.com/lra/mackup) (sync application settings)
+- `$EDITOR` (and Git editor) is [GNU nano](https://www.nano-editor.org)
 
-- git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.3
-- asdf update
-- //todo: global .tool_versions // install/update ruby nodejs go
-- //yarn?
-bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
-npm install -g yarn
-- sudo chmod 777 /usr/local/bin/
-- sudo install antibody
-- uz
+## Installation
 
-* ./install
+On a sparkling fresh installation of macOS:
 
-### uz
+```bash
+sudo softwareupdate -i -a
+xcode-select --install
+```
 
-Update and initialize cached
+The Xcode Command Line Tools includes `git` and `make` (not available on stock macOS). Now there are two options:
 
-format this file
+1. Install this repo with `curl` available:
+
+```bash
+bash -c "`curl -fsSL https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/remote-install.sh`"
+```
+
+This will clone or download, this repo to `~/.dotfiles` depending on the availability of `git`, `curl` or `wget`.
+
+1. Alternatively, clone manually into the desired location:
+
+```bash
+git clone https://github.com/Mayurifag/.dotfiles.git ~/.dotfiles
+```
+
+Use the [Makefile](./Makefile) to install everything [listed above](#package-overview), and symlink [runcom](./runcom)
+and [config](./config) (using [stow](https://www.gnu.org/software/stow/)):
+
+```bash
+cd ~/.dotfiles
+make
+```
+
+The installation process in the Makefile is tested on every push and every week in this
+[GitHub Action](https://github.com/Mayurifag/.dotfiles/actions).
+
+## Post-Installation
+
+- `dot dock` (set [Dock items](./macos/dock.sh))
+- `dot macos` (set [macOS defaults](./macos/defaults.sh))
+- Mackup
+  - Log in to Dropbox (and wait until synced)
+  - `ln -s ~/.config/mackup/.mackup.cfg ~` (until [#632](https://github.com/lra/mackup/pull/632) is fixed)
+  - `mackup restore`
+
+## The `dotfiles` command
+
+```bash
+$ dot help
+Usage: dot <command>
+
+Commands:
+    clean            Clean up caches (brew, npm, gem, rvm)
+    dock             Apply macOS Dock settings
+    edit             Open dotfiles in IDE (code) and Git GUI
+    help             This help message
+    macos            Apply macOS system defaults
+    test             Run tests
+    update           Alias for topgrade
+```
+
+## Customize
+
+To customize the dotfiles to your likings, fork it and make sure to modify the locations above to your fork.
+
+## After bootstrap
+
+1) Check login Rubymine/Datagrip/Goland + Gitkracken
+2) check fig
+3) VSCode (sync)
+4) https://www.swyx.io/new-mac-setup-2021
+5) superhuman / fork / calendar app
+6) ssh config
+7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
+8) https://github.com/jamescmartinez/dotfiles/wiki/My-macOS
+9) Restore gpg key config gpg --list-secret-keys --keyid-format LONG
+10) screenshot?
+11) iterm like guake + always open + ...? tmux? why not
+12) closing windows properly
+13) shazam krisp twitter (tweetbot)
+14) some app to use whatsapp and skype and zoom
+15) thefuck? zsh-completions zsh-syntax-highlighting zsh-autosuggestions
+16) alias gri=git rebase -i
+
+## Observe
+
+* brew install dash
+* cyberduck
+* https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
+
+## Credits
+
+Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
+Many thanks to the [dotfiles community](https://dotfiles.github.io).
+
+https://apple.stackexchange.com/questions/232371/el-capitan-remove-finder-from-application-switcher-cmd-tab
+https://gist.github.com/germanny/7642823
+https://gist.github.com/naotone/d2cbb30cd8d54d34869f
+https://github.com/mathiasbynens/dotfiles
+https://github.com/alrra/dotfiles

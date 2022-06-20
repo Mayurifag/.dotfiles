@@ -1,0 +1,34 @@
+[user]
+  email = farazeus@gmail.com
+  name = Vladislav Ponomarev
+  siginingKey = E8E136A2C8865C488DB0B5CBBCE113E227780CF7
+[github]
+	user = Mayurifag
+[alias]
+	co = checkout
+	st = status
+	lg = log --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%an%Creset' --abbrev-commit
+  # https://stackoverflow.com/a/48999882/8303979
+	amend-to = "!f() { SHA=`git rev-parse \"$1\"`; git stash -k && git commit --fixup \"$SHA\" && GIT_SEQUENCE_EDITOR=true git rebase --interactive --autosquash \"$SHA^\" && git stash pop; }; f"
+	recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+[core]
+	autocrlf = input
+	editor = vi
+[credential]
+	helper = cache --timeout=3600
+[color]
+	ui = auto
+[commit]
+	gpgSign = true
+[tag]
+	forceSignAnnotated = true
+[init]
+	defaultBranch = main
+[gpg]
+	program = gpg
+[gui]
+	pruneDuringFetch = true
+[ssh]
+	variant = ssh
+[includeIf "gitdir:~/Work/"]
+  path = .gitconfig.work
