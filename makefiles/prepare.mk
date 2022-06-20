@@ -1,5 +1,5 @@
-.PHONY: prepare ci-sudo brew git stow zsh version-managers
-prepare: ci-sudo brew git stow zsh version-managers
+.PHONY: prepare ci-sudo brew git zsh version-managers
+prepare: ci-sudo brew git zsh version-managers
 
 ci-sudo:
 ifndef GITHUB_ACTION
@@ -14,9 +14,6 @@ git:
 	brew install git git-extras
 	mkdir -p $(HOME)/Code
 	mkdir -p $(HOME)/Work
-
-stow:
-	brew install stow
 
 zsh: ZSH_BIN=$(HOMEBREW_PREFIX)/bin/zsh
 zsh: BREW_BIN=$(HOMEBREW_PREFIX)/bin/brew

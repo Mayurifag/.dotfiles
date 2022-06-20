@@ -35,17 +35,24 @@ cd ~/.dotfiles
 make
 ```
 
+## Before
+
+* Install zsh and make homebrew one to be default
+
 ## After bootstrap
 
-1) Check login Rubymine/Datagrip/Goland + Gitkracken
-2) check fig
-3) VSCode (sync)
-4) https://www.swyx.io/new-mac-setup-2021
+* Check login Rubymine/Datagrip/Goland
+* Launch Docker Desktop
+* Launch Gitkraken
+* Launch fig
+* Launch Raycast
+* VSCode - initiate sync
+* Restore gpg key – launch keepassxc, search for gpg
+
+## TODO:
+
 5) superhuman / fork / calendar app
-6) ssh config
 7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
-8) https://github.com/jamescmartinez/dotfiles/wiki/My-macOS
-9) Restore gpg key config gpg --list-secret-keys --keyid-format LONG
 10) screenshot?
 11) iterm like guake + always open + ...? tmux? why not
 12) closing windows properly
@@ -53,13 +60,17 @@ make
 14) some app to use whatsapp and skype and zoom
 15) thefuck? zsh-completions zsh-syntax-highlighting zsh-autosuggestions
 16) mackup restore
-
-## Observe
-
 * brew install dash
 * cyberduck
 * https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
 * Do I need any ssh config? Move from old pc
+* Full instruction <https://stackoverflow.com/questions/30850430/iterm2-hide-show-like-guake>
+4) https://www.swyx.io/new-mac-setup-2021
+
+## Last things
+
+Check startup -> User & Groups from Raycast
+Keyboard -> fn do nothing
 
 ## Credits
 
