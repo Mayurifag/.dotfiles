@@ -51,6 +51,9 @@ make
 
 ## TODO:
 
+Chezmoi setup!!
+https://fedoramagazine.org/take-back-your-dotfiles-with-chezmoi/
+
 5) superhuman / fork / calendar app
 7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
 10) screenshot?
