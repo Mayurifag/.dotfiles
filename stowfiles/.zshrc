@@ -9,4 +9,4 @@
 [ -f $HOME/zsh/bindkeys.zsh ] && source $HOME/zsh/bindkeys.zsh
 [ -f $HOME/zsh/history.zsh ] && source $HOME/zsh/history.zsh
 # [ -f /usr/share/doc/pkgfile/command-not-found.zsh ] && source /usr/share/doc/pkgfile/command-not-found.zsh
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

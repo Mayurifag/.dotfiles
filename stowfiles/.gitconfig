@@ -30,5 +30,5 @@
 	pruneDuringFetch = true
 [ssh]
 	variant = ssh
-[includeIf "gitdir/i:Work/"]
+[includeIf "gitdir:~/Work/"]
   path = .gitconfig.work

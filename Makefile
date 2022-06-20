@@ -1,5 +1,5 @@
 .ONESHELL:
-
+DOTFILES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 all: vm packages macos-system-settings
 
 include ./makefiles/*.mk

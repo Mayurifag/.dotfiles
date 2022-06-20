@@ -90,14 +90,27 @@ To customize the dotfiles to your likings, fork it and make sure to modify the l
 ## After bootstrap
 
 1) Check login Rubymine/Datagrip/Goland + Gitkracken
-2) https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
+2) check fig
 3) VSCode (sync)
 4) https://www.swyx.io/new-mac-setup-2021
-5) fig / superhuman / fork / calendar app
+5) superhuman / fork / calendar app
 6) ssh config
 7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
 8) https://github.com/jamescmartinez/dotfiles/wiki/My-macOS
-9) HS deck tracker ?
+9) Restore gpg key config gpg --list-secret-keys --keyid-format LONG
+10) screenshot?
+11) iterm like guake + always open + ...? tmux? why not
+12) closing windows properly
+13) shazam krisp twitter (tweetbot)
+14) some app to use whatsapp and skype and zoom
+15) thefuck? zsh-completions zsh-syntax-highlighting zsh-autosuggestions
+16) alias gri=git rebase -i
+
+## Observe
+
+* brew install dash
+* cyberduck
+* https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
 
 ## Credits
 

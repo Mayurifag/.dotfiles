@@ -21,7 +21,7 @@ stow:
 zsh: ZSH_BIN=$(HOMEBREW_PREFIX)/bin/zsh
 zsh: BREW_BIN=$(HOMEBREW_PREFIX)/bin/brew
 zsh: SHELLS=/private/etc/shells
-zsh: brew
+zsh:
 ifdef GITHUB_ACTION
 	if ! grep -q $(ZSH_BIN) $(SHELLS); then \
 		$(BREW_BIN) install zsh && \

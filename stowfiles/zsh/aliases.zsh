@@ -69,11 +69,11 @@ alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.d
 
 ## Git
 alias ci='glab pipeline ci view'
-alias g='git'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 # alias gpf='LEFTHOOK=0 git push --force'
 alias gpf='LEFTHOOK=0 git push origin HEAD --force'
 alias grc='LEFTHOOK=0 git rebase --continue'
+alias gri='LEFTHOOK=0 git rebase --interactive'
 alias grep='grep --color=auto'
 alias lzg="lazygit"
 alias lg="git log --pretty=format:'%h %an %s'"

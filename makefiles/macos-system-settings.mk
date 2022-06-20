@@ -2,7 +2,7 @@ PHONY: macos-system-settings dock macos-settings
 macos-system-settings: dock macos-settings
 
 dock:
-	brew list dockutil &>/dev/null || brew install dockutil
+	brew install --cask hpedrorodrigues/tools/dockutil
 	. ./macos/dock.sh
 
 macos-settings:
