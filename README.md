@@ -92,6 +92,10 @@ end tell
 
 <https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
 
+## Set up shadowsocks
+
+TODO
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
