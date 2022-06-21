@@ -15,5 +15,6 @@ dockutil --no-restart --add "/Applications/Telegram.app"
 dockutil --no-restart --add "/Applications/Steam.app"
 dockutil --no-restart --add "/Applications/Battle.net.app"
 dockutil --no-restart --add "/Applications/HSTracker.app"
+# raycast? i dont need it though
 
 killall Dock

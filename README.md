@@ -75,6 +75,23 @@ https://fedoramagazine.org/take-back-your-dotfiles-with-chezmoi/
 Check startup -> User & Groups from Raycast
 Keyboard -> fn do nothing
 
+## Startup
+
+nextcloud, iterm, keepassxc, docker?, fig, raycast, amphetamine
+
+Hidden telegram app in script editor
+
+```
+run application "Telegram"
+tell application "Finder"
+set visible of process "Telegram" to false
+end tell
+```
+
+## Set sudo to be usable without Touch ID
+
+<https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
