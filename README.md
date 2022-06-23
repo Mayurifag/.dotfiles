@@ -96,6 +96,10 @@ end tell
 
 TODO
 
+## Setup karabiner
+
+make caps lock switch languages and make it fast!
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)

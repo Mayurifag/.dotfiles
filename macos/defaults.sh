@@ -345,6 +345,13 @@ defaults write com.apple.commerce AutoUpdate -bool true
 # Allow the App Store to reboot machine on macOS updates
 defaults write com.apple.commerce AutoUpdateRestartRequired -bool true
 
+####### mine
+# Disable mouse acceleration
+# https://smallbusiness.chron.com/turn-off-acceleration-mac-mouse-68544.html
+# https://libreddit.strongthany.cc/r/macgaming/comments/mxqqcm/m1_macbook_pro_wont_disable_mouse_acceleration/
+defaults write .GlobalPreferences com.apple.mouse.scaling -1
+defaults write -g com.apple.mouse.scaling -integer -1
+
 ###############################################################################
 # Kill affected applications                                                  #
 ###############################################################################
