@@ -7,7 +7,6 @@ vm: fnm frum
 fnm:
 	fnm install $(NODE_VERSION)
 	fnm use $(NODE_VERSION)
-	npm install -g npm yarn
 
 frum:
 	frum install $(RUBY_VERSION)
