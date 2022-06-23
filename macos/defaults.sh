@@ -352,6 +352,9 @@ defaults write com.apple.commerce AutoUpdateRestartRequired -bool true
 defaults write .GlobalPreferences com.apple.mouse.scaling -1
 defaults write -g com.apple.mouse.scaling -integer -1
 
+defaults write .GlobalPreferences com.apple.scrollwheel.scaling -1
+defaults write -g com.apple.scrollwheel.scaling -integer -1
+
 ###############################################################################
 # Kill affected applications                                                  #
 ###############################################################################

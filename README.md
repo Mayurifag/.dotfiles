@@ -100,6 +100,10 @@ TODO
 
 make caps lock switch languages and make it fast!
 
+## Scroll acceleration mouse fix
+
+<https://github.com/iwa/discrete-scroll-arm>
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
