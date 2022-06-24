@@ -104,6 +104,10 @@ make caps lock switch languages and make it fast!
 
 <https://github.com/iwa/discrete-scroll-arm>
 
+## Раскладка Бирмана
+
+Установить + удалить системный английский язык.
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
