@@ -174,3 +174,9 @@ http://redsymbol.net/articles/unofficial-bash-strict-mode/
 * `\du` - Show all roles
 * `\x ON` - Turn extended display on in the psql console. This prints columns vertically, and is useful for when a table too wide to display in the console.
 * `\df+ <function_name>` - Show the source code of a Postgres function.
+
+## macOS
+
+Get bundle identifier in macos (change `dota2` to process name)
+
+* `mdls -name kMDItemCFBundleIdentifier -raw "$(mdfind "(kMDItemContentTypeTree=com.apple.application) && (kMDItemDisplayName == 'dota2*'cdw)" | head -1)"`
