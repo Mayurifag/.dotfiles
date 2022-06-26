@@ -6,6 +6,7 @@ tap "homebrew/cask-versions"
 tap "homebrew/core"
 
 brew "age"
+brew "aspell"
 brew "bat"
 brew "bats-core"
 brew "chezmoi"
