@@ -108,6 +108,11 @@ make caps lock switch languages and make it fast!
 
 Установить + удалить системный английский язык.
 
+## Redquits
+
+sudo installer -verbose -pkg RedQuits_v2.pkg -target /
+Privacy -> Accessibility -> enable
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
