@@ -8,4 +8,4 @@ makefiles
 macos
 install
 docs
-Library/LaunchDaemons/org.shadowsocks.rust.plist
+Library/*
