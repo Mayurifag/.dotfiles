@@ -272,6 +272,14 @@
                         "description": "Command + Esc to Command + `",
                         "manipulators": [
                             {
+                                "conditions": [
+                                    {
+                                        "bundle_identifiers": [
+                                            "^com.raycast.macos"
+                                        ],
+                                        "type": "frontmost_application_unless"
+                                    }
+                                ],
                                 "from": {
                                     "key_code": "escape",
                                     "modifiers": {
@@ -398,7 +406,8 @@
                                             "^org\\.virtualbox\\.app\\.VirtualBoxVM$",
                                             "^com\\.citrix\\.XenAppViewer$",
                                             "^com\\.vmware\\.proxyApp\\.",
-                                            "^com\\.parallels\\.winapp\\."
+                                            "^com\\.parallels\\.winapp\\.",
+                                            "^com.raycast.macos"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
