@@ -20,7 +20,6 @@ fzf:
 	brew install fzf
 	/opt/homebrew/opt/fzf/install
 
-# TODO
 antibody:
 	brew install antibody
-	antibody bundle < $(DOTFILES_DIR)/stowfiles/zsh/plugins.txt > $(HOME)/.zsh_plugins.sh
+	antibody bundle < $(DOTFILES_DIR)/zsh/plugins.txt > $(HOME)/.zsh_plugins.sh
