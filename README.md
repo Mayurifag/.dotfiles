@@ -41,34 +41,22 @@ make
 
 ## After bootstrap
 
-* Check login Rubymine/Datagrip/Goland
-* Launch Docker Desktop
-* Launch Gitkraken
-* Launch fig
-* Launch Raycast
 * VSCode - initiate sync
 * Restore gpg key – launch keepassxc, search for gpg
+* Setup each app
 
 ## TODO:
 
-Chezmoi setup!!
-https://fedoramagazine.org/take-back-your-dotfiles-with-chezmoi/
-
 5) superhuman / fork / calendar app
 7) https://www.taniarascia.com/setting-up-a-brand-new-mac-for-development/
-10) screenshot?
-11) iterm like guake + always open + ...? tmux? why not
 12) closing windows properly
-13) shazam krisp twitter (tweetbot)
+13) krisp twitter (tweetbot)
 14) some app to use whatsapp and skype and zoom
-15) thefuck? zsh-completions zsh-syntax-highlighting zsh-autosuggestions
 16) mackup restore
-* brew install dash
 * cyberduck
 * https://docs.nextcloud.com/server/19/user_manual/pim/sync_osx.html
 * Do I need any ssh config? Move from old pc
 * Full instruction <https://stackoverflow.com/questions/30850430/iterm2-hide-show-like-guake>
-4) https://www.swyx.io/new-mac-setup-2021
 
 ## Last things
 
@@ -76,8 +64,6 @@ Check startup -> User & Groups from Raycast
 Keyboard -> fn do nothing
 
 ## Startup
-
-nextcloud, iterm, keepassxc, docker?, fig, raycast, amphetamine
 
 Hidden telegram app in script editor
 
@@ -87,6 +73,8 @@ tell application "Finder"
 set visible of process "Telegram" to false
 end tell
 ```
+
+Need to think :S
 
 ## Set sudo to be usable without Touch ID
 
@@ -98,6 +86,7 @@ TODO
 
 ## Setup karabiner
 
+TODO
 make caps lock switch languages and make it fast!
 
 ## Scroll acceleration mouse fix
@@ -108,10 +97,21 @@ make caps lock switch languages and make it fast!
 
 Установить + удалить системный английский язык.
 
-## Redquits
+## Redquits - do i need it
 
 sudo installer -verbose -pkg RedQuits_v2.pkg -target /
 Privacy -> Accessibility -> enable
+
+## ani-cli
+
+<https://github.com/pystardust/ani-cli#MacOS>
+
+## Paid macos apps I use
+
+1) Bartender 4
+2) BetterSnapTool
+3) GitKraken
+4) Rubymine/Datagrip/Goland (login)
 
 ## Credits
 

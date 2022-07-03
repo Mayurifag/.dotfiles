@@ -1,7 +1,3 @@
-# Everyday Linux
-## This ZSH config. You may do d-enter-f-enter to get this repo opened fast in vscode
-alias d='cd $HOME/.dotfiles/'
-
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
@@ -24,7 +20,7 @@ alias hosts='sudo vim /etc/hosts'
 ## Other
 # alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 alias cz='chezmoi'
-alias free='free -m'                # show sizes in MB
+alias free='free -m' # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
