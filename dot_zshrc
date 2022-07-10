@@ -11,7 +11,15 @@
 [ -f $HOME/zsh/bindkeys.zsh ] && source $HOME/zsh/bindkeys.zsh
 [ -f $HOME/zsh/history.zsh ] && source $HOME/zsh/history.zsh
 # [ -f /usr/share/doc/pkgfile/command-not-found.zsh ] && source /usr/share/doc/pkgfile/command-not-found.zsh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f ~/.fzf.zsh ] && source $HOME/.fzf.zsh
+
+# TODO: get to new convention. Name files like 10-file.zsh to have prefix for source order
+# for i in ${HOME}/.bash.d/*.sh
+# do
+#   if [ -r ${i} ] ; then
+#       . ${i}
+#   fi
+# done
 
 # Fig post block. Keep at the bottom of this file.
 [[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"

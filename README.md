@@ -106,6 +106,16 @@ Privacy -> Accessibility -> enable
 
 <https://github.com/pystardust/ani-cli#MacOS>
 
+## Rocket app
+
+Disable on VSCode.
+
+## espanso
+
+```sh
+ln -s "/Users/mayurifag/Nextcloud/Rarely Useful/Software/espanso" "/Users/mayurifag/Library/Application Support/espanso"
+```
+
 ## Paid macos apps I use
 
 1) Bartender 4
