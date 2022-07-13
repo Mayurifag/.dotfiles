@@ -1,3 +1,7 @@
+## Macos applications
+alias firefox='/Applications/Firefox.app/Contents/MacOS/firefox'
+alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
+
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
@@ -78,7 +82,6 @@ alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/ind
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 alias yolo='LEFTHOOK=0 git push --force'
-alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
 
 ## Vagrant
