@@ -100,12 +100,12 @@ knownrm() {
 }
 
 gitself() {
-  echo 'Setting up git config user Vladisav Ponomarev <farazeus@gmail.com>'
+  echo 'Setting up git config user Vladislav Ponomarev <farazeus@gmail.com>'
   git config user.name 'Vladislav Ponomarev' && git config user.email 'farazeus@gmail.com' && git config user.signingKey 'E8E136A2C8865C488DB0B5CBBCE113E227780CF7'
 }
 
 gitwork() {
-  echo 'Setting up git config user Vladisav Ponomarev <vladislav.ponomarev@bgaming.com>'
+  echo 'Setting up git config user Vladislav Ponomarev <vladislav.ponomarev@bgaming.com>'
   git config user.name 'Vladislav Ponomarev' && git config user.email 'vladislav.ponomarev@bgaming.com' && git config user.signingKey 'E8E136A2C8865C488DB0B5CBBCE113E227780CF7'
 }
 
