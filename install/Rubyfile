@@ -3,6 +3,7 @@ bundler
 dead_end
 dip
 fasterer
+gem-compare
 lefthook
 ordinare
 pry

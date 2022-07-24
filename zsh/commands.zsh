@@ -110,7 +110,7 @@ gitwork() {
 }
 
 gcd() {
-  git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)" && gitself
+  git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)"
 }
 
 grom() {

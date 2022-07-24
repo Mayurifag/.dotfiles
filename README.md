@@ -38,6 +38,7 @@ make
 ## Before
 
 * Install zsh and make homebrew one to be default
+* iCloud — delete all the syncs, maybe need guide here or smth
 
 ## After bootstrap
 

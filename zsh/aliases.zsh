@@ -41,6 +41,7 @@ alias docker-clean=' \
   docker image prune -f ; \
   docker network prune -f ; \
   docker volume prune -f '
+alias bundleantibody='antibody bundle < ~/zsh/plugins.txt > ~/.zsh_plugins.sh'
 
 # Development
 ## Rails
