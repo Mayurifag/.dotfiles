@@ -428,6 +428,68 @@
                               "type": "basic"
                           }
                       ]
+                  },
+                  {
+                      "description": "CapsLock to Ctrl+SpaceBar (changes language). Except Dota 2",
+                      "manipulators": [
+                          {
+                              "conditions": [
+                                  {
+                                      "bundle_identifiers": [
+                                          "^com.valvesoftware.dota2"
+                                      ],
+                                      "type": "frontmost_application_unless"
+                                  }
+                              ],
+                              "from": {
+                                  "key_code": "caps_lock"
+                              },
+                              "to": [
+                                  {
+                                      "key_code": "spacebar",
+                                      "modifiers": [
+                                          "left_control"
+                                      ],
+                                      "repeat": false
+                                  }
+                              ],
+                              "to_if_held_down": [
+                                  {
+                                    "key_code": "spacebar",
+                                    "modifiers": [
+                                        "left_control"
+                                    ],
+                                    "repeat": true
+                                  }
+                              ],
+                              "type": "basic"
+                          }
+                      ]
+                  },
+                  {
+                      "description": "CapsLock to 'l'. Only for Dota 2 - because of double-click on the CapsLock bug",
+                      "manipulators": [
+                          {
+                              "conditions": [
+                                  {
+                                      "bundle_identifiers": [
+                                          "^com.valvesoftware.dota2"
+                                      ],
+                                      "type": "frontmost_application_if"
+                                  }
+                              ],
+                              "from": {
+                                  "key_code": "caps_lock"
+                              },
+                              "to": [
+                                  {
+                                      "key_code": "l",
+                                      "repeat": false
+                                  }
+                              ],
+                              "type": "basic"
+                          }
+                      ]
                   }
               ]
           },
@@ -451,6 +513,32 @@
                   "identifiers": {
                       "is_keyboard": true,
                       "is_pointing_device": false,
+                      "product_id": 64123,
+                      "vendor_id": 9639
+                  },
+                  "ignore": true,
+                  "manipulate_caps_lock_led": false,
+                  "simple_modifications": []
+              },
+              {
+                  "disable_built_in_keyboard_if_exists": false,
+                  "fn_function_keys": [],
+                  "identifiers": {
+                      "is_keyboard": false,
+                      "is_pointing_device": true,
+                      "product_id": 835,
+                      "vendor_id": 1452
+                  },
+                  "ignore": true,
+                  "manipulate_caps_lock_led": false,
+                  "simple_modifications": []
+              },
+              {
+                  "disable_built_in_keyboard_if_exists": false,
+                  "fn_function_keys": [],
+                  "identifiers": {
+                      "is_keyboard": false,
+                      "is_pointing_device": true,
                       "product_id": 64123,
                       "vendor_id": 9639
                   },

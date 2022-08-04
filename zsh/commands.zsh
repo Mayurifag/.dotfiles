@@ -121,3 +121,10 @@ grom() {
 btrestart() {
   sudo rfkill block bluetooth && sleep 0.1 && sudo rfkill unblock bluetooth
 }
+
+# -i path/to/input_file: give the path to your file
+# -c copy: tell FFmpeg to copy codecs (prevent transcoding)
+# -an: disables audio
+remove_audio() {
+  ffmpeg -i $1 -c copy -an onlyVideo.mp4
+}
