@@ -458,8 +458,7 @@
                                     "key_code": "spacebar",
                                     "modifiers": [
                                         "left_control"
-                                    ],
-                                    "repeat": true
+                                    ]
                                   }
                               ],
                               "type": "basic"
