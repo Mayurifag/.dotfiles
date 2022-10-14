@@ -1,5 +1,5 @@
 # Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && . "$HOME/.fig/shell/zshrc.pre.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 [ -f $HOME/zsh/zcompdump.zsh ] && source $HOME/zsh/zcompdump.zsh
 [ -f $HOME/.zsh_plugins.sh ] && source $HOME/.zsh_plugins.sh # Load zsh plugins, generates automatically
 [ -f $HOME/zsh/setopt.zsh ] && source $HOME/zsh/setopt.zsh
@@ -22,4 +22,4 @@
 # done
 
 # Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && . "$HOME/.fig/shell/zshrc.post.zsh"
+[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
