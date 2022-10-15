@@ -430,7 +430,7 @@
                       ]
                   },
                   {
-                      "description": "CapsLock to Ctrl+SpaceBar (changes language). Except Dota 2",
+                      "description": "CapsLock to Command+SpaceBar (changes language). Except Dota 2",
                       "manipulators": [
                           {
                               "conditions": [
@@ -448,7 +448,7 @@
                                   {
                                       "key_code": "spacebar",
                                       "modifiers": [
-                                          "left_control"
+                                          "left_command"
                                       ],
                                       "repeat": false
                                   }
@@ -457,8 +457,9 @@
                                   {
                                     "key_code": "spacebar",
                                     "modifiers": [
-                                        "left_control"
-                                    ]
+                                        "left_command"
+                                    ],
+                                    "repeat": true
                                   }
                               ],
                               "type": "basic"
