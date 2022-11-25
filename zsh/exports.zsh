@@ -21,11 +21,11 @@ export PATH=$PATH:$HOME/.cargo/bin
 ## OCaml / opam
 export PATH=$PATH:$HOME/.opam/default/bin
 
+## Python, 3.10 user pip
+export PATH=$PATH:$HOME/Library/Python/3.10/bin
+
 # System
 export LC_ALL=en_US.UTF-8
-# export LANG=ru_RU.UTF8
-# export LC_COLLATE=ru_RU.UTF-8
-# export LC_CTYPE=ru_RU.UTF-8
 export VISUAL=code
 export EDITOR=vi
 export SUDO_EDITOR=vi
@@ -36,3 +36,6 @@ export SUDO_EDITOR=vi
 # export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
 export DISABLE_AUTO_UPDATE="true"
+
+# Homebrew
+HOMEBREW_CASK_OPTS="--no-quarantine"
