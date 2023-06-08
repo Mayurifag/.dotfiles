@@ -31,8 +31,8 @@ alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
 alias vboost='pamixer --allow-boost --set-volume 150'
 # alias u="yay -Syu"
 alias weather='curl wttr.in/SVO'
-alias yt="youtube-dl -o '%(title)s.%(ext)s'"
-alias yta="youtube-dl -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
+alias yt="yt-dlp -v -o \"%(upload_date)s %(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor, selfpromo\" --embed-thumbnail --embed-chapters --embed-metadata --embed-subs --sub-langs all"
+alias yta="yt-dlp -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
 # https://github.com/soimort/translate-shell
 alias tru='trans :ru'
 alias ten='trans :en'
@@ -59,6 +59,9 @@ alias tdl='tail -f ./log/development.log'
 alias ttl='tail -f ./log/test.log'
 alias cr='EDITOR=vim bin/rails credentials:edit'
 
+## Makefile
+alias mrc='make rubocop-correct'
+
 ## Editors
 alias f='code .'
 # alias v='vim'
@@ -79,7 +82,7 @@ alias gri='LEFTHOOK=0 git rebase --interactive'
 alias grep='grep --color=auto'
 alias lzg="lazygit"
 alias lg="git log --pretty=format:'%h %an %s'"
-alias q='git add . && git commit -m "WIP: $(curl -s http://whatthecommit.com/index.txt)" && LEFTHOOK=0 git push origin HEAD'
+alias q='git add . && git commit -m "WIP: $(curl --silent --fail -L https://whatthecommit.com/index.txt)" && LEFTHOOK=0 git push origin HEAD'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 alias yolo='LEFTHOOK=0 git push --force'

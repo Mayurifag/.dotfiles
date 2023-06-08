@@ -1,7 +1,8 @@
 zsh-users/zsh-completions
-zsh-users/zsh-autosuggestions branch:develop
+zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
-zsh-users/zsh-history-substring-search
+# gives warning _zsh_autosuggest_highlight_reset:3: maximum nested function level reached; increase FUNCNEST?
+# zsh-users/zsh-history-substring-search
 MichaelAquilina/zsh-you-should-use
 hlissner/zsh-autopair
 mroth/evalcache
