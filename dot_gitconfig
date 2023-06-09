@@ -14,6 +14,7 @@
 [core]
 	autocrlf = input
 	editor = vi
+	attributesfile = /Users/mayurifag/.gitattributes
 [credential]
 	helper = cache --timeout=3600
 [color]
