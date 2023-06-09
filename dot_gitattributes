@@ -36,8 +36,3 @@
 *.m     diff=objc
 *.mm    diff=objc
 *.erb   diff=erb
-
-# Additional manually-configured matchers you may want to add to your .gitconfig
-
-@REM [diff "rspec"]
-@REM   xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
