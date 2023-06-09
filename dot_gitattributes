@@ -4,6 +4,7 @@
 #
 # See https://tekin.co.uk/2020/10/better-git-diff-output-for-ruby-python-elixir-and-more for more details
 
+*_spec.rb  diff=rspec
 *.c     diff=cpp
 *.h     diff=cpp
 *.c++   diff=cpp
@@ -35,12 +36,8 @@
 *.m     diff=objc
 *.mm    diff=objc
 *.erb   diff=erb
-*_spec.rb  diff=rspec
 
 # Additional manually-configured matchers you may want to add to your .gitconfig
 
 [diff "rspec"]
         xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
-
-[diff "swift"]
-    xfuncname = ^[ \t]*((class|func)[ \t].*)$
