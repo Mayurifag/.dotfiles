@@ -39,5 +39,5 @@
 
 # Additional manually-configured matchers you may want to add to your .gitconfig
 
-[diff "rspec"]
-        xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
+@REM [diff "rspec"]
+@REM   xfuncname = "^[ \t]*((RSpec|describe|context|it|before|after|around|feature|scenario|background)[ \t].*)$"
