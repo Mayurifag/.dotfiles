@@ -33,6 +33,7 @@ alias vboost='pamixer --allow-boost --set-volume 150'
 alias weather='curl wttr.in/SVO'
 alias yt="yt-dlp -v -o \"%(upload_date)s %(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor, selfpromo\" --embed-thumbnail --embed-chapters --embed-metadata --embed-subs --sub-langs all"
 alias yta="yt-dlp -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
+# TODO: private aliases yt-dlp --cookies-from-browser firefox twitter
 # https://github.com/soimort/translate-shell
 alias tru='trans :ru'
 alias ten='trans :en'
