@@ -1,4 +1,4 @@
-.PHONY: packages brew-packages node-packages rust-packages ruby-packages fzf antibody
+.PHONY: packages brew-packages node-packages rust-packages ruby-packages fzf antidote
 packages: brew-packages node-packages rust-packages ruby-packages fzf
 
 brew-packages:
@@ -17,6 +17,6 @@ fzf:
 	brew install fzf
 	/opt/homebrew/opt/fzf/install
 
-antibody:
-	brew install antibody
-	antibody bundle < $(DOTFILES_DIR)/zsh/plugins.txt > $(HOME)/.zsh_plugins.sh
+antidote:
+	brew install antidote
+	antidote bundle < $(DOTFILES_DIR)/zsh/plugins.txt > $(HOME)/.zsh_plugins.sh

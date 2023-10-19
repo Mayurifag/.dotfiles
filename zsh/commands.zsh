@@ -5,7 +5,7 @@ pollCommand() {
 prg() {
   git pull -a > /dev/null
 
-  local branches=$(git branch | grep -v 'release' | grep -v 'master' | grep -v "\*" )
+  local branches=$(git branch --list '*[^master][^main]' --format='%(refname:short)' | grep -v '^*')
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
@@ -99,22 +99,21 @@ knownrm() {
  fi
 }
 
-gitself() {
-  echo 'Setting up git config user Vladislav Ponomarev <farazeus@gmail.com>'
-  git config user.name 'Vladislav Ponomarev' && git config user.email 'farazeus@gmail.com' && git config user.signingKey 'E8E136A2C8865C488DB0B5CBBCE113E227780CF7'
-}
-
-gitwork() {
-  echo 'Setting up git config user Vladislav Ponomarev <vladislav.ponomarev@bgaming.com>'
-  git config user.name 'Vladislav Ponomarev' && git config user.email 'vladislav.ponomarev@bgaming.com' && git config user.signingKey 'E8E136A2C8865C488DB0B5CBBCE113E227780CF7'
-}
-
 gcd() {
   git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)"
 }
 
-grom() {
-  LEFTHOOK=0 git rebase -i origin/master
+grom () {
+  if git rev-parse --verify --quiet origin/main > /dev/null 2>&1; then
+    GIT_BRANCH=main
+  elif git rev-parse --verify --quiet origin/master > /dev/null 2>&1; then
+    GIT_BRANCH=master
+  else
+    echo "Neither 'origin/main' nor 'origin/master' branch exists."
+    return 1
+  fi
+
+  LEFTHOOK=0 git rebase -i "origin/$GIT_BRANCH"
   git submodule update --init --recursive
 }
 

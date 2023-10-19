@@ -19,14 +19,21 @@
 	helper = cache --timeout=3600
 [color]
 	ui = auto
-[commit]
-	gpgSign = true
-[tag]
-	forceSignAnnotated = true
-[init]
-	defaultBranch = main
-[gpg]
-	program = gpg
+[merge]
+  conflictstyle = diff3
+[color "branch"]
+  current = yellow reverse
+  local = yellow
+  remote = green
+[color "diff"]
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
+[color "status"]
+  added = yellow
+  changed = green
+  untracked = cyan
 [gui]
 	pruneDuringFetch = true
 [ssh]

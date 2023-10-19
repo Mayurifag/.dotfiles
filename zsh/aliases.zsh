@@ -42,7 +42,7 @@ alias docker-clean=' \
   docker image prune -f ; \
   docker network prune -f ; \
   docker volume prune -f '
-alias bundleantibody='antibody bundle < ~/zsh/plugins.txt > ~/.zsh_plugins.sh'
+alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/.zsh_plugins.sh'
 
 # Development
 ## Rails
@@ -77,7 +77,7 @@ alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.d
 alias ci='glab pipeline ci view'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 # alias gpf='LEFTHOOK=0 git push --force'
-alias gpf='LEFTHOOK=0 git push origin HEAD --force'
+alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
 alias grep='grep --color=auto'
