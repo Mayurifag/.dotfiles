@@ -38,5 +38,7 @@
 	pruneDuringFetch = true
 [ssh]
 	variant = ssh
+[init]
+	defaultBranch = main
 [includeIf "gitdir:~/Work/"]
   path = .gitconfig.work
