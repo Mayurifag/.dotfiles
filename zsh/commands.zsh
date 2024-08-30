@@ -52,7 +52,6 @@ pskill(){
 }
 
 backup() { cp "$1"{,.bak};}
-delhost() { sed -i "$1d" ~/.ssh/known_hosts } # i dont use that
 
 # -------------------------------------------------------------------
 # compressed file expander
@@ -108,6 +107,8 @@ grom () {
     GIT_BRANCH=main
   elif git rev-parse --verify --quiet origin/master > /dev/null 2>&1; then
     GIT_BRANCH=master
+  elif git rev-parse --verify --quiet origin/source > /dev/null 2>&1; then
+    GIT_BRANCH=source
   else
     echo "Neither 'origin/main' nor 'origin/master' branch exists."
     return 1
@@ -126,4 +127,19 @@ btrestart() {
 # -an: disables audio
 remove_audio() {
   ffmpeg -i $1 -c copy -an onlyVideo.mp4
+}
+
+leet() {
+  filename=$(echo "$@" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
+  mkdir -p ${filename}
+  touch ${filename}/${filename}.go
+  echo "package leetcode" >> ${filename}/${filename}.go
+}
+
+leetest() {
+  gotests -w -all -parallel $1
+}
+
+ports() {
+  sudo lsof -iTCP -sTCP:LISTEN -n -P | awk 'NR>1 {print $9, $1, $2}' | sed 's/.*://' | while read port process pid; do echo "Port $port: $(ps -p $pid -o command= | sed 's/^-//') (PID: $pid)"; done | sort -n
 }
