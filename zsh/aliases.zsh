@@ -5,21 +5,18 @@ alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-alias ll='ls -alh --group-directories-first'
-
-if command -V dircolors >/dev/null 2>&1; then 	# Only alias ls colors if dircolors is installed
-	# eval "$(dircolors -b)"
-	alias dir="dir --color=auto"
-	alias ls="ls -F --color=auto"
-	alias vdir="vdir --color=auto"
-  alias egrep='egrep --color=auto'
-  alias fgrep='fgrep --color=auto'
-fi
 
 ## Root
 alias reboot='sudo reboot'
 alias root='sudo su'
 alias hosts='sudo vim /etc/hosts'
+
+if command -V lsd >/dev/null 2>&1; then 	# Only alias if lsd installed
+  alias l='lsd -l'
+  alias la='lsd -a'
+  alias lla='lsd -la'
+  alias lt='lsd --tree'
+fi
 
 ## Other
 # alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
@@ -28,11 +25,9 @@ alias free='free -m' # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
-alias vboost='pamixer --allow-boost --set-volume 150'
-# alias u="yay -Syu"
-alias weather='curl wttr.in/SVO'
 alias yt="yt-dlp -v -o \"%(upload_date)s %(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor, selfpromo\" --embed-thumbnail --embed-chapters --embed-metadata --embed-subs --sub-langs all"
 alias yta="yt-dlp -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
+alias fix-mp3-encoding="mp3unicode --source-encoding cp1251 --id3v1-encoding none --id3v2-encoding unicode *"
 # TODO: private aliases yt-dlp --cookies-from-browser firefox twitter
 # https://github.com/soimort/translate-shell
 alias tru='trans :ru'
@@ -64,14 +59,11 @@ alias cr='EDITOR=vim bin/rails credentials:edit'
 alias mrc='make rubocop-correct'
 
 ## Editors
-alias f='code .'
-# alias v='vim'
+alias f='cursor .'
+alias v='nvim'
 
 ## Docker
 alias dcp='docker-compose'
-alias dp='dip provision'
-alias k='kubectl'
-alias l='docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.dotfiles/lazydocker:/.config/jesseduffield/lazydocker lazyteam/lazydocker'
 
 ## Git
 alias ci='glab pipeline ci view'
@@ -83,19 +75,8 @@ alias gri='LEFTHOOK=0 git rebase --interactive'
 alias grep='grep --color=auto'
 alias lzg="lazygit"
 alias lg="git log --pretty=format:'%h %an %s'"
-alias q='git add . && git commit -m "WIP: $(curl --silent --fail -L https://whatthecommit.com/index.txt)" && LEFTHOOK=0 git push origin HEAD'
+alias q='git add . && git commit -m "$(curl --silent --fail -L https://commit.mayurifag.ru)" && LEFTHOOK=0 git push origin HEAD'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 alias yolo='LEFTHOOK=0 git push --force'
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
-
-## Vagrant
-alias vp="vagrant provision"
-alias vs="vagrant ssh"
-alias vz="vagrant destroy -f; vagrant up"
-
-## Agebox
-alias e="agebox reencrypt"
-alias dec="agebox decrypt --all --force --private-keys ./private"
-alias enc="agebox encrypt"
-alias vld="agebox validate --private-keys ./private"
