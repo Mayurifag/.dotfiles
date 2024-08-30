@@ -32,9 +32,3 @@ else
 		chsh -s $(ZSH_BIN); \
 	fi
 endif
-
-version-managers:
-	brew install fnm
-	brew install frum
-	eval "$(frum init)"
-	eval "$(fnm env --use-on-cd)"
