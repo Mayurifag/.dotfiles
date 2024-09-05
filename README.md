@@ -124,6 +124,8 @@ ln -s "/Users/mayurifag/Nextcloud/Rarely Useful/Software/espanso" "/Users/mayuri
 3) GitKraken
 4) Rubymine/Datagrip/Goland (login)
 
+Shottr disable intro - `defaults write cc.ffitch.shottr showIntro 2009463689`
+
 ## Credits
 
 Its inspired mostly on [webdev dotfiles repo](https://github.com/webpro/dotfiles)
