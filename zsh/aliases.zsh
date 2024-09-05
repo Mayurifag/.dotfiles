@@ -25,8 +25,23 @@ alias free='free -m' # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
-alias yt="yt-dlp -v -o \"%(upload_date)s %(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor, selfpromo\" --embed-thumbnail --embed-chapters --embed-metadata --embed-subs --sub-langs all"
-alias yta="yt-dlp -o '%(title)s.%(ext)s' --extract-audio --audio-format 'mp3'"
+alias yt="yt-dlp -v -o \"%(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic\" --embed-thumbnail --embed-chapters --embed-metadata --concurrent-fragments 3 --throttled-rate 100K --retries 3"
+alias yt-full="yt-dlp -v -o \"%(upload_date)s %(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic\" --embed-thumbnail --embed-chapters --embed-metadata --embed-subs --sub-langs all --concurrent-fragments 3 --throttled-rate 100K --retries 3"
+
+alias yta="yt-dlp -f 'ba' -x --audio-format mp3 --audio-quality 0 \
+  -o '%(artist,uploader|Unknown Artist)s - %(title)s.%(ext)s' \
+  --embed-thumbnail --convert-thumbnails jpg \
+  --embed-metadata \
+  --parse-metadata 'title:%(title)s' \
+  --parse-metadata 'artist:%(artist,uploader|Unknown Artist)s' \
+  --sponsorblock-remove 'sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic' \
+  --sponsorblock-chapter-title '[SponsorBlock]: %(category)s' \
+  --embed-chapters \
+  --concurrent-fragments 3 \
+  --throttled-rate 100K \
+  --retries 10 \
+  --no-playlist"
+
 alias fix-mp3-encoding="mp3unicode --source-encoding cp1251 --id3v1-encoding none --id3v2-encoding unicode *"
 # TODO: private aliases yt-dlp --cookies-from-browser firefox twitter
 # https://github.com/soimort/translate-shell
