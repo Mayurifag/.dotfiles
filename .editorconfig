@@ -16,3 +16,8 @@ trim_trailing_whitespace = false
 [{Makefile,**.mk}]
 # Use tabs for indentation (Makefiles require tabs)
 indent_style = tab
+
+[dot_config/private_karabiner/private_karabiner.json]
+indent_size = 4
+insert_final_newline = false
+indent_style = space

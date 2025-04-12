@@ -19,7 +19,6 @@ if command -V lsd >/dev/null 2>&1; then 	# Only alias if lsd installed
 fi
 
 ## Other
-# alias rsa='xclip -sel clip < ~/.ssh/id_rsa.pub'
 alias cz='chezmoi'
 alias free='free -m' # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
@@ -43,7 +42,6 @@ alias yta="yt-dlp -f 'ba' -x --audio-format mp3 --audio-quality 0 \
   --no-playlist"
 
 alias fix-mp3-encoding="mp3unicode --source-encoding cp1251 --id3v1-encoding none --id3v2-encoding unicode *"
-# TODO: private aliases yt-dlp --cookies-from-browser firefox twitter
 # https://github.com/soimort/translate-shell
 alias tru='trans :ru'
 alias ten='trans :en'
@@ -90,8 +88,8 @@ alias gri='LEFTHOOK=0 git rebase --interactive'
 alias grep='grep --color=auto'
 alias lzg="lazygit"
 alias lg="git log --pretty=format:'%h %an %s'"
-alias q='git add . && git commit -m "$(curl --silent --fail -L https://commit.mayurifag.ru)" && LEFTHOOK=0 git push origin HEAD'
+# alias q='git add . && git commit -m "$(curl --silent --fail -L https://commit.mayurifag.ru)" && LEFTHOOK=0 git push origin HEAD'
+alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
-alias yolo='LEFTHOOK=0 git push --force'
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'

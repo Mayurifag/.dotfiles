@@ -143,3 +143,24 @@ leetest() {
 ports() {
   sudo lsof -iTCP -sTCP:LISTEN -n -P | awk 'NR>1 {print $9, $1, $2}' | sed 's/.*://' | while read port process pid; do echo "Port $port: $(ps -p $pid -o command= | sed 's/^-//') (PID: $pid)"; done | sort -n
 }
+
+optimize-video() {
+  local file="$1"
+  local extension="${file##*.}"
+  local basename="${file%.*}"
+
+  # Temporary output file to avoid overwriting during the process
+  local tmp_output="${basename}_converted.mp4"
+
+  # Convert video with ffmpeg using h265 codec, slow preset, and audio settings
+  ffmpeg -r 25 -i "$file" -c:v libx265 -preset slow -crf 28 -c:a aac -b:a 256k "$tmp_output"
+
+  # Check if the conversion was successful, then delete the original file
+  if [[ -f "$tmp_output" ]]; then
+    rm "$file"
+    mv "$tmp_output" "$file"
+    echo "Converted and replaced: $file"
+  else
+    echo "Failed to convert: $file"
+  fi
+}

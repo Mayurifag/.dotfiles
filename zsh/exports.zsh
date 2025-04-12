@@ -14,7 +14,7 @@ export PATH=$PATH:$HOME/.cargo/bin
 
 # System
 export LC_ALL=en_US.UTF-8
-export VISUAL=code
+export VISUAL=cursor
 export EDITOR=vi
 export SUDO_EDITOR=vi
 
@@ -27,4 +27,4 @@ export DISABLE_AUTO_UPDATE="true"
 
 # export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 
-export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"

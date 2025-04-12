@@ -8,28 +8,7 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Disable Option+E in Dota 2",
-                        "manipulators": [
-                            {
-                                "conditions": [
-                                    {
-                                        "bundle_identifiers": [
-                                            "^com.valvesoftware.dota2"
-                                        ],
-                                        "type": "frontmost_application_if"
-                                    }
-                                ],
-                                "from": {
-                                    "key_code": "e",
-                                    "modifiers": { "mandatory": ["option"] }
-                                },
-                                "to": [{ "key_code": "vk_none" }],
-                                "type": "basic"
-                            }
-                        ]
-                    },
-                    {
-                        "description": "Map Fn + Backspace to Forward Delete",
+                        "description": "Fn + Backspace -> Forward Delete (macbook doesnt have Delete key)",
                         "manipulators": [
                             {
                                 "from": {
@@ -42,7 +21,7 @@
                         ]
                     },
                     {
-                        "description": "Command + Esc to Command + `",
+                        "description": "Command + Esc -> Command + ` (prevents missclick for terminal opening)",
                         "manipulators": [
                             {
                                 "conditions": [
@@ -68,7 +47,7 @@
                         ]
                     },
                     {
-                        "description": "Disable Cmd+W, Cmd+Q, Cmd+E in Dota 2",
+                        "description": "Dota 2: Disable Cmd+W, Cmd+Q, Cmd+E, Option+E",
                         "manipulators": [
                             {
                                 "conditions": [
@@ -92,6 +71,10 @@
                                         {
                                             "key_code": "e",
                                             "modifiers": { "mandatory": ["command"] }
+                                        },
+                                        {
+                                            "key_code": "e",
+                                            "modifiers": { "mandatory": ["option"] }
                                         }
                                     ]
                                 },
@@ -101,7 +84,7 @@
                         ]
                     },
                     {
-                        "description": "Command+E Opens Finder",
+                        "description": "Command+E Opens Finder (except for remote desktop apps) like on Windows",
                         "manipulators": [
                             {
                                 "conditions": [
@@ -130,7 +113,9 @@
                                             "^com\\.citrix\\.XenAppViewer$",
                                             "^com\\.vmware\\.proxyApp\\.",
                                             "^com\\.parallels\\.winapp\\.",
-                                            "^com.raycast.macos"
+                                            "^com.raycast.macos",
+                                            "^com.valvesoftware.dota2",
+                                            "^com.larian.bg3"
                                         ],
                                         "type": "frontmost_application_unless"
                                     }
@@ -176,7 +161,7 @@
                         ]
                     },
                     {
-                        "description": "CapsLock to 'l'. Only for Dota 2 - because of double-click on the CapsLock bug",
+                        "description": "Dota 2: CapsLock to 'l' (because of double-click on the CapsLock bug)",
                         "manipulators": [
                             {
                                 "conditions": [
@@ -234,39 +219,27 @@
                                 "type": "basic"
                             }
                         ]
+                    },
+                    {
+                        "description": "Mouse5 to Fn - for using wispr flow conveniently",
+                        "manipulators": [
+                            {
+                                "from": { "pointing_button": "button5" },
+                                "to": [{ "key_code": "fn" }],
+                                "type": "basic"
+                            }
+                        ]
                     }
                 ]
             },
             "devices": [
                 {
                     "identifiers": {
-                        "is_keyboard": true,
-                        "product_id": 64123,
-                        "vendor_id": 9639
+                        "is_pointing_device": true,
+                        "product_id": 62735,
+                        "vendor_id": 13652
                     },
-                    "ignore": true,
-                    "manipulate_caps_lock_led": false
-                },
-                {
-                    "identifiers": {
-                        "is_keyboard": true,
-                        "product_id": 591,
-                        "vendor_id": 1452
-                    },
-                    "simple_modifications": [
-                        {
-                            "from": { "key_code": "left_command" },
-                            "to": [{ "key_code": "left_option" }]
-                        },
-                        {
-                            "from": { "key_code": "left_option" },
-                            "to": [{ "key_code": "left_command" }]
-                        },
-                        {
-                            "from": { "key_code": "right_control" },
-                            "to": [{ "key_code": "right_command" }]
-                        }
-                    ]
+                    "ignore": false
                 }
             ],
             "name": "Default profile",
