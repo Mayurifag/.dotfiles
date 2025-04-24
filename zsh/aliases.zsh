@@ -12,9 +12,7 @@ alias root='sudo su'
 alias hosts='sudo vim /etc/hosts'
 
 if command -V lsd >/dev/null 2>&1; then 	# Only alias if lsd installed
-  alias l='lsd -l'
-  alias la='lsd -a'
-  alias lla='lsd -la'
+  alias la='lsd -la'
   alias lt='lsd --tree'
 fi
 
@@ -86,8 +84,7 @@ alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
 alias grep='grep --color=auto'
-alias lzg="lazygit"
-alias lg="git log --pretty=format:'%h %an %s'"
+alias l="lazygit"
 # alias q='git add . && git commit -m "$(curl --silent --fail -L https://commit.mayurifag.ru)" && LEFTHOOK=0 git push origin HEAD'
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
