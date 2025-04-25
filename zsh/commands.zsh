@@ -164,3 +164,40 @@ optimize-video() {
     echo "Failed to convert: $file"
   fi
 }
+
+# Function to open Cursor, automatically using dev container if available
+f() {
+  local devcontainer_file=".devcontainer/devcontainer.json"
+
+  if [ -f "$devcontainer_file" ] && command -v jq &> /dev/null; then
+    local default_workspace_folder="/workspace"
+    local container_workspace_folder
+    container_workspace_folder=$(jq -r '.workspaceFolder' "$devcontainer_file")
+
+    if [ "$container_workspace_folder" = "null" ] || [ -z "$container_workspace_folder" ]; then
+      echo "Warning: '.workspaceFolder' not found or empty in $devcontainer_file. Defaulting to '$default_workspace_folder'." >&2
+      container_workspace_folder="$default_workspace_folder"
+    fi
+
+    local folder_path
+    folder_path=$(pwd) # Get the absolute path of the current directory
+
+    # Ensure xxd command is available for hex encoding
+    if ! command -v xxd &> /dev/null; then
+        echo "Error: xxd command not found. Please install it (e.g., using 'brew install vim' or 'sudo apt-get install xxd')." >&2
+        return 1
+    fi
+
+    # Hex-encode the host folder path
+    local hex_path
+    hex_path=$(echo -n "$folder_path" | xxd -p | tr -d '\n')
+
+    # Construct the URI
+    local uri="vscode-remote://dev-container+${hex_path}${container_workspace_folder}"
+
+    # Launch Cursor using only the folder URI
+    cursor --folder-uri "$uri"
+  else
+    cursor .
+  fi
+}

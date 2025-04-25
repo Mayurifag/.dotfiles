@@ -70,7 +70,6 @@ alias cr='EDITOR=vim bin/rails credentials:edit'
 alias mrc='make rubocop-correct'
 
 ## Editors
-alias f='cursor .'
 alias v='nvim'
 
 ## Docker
