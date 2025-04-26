@@ -89,3 +89,7 @@ alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
+
+## Chezmoi
+alias czcd='cz cd'
+alias czapply='cz apply -v'

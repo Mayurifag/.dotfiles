@@ -165,7 +165,7 @@ optimize-video() {
   fi
 }
 
-# Function to open Cursor, automatically using dev container if available
+# Function to open Cursor, automatically with dev container if available
 f() {
   local devcontainer_file=".devcontainer/devcontainer.json"
 
@@ -197,7 +197,7 @@ f() {
 
     # Launch Cursor using only the folder URI
     cursor --folder-uri "$uri"
-  else
-    cursor .
   fi
+
+  cursor .
 }
