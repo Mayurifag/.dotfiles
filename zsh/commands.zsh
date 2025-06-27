@@ -167,6 +167,10 @@ optimize-video() {
 
 # Function to open Cursor, automatically with dev container if available
 f() {
+  code .
+
+  sleep 3 # I am trying to make sure that Gemini Coder extension will work fine when both windows are opened
+
   local devcontainer_file=".devcontainer/devcontainer.json"
 
   if [ -f "$devcontainer_file" ] && command -v jq &> /dev/null; then
@@ -195,9 +199,6 @@ f() {
     # Construct the URI
     local uri="vscode-remote://dev-container+${hex_path}${container_workspace_folder}"
 
-    # Launch Cursor using only the folder URI
-    cursor --folder-uri "$uri"
+    code --folder-uri "$uri"
   fi
-
-  cursor .
 }

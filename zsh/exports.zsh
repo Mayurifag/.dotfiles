@@ -14,7 +14,7 @@ export PATH=$PATH:$HOME/.cargo/bin
 
 # System
 export LC_ALL=en_US.UTF-8
-export VISUAL=cursor
+export VISUAL=code
 export EDITOR=vi
 export SUDO_EDITOR=vi
 

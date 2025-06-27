@@ -49,7 +49,6 @@ alias docker-clean=' \
   docker network prune -f ; \
   docker volume prune -f '
 alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/.zsh_plugins.sh'
-alias cfree='sudo ~/Code/cursor-vip/install.sh'
 
 # Development
 ## Rails

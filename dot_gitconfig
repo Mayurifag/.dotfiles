@@ -1,9 +1,7 @@
 [user]
-  email = farazeus@gmail.com
-  name = Vladislav Ponomarev
-  siginingKey = E8E136A2C8865C488DB0B5CBBCE113E227780CF7
-[github]
-	user = Mayurifag
+  name = Mayurifag
+  email = Mayurifag@users.noreply.github.com
+  siginingKey = BFBB7D82EB4816600C2F3DDD871672CCF33EDE72
 [alias]
 	co = checkout
 	st = status
@@ -40,5 +38,3 @@
 	variant = ssh
 [init]
 	defaultBranch = main
-[includeIf "gitdir:~/Work/"]
-  path = .gitconfig.work
