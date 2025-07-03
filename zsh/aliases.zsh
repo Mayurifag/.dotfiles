@@ -86,6 +86,7 @@ alias grep='grep --color=auto'
 alias l="lazygit"
 # alias q='git add . && git commit -m "$(curl --silent --fail -L https://commit.mayurifag.ru)" && LEFTHOOK=0 git push origin HEAD'
 alias q='yawn'
+alias mr='git diff HEAD | pbcopy'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
