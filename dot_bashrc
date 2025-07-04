@@ -6,8 +6,10 @@ export HISTSIZE=1000
 export HISTTIMEFORMAT='%F %T '
 # Don't put duplicate lines in the history.
 export HISTCONTROL=ignoredups
-## Enables displaying colors in the terminal
+# Enables displaying colors in the terminal
 export TERM=xterm-color
+# For macos disable deprecation warning
+export BASH_SILENCE_DEPRECATION_WARNING=1
 
 ####################################
 
