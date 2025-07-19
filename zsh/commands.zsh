@@ -202,3 +202,27 @@ f() {
     code --folder-uri "$uri"
   fi
 }
+
+mr() {
+  local diff_content="You are reviewing the following git diff from my codebase.
+Your job is **NOT to invent** new changes, but to **analyze only the code changes shown in the git diff below**.
+
+Task:
+
+1 Propose improvements to these changes, if any, in the form of exact edits — using imperative mood, e.g., \"Replace X with Y\", \"Remove this block and use Z instead\".
+2 Later you might be proposed to output the exact files instead of brief summary.
+3 Do NOT comment on unchanged files or say things like \"this looks good\".
+
+Be concise and exact. Your feedback will be used to improve the shown changes, not create new ones from scratch.
+
+Below is my current git diff — these are changes I already made and want to improve:
+
+$(git diff HEAD)
+
+---
+
+Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are supposed to not output any new comment or docstring and also remove the obvious ones. Here is the format I need after confirmation:"
+
+  echo "$diff_content" | pbcopy
+  echo "Code review template with git diff copied to clipboard"
+}

@@ -20,6 +20,7 @@ export SUDO_EDITOR=vi
 
 # Homebrew
 export HOMEBREW_CASK_OPTS="--no-quarantine"
+export HOMEBREW_NO_AUTO_UPDATE=1
 
 # Zsh
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
