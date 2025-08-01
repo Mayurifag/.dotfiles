@@ -35,6 +35,7 @@ alias tru='trans :ru'
 alias ten='trans :en'
 
 alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.sh'
+alias brewfile='brew bundle dump --file=$(chezmoi source-path)/install/Brewfile --force --no-vscode'
 
 # Development
 ## Rails

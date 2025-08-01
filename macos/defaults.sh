@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# NOTE: THIS FILE IS NOT USED!! FOR NOW ITS JUST A CHEATSHEET FOR THE FUTURE MACOS SETUP
+
 COMPUTER_NAME="hostname"
 
 osascript -e 'tell application "System Preferences" to quit'

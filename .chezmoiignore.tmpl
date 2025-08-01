@@ -1,0 +1,14 @@
+.editorconfig
+.github/
+.gitignore
+.vscode/
+install/
+macos/
+Makefile
+makefiles/
+media/
+README.md
+
+{{ if ne .chezmoi.os "darwin" -}}
+dot_config/private_karabiner
+{{- end }}

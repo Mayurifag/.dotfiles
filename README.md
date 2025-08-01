@@ -26,7 +26,7 @@ Do not forget:
 * Setup karabiner (I have config but not sure if something else needed)
 * Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
 
-### Paid macos apps I use
+### Paid macos apps I use (not in Brewfile)
 
 * Bartender
 * BetterSnapTool
@@ -43,4 +43,10 @@ Do not forget:
 
 ## Roadmap
 
-* Install golang packages like yawn, lazygit, etc.
+* Implement a cross-platform package installation script in the Makefile for both Homebrew (macOS) and pacman/yay
+* Convert hardcoded paths and OS-specific commands in shell scripts (.zshrc, aliases, etc.) into chezmoi templates to ensure they work on both operating systems.
+* Create a linux/settings.sh script to configure system settings using gsettings or dconf, similar to macos/defaults.sh
+* Make instructions for installing Golang packages like yawn and lazygit.
+* Refactor Zsh configuration files to use a numbered prefix for ordered sourcing (e.g., 10-aliases.zsh).
+* Create a guide or script for restoring GPG keys from a backup.
+* Identify and list Linux equivalents for the macOS GUI applications currently in the Brewfile.
