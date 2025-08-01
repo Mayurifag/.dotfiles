@@ -1,0 +1,20 @@
+name: Check Markdown links
+
+on:
+  push:
+
+jobs:
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: tcort/github-action-markdown-link-check@v1
+
+  markdown-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: '**/*.md'

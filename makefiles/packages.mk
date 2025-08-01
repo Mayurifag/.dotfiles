@@ -1,5 +1,5 @@
-.PHONY: packages brew-packages node-packages rust-packages ruby-packages fzf antidote
-packages: brew-packages node-packages rust-packages ruby-packages fzf
+.PHONY: packages brew-packages node-packages rust-packages ruby-packages antidote
+packages: node-packages rust-packages ruby-packages
 
 brew-packages:
 	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile || true
@@ -13,10 +13,6 @@ rust-packages:
 ruby-packages:
 	gem install $(shell cat install/Rubyfile)
 
-fzf:
-	brew install fzf
-	/opt/homebrew/opt/fzf/install
-
 antidote:
 	brew install antidote
-	antidote bundle < $(DOTFILES_DIR)/zsh/plugins.txt > $(HOME)/.zsh_plugins.sh
+	antidote bundle < $(DOTFILES_DIR)/zsh/plugins.txt > $(HOME)/zsh/.zsh_plugins.sh

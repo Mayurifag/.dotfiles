@@ -1,7 +1,4 @@
-fast-cli
 npm
 prettier
-release-it
-svgo
-tldr
-yarn
+markdownlint-cli2
+eslint

@@ -1,13 +1,15 @@
+# TODO: make a fancy function
+[ -f $HOME/.orbstack/shell/init.zsh ] && source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 [ -f $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh ] && source $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh
 [ -f $HOME/zsh/zcompdump.zsh ] && source $HOME/zsh/zcompdump.zsh
-[ -f $HOME/.zsh_plugins.sh ] && source $HOME/.zsh_plugins.sh # Load zsh plugins, generates automatically
+[ -f $HOME/zsh/.zsh_plugins.sh ] && source $HOME/zsh/.zsh_plugins.sh # Load zsh plugins, generates automatically
 [ -f $HOME/zsh/cached_evals.zsh ] && source $HOME/zsh/cached_evals.zsh
+[ -f $HOME/.fzf.zsh ] && source $HOME/.fzf.zsh
 [ -f $HOME/zsh/setopt.zsh ] && source $HOME/zsh/setopt.zsh
 [ -f $HOME/zsh/exports.zsh ] && source $HOME/zsh/exports.zsh
 [ -f $HOME/zsh/commands.zsh ] && source $HOME/zsh/commands.zsh
 [ -f $HOME/zsh/aliases.zsh ] && source $HOME/zsh/aliases.zsh
 [ -f $HOME/zsh/history.zsh ] && source $HOME/zsh/history.zsh
-[ -f ~/.fzf.zsh ] && source $HOME/.fzf.zsh
 
 # TODO: get to new convention. Name files like 10-file.zsh to have prefix for source order
 # for i in ${HOME}/.bash.d/*.sh

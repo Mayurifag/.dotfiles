@@ -45,7 +45,7 @@ disable() {
 }
 
 # Create a new directory and enter it
-mkcd() {   [ -n "$1" ] && mkdir -p "$@" && cd "$1";   }
+mkcd() {   [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1";   }
 
 pskill(){
     ps aux | grep "$1" | grep -v grep | awk '{print $2;}' | while read p; do kill -9 $p; done
@@ -99,7 +99,7 @@ knownrm() {
 }
 
 gcd() {
-  git clone --recurse-submodules "$1" && cd "$(basename "$1" .git)"
+  git clone --recurse-submodules "$1" && builtin cd "$(basename "$1" .git)"
 }
 
 grom () {

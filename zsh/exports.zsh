@@ -26,6 +26,6 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 export DISABLE_UNTRACKED_FILES_DIRTY="true"
 export DISABLE_AUTO_UPDATE="true"
 
-# export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
+export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 
 export PATH="$HOME/.local/bin:$PATH"

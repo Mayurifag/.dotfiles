@@ -1,3 +1,5 @@
+## NOT USED! Keep it simple
+
 # Opt out of homebrew analytics collection
 export HOMEBREW_NO_ANALYTICS=1
 # Number of lines to keep in the history file
