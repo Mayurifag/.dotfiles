@@ -2,10 +2,7 @@
   "[json]": {
     "editor.formatOnSave": false,
     "editor.defaultFormatter": "vscode.json-language-features",
+    // due to karabiner.json generated without it
     "files.insertFinalNewline": false
-  },
-  "[jsonc]": {
-    "editor.formatOnSave": false,
-    "editor.defaultFormatter": "vscode.json-language-features"
-  },
+  }
 }
