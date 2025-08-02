@@ -4,18 +4,18 @@
 
 Update system. Install [homebrew](https://brew.sh/). Install zsh with it.
 
-## Installation of this repository
+## Installation of environment
 
-Make sure `zsh` is default shell.
+Make sure ssh agent is ready to use keepassxc key. 
+For that enable sshd service, launch it, check `echo $SSH_AUTH_SOCK`.
+Final check - entries from `ssh-add -l`.
 
-```bash
-# ... TODO ...
-```
+Also setup gpg key - TODO.
+Make sure `zsh` is default shell. (TODO)
 
 Do not forget:
 
 * Initiate sync on VSCode
-* Restore GPG key (TODO: write how to do that from keepassxc)
 
 ## Sidenotes for MacOS
 
