@@ -296,29 +296,9 @@
                                 "type": "basic"
                             }
                         ]
-                    },
-                    {
-                        "description": "Mouse5 to Fn - for using wispr flow conveniently",
-                        "manipulators": [
-                            {
-                                "from": { "pointing_button": "button5" },
-                                "to": [{ "key_code": "fn" }],
-                                "type": "basic"
-                            }
-                        ]
                     }
                 ]
             },
-            "devices": [
-                {
-                    "identifiers": {
-                        "is_pointing_device": true,
-                        "product_id": 62735,
-                        "vendor_id": 13652
-                    },
-                    "ignore": false
-                }
-            ],
             "name": "Default profile",
             "selected": true
         }
