@@ -6,16 +6,35 @@ Update system. Install [homebrew](https://brew.sh/). Install zsh with it.
 
 ## Installation of environment
 
-Make sure ssh agent is ready to use keepassxc key. 
-For that enable sshd service, launch it, check `echo $SSH_AUTH_SOCK`.
-Final check - entries from `ssh-add -l`.
+Make sure ssh agent is ready to use keepassxc key (uses $SSH_AUTH_SOCK). Archwiki example
 
-Also setup gpg key - TODO.
+```bash
+$ systemctl --user enable --now ssh-agent.service
+
+# Edit ~/.profile
+if [[ -z "${SSH_CONNECTION}" ]]; then
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+fi
+```
+
 Make sure `zsh` is default shell. (TODO)
 
-Do not forget:
+## Things to do after
 
-* Initiate sync on VSCode
+* Initiate sync on VSCode (I did not have backup outside of proprietary microsoft binaries)
+* Import and DO NOT FORGET ultimately TRUST gpg key:
+
+```bash
+IMPORT: gpg --import all-private-keys.asc
+Check: gpg --list-secret-keys
+Trust the imported key: 
+
+gpg --edit-key [key_id]
+gpg> trust
+  5 = I trust ultimately
+Do you really want to set this key to ultimate trust? (y/N) y
+gpg> quit
+```
 
 ## Sidenotes for MacOS
 
