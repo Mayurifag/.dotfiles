@@ -6,15 +6,14 @@ Update system. Install [homebrew](https://brew.sh/). Install zsh with it.
 
 ## Installation of environment
 
-Make sure ssh agent is ready to use keepassxc key (uses $SSH_AUTH_SOCK). Archwiki example
+Make sure ssh agent is ready to use KeepassXC key (uses $SSH_AUTH_SOCK).
+Here will be working example for ArchLinux (btw) and Wayland KDE.
 
 ```bash
 $ systemctl --user enable --now ssh-agent.service
 
-# Edit ~/.profile
-if [[ -z "${SSH_CONNECTION}" ]]; then
-    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-fi
+# kate ~/.config/environment.d/ssh_vars.conf
+SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket
 ```
 
 Make sure `zsh` is default shell. (TODO)
@@ -59,6 +58,7 @@ gpg> quit
   * You need ones with typographic symbols (not sure its easy nowadays, needs guide).
   * Setup CapsLock to change layouts and right Alt as 3rd line modifier.
 * Setup guake-like terminal and shortcuts
+* Do I need [Wi-fi regulatory domain](https://wiki.cachyos.org/configuration/post_install_setup/#configure-wi-fi-regulatory-domain) to be set on South Korea like router?
 
 ## Roadmap
 
