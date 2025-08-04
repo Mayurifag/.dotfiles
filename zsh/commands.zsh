@@ -25,24 +25,26 @@ prg() {
   echo $branches | xargs git branch -D
 }
 
-start() {
-  sudo systemctl start $1.service
-}
-restart() {
-  sudo systemctl restart $1.service
-}
-stop() {
-  sudo systemctl stop $1.service
-}
-enable() {
-  sudo systemctl enable $1.service
-}
-status() {
-  sudo systemctl status $1.service
-}
-disable() {
-  sudo systemctl disable $1.service
-}
+if command -v systemctl &> /dev/null; then
+  start() {
+    sudo systemctl start $1.service
+  }
+  restart() {
+    sudo systemctl restart $1.service
+  }
+  stop() {
+    sudo systemctl stop $1.service
+  }
+  enable() {
+    sudo systemctl enable $1.service
+  }
+  status() {
+    sudo systemctl status $1.service
+  }
+  disable() {
+    sudo systemctl disable $1.service
+  }
+fi
 
 # Create a new directory and enter it
 mkcd() {   [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1";   }
@@ -225,4 +227,12 @@ Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are su
 
   echo "$diff_content" | pbcopy
   echo "Code review template with git diff copied to clipboard"
+}
+
+pkglist-explicit() {
+  pacman -Qei | awk '/^Name/{name=$3} /^Install Date/{date=$4" "$5" "$6" "$7" "$8} /^Install Reason/{if($4=="Explicitly") print date, name}' | sort
+}
+
+pkglist() {
+  pacman -Qe | awk '{print $1}' | sort
 }

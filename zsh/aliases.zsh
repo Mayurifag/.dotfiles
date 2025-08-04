@@ -1,6 +1,7 @@
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
+alias ls='ls -alh'
 
 ## Root
 alias reboot='sudo reboot'
@@ -36,6 +37,7 @@ alias ten='trans :en'
 
 alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.sh'
 alias brewfile='brew bundle dump --file=$(chezmoi source-path)/install/Brewfile --force --no-vscode'
+alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 
 # Development
 ## Rails
@@ -76,8 +78,9 @@ alias l="lazygit"
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
-# TODO: if mac
-alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
+if [ ! -x "$(command -v gitkraken)" ]; then
+  alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
+fi
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
 
 ## Chezmoi

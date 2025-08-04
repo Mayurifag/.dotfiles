@@ -8,7 +8,13 @@ Makefile
 makefiles/
 media/
 README.md
+todo.txt
 
 {{ if ne .chezmoi.os "darwin" -}}
 dot_config/private_karabiner
+{{- end }}
+
+{{ if ne .chezmoi.os "linux" -}}
+dot_config/environment.d/ssh_vars.conf
+dot_local/share/applications/
 {{- end }}

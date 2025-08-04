@@ -1,6 +1,9 @@
 # TODO: make a fancy function
 [ -f $HOME/.orbstack/shell/init.zsh ] && source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+# antidote for macos
 [ -f $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh ] && source $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh
+# antidote for archlinux' aur antidote
+[ -f /usr/share/zsh-antidote/antidote.zsh ] && source /usr/share/zsh-antidote/antidote.zsh
 [ -f $HOME/zsh/zcompdump.zsh ] && source $HOME/zsh/zcompdump.zsh
 [ -f $HOME/zsh/.zsh_plugins.sh ] && source $HOME/zsh/.zsh_plugins.sh # Load zsh plugins, generates automatically
 [ -f $HOME/zsh/cached_evals.zsh ] && source $HOME/zsh/cached_evals.zsh
