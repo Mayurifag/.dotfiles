@@ -67,6 +67,7 @@ gpg> quit
 
 ## Sidenotes for MacOS
 
+* Setup Raycast
 * Setup Ilya Birman's layouts, use layout from `macos/` folder (needs guide)
 * iCloud — delete all the syncs (needs guide)
 * Sudo with TouchID <https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
@@ -114,6 +115,8 @@ docker login -u $USER
 
 ## Roadmap
 
+* Find raycast alternative for linux and setup it - need launcher and kill command for now at least
+* Setup gitkraken notes
 * Try to run `mise packages`
 * ignore bracketed paste mode research - zsh
 * CachyOS zsh aliases config check for interesting things
