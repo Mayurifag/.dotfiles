@@ -116,7 +116,7 @@ docker login -u $USER
 ## Roadmap
 
 * Find raycast alternative for linux and setup it - need launcher and kill command for now at least
-* Setup gitkraken notes
+* Setup gitkraken and add notes - maybe there is config in user folder which I can copy or something
 * Try to run `mise packages`
 * ignore bracketed paste mode research - zsh
 * CachyOS zsh aliases config check for interesting things
