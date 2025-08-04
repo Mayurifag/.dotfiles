@@ -16,7 +16,7 @@ $ systemctl --user enable --now ssh-agent.service
 SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket
 ```
 
-Make sure `zsh` is default shell. (TODO)
+Make sure `zsh` is default shell: `chsh -s /usr/bin/zsh`. On Yakuake it will also require to setup another profile, because default one is read-only.
 
 ## Things to do after
 
