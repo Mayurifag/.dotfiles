@@ -30,5 +30,6 @@ vim
 visual-studio-code-bin
 wget
 which
+wl-clipboard
 yay
 zsh-antidote
