@@ -229,10 +229,12 @@ Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are su
   echo "Code review template with git diff copied to clipboard"
 }
 
-pkglist-explicit() {
-  pacman -Qei | awk '/^Name/{name=$3} /^Install Date/{date=$4" "$5" "$6" "$7" "$8} /^Install Reason/{if($4=="Explicitly") print date, name}' | sort
-}
+if command -v pacman &> /dev/null; then
+  pkglist-explicit() {
+    pacman -Qei | awk '/^Name/{name=$3} /^Install Date/{date=$4" "$5" "$6" "$7" "$8} /^Install Reason/{if($4=="Explicitly") print date, name}' | sort
+  }
 
-pkglist() {
-  pacman -Qe | awk '{print $1}' | sort
-}
+  pkglist() {
+    pacman -Qe | awk '{print $1}' | sort
+  }
+fi

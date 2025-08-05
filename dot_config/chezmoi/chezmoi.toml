@@ -1,3 +1,6 @@
 [edit]
 command = "code"
 args = ["--wait"]
+
+[keepassxc]
+database = "~/Nextcloud/Main2024.kdbx"

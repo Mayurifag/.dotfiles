@@ -1,0 +1,53 @@
+auto_push = true
+auto_stage = true
+gemini_api_key = "{{ (keepassxc "Gemini API key").Password }}"
+gemini_model = "gemini-2.5-flash-lite"
+max_tokens = 1000000
+push_command = "git push origin HEAD"
+request_timeout_seconds = 30
+temperature = 0.3
+verbose = false
+wait_for_ssh_keys = true
+prompt = '''
+Generate a commit message.
+
+- ALWAYS follow Conventional Commits specification (https://www.conventionalcommits.org/en/v1.0.0/)
+- Description, type and scope must start with a lowercase letter
+- Use only these types: fix, feat, docs, style, refactor, perf, test, build, ci, chore
+- Scope should be a noun describing a section of the codebase (e.g., api, core, ui, auth)
+- Write a precise description capturing the primary intent of the changes, explaining WHAT was changed and WHY. Keep it under 50 characters, focusing on ONE main change (even if changes are unrelated), using specific nouns and action verbs from the diff. For version updates, use the stable version name (e.g., 'gemini-2.5-flash') in the description, reserving full version details (e.g., preview tags) for the body.. Use specific nouns and verbs relevant to the diff.
+- Prefer terminology used in the diff or context for consistency.
+- Body starts with a brief paragraph (1-2 sentences) explaining WHY and WHAT was done, providing context for the changes. Follow with a blank line, then list all changes as bullet points (one per -), starting with a capital letter. Each bullet should describe a unique, specific change using diff terminology, avoiding repetition of the description’s content. Include a brief reason (e.g., 'to improve X' or 'for better Y') only if it adds new context not covered in the introductory paragraph.
+- For diffs with a single change (e.g., updating a constant or configuration), ensure the description and body focus on that change without overgeneralizing. The body’s bullet should detail the exact change (e.g., file or constant name, full version) while the description summarizes the intent.
+- When updating versions (e.g., model, library), use the stable or primary version identifier in the description (e.g., 'gemini-2.5-flash') and include the full version, including preview or build tags, in the body’s bullet (e.g., 'gemini-2.5-flash-preview-04-17').
+- Ensure the body's introductory text expands on, but does not repeat, the description line. Provide unique context or details about WHY and WHAT was done.
+- Use filenames in body or description if relevant, treating them as plain text without formatting.
+- Never use gitmoji
+- Only output the commit message TEXT. No commentaries before or after the message.
+
+Structure of output:
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+
+Here are example outputs (divided with ---):
+refactor(interactors): simplify strategies generation
+
+Simplified the strategy generation process to improve maintainability and readability by using a single orchestrator.
+
+- Replaced StrategyGeneratorInteractor with StrategyGenerationOrchestrator to centralize logic.
+- Removed MultiprocessingStrategyGenerator to reduce complexity.
+- Created ParallelBacktestExecutor for efficient backtesting.
+- Added ResultsProcessor to handle result storage.
+---
+feat!: allow provided config object to extend other configs
+
+BREAKING CHANGE: 'extends' key in config file is now used for extending other config files
+---
+
+Here is the diff to analyze:
+
+!YAWNDIFFPLACEHOLDER!
+'''

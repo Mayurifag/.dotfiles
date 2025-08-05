@@ -15,7 +15,7 @@ todo.txt
 {{- end }}
 
 {{ if ne .chezmoi.os "linux" -}}
-.config/environment.d/ssh_vars.conf
+.config/environment.d/
 .local/share/applications/
 .config/albert/
 {{- end }}

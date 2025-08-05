@@ -70,7 +70,6 @@ alias docker-clean=' \
 ## Git
 alias ci='glab pipeline ci view'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
-# alias gpf='LEFTHOOK=0 git push --force'
 alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
@@ -87,4 +86,5 @@ alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" 
 alias cz='chezmoi'
 alias czcd='cz cd'
 alias czapply='cz apply -v'
+alias fakeczapply='chezmoi apply -v --dry-run'
 alias pub='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad'
