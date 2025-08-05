@@ -1,7 +1,7 @@
 [General]
 frontend=widgetsboxmodel-ng
 hotkey=Meta+Space
-memoryDecay=0.6
+memoryDecay=0.5
 showTray=false
 telemetry=false
 
@@ -15,6 +15,7 @@ fuzzy=true
 [calculator_qalculate]
 angle_unit=2
 enabled=true
+global_handler_enabled=true
 
 [files]
 enabled=false
@@ -31,6 +32,7 @@ enabled=false
 [pluginregistry]
 fuzzy=true
 global_handler_enabled=false
+trigger="albert-plugin "
 
 [python]
 enabled=true
@@ -62,6 +64,9 @@ suspend_enabled=false
 
 [timezones]
 enabled=false
+
+[widgetboxmodel_themes]
+trigger="albert-theme "
 
 [widgetsboxmodel]
 alwaysOnTop=true

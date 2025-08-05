@@ -11,6 +11,7 @@ rust-packages:
 
 .PHONY: ruby-packages
 ruby-packages:
+	gem update --system
 	gem install $(shell cat install/Rubyfile)
 
 .PHONY: go-packages

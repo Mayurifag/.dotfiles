@@ -118,11 +118,7 @@ docker login -u $USER
 
 ## Roadmap
 
-* Keepassxc-cli and yawn config template
-* Try to run `mise packages`
-* ignore bracketed paste mode research - zsh
-* CachyOS zsh aliases config check for interesting things
-* cron.d/ for cleaning caches packages docker and so on
+* cron.d/ for cleaning caches packages docker and so on - maybe also need to have update commands
 * /etc/fstab for windows disks
 * Check if fonts ssh-vars had impact
 * <https://mikeshade.com/posts/docker-native-overlay-diff/>

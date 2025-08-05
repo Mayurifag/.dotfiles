@@ -30,3 +30,10 @@ export DISABLE_AUTO_UPDATE="true"
 export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 
 export PATH="$HOME/.local/bin:$PATH"
+
+# History
+export HISTSIZE=10240 # Lines of history to keep in memory for current session
+export HISTFILESIZE=10240 # Number of commands to save in the file
+export HISTFILE=~/.zsh_history # Where to save history to disk
+export HISTDUP=erase # Erase duplicates in the history file
+export HISTCONTROL=ignoreboth

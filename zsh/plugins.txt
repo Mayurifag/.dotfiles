@@ -1,7 +1,6 @@
 zsh-users/zsh-completions
 zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
-MichaelAquilina/zsh-you-should-use
 hlissner/zsh-autopair
 mroth/evalcache
 zdharma-continuum/fast-syntax-highlighting

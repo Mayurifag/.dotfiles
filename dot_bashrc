@@ -6,8 +6,8 @@ export HOMEBREW_NO_ANALYTICS=1
 export HISTSIZE=1000
 # bash history is timestamped as YYYY-MM-DD HH:MM:SS
 export HISTTIMEFORMAT='%F %T '
-# Don't put duplicate lines in the history.
-export HISTCONTROL=ignoredups
+# Ignore commands that start with spaces and duplicates.
+export HISTCONTROL=ignoreboth
 # Enables displaying colors in the terminal
 # export TERM=xterm-color
 # For macos disable deprecation warning
