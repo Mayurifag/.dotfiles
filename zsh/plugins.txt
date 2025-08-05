@@ -1,8 +1,9 @@
 zsh-users/zsh-completions
+wintermi/zsh-mise
+wintermi/zsh-brew
 zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
 hlissner/zsh-autopair
-mroth/evalcache
 zdharma-continuum/fast-syntax-highlighting
 soimort/translate-shell
 hcgraf/zsh-sudo
