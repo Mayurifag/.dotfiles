@@ -11,10 +11,11 @@ README.md
 todo.txt
 
 {{ if ne .chezmoi.os "darwin" -}}
-dot_config/private_karabiner
+.config/karabiner/
 {{- end }}
 
 {{ if ne .chezmoi.os "linux" -}}
-dot_config/environment.d/ssh_vars.conf
-dot_local/share/applications/
+.config/environment.d/ssh_vars.conf
+.local/share/applications/
+.config/albert/
 {{- end }}

@@ -1,5 +1,7 @@
 # Setup environment cheatsheet
 
+Yes, that's better to be NixOS config here, but I use arch (btw).
+
 ## Preparation for MacOS
 
 * Update system. Install [homebrew](https://brew.sh/).
@@ -57,7 +59,7 @@ Do you really want to set this key to ultimate trust? (y/N) y
 gpg> quit
 ```
 
-* Install gitkraken. Make sure it updates or not either itself or with package manager:
+* Install and configure gitkraken. Make sure it updates or not either itself or with package manager:
 
 ```txt
 # /etc/hosts
@@ -104,6 +106,7 @@ WIRELESS_REGDOM="KR"
 ...
 IgnorePkg = gitkraken
 ```
+
 * Activate docker socket and group
 
 ```bash
@@ -115,11 +118,11 @@ docker login -u $USER
 
 ## Roadmap
 
-* Find raycast alternative for linux and setup it - need launcher and kill command for now at least
-* Setup gitkraken and add notes - maybe there is config in user folder which I can copy or something
+* Keepassxc-cli and yawn config template
 * Try to run `mise packages`
 * ignore bracketed paste mode research - zsh
 * CachyOS zsh aliases config check for interesting things
+* cron.d/ for cleaning caches packages docker and so on
 * /etc/fstab for windows disks
 * Check if fonts ssh-vars had impact
 * <https://mikeshade.com/posts/docker-native-overlay-diff/>
