@@ -155,10 +155,10 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 ## Roadmap
 
 * Obsidian
+  * <https://github.com/secure-77/Perlite>
   * Watch for KVM - need full edid emulation, fast switch, configurable
     hotkey to switch, 2x2 hdmi, usb3.0, configurable indicators also
-* Refactor Zsh configuration files to use a numbered prefix for ordered
-  sourcing (e.g., 10-aliases.zsh).
+  * neuronkee hehe
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc.
 
