@@ -87,3 +87,4 @@ alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" 
 alias cz='chezmoi'
 alias czcd='cz cd'
 alias czapply='cz apply -v'
+alias pub='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad'
