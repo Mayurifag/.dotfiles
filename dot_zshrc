@@ -6,7 +6,6 @@
 [ -f /usr/share/zsh-antidote/antidote.zsh ] && source /usr/share/zsh-antidote/antidote.zsh
 [ -f $HOME/zsh/zcompdump.zsh ] && source $HOME/zsh/zcompdump.zsh
 [ -f $HOME/zsh/.zsh_plugins.sh ] && source $HOME/zsh/.zsh_plugins.sh # Load zsh plugins, generates automatically
-[ -f $HOME/zsh/cached_evals.zsh ] && source $HOME/zsh/cached_evals.zsh
 [ -f $HOME/.fzf.zsh ] && source $HOME/.fzf.zsh
 [ -f $HOME/zsh/setopt.zsh ] && source $HOME/zsh/setopt.zsh
 [ -f $HOME/zsh/exports.zsh ] && source $HOME/zsh/exports.zsh

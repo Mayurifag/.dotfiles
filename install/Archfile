@@ -2,6 +2,7 @@ albert
 ayugram-desktop
 chezmoi
 docker
+docker-buildx
 docker-compose
 firefox-pure
 fzf
@@ -13,10 +14,13 @@ mise
 nano
 nano-syntax-highlighting
 nextcloud-client-appimage-daily
+ntfs-3g
 openssh
 otf-apple-sf-pro
 pacman-contrib
 papirus-icon-theme
+partitionmanager
+qbittorrent
 ripgrep
 thorium-browser-avx2-bin
 ttf-firacode-nerd

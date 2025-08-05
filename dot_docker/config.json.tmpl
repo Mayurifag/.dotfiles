@@ -1,0 +1,14 @@
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "{{ (keepassxc "chezmoi - Docker auth").Password }}"
+    }
+  },
+  "default-ulimits": {
+    "nofile": {
+      "Name": "nofile",
+      "Soft": 1024,
+      "Hard": 524288
+    }
+  }
+}
