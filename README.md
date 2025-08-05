@@ -12,9 +12,13 @@ Yes, that's better to be NixOS config here, but I use arch (btw).
 
 It mostly implies you should use KDE on Wayland.
 
-* Setup font: use `JetBrains Mono Nerd Font` 11pt for `monospace` and `San Francisco` apple font for other things.
+* Setup font: use `JetBrains Mono Nerd Font` 11pt for `monospace` and
+  `San Francisco` apple font for other things.
 * Nextcloud from Appimage works better than any version, idk why.
-* KeepassXC with custom browsers requires `Browser integration -> Advanced -> Use a custom browser configuration`. For example, Thorium requires to have `Chromium` type and `~/.config/thorium/NativeMessagingHosts` there.
+* KeepassXC with custom browsers requires
+  `Browser integration -> Advanced -> Use a custom browser configuration`.
+  For example, Thorium requires to have `Chromium` type and
+  `~/.config/thorium/NativeMessagingHosts` there.
 * Setup ssh agent. Here will be working example for ArchLinux (btw) and Wayland KDE.
 
 ```bash
@@ -24,12 +28,15 @@ $ systemctl --user enable --now ssh-agent.service
 SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket
 ```
 
-Make sure `zsh` is default shell: `chsh -s /usr/bin/zsh`. For Yakuake it will also require to setup another profile, because default one is read-only. For profile colors choose `Klorax. Dracula transparent`.
+Make sure `zsh` is default shell: `chsh -s /usr/bin/zsh`. For Yakuake it will
+also require to setup another profile, because default one is read-only.
+For profile colors choose `Klorax. Dracula transparent`.
 
 ## Installation of environment
 
 * Set `dracula` theme everywhere you can, starting from terminal.
-* Go to KeepassXC and check that it works with ssh-agent. `ssh-add -l` has to print key which works with Github.
+* Go to KeepassXC and check that it works with ssh-agent. `ssh-add -l` has to
+  print key which works with Github.
 * Install `chezmoi` and `mise` using your system manager.
 
 Apply `.dotfiles`:
@@ -47,7 +54,8 @@ chezmoi apply
 
 ## Things to do after
 
-* Initiate sync on VSCode (I did not have backup outside of proprietary microsoft binaries)
+* Initiate sync on VSCode (I did not have backup outside of proprietary
+  microsoft binaries)
 * Import and DO NOT FORGET ultimately TRUST gpg key:
 
 ```bash
@@ -62,12 +70,14 @@ Do you really want to set this key to ultimate trust? (y/N) y
 gpg> quit
 ```
 
-* Install and configure gitkraken. Make sure it updates or not either itself or with package manager:
+* Install and configure gitkraken. Make sure it updates or not either itself
+  or with package manager:
 
 ```txt
 # /etc/hosts
 ...
-0.0.0.0 release.gitkraken.com # prevent autoupdates of gitkraken because its managed with package manager
+0.0.0.0 release.gitkraken.com # prevent autoupdates of gitkraken because
+                              # its managed with package manager
 ```
 
 * Setup external disks like windows one or samba or whatever
@@ -97,7 +107,8 @@ gpg> quit
   * You need ones with typographic symbols (not sure its easy nowadays, needs guide).
   * Setup CapsLock to change layouts and right Alt as 3rd line modifier.
 * Setup guake-like terminal and shortcuts
-* Setup [Wi-fi regulatory domain](https://wiki.cachyos.org/configuration/post_install_setup/#configure-wi-fi-regulatory-domain) to South Korea:
+* Setup [Wi-fi regulatory domain](https://wiki.cachyos.org/configuration/post_install_setup/#configure-wi-fi-regulatory-domain)
+  to South Korea:
 
 ```txt
 # /etc/conf.d/wireless-regdom
@@ -112,7 +123,8 @@ WIRELESS_REGDOM="KR"
 IgnorePkg = gitkraken
 ```
 
-* Enable native overlay diff engine to speed up building images in docker (info from ArchWiki):
+* Enable native overlay diff engine to speed up building images in docker
+  (info from ArchWiki):
 
 ```bash
 $ kate /etc/modprobe.d/disable-overlay-redirect-dir.conf
@@ -130,7 +142,8 @@ sudo gpasswd -a $USER docker
 docker info # run docker info and check that Native Overlay Diff is true
 ```
 
-* Setup bluetooth (maybe [dualboot](https://konfekt.github.io/blog/2023/05/21/bluetooth-sync-keys-windows-linux-dualboot#low-energy-devices))
+* Setup bluetooth (maybe
+  [dualboot](https://konfekt.github.io/blog/2023/05/21/bluetooth-sync-keys-windows-linux-dualboot#low-energy-devices))
 * Setup shortcuts:
 
 ```conf
@@ -142,20 +155,25 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 ## Roadmap
 
 * Obsidian
-  * Watch for KVM - need full edid emulation, fast switch, configurable hotkey to switch, 2x2 hdmi, usb3.0, configurable indicators also
-* Refactor Zsh configuration files to use a numbered prefix for ordered sourcing (e.g., 10-aliases.zsh).
+  * Watch for KVM - need full edid emulation, fast switch, configurable
+    hotkey to switch, 2x2 hdmi, usb3.0, configurable indicators also
+* Refactor Zsh configuration files to use a numbered prefix for ordered
+  sourcing (e.g., 10-aliases.zsh).
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc.
 
 ## Notes
 
-* If previous command did required sudo, you may do Esc+Esc in terminal due to `zsh-sudo` plugin
-* Bluetooth for dualboot requires a lot of attention because of many updates going on on win and bluez sides.
+* If previous command did required sudo, you may do Esc+Esc in terminal due to
+  `zsh-sudo` plugin
+* Bluetooth for dualboot requires a lot of attention because of many updates
+  going on on win and bluez sides.
 * Example of `/etc/fstab` entry for shared NTFS partition:
 
 ```bash
 $ sudo -i
 # mkdir /mnt/Shared
 # kate /etc/fstab
-PARTUUID="61ffcf10-e472-4c71-8e04-cf57c6463e6b" /mnt/Shared   ntfs3   uid=1000,gid=1000,umask=0022,nofail,noatime 0 0
+PARTUUID="61ffcf10-e472-4c71-8e04-cf57c6463e6b" /mnt/Shared   ntfs3   \
+uid=1000,gid=1000,umask=0022,nofail,noatime 0 0
 ```
