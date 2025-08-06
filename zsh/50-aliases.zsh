@@ -59,7 +59,8 @@ alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 # alias mrc='make rubocop-correct'
 
 ## Editors
-alias v='nvim'
+alias vi='vim'
+alias v='vim'
 
 ## Docker
 alias dcp='docker-compose'

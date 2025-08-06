@@ -7,8 +7,8 @@ fi
 # System
 export LC_ALL=en_US.UTF-8
 export VISUAL=code
-export EDITOR=vi
-export SUDO_EDITOR=vi
+export EDITOR=vim
+export SUDO_EDITOR=vim
 
 # Homebrew
 export HOMEBREW_CASK_OPTS="--no-quarantine"

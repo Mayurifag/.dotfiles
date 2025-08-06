@@ -11,7 +11,7 @@
 	recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
 [core]
 	autocrlf = input
-	editor = vi
+	editor = vim
 	attributesfile = ~/.gitattributes
 [credential]
 	helper = cache --timeout=3600

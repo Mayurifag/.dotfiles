@@ -50,7 +50,7 @@ brew "vapoursynth"
 brew "yt-dlp"
 brew "mpv"
 brew "nano"
-brew "neovim"
+brew "vim"
 brew "openblas"
 brew "numpy", link: false
 brew "tmux"
