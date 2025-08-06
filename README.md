@@ -152,8 +152,11 @@ Spectacle: Rectangular region on Alt+1 (Alt+!) # screenshot tool, I dont think I
 Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 ```
 
+* Clean system time to time: `sudo systemctl enable --now yaycache.timer`
+
 ## Roadmap
 
+* Fix yakuake profile/terminal: trim following whitespaces, make "del" work. Check how arrows work, ctrl+arrow, etc.
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
 
