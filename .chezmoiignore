@@ -18,5 +18,6 @@ todo.txt
 {{ if ne .chezmoi.os "linux" -}}
 .config/environment.d/
 .local/share/applications/
+.local/share/konsole/
 .config/albert/
 {{- end }}

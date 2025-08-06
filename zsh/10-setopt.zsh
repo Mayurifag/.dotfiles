@@ -10,16 +10,17 @@ setopt interactive_comments # Allow comments even in interactive shells (especia
 # ===== Expansion and Globbing
 setopt extended_glob # treat #, ~, and ^ as part of patterns for filename generation
 
-# ===== History # TODO: contradicts with history.zsh
-setopt append_history # Allow multiple terminal sessions to all append to one zsh command history
-setopt extended_history # save timestamp of command and duration
-setopt inc_append_history # Add comamnds as they are typed, don't wait until shell exit
-setopt hist_expire_dups_first # when trimming history, lose oldest duplicates first
-setopt hist_ignore_space # remove command line from history list when first character on the line is a space
-setopt hist_find_no_dups # When searching history don't display results already cycled through twice
-setopt hist_reduce_blanks # Remove extra blanks from each command line being added to history
-setopt hist_verify # don't execute, just expand history
-setopt share_history # imports new commands and appends typed commands to history
+# ===== History
+setopt append_history         # Append to history file, don't overwrite
+setopt extended_history       # Save timestamp and duration
+setopt hist_expire_dups_first # When trimming history, lose oldest duplicates first
+setopt hist_find_no_dups      # When searching, don't display duplicates
+setopt hist_ignore_dups       # Don't record commands that are duplicates of previous one
+setopt hist_ignore_space      # Don't record commands starting with a space
+setopt hist_reduce_blanks     # Remove extra blanks from commands
+setopt hist_verify            # Show command from history before executing
+setopt inc_append_history     # Write to history file immediately, not at shell exit
+setopt share_history          # Share history between all sessions
 
 # ===== Completion
 setopt always_to_end # When completing from the middle of a word, move the cursor to the end of the word

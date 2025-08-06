@@ -29,8 +29,7 @@ SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket
 ```
 
 Make sure `zsh` is default shell: `chsh -s /usr/bin/zsh`. For Yakuake it will
-also require to setup another profile, because default one is read-only.
-For profile colors choose `Klorax. Dracula transparent`.
+also require to setup/choose another profile, because default one is read-only.
 
 ## Installation of environment
 
@@ -75,9 +74,8 @@ gpg> quit
 
 ```txt
 # /etc/hosts
-...
-0.0.0.0 release.gitkraken.com # prevent autoupdates of gitkraken because
-                              # its managed with package manager
+# prevent autoupdates of gitkraken because its managed with package manager
+0.0.0.0 release.gitkraken.com
 ```
 
 * Setup external disks like windows one or samba or whatever
@@ -156,7 +154,7 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 
 ## Roadmap
 
-* Fix yakuake profile/terminal: trim following whitespaces, make "del" work. Check how arrows work, ctrl+arrow, etc.
+* Check that things work on macos: apply after removing ~/zsh folder
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
 

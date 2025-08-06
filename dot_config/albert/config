@@ -1,5 +1,5 @@
 [General]
-frontend=widgetsboxmodel-ng
+frontend=widgetsboxmodel
 hotkey=Meta+Space
 memoryDecay=0.5
 showTray=false
@@ -80,3 +80,14 @@ itemCount=5
 quitOnClose=false
 showCentered=true
 systemShadow=true
+
+[widgetsboxmodel-ng]
+alwaysOnTop=true
+clearOnHide=true
+displayScrollbar=false
+followCursor=true
+hideOnFocusLoss=true
+historySearch=true
+itemCount=5
+quitOnClose=false
+showCentered=true
