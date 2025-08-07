@@ -25,6 +25,3 @@ bindkey '\e[1;5C' forward-word
 # This is a fallback for other terminals that might send different codes.
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
-
-# <Escape> to use suggestion
-bindkey '\e' autosuggest-accept
