@@ -21,3 +21,6 @@ indent_style = tab
 indent_size = 4
 insert_final_newline = false
 indent_style = space
+
+[dot_config/mpv/scripts/dark-box.lua]
+insert_final_newline = false

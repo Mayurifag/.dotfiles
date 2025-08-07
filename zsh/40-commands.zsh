@@ -47,41 +47,8 @@ if command -v systemctl &> /dev/null; then
 fi
 
 # Create a new directory and enter it
-mkcd() {   [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1";   }
-
-pskill(){
-    ps aux | grep "$1" | grep -v grep | awk '{print $2;}' | while read p; do kill -9 $p; done
-}
-
+mkcd() { [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1"; }
 backup() { cp "$1"{,.bak};}
-
-# -------------------------------------------------------------------
-# compressed file expander
-# (from https://github.com/myfreeweb/zshuery/blob/master/zshuery.sh)
-# -------------------------------------------------------------------
-ex() {
-    if [[ -f $1 ]]; then
-        case $1 in
-            *.tar.bz2) tar xvjf $1;;
-            *.tar.gz) tar xvzf $1;;
-            *.tar.xz) tar xvJf $1;;
-            *.tar.lzma) tar --lzma xvf $1;;
-            *.bz2) bunzip $1;;
-            *.rar) unrar $1;;
-            *.gz) gunzip $1;;
-            *.tar) tar xvf $1;;
-            *.tbz2) tar xvjf $1;;
-            *.tgz) tar xvzf $1;;
-            *.zip) unzip $1;;
-            *.Z) uncompress $1;;
-            *.7z) 7z x $1;;
-            *.dmg) hdiutul mount $1;; # mount OS X disk images
-            *) echo "'$1' cannot be extracted via >ex<";;
-        esac
-    else
-        echo "'$1' is not a valid file"
-    fi
-}
 
 # Usage: spl paranoya
 # & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
@@ -92,12 +59,12 @@ spl () {
 # Delete a given line number in the known_hosts file.
 # Alternative: ssh-keygen -R 182.123.212.21
 knownrm() {
- re='^[0-9]+$'
- if ! [[ $1 =~ $re ]] ; then
-   echo "error: line number missing" >&2;
- else
-   sed -i '' "$1d" ~/.ssh/known_hosts
- fi
+  re='^[0-9]+$'
+  if ! [[ $1 =~ $re ]] ; then
+    echo "error: line number missing" >&2;
+  else
+    sed -i '' "$1d" ~/.ssh/known_hosts
+  fi
 }
 
 gcd() {
@@ -120,51 +87,12 @@ grom () {
   git submodule update --init --recursive
 }
 
-btrestart() {
-  sudo rfkill block bluetooth && sleep 0.1 && sudo rfkill unblock bluetooth
-}
-
-# -i path/to/input_file: give the path to your file
-# -c copy: tell FFmpeg to copy codecs (prevent transcoding)
-# -an: disables audio
 remove_audio() {
   ffmpeg -i $1 -c copy -an onlyVideo.mp4
 }
 
-leet() {
-  filename=$(echo "$@" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
-  mkdir -p ${filename}
-  touch ${filename}/${filename}.go
-  echo "package leetcode" >> ${filename}/${filename}.go
-}
-
-leetest() {
-  gotests -w -all -parallel $1
-}
-
 ports() {
   sudo lsof -iTCP -sTCP:LISTEN -n -P | awk 'NR>1 {print $9, $1, $2}' | sed 's/.*://' | while read port process pid; do echo "Port $port: $(ps -p $pid -o command= | sed 's/^-//') (PID: $pid)"; done | sort -n
-}
-
-optimize-video() {
-  local file="$1"
-  local extension="${file##*.}"
-  local basename="${file%.*}"
-
-  # Temporary output file to avoid overwriting during the process
-  local tmp_output="${basename}_converted.mp4"
-
-  # Convert video with ffmpeg using h265 codec, slow preset, and audio settings
-  ffmpeg -r 25 -i "$file" -c:v libx265 -preset slow -crf 28 -c:a aac -b:a 256k "$tmp_output"
-
-  # Check if the conversion was successful, then delete the original file
-  if [[ -f "$tmp_output" ]]; then
-    rm "$file"
-    mv "$tmp_output" "$file"
-    echo "Converted and replaced: $file"
-  else
-    echo "Failed to convert: $file"
-  fi
 }
 
 # Function to open Cursor, automatically with dev container if available
@@ -228,13 +156,3 @@ Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are su
   echo "$diff_content" | pbcopy
   echo "Code review template with git diff copied to clipboard"
 }
-
-if command -v pacman &> /dev/null; then
-  pkglist-explicit() {
-    pacman -Qei | awk '/^Name/{name=$3} /^Install Date/{date=$4" "$5" "$6" "$7" "$8} /^Install Reason/{if($4=="Explicitly") print date, name}' | sort
-  }
-
-  pkglist() {
-    pacman -Qe | awk '{print $1}' | sort
-  }
-fi

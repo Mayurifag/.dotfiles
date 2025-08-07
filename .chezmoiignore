@@ -19,5 +19,4 @@ todo.txt
 .config/environment.d/
 .local/share/applications/
 .local/share/konsole/
-.config/albert/
 {{- end }}

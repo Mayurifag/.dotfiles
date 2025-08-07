@@ -21,9 +21,13 @@ export DISABLE_AUTO_UPDATE="true"
 export KEYTIMEOUT=1 # Shorter delay typing https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 
 # History
-export HISTSIZE=10240 # Lines of history to keep in memory for current session
-export HISTFILESIZE=10240 # Number of commands to save in the file
 export HISTFILE=~/.zsh_history # Where to save history to disk
+
+# if you use any of the HIST_*_DUPS options, you should make sure $HISTSIZE is
+# always at least 20% bigger than $SAVEHIST. Otherwise, Zsh is not able to
+# effectively eliminate duplicates once your history exceeds $SAVEHIST
+export HISTSIZE=8000 # Lines of history to keep in memory for current session
+export SAVEHIST=5000 # Number of commands to save in the file
 
 # Paths
 

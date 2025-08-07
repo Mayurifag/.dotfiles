@@ -12,7 +12,6 @@ setopt extended_glob # treat #, ~, and ^ as part of patterns for filename genera
 
 # ===== History
 setopt append_history         # Append to history file, don't overwrite
-setopt extended_history       # Save timestamp and duration
 setopt hist_expire_dups_first # When trimming history, lose oldest duplicates first
 setopt hist_find_no_dups      # When searching, don't display duplicates
 setopt hist_ignore_dups       # Don't record commands that are duplicates of previous one

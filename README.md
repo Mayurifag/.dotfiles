@@ -47,8 +47,6 @@ chezmoi diff # preview
 chezmoi apply
 ```
 
-* Open new tab and bundle antidote plugins `bundleantidote`.
-* Open new tab and see if something else is wrong.
 * Install packages for all languages and tools: `make mise-packages`
 
 ## Things to do after
