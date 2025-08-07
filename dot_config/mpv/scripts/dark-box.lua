@@ -1,1 +1,0 @@
-/home/mayurifag/Code/mpv-dark-box/dark-box.lua
