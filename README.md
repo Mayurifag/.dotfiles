@@ -36,7 +36,12 @@ also require to setup/choose another profile, because default one is read-only.
 * Set `dracula` theme everywhere you can, starting from terminal.
 * Go to KeepassXC and check that it works with ssh-agent. `ssh-add -l` has to
   print key which works with Github.
-* Install `chezmoi` and `mise` using your system manager.
+* Install `chezmoi`, `mise` and `ejson` using your system manager.
+
+```bash
+sudo ln -s $HOME/Nextcloud/ejson/ /opt/ejson
+
+```
 
 Apply `.dotfiles`:
 
@@ -160,6 +165,7 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 
 ## Roadmap
 
+* Macos ejson
 * Check that things work on macos: apply after removing ~/zsh folder
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
@@ -170,6 +176,8 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 
 ## Notes
 
+* Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file,
+  which is needed to be reencrypted on changes
 * If previous command did required sudo, you may do Esc+Esc in terminal due to
   `zsh-sudo` plugin
 * Bluetooth for dualboot requires a lot of attention because of many updates

@@ -1,7 +1,7 @@
 {
   "auths": {
     "https://index.docker.io/v1/": {
-      "auth": "{{ (keepassxc "chezmoi - Docker auth").Password }}"
+      "auth": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).docker_auth }}"
     }
   },
   "default-ulimits": {
