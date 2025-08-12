@@ -3,9 +3,9 @@ setopt no_beep # don't beep on error
 setopt interactive_comments # Allow comments even in interactive shells (especially for Muness)
 
 # ===== Changing Directories
-# setopt auto_cd # If you type foo, and it isn't a command, and it is a directory in your cdpath, go there
-# setopt cdablevars # if argument to cd is the name of a parameter whose value is a valid directory, it will become the current directory
-# setopt pushd_ignore_dups # don't push multiple copies of the same directory onto the directory stack
+setopt auto_cd # If you type foo, and it isn't a command, and it is a directory in your cdpath, go there
+setopt cdablevars # if argument to cd is the name of a parameter whose value is a valid directory, it will become the current directory
+setopt pushd_ignore_dups # don't push multiple copies of the same directory onto the directory stack
 
 # ===== Expansion and Globbing
 setopt extended_glob # treat #, ~, and ^ as part of patterns for filename generation
@@ -44,5 +44,5 @@ setopt hash_list_all            # hash everything before completion
 setopt completealiases          # complete alisases
 setopt list_ambiguous           # complete as much of a completion until it gets ambiguous.
 setopt auto_remove_slash        # self explicit
-setopt chase_links              # resolve symlinks
+# setopt chase_links            # resolve symlinks
 setopt no_nomatch # if there are no matches for globs, leave them alone and execute the command

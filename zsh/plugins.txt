@@ -4,9 +4,9 @@ wintermi/zsh-brew
 zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
 hlissner/zsh-autopair
-zdharma-continuum/fast-syntax-highlighting
 soimort/translate-shell
 hcgraf/zsh-sudo
 babarot/enhancd
 zpm-zsh/undollar
 jgogstad/zsh-mask
+zdharma-continuum/fast-syntax-highlighting

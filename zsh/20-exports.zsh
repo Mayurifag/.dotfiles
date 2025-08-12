@@ -45,3 +45,13 @@ safe_append_to_path "$HOME/.local/bin" # Local binaries I use or install
 ### Go ###
 # export GOPATH="$HOME/go"
 # safe_append_to_path "$GOPATH/bin"
+
+# Plugin Configurations
+# ---------------------
+
+# There was a problem with pasted text with following whitespaces resulting that
+# I can't use backspace or left arrow to navigate, etc.
+
+# Disable zsh-autosuggestions on paste to prevent it from automatically
+# accepting the pasted text when it has trailing whitespace.
+ZSH_AUTOSUGGEST_IGNORE_WIDGETS+=("zle-bracketed-paste")

@@ -77,6 +77,14 @@ gpg> quit
 ```
 
 * Setup external disks like windows one or samba or whatever
+* Install and setup [espanso](https://espanso.org/docs/install/linux/):
+
+```shell
+sudo setcap "cap_dac_override+p" $(which espanso) # for wayland
+espanso service register
+espanso start
+# ... # cron setup for macos with espanso restart due to memory leaking
+```
 
 ## Sidenotes for MacOS
 
@@ -155,6 +163,10 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 * Check that things work on macos: apply after removing ~/zsh folder
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
+* Linux autolaunch some apps only when there is internet connection: have universal script and systemd service
+* NTFS mount <https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows>
+* <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
+* Asterisks for password (requires to be checked on macos) <https://www.tecmint.com/show-asterisks-sudo-password-in-linux/>
 
 ## Notes
 

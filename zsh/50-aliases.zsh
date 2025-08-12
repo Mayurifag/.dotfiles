@@ -1,7 +1,10 @@
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-alias ls='ls -alh'
+alias ls='ls --color -alh'
+alias ..='builtin cd ..'
+alias ...='buitin cd ...'
+alias ....='builtin cd ....'
 
 ## Root
 alias reboot='sudo reboot'
@@ -76,7 +79,7 @@ alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]]
 alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
-alias l="lazygit"
+alias l='lazygit'
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
@@ -84,6 +87,7 @@ if [ ! -x "$(command -v gitkraken)" ]; then
   alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
 fi
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
+alias g='gk'
 
 ## Chezmoi
 alias cz='chezmoi'
