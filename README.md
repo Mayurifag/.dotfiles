@@ -169,7 +169,6 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 If do anything, do not forget to fulfill readme.
 
 * Migrate snippets from snippetslab to espanso
-* Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
 * Linux autolaunch some apps only when there is internet connection: have universal script and systemd service
 * NTFS mount <https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows>
@@ -178,6 +177,7 @@ If do anything, do not forget to fulfill readme.
 * Macos: cron for restart espanso due to memory leak.
 * Macos: telegram lite -> ayugram
 * Obsidian - research plugins
+* D2 autoexec ank mklink/ln instructions
 
 ## Notes
 

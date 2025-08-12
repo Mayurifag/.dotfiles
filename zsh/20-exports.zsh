@@ -52,6 +52,22 @@ safe_append_to_path "$HOME/.local/bin" # Local binaries I use or install
 # There was a problem with pasted text with following whitespaces resulting that
 # I can't use backspace or left arrow to navigate, etc.
 
-# Disable zsh-autosuggestions on paste to prevent it from automatically
-# accepting the pasted text when it has trailing whitespace.
-ZSH_AUTOSUGGEST_IGNORE_WIDGETS+=("zle-bracketed-paste")
+# This speeds up pasting w/ autosuggest
+# https://github.com/zsh-users/zsh-autosuggestions/issues/238
+pasteinit() {
+  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
+  zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
+}
+
+pastefinish() {
+  zle -N self-insert $OLD_SELF_INSERT
+}
+zstyle :bracketed-paste-magic paste-init pasteinit
+zstyle :bracketed-paste-magic paste-finish pastefinish
+
+# https://github.com/zsh-users/zsh-autosuggestions/issues/351
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
+
+# Antidote plugins are now nicer to read
+# https-COLON--SLASH--SLASH-github.com-SLASH-zsh-users-SLASH-zsh-autosuggestions becomes zsh-users__zsh-autosuggestions.
+zstyle ':antidote:bundle' use-friendly-names 'yes'
