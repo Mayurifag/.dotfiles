@@ -165,8 +165,9 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 
 ## Roadmap
 
-* Macos ejson
+* Macos ejson and espanso
 * Check that things work on macos: apply after removing ~/zsh folder
+* Migrate snippets from snippetslab to espanso
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
 * Linux autolaunch some apps only when there is internet connection: have universal script and systemd service

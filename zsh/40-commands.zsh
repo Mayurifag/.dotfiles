@@ -50,11 +50,13 @@ fi
 mkcd() { [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1"; }
 backup() { cp "$1"{,.bak};}
 
-# Usage: spl paranoya
-# & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
-spl () {
-  aspell -a <<< "$1"
-}
+if command -v aspell &> /dev/null; then
+  # Usage: spl paranoya
+  # & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
+  spl () {
+    aspell -a <<< "$1"
+  }
+fi
 
 # Delete a given line number in the known_hosts file.
 # Alternative: ssh-keygen -R 182.123.212.21

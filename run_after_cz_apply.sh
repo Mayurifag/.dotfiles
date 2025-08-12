@@ -1,6 +1,4 @@
 #!/bin/zsh
-. $HOME/.zshrc
-
 SOURCE_FILE="$HOME/Code/mpv-dark-box/dark-box.lua"
 DEST_FILE="$HOME/.config/mpv/scripts/dark-box.lua"
 
@@ -11,5 +9,6 @@ elif [[ -L "$DEST_FILE" && ! -e "$DEST_FILE" ]]; then
   rm -f "$DEST_FILE"
 fi
 
-bundleantidote
 . $HOME/.zshrc
+bundleantidote
+espanso restart
