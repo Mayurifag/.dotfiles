@@ -39,8 +39,7 @@ also require to setup/choose another profile, because default one is read-only.
 * Install `chezmoi`, `mise` and `ejson` using your system manager.
 
 ```bash
-sudo ln -s $HOME/Nextcloud/ejson/ /opt/ejson
-
+sudo ln -s $HOME/Nextcloud/ejson/ /opt/ejson # or any other way to export your ejson key
 ```
 
 Apply `.dotfiles`:
@@ -82,14 +81,16 @@ gpg> quit
 ```
 
 * Setup external disks like windows one or samba or whatever
-* Install and setup [espanso](https://espanso.org/docs/install/linux/):
+* Setup espanso. On MacOS go through Accessibility "privacy" hell first.
 
 ```shell
 sudo setcap "cap_dac_override+p" $(which espanso) # for wayland
 espanso service register
-espanso start
+espanso start # its for linux, on macos launch app and go through accessibility hell
 # ... # cron setup for macos with espanso restart due to memory leaking
 ```
+
+* Setup obsidian (use nextcloud)
 
 ## Sidenotes for MacOS
 
@@ -163,17 +164,20 @@ Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
 
 * Clean system time to time: `sudo systemctl enable --now yaycache.timer`
 
-## Roadmap
+## Roadmap/TODO
 
-* Macos ejson and espanso
-* Check that things work on macos: apply after removing ~/zsh folder
+If do anything, do not forget to fulfill readme.
+
 * Migrate snippets from snippetslab to espanso
 * Topgrade-rs - toml config for everything in linux and macos
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
 * Linux autolaunch some apps only when there is internet connection: have universal script and systemd service
 * NTFS mount <https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows>
 * <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
-* Asterisks for password (requires to be checked on macos) <https://www.tecmint.com/show-asterisks-sudo-password-in-linux/>
+* Asterisks for password <https://www.tecmint.com/show-asterisks-sudo-password-in-linux/>
+* Macos: cron for restart espanso due to memory leak.
+* Macos: telegram lite -> ayugram
+* Obsidian - research plugins
 
 ## Notes
 
@@ -192,3 +196,6 @@ $ sudo -i
 PARTUUID="61ffcf10-e472-4c71-8e04-cf57c6463e6b" /mnt/Shared   ntfs3   \
 uid=1000,gid=1000,umask=0022,nofail,noatime 0 0
 ```
+
+* If some shit goes with Privacy in MacOS settings, try to remove entry with
+  little buttons and launch app once again to go through that hell once more.

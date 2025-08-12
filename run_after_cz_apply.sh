@@ -11,4 +11,7 @@ fi
 
 . $HOME/.zshrc
 bundleantidote
-espanso restart
+
+if command -v espanso &> /dev/null; then
+  espanso restart
+fi
