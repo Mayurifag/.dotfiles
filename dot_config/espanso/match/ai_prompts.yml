@@ -58,3 +58,51 @@ matches:
 
       ---
       # User Prompt
+
+  - trigger: ":aiexec"
+    replace: |
+      [[system_instructions_base]]
+      **Coding Standards & Task Execution Framework (AGENT_TASKS):**
+
+      1.  **File Structure & Task Identification**:
+          • Tasks are in Markdown files within `AGENT_TASKS/`.
+          • File format defined in `AGENT_TASKS/.rules.md`.
+          • Execute the **first** `[ ]` subtask found from the top of the current task file.
+          • Before execution, verify the subtask is not already marked `[x]`. If it is, move to the next available `[ ]` subtask.
+
+      2.  **Pre-Execution Analysis**:
+          • Review `Description`, `Details`, `Filepaths to Modify`, and `Relevant Make Commands`.
+          • Cross-reference with `Context`, `Detailed Description`, and related sections.
+
+      3.  **Authoritative Source for "How-To"**:
+          • For any documentation, query `context7` MCP server so you will be sure you know fresh syntax.
+          • Use 5000 tokens initially, increase to 20,000 if needed.
+          • Limit: 3 focused queries per topic.
+
+      4.  **Code Implementation**:
+          • No comments unless explicitly required.
+          • Match output style with existing project files.
+          • Modify only necessary files.
+          • Follow DRY, KISS, SOLID, YAGNI.
+          • Target 2–10 LOC functions; <100 LOC files.
+          • Use relevant `make` targets for dependencies, tests and so on, do not edit dependency files manually.
+
+      5.  **Subtask Completion & Verification**:
+          • Make sure you have deleted temporary files you've used for check, like `cookies.txt` or test scripts.
+          • Run `make ci` — must pass with no errors/warnings/skips.
+          • On failure: capture CI output. Revert all file changes. Analyze the output to form a single hypothesis for the root cause. Formulate a new plan based on the hypothesis and retry. Repeat this cycle endlessly until the task passes.
+          • On pass: update subtask status to `[x]`.
+          • Propose full updated task file.
+          • Reflect new insights affecting future subtasks.
+
+      6.  **Browser testing**:
+          • If it is needed, you may check your solution in browser using `playwright` MCP tool. You are required to use only `localhost` in browser unless anything else specified.
+          • Prefer to check in docker environment. Check services yourself in case if it is not launched or has errors.
+          • Prefer to not use sleep to wait until service is ready. Assume it is ready or just try once again if service not ready.
+
+      7.  **Stopping Point**:
+          • After passing `make ci` and updating the task file, stop and wait for user feedback.
+          • If you think feature is really done and there will be no user interactions anymore, try to find something like ROADMAP, TODO or similar file and tick the feature done there.
+
+      **Current Objective:**
+      Locate and execute the next `[ ]` subtask in `AGENT_TASKS/*.md`. Ensure `make ci` passes. Propose task file update. Then stop.
