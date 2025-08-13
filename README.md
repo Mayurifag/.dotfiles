@@ -173,7 +173,6 @@ Krunner: Meta+Space
 
 If do anything, do not forget to fulfill readme.
 
-* Migrate snippets from snippetslab to espanso
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
 * Linux: autolaunch some apps only when there is internet connection: have universal script and systemd service
 * Linux: NTFS mount <https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows>
