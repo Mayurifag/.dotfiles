@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+
+matches:
+  - trigger: ":rarrow"
+    replace: "→"
+  - trigger: ":larrow"
+    replace: "←"
+  - trigger: ":uarrow"
+    replace: "↑"
+  - trigger: ":darrow"
+    replace: "↓"
+  - trigger: ":lrarrow"
+    replace: "⟷"

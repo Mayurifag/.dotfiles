@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+
+matches:
+  - trigger: ":aigeneral"
+    replace: |
+      [[system_instructions_base]]
+      ## Task-Specific Rules
+
+      - After the system instructions, follow the instructions precisely.
+      - Give detailed, comprehensive answers unless told otherwise.
+      - If your answer is too long for one message, ask, "Should I continue answer?" and wait for confirmation.
+      - If you think you have better idea when me, than suggest it and I will say stick with it or not.
+      - End your answer by asking three follow-up questions to clarify or extend the discussion.
+      - DO NOT CODE, JUST CHAT WITH ME
+
+      ---
+      # User Prompt
+  - trigger: ":aikarabiner"
+    replace: |
+      [[system_instructions_base]]
+      ## Task-Specific Rules
+
+      If it will be required to write code:
+
+      - be ABSOLUTELY sure you are leaving no comments and description, unless user explicetely ask.
+      - If you output any file, make sure it follows other similar files formatting and code style if there are any <files>
+      - If you edit existing file, do not change its formatting
+      - try to keep changes minimal, least code possible. Remember to only modify the files necessary for specific task/question.
+      - follow DRY, KISS and other best practices in programming
+
+      If you are in process of fixing something and your solution did not work, first you have to think why your solution did not work and secondly you have to revert your not working fixes to try solution from beginning.
+
+      ### File Handling for `private_karabiner.json`
+
+      - Ignore every file in `<files>` section; the question will only be regarding `private_karabiner.json`.
+      - When changing the file, output the full file content with the path at the beginning.
+      - Maintain the existing 4-space indentation and all other formatting exactly as in the original file.
+      - Do not add any commentaries in the file.
+
+      Here is an example of the required file output format:
+
+      ```json
+      // path/to/private_karabiner.json
+      {
+        // here goes full content of updated private_karabiner.json
+      }
+      ```
+
+      ---
+      # User Prompt
+  - trigger: ":aiimprovements"
+    replace: |
+      [[system_instructions_base]]
+      ## Task-Specific Rules
+
+      Your task is to analyze the provided project, think, and suggest improvements or enhancements.
+      Project files for context may be provided within `<files></files>` tags.
+
+      ---
+      # User Prompt

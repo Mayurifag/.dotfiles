@@ -160,9 +160,14 @@ docker info # run docker info and check that Native Overlay Diff is true
 Dolphin: Alt+E # a-la macos
 Spectacle: Rectangular region on Alt+1 (Alt+!) # screenshot tool, I dont think I need other functions
 Yakuake: Alt+`, Ctrl+` # terminal. Alt+` for a-la macos
+Krunner: Meta+Space
 ```
 
 * Clean system time to time: `sudo systemctl enable --now yaycache.timer`
+* Install `nerd-dictation`. That will require to install `ydotool` and its setup
+  for wayland. Install model.
+* Enable asterisks on sudo password: `echo 'Defaults pwfeedback' | sudo tee /etc/sudoers.d/20-pwfeedback`
+* <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
 
 ## Roadmap/TODO
 
@@ -170,14 +175,13 @@ If do anything, do not forget to fulfill readme.
 
 * Migrate snippets from snippetslab to espanso
 * Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
-* Linux autolaunch some apps only when there is internet connection: have universal script and systemd service
-* NTFS mount <https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows>
-* <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
-* Asterisks for password <https://www.tecmint.com/show-asterisks-sudo-password-in-linux/>
+* Linux: autolaunch some apps only when there is internet connection: have universal script and systemd service
+* Linux: NTFS mount <https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows>
 * Macos: cron for restart espanso due to memory leak.
 * Macos: telegram lite -> ayugram
 * Obsidian - research plugins
-* D2 autoexec ank mklink/ln instructions
+* Windows: D2 autoexec ank mklink/ln instructions
+* espanso → typographic layout
 
 ## Notes
 
