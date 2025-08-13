@@ -3,7 +3,7 @@
 matches:
   - trigger: ":aigeneral"
     replace: |
-      [[system_instructions_base]]
+      {{system_instructions_base}}
       ## Task-Specific Rules
 
       - After the system instructions, follow the instructions precisely.
@@ -15,6 +15,7 @@ matches:
 
       ---
       # User Prompt
+
   - trigger: ":aialpha"
     replace: |
       # Core Instructions
@@ -39,7 +40,7 @@ matches:
 
   - trigger: ":aiprompt"
     replace: |
-      [[system_instructions_base]]
+      {{system_instructions_base}}
 
       ## Task-Specific Rules
 

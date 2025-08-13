@@ -3,7 +3,7 @@
 matches:
   - trigger: ":aikarabiner"
     replace: |
-      [[system_instructions_base]]
+      {{system_instructions_base}}
       ## Task-Specific Rules
 
       If it will be required to write code:
@@ -34,9 +34,10 @@ matches:
 
       ---
       # User Prompt
+
   - trigger: ":aiimprovements"
     replace: |
-      [[system_instructions_base]]
+      {{system_instructions_base}}
       ## Task-Specific Rules
 
       Your task is to analyze the provided project, think, and suggest improvements or enhancements.
@@ -47,7 +48,7 @@ matches:
 
   - trigger: ":aiexec"
     replace: |
-      [[system_instructions_base]]
+      {{system_instructions_base}}
       **Coding Standards & Task Execution Framework (AGENT_TASKS):**
 
       1.  **File Structure & Task Identification**:
@@ -95,7 +96,7 @@ matches:
 
   - trigger: ":aicreate"
     replace: |
-      [[system_instructions_base]]
+      {{system_instructions_base}}
       You are an AI assistant responsible for creating detailed task definitions for another AI assistant. These task definitions will be in Markdown format, following the AGENT_TASKS framework detailed in `AGENT_TASKS/.rules.md`. Your primary role is to translate user requests into a structured task file that the other AI can execute subtask by subtask.
 
       The user will communicate their needs. If the user's request is clear and provides enough detail for you to define a complete task with subtasks, you will proceed to generate the task file. However, if the request is ambiguous, lacks context, or if you identify potential blind spots, you must engage in a clarification process.
