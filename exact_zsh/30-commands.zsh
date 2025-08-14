@@ -97,6 +97,10 @@ ports() {
   sudo lsof -iTCP -sTCP:LISTEN -n -P | awk 'NR>1 {print $9, $1, $2}' | sed 's/.*://' | while read port process pid; do echo "Port $port: $(ps -p $pid -o command= | sed 's/^-//') (PID: $pid)"; done | sort -n
 }
 
+killport() {
+  kill -9 "$(lsof -t -i:"${1}" -sTCP:LISTEN)"
+}
+
 # Function to open Cursor, automatically with dev container if available
 f() {
   code .

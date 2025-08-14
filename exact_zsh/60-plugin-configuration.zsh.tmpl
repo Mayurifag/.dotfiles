@@ -1,0 +1,87 @@
+# There was a problem with pasted text with following whitespaces resulting that
+# I can't use backspace or left arrow to navigate, etc.
+
+# This speeds up pasting w/ autosuggest and handles enhancd plugin
+# https://github.com/zsh-users/zsh-autosuggestions/issues/238
+zsh_paste_enhancd_original_widget_exists=false
+if (( $+widgets[enhancd-pre-paste] )); then
+  zsh_paste_enhancd_original_widget_exists=true
+fi
+pasteinit() {
+  if $zsh_paste_enhancd_original_widget_exists; then
+    zle enhancd-pre-paste
+  fi
+  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
+  zle -N self-insert url-quote-magic
+}
+pastefinish() {
+  zle -N self-insert $OLD_SELF_INSERT
+  if $zsh_paste_enhancd_original_widget_exists; then
+    zle enhancd-post-paste
+  fi
+}
+zstyle :bracketed-paste-magic paste-init pasteinit
+zstyle :bracketed-paste-magic paste-finish pastefinish
+
+# https://github.com/zsh-users/zsh-autosuggestions/issues/351
+ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
+
+#########
+
+# Antidote plugins are now nicer to read
+# https-COLON--SLASH--SLASH-github.com-SLASH-zsh-users-SLASH-zsh-autosuggestions becomes zsh-users__zsh-autosuggestions.
+zstyle ':antidote:bundle' use-friendly-names 'yes'
+
+#########
+
+# AI section
+
+export GEMINI_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
+export ZSH_AI_PROVIDER="gemini"
+
+## Claude code
+
+CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1
+# Keep working dir between bash runs
+
+CLAUDE_CODE_ENABLE_UNIFIED_READ_TOOL=1
+# Faster, consistent file reads
+
+DISABLE_BUG_COMMAND=1
+# Disable internal bug logging
+
+DISABLE_ERROR_REPORTING=1
+# No error telemetry to Anthropic
+
+# DISABLE_NETWORK_ACCESS=1
+# Force offline/local-only mode
+
+DISABLE_NON_ESSENTIAL_MODEL_CALLS=1
+# Skip unnecessary model calls
+
+DISABLE_TELEMETRY=1
+# Turn off all telemetry/tracking
+
+DISABLE_USAGE_REPORTING=1
+# Disable usage metrics (tokens, sessions)
+
+ENABLE_BACKGROUND_TASKS=1
+# Allow background indexing/tasks
+
+ENABLE_DEBUG_LOGS=1
+# Verbose debug logging for troubleshooting
+
+FORCE_AUTO_BACKGROUND_TASKS=1
+# Auto-start background tasks
+
+# MAX_TOKENS_PER_CALL=4096
+# Limit max tokens per model call
+
+# READ_ONLY_MODE=1
+# Allow reading but block file writes
+
+# SKIP_BACKGROUND_INDEXING=1
+# Prevent background indexing
+
+# USE_CACHED_INDEX=1
+# Use cached project index instead of re-indexing

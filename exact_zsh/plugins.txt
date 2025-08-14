@@ -9,4 +9,5 @@ hcgraf/zsh-sudo kind:defer
 babarot/enhancd kind:defer
 zpm-zsh/undollar kind:defer
 jgogstad/zsh-mask kind:defer
+matheusml/zsh-ai kind:defer
 zdharma-continuum/fast-syntax-highlighting

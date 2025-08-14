@@ -1,7 +1,7 @@
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-alias ls='ls --color -alh'
+alias ls='ls --color -alh --group-directories-first'
 alias ..='builtin cd ..'
 alias ...='buitin cd ...'
 alias ....='builtin cd ....'
@@ -49,6 +49,7 @@ alias ten='trans :en'
 alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.sh'
 alias brewfile='brew bundle dump --file=$(chezmoi source-path)/install/Brewfile --force --no-vscode'
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
+alias yabs='curl -sL https://yabs.sh | bash'
 
 # Development
 ## Rails
