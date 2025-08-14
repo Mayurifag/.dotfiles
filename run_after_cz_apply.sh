@@ -1,17 +1,13 @@
 #!/bin/zsh
-SOURCE_FILE="$HOME/Code/mpv-dark-box/dark-box.lua"
-DEST_FILE="$HOME/.config/mpv/scripts/dark-box.lua"
 
-if [[ -f "$SOURCE_FILE" ]]; then
-  ln -sf "$SOURCE_FILE" "$DEST_FILE"
-elif [[ -L "$DEST_FILE" && ! -e "$DEST_FILE" ]]; then
-  # If the source is missing, remove a broken link if it exists
-  rm -f "$DEST_FILE"
-fi
+set -Eeuo pipefail
 
-. $HOME/.zshrc
-bundleantidote
+main() {
+  local SOURCE_FILE="$HOME/Code/mpv-dark-box/dark-box.lua"
+  local DEST_FILE="$HOME/.config/mpv/scripts/dark-box.lua"
 
-if command -v espanso &> /dev/null; then
-  espanso restart
-fi
+  zsh -i -c "lnsf \"$SOURCE_FILE\" \"$DEST_FILE\""
+  zsh -i -c "bundleantidote"
+}
+
+main "$@"

@@ -158,3 +158,28 @@ Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are su
   echo "$diff_content" | pbcopy
   echo "Code review template with git diff copied to clipboard"
 }
+
+# WARNING: not sure if works correctly
+# Move a file or directory and create a symbolic link at the original location
+# pointing to the new location.
+# Usage: mvln <source> <destination>
+mvln() {
+  [ "$#" -ne 2 ] && { echo "Usage: mvln <source> <destination>"; return 1; }
+
+  local target
+  # If destination is a directory, the target will be inside it.
+  # Otherwise, the target is the destination itself.
+  [[ -d "$2" ]] && target="$2/$(basename "$1")" || target="$2"
+
+  # mv the source and then link the absolute path of the target back to the source.
+  # Using `pwd` inside a subshell with `cd` is a portable way to get an absolute path.
+  mv -v "$1" "$2" && ln -s "$(cd "$(dirname "$target")" && pwd)/$(basename "$target")" "$1"
+}
+
+lnsf() {
+  if [[ -f "$1" ]]; then
+    ln -sf "$1" "$2"
+  elif [[ -L "$2" && ! -e "$2" ]]; then # If the source is missing, remove a broken link if it exists
+    rm -f "$2"
+  fi
+}

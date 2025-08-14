@@ -5,7 +5,7 @@ safe_source() {
 }
 
 safe_source $HOME/.orbstack/shell/init.zsh 2>/dev/null || :
-safe_source $HOMEBREW_PREFIX/opt/antidote/share/antidote/antidote.zsh
+safe_source "${HOMEBREW_PREFIX:-}"/opt/antidote/share/antidote/antidote.zsh
 safe_source /usr/share/zsh-antidote/antidote.zsh
 safe_source $HOME/.fzf.zsh
 

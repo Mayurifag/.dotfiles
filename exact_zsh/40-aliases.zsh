@@ -97,7 +97,6 @@ alias g='gk'
 
 ## Chezmoi
 alias cz='chezmoi'
-alias czcd='cz cd'
-alias czapply='cz apply -v'
+alias czcd='chezmoi cd'
+alias czapply='chezmoi apply -v && source "$HOME/.zshrc"'
 alias fakeczapply='chezmoi apply -v --dry-run'
-alias pub='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad'

@@ -45,6 +45,8 @@
 # MY CHANGES TO DEFAULTS
 # --------
 
+# It was better to reload manually in run_after_cz_apply but man..
+auto_restart: true
 show_icon: false
 search_shortcut: OFF
 show_notifications: false

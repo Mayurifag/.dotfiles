@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
+
+matches:
+  - trigger: "farazeus@g"
+    replace: "farazeus@gmail.com"
+  - trigger: ":gpgpub"
+    replace: |
+      -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+      mDMEaF6D+BYJKwYBBAHaRw8BAQdAIYefBhqxZFjhhD5qEXweB27RIvjxiKHCfSGw
+      16kRO0K0Lk1heXVyaWZhZyA8TWF5dXJpZmFnQHVzZXJzLm5vcmVwbHkuZ2l0aHVi
+      LmNvbT6IkwQTFgoAOxYhBL+7fYLrSBZgDC893YcWcszzPt5yBQJoXoP4AhsDBQsJ
+      CAcCAiICBhUKCQgLAgQWAgMBAh4HAheAAAoJEIcWcszzPt5yqckBAI23AkdlzRNh
+      n8840Im/jBReGnfSl2eIjzmDftQC9W+GAQCmS0mw06jcDg+TqxOLGamEuYYpTlYh
+      KzGSiM1KEFzUAbg4BGheg/gSCisGAQQBl1UBBQEBB0BR744UPasmUTPsec6UWt82
+      Lf2frKeQAJ0KnUHM5gS7NwMBCAeIeAQYFgoAIBYhBL+7fYLrSBZgDC893YcWcszz
+      Pt5yBQJoXoP4AhsMAAoJEIcWcszzPt5yfEYA/0SO2AwskcG9mbkc5r0bcHjy6uy4
+      sPVJH9gZvBp3ZUYsAPwOolCe3dyvrvEA8zQs9OuKQkvzsIVXxvBhMAku92N3Cg==
+      =d+sp
+      -----END PGP PUBLIC KEY BLOCK-----
+  - trigger: ":gpgemail"
+    replace: "Mayurifag@users.noreply.github.com"
+  - trigger: ":gpgkey"
+    replace: "BFBB7D82EB4816600C2F3DDD871672CCF33EDE72"
+  - trigger: ":sshkey"
+    replace: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad"
+  - trigger: ":sshpub"
+    replace: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad"

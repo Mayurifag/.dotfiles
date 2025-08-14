@@ -2,5 +2,6 @@
 command = "code"
 args = ["--wait"]
 
-[keepassxc]
-database = "~/Nextcloud/Main2024.kdbx"
+# Do not show run_after script' diff
+[diff]
+exclude = ["scripts"]
