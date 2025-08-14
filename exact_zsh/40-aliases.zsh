@@ -11,7 +11,6 @@ alias reboot='sudo reboot'
 alias root='sudo -i'
 
 ## Other
-alias c="clear"
 alias free='free -m' # show sizes in MB
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain" # check ip
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
@@ -50,6 +49,7 @@ alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.s
 alias brewfile='brew bundle dump --file=$(chezmoi source-path)/install/Brewfile --force --no-vscode'
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 alias yabs='curl -sL https://yabs.sh | bash'
+alias c='claude --dangerously-skip-permissions'
 
 # Development
 ## Rails
