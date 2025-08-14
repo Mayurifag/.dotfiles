@@ -170,20 +170,6 @@ Krunner: Meta+Space
 * <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
 * Use mvln for compatdata [NTFS mount](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows)
 
-## Roadmap/TODO
-
-If do anything, do not forget to fulfill readme.
-
-* sshconfig from nextcloud - ln like ejson. Also move code files - mayurifag.ru inventory and freqtrade srces
-* Way to clean system - one alias to clean docker, yay, brew, etc. with y/n questions.
-* Linux: autolaunch some apps only when there is internet connection: have universal script and systemd service
-* Macos: cron for restart espanso due to memory leak.
-* Macos: telegram lite -> ayugram
-* Obsidian - research plugins
-* Windows: D2 autoexec ank mklink/ln instructions
-* Windows: espanso. Also do I still need ahk config there then? i mean typo symbols there
-* Windows: ssh agent?
-
 ## Notes
 
 * Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file,

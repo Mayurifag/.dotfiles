@@ -52,15 +52,24 @@ safe_append_to_path "$HOME/.local/bin" # Local binaries I use or install
 # There was a problem with pasted text with following whitespaces resulting that
 # I can't use backspace or left arrow to navigate, etc.
 
-# This speeds up pasting w/ autosuggest
+# This speeds up pasting w/ autosuggest and handles enhancd plugin
 # https://github.com/zsh-users/zsh-autosuggestions/issues/238
+zsh_paste_enhancd_original_widget_exists=false
+if (( $+widgets[enhancd-pre-paste] )); then
+  zsh_paste_enhancd_original_widget_exists=true
+fi
 pasteinit() {
+  if $zsh_paste_enhancd_original_widget_exists; then
+    zle enhancd-pre-paste
+  fi
   OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
-  zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
+  zle -N self-insert url-quote-magic
 }
-
 pastefinish() {
   zle -N self-insert $OLD_SELF_INSERT
+  if $zsh_paste_enhancd_original_widget_exists; then
+    zle enhancd-post-paste
+  fi
 }
 zstyle :bracketed-paste-magic paste-init pasteinit
 zstyle :bracketed-paste-magic paste-finish pastefinish
