@@ -1,5 +1,5 @@
 .PHONY: mise-packages
-mise-packages: mise-install node-packages rust-packages ruby-packages go-packages
+mise-packages: mise-install node-packages rust-packages ruby-packages go-packages uv-packages
 
 .PHONY: node-packages
 node-packages:
@@ -17,6 +17,10 @@ ruby-packages:
 .PHONY: go-packages
 go-packages:
 	cat install/Gofile | xargs -I {} go install {}@latest
+
+.PHONY: uv-packages
+uv-packages:
+	cat install/uv-file | xargs -I {} uv tool install {}
 
 .PHONY: mise-install
 mise-install:
