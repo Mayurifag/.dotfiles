@@ -163,21 +163,49 @@ Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are su
   echo "Code review template with git diff copied to clipboard"
 }
 
-# WARNING: not sure if works correctly
 # Move a file or directory and create a symbolic link at the original location
 # pointing to the new location.
 # Usage: mvln <source> <destination>
 mvln() {
-  [ "$#" -ne 2 ] && { echo "Usage: mvln <source> <destination>"; return 1; }
+  if [ "$#" -ne 2 ]; then
+    echo "Usage: mvln <source> <destination>" >&2
+    return 1
+  fi
 
-  local target
-  # If destination is a directory, the target will be inside it.
-  # Otherwise, the target is the destination itself.
-  [[ -d "$2" ]] && target="$2/$(basename "$1")" || target="$2"
+  local source="${1%/}" # Ensure no trailing slash on source
+  local dest="$2"
+  local source_base
+  source_base=$(basename "$source")
 
-  # mv the source and then link the absolute path of the target back to the source.
-  # Using `pwd` inside a subshell with `cd` is a portable way to get an absolute path.
-  mv -v "$1" "$2" && ln -s "$(cd "$(dirname "$target")" && pwd)/$(basename "$target")" "$1"
+  if [ ! -e "$source" ]; then
+    echo "mvln: source '$source' does not exist" >&2
+    return 1
+  fi
+
+  # Determine the final path of the moved source
+  local target_path
+  if [ -d "$dest" ]; then
+    # Destination is a directory, so the final path will be inside it.
+    target_path="${dest%/}/$source_base"
+  else
+    # Destination is a file path.
+    target_path="$dest"
+  fi
+
+  # Perform the move
+  if mv -v "$source" "$dest"; then
+    # After a successful move, create the symlink.
+    # We need the absolute path of the new location for the symlink.
+    local abs_target_path
+    # This correctly resolves the absolute path regardless of whether target_path is relative or absolute.
+    abs_target_path="$(cd "$(dirname "$target_path")" && pwd)/$(basename "$target_path")"
+
+    # Link back to the original source path
+    ln -s "$abs_target_path" "$source"
+  else
+    echo "mvln: 'mv' command failed." >&2
+    return 1
+  fi
 }
 
 lnsf() {
