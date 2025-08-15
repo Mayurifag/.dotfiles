@@ -1,7 +1,8 @@
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-alias ls='ls --color -alh --group-directories-first'
+# --group-directories-first not working on macos?
+alias ls='ls --color -alh'
 alias ..='builtin cd ..'
 alias ...='buitin cd ...'
 alias ....='builtin cd ....'
