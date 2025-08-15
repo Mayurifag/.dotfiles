@@ -1,5 +1,12 @@
 {
   "_public_key": "e97b5e6139b43297338c52ab0408874ec642257af0c3aef8454bf2f9c57c8d28",
-  "gemini_api_key": "EJ[1:DzPzHYrxEGIray4Lbg7LLoQmUGcXFG+qYy8Aodb13XE=:CgqxvwWid+Ke3zDJiOLli9uJGYBbBMzJ:Hla95xELlFmYNGnO9/Nafs9xUpdCbsaAWhmRnoyeIJySj0OVg4enkm5W4vr6jEzW90ix4QyCLg==]",
-  "docker_auth": "EJ[1:DzPzHYrxEGIray4Lbg7LLoQmUGcXFG+qYy8Aodb13XE=:l0bvSJU7HQgMhn+REBRbD8fAZA+jYjTP:Ou4w+D2bUxW78CAHYdreSv/25lw2TncgKaGhns55qfGkq61/emB9VYHYFeY+4kSyQwp0tq0JCZE=]"
+  "ssh_user": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:vb3dBmHwC1FJJLFVQ66iivO65Wlcwhx+:ocbNofDoeW7XX+S+o6bzRR1HULC8S5OEZQ==]",
+  "gemini_api_key": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:796CoX/hW2DQ7BYyxHrylU2CPAnYlmWX:BocZV9tqFo+8JPS9r9rWjm4OeIb43Zfeke2FbVaSmN4qxeSvncK4x2u5zG7CVtzgeOxh//k8dw==]",
+  "docker_auth": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:6w6O9ZzfF/aiPLPU90RonQDA0zs7OA7K:gYoIM30/gekNeXzLbCwVraf4FNFd+OhgRU6CyjGjjDF65nDjn5UvO8FwXi1pCJaTjdDsDGWf7BQ=]",
+  "host_one": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:jf0DZIsce+J3n3UX7tsujIsYogOVE1lk:QRlU0TnDhVwRuW0yGmCuhPY0zn30Ngk94OwXPcRN]",
+  "host_one_hostname": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:LlsRbLDFv0aT4S4MRz/0Gt83H/qBnIi0:nnVgQDaM75cbygzo82kHYi2oghNp7uYeVcpbvQ==]",
+  "host_two": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:rucShi93eeaSz1Nuz+Z7vRohyGv964Tp:fQHA/UQKyTZY0fcQQ99yqtsfug==]",
+  "host_two_hostname": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:W6jiwYoL54Wbp/7YTEoRGzJf+tYNZhi4:eIeIg6PQiwKvs9BK2Tu9C4qXkOA3q/4im7+yVqde]",
+  "host_three": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:xyrQCgswWz1oJw5fuKTnvgdhnDc37gux:L7PpY1uQvOmvnhhwIejQI6Lgq3Y=]",
+  "host_three_hostname": "EJ[1:Jn77sDcl0plzuyfZdGdTW8VOe6XhiEnu68fUOXGRnzM=:0JGQfu7lYJiIXZa+P34qqO1l8obxoQCm:nf97XPWAhmi/IhITD7HkUbItYYxTZLn/6sdOCkLIjw==]"
 }

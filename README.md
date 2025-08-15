@@ -173,7 +173,14 @@ Krunner: Meta+Space
 ## Notes
 
 * Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file,
-  which is needed to be reencrypted on changes
+  which is needed to be reencrypted on changes:
+
+```shell
+ejson decrypt keys.ejson
+# edit ...
+ejson encrypt keys.ejson
+```
+
 * If previous command did required sudo, you may do Esc+Esc in terminal due to
   `zsh-sudo` plugin
 * Bluetooth for dualboot requires a lot of attention because of many updates
