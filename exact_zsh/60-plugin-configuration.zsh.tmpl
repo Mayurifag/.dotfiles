@@ -15,7 +15,14 @@ pasteinit() {
   zle -N self-insert url-quote-magic
 }
 pastefinish() {
-  zle -N self-insert $OLD_SELF_INSERT
+  # Validate that OLD_SELF_INSERT still points to a valid widget
+  if [[ -n "$OLD_SELF_INSERT" ]] && (( $+widgets[$OLD_SELF_INSERT] )); then
+    zle -N self-insert $OLD_SELF_INSERT
+  else
+    # Fallback to default if widget is corrupted
+    zle -N self-insert .self-insert
+  fi
+
   if $zsh_paste_enhancd_original_widget_exists; then
     zle enhancd-post-paste
   fi
@@ -26,6 +33,9 @@ zstyle :bracketed-paste-magic paste-finish pastefinish
 # https://github.com/zsh-users/zsh-autosuggestions/issues/351
 ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
 
+# Option 2: Disable fast-syntax-highlighting's special handling of pasted text.
+# This prevents the weird coloring and cursor behavior you described.
+_FSH_BRACKETED_PASTE_MAGIC=0
 #########
 
 # Antidote plugins are now nicer to read

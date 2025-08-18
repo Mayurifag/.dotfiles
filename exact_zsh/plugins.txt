@@ -3,7 +3,7 @@ wintermi/zsh-mise kind:defer
 wintermi/zsh-brew kind:defer
 zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
-hlissner/zsh-autopair kind:defer
+hlissner/zsh-autopair
 soimort/translate-shell kind:defer
 hcgraf/zsh-sudo kind:defer
 babarot/enhancd kind:defer
