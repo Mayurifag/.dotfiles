@@ -2,3 +2,4 @@ npm
 prettier
 markdownlint-cli2
 eslint
+@playwright/test

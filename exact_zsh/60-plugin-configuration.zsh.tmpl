@@ -39,49 +39,24 @@ zstyle ':antidote:bundle' use-friendly-names 'yes'
 export GEMINI_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
 export ZSH_AI_PROVIDER="gemini"
 
-## Claude code
+#########
 
-CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1
-# Keep working dir between bash runs
+# eza universal Dracula
 
-CLAUDE_CODE_ENABLE_UNIFIED_READ_TOOL=1
-# Faster, consistent file reads
-
-DISABLE_BUG_COMMAND=1
-# Disable internal bug logging
-
-DISABLE_ERROR_REPORTING=1
-# No error telemetry to Anthropic
-
-# DISABLE_NETWORK_ACCESS=1
-# Force offline/local-only mode
-
-# DISABLE_NON_ESSENTIAL_MODEL_CALLS=1
-# Skip unnecessary model calls
-
-DISABLE_TELEMETRY=1
-# Turn off all telemetry/tracking
-
-DISABLE_USAGE_REPORTING=1
-# Disable usage metrics (tokens, sessions)
-
-ENABLE_BACKGROUND_TASKS=1
-# Allow background indexing/tasks
-
-ENABLE_DEBUG_LOGS=1
-# Verbose debug logging for troubleshooting
-
-FORCE_AUTO_BACKGROUND_TASKS=1
-# Auto-start background tasks
-
-# MAX_TOKENS_PER_CALL=4096
-# Limit max tokens per model call
-
-# READ_ONLY_MODE=1
-# Allow reading but block file writes
-
-# SKIP_BACKGROUND_INDEXING=1
-# Prevent background indexing
-
-# USE_CACHED_INDEX=1
-# Use cached project index instead of re-indexing
+export EZA_COLORS="\
+uu=36:\
+uR=31:\
+un=35:\
+gu=37:\
+da=2;34:\
+ur=34:\
+uw=95:\
+ux=36:\
+ue=36:\
+gr=34:\
+gw=35:\
+gx=36:\
+tr=34:\
+tw=35:\
+tx=36:\
+xx=95:"

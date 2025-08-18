@@ -197,3 +197,7 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 * If some shit goes with Privacy in MacOS settings, try to remove entry with
   little buttons and launch app once again to go through that hell once more.
+
+* Claude code configuration inspired by [this repo](https://github.com/roderik/ai-rules)
+
+* [Playwright installation](https://github.com/microsoft/playwright/issues/2621#issuecomment-2083083392)
