@@ -1,8 +1,21 @@
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-# --group-directories-first not working on macos?
-alias ls='ls --color -alh'
+
+if command -v eza &> /dev/null; then
+  alias ls='eza -lh --group-directories-first'
+  alias l='eza --git-ignore --group-directories-first'
+  alias ll='eza --all --header --long --group-directories-first'
+  alias llm='eza --all --header --long --sort=modified --group-directories-first'
+  alias la='eza -lbhHigUmuSa'
+  alias lx='eza -lbhHigUmuSa@'
+  alias lt='eza --tree'
+  alias tree='eza --tree'
+  alias exa='eza'
+else
+  alias ls='ls --color -alh'
+fi
+
 alias ..='builtin cd ..'
 alias ...='buitin cd ...'
 alias ....='builtin cd ....'
@@ -17,13 +30,6 @@ alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || time
 alias net="ping ya.ru | grep -E --only-match --color=never '[0-9\.]+ ms'" # check connection including dns
 alias bench-network="curl -sL yabs.sh | bash -s -- -fdg"
 alias grep='grep --color=auto'
-if [[ "$(uname)" == "Linux" ]]; then
-  alias make="make -j$(nproc)"
-elif [[ "$(uname)" == "Darwin" ]]; then # Darwin is the kernel name for macOS
-  alias make="make -j$(sysctl -n hw.ncpu)"
-else
-  alias make="make" # Fallback for other Unix-like systems
-fi
 
 ## yt-dlp
 alias yt="yt-dlp -v -o \"%(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic\" --embed-thumbnail --embed-chapters --embed-metadata --concurrent-fragments 3 --throttled-rate 100K --retries 3"
@@ -87,7 +93,7 @@ alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
 alias gl='jj log'
-alias l='lazygit'
+alias lzg='lazygit'
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
