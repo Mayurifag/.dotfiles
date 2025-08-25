@@ -278,3 +278,38 @@ cleaner() {
 
   echo "Cleaning process finished."
 }
+
+# enhanced make command that finds Makefile in parent directories
+make() {
+  local original_dir
+  original_dir=$(pwd)
+  local current_dir
+  current_dir=$(pwd)
+  local makefile_found_dir=""
+  local search_depth=0
+  local max_depth=3 # Search current directory + 3 parents
+
+  while [[ "$current_dir" != "/" && -z "$makefile_found_dir" && "$search_depth" -le "$max_depth" ]]; do
+    if [[ -f "$current_dir/Makefile" ]] || [[ -f "$current_dir/makefile" ]]; then
+      makefile_found_dir="$current_dir"
+      break
+    fi
+    current_dir=$(dirname "$current_dir")
+    (( search_depth++ ))
+  done
+
+  if [[ -n "$makefile_found_dir" ]]; then
+    if [[ "$makefile_found_dir" != "$original_dir" ]]; then
+      # Inform user about the change of directory, redirecting to stderr
+      echo "Makefile found in: $makefile_found_dir" >&2
+    fi
+
+    # Execute in a subshell to avoid changing the current directory
+    (cd "$makefile_found_dir" && command make "$@")
+  else
+    echo "No Makefile found in current or parent directories." >&2
+    # Fallback to default make behavior, it will show its own error
+    command make "$@"
+    return 1
+  fi
+}
