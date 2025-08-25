@@ -216,24 +216,65 @@ lnsf() {
   fi
 }
 
-dockerclean() {
-  # Clean up Docker containers, images, and volumes
+cleaner() {
+  # Helper function to ask for confirmation
+  _cleaner_confirm() {
+    local prompt="$1 (Y/n) "
+    local response
+    read "response?$prompt"
+    if [[ "$response" == "n" || "$response" == "N" ]]; then
+      return 1
+    fi
+    return 0
+  }
 
-  # Remove stopped containers
-  local containers=$(docker ps -a -q)
-  if [[ -n "$containers" ]]; then
-    docker rm $containers
+  # Docker
+  if command -v docker &> /dev/null; then
+    if _cleaner_confirm "Clean unused Docker images, containers, volumes, and networks?"; then
+      echo "Cleaning Docker..."
+      docker system prune -a --volumes
+    fi
   fi
 
-  # Remove unused images
-  local images=$(docker images -q)
-  if [[ -n "$images" ]]; then
-    docker rmi $images
+  # yay (Arch Linux)
+  if command -v yay &> /dev/null; then
+    if _cleaner_confirm "Clean yay cache?"; then
+      echo "Cleaning yay cache..."
+      yay -Scc
+    fi
   fi
 
-  # Remove dangling volumes
-  local volumes=$(docker volume ls -f dangling=true -q)
-  if [[ -n "$volumes" ]]; then
-    docker volume rm $volumes
+  # Homebrew (macOS)
+  if command -v brew &> /dev/null; then
+    if _cleaner_confirm "Clean up Homebrew?"; then
+      echo "Cleaning up Homebrew..."
+      brew cleanup
+    fi
   fi
+
+  # mise
+  if command -v mise &> /dev/null; then
+    if _cleaner_confirm "Clear mise cache?"; then
+      echo "Clearing mise cache..."
+      mise cache clear
+    fi
+  fi
+
+  # npm
+  if command -v npm &> /dev/null; then
+    if _cleaner_confirm "Clean npm cache?"; then
+      echo "Cleaning npm cache..."
+      npm cache clean --force
+    fi
+  fi
+
+  # uv
+  if command -v uv &> /dev/null; then
+    if _cleaner_confirm "Clean uv cache?"; then
+      echo "Cleaning uv cache..."
+      uv cache clean
+    fi
+  fi
+
+  echo "Cleaning process finished."
 }
