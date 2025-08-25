@@ -82,11 +82,11 @@ alias docker-clean=' \
   docker volume prune -f '
 
 ## Git
-alias ci='glab pipeline ci view'
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
+alias gl='jj log'
 alias l='lazygit'
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
