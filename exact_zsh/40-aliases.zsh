@@ -1,8 +1,21 @@
 ## Folders and files
 alias df='df -h'
 alias du='du -c -h'
-# --group-directories-first not working on macos?
-alias ls='ls --color -alh'
+
+if command -v eza &> /dev/null; then
+  alias ls='eza -lh --group-directories-first'
+  alias l='eza --git-ignore --group-directories-first'
+  alias ll='eza --all --header --long --group-directories-first'
+  alias llm='eza --all --header --long --sort=modified --group-directories-first'
+  alias la='eza -lbhHigUmuSa'
+  alias lx='eza -lbhHigUmuSa@'
+  alias lt='eza --tree'
+  alias tree='eza --tree'
+  alias exa='eza'
+else
+  alias ls='ls --color -alh'
+fi
+
 alias ..='builtin cd ..'
 alias ...='buitin cd ...'
 alias ....='builtin cd ....'
@@ -80,7 +93,7 @@ alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
 alias gl='jj log'
-alias l='lazygit'
+alias lzg='lazygit'
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'

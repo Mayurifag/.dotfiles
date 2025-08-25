@@ -5,6 +5,7 @@ docker
 docker-buildx
 docker-compose
 espanso-wayland
+eza
 firefox-pure
 fzf
 git
