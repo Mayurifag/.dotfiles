@@ -91,6 +91,7 @@ espanso start # its for linux, on macos launch app and go through accessibility 
 ```
 
 * Setup obsidian (use nextcloud)
+* Setup [Browsers.app](https://browsers.software/) as default browser
 
 ## Sidenotes for MacOS
 
