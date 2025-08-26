@@ -102,7 +102,18 @@ killport() {
 }
 
 # Function to open Cursor, automatically with dev container if available
+# Prevents accidental opening in home (~) or root (/) directories
 f() {
+  local current_dir
+  current_dir=$(pwd)
+
+  # Check if we're in home directory or root directory
+  if [[ "$current_dir" == "$HOME" ]] || [[ "$current_dir" == "/" ]]; then
+    echo "Error: Refusing to open VS Code in potentially unsafe directory: $current_dir" >&2
+    echo "Please navigate to a specific project directory first." >&2
+    return 1
+  fi
+
   code .
 
   sleep 3 # I am trying to make sure that Gemini Coder extension will work fine when both windows are opened
