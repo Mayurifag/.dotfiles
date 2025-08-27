@@ -170,8 +170,17 @@ $(git diff HEAD)
 
 Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are supposed to not output any new comment or docstring and also remove the obvious ones. Here is the format I need after confirmation:"
 
-  echo "$diff_content" | pbcopy
-  echo "Code review template with git diff copied to clipboard"
+  # Check OS and use the appropriate clipboard command
+  if command -v pbcopy &> /dev/null; then # macOS
+    echo "$diff_content" | pbcopy
+    echo "Code review template with git diff copied to clipboard"
+  elif command -v wl-copy &> /dev/null; then # Linux with Wayland
+    echo "$diff_content" | wl-copy
+    echo "Code review template with git diff copied to clipboard"
+  else
+    echo "Clipboard command not found (pbcopy or wl-copy)." >&2
+    return 1
+  fi
 }
 
 # Move a file or directory and create a symbolic link at the original location
