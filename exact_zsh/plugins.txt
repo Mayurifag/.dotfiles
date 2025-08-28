@@ -1,13 +1,14 @@
-zsh-users/zsh-completions
-wintermi/zsh-mise kind:defer
-wintermi/zsh-brew kind:defer
+mattmc3/ez-compinit
+zsh-users/zsh-completions kind:fpath path:src
+wintermi/zsh-mise
+wintermi/zsh-brew
 zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
 hlissner/zsh-autopair
-soimort/translate-shell kind:defer
-hcgraf/zsh-sudo kind:defer
-babarot/enhancd kind:defer
-zpm-zsh/undollar kind:defer
-jgogstad/zsh-mask kind:defer
-matheusml/zsh-ai kind:defer
+soimort/translate-shell
+hcgraf/zsh-sudo
+# babarot/enhancd kind:defer
+zpm-zsh/undollar
+jgogstad/zsh-mask
+matheusml/zsh-ai
 zdharma-continuum/fast-syntax-highlighting

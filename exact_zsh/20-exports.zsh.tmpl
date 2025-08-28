@@ -29,6 +29,31 @@ export HISTFILE=~/.zsh_history # Where to save history to disk
 export HISTSIZE=8000 # Lines of history to keep in memory for current session
 export SAVEHIST=5000 # Number of commands to save in the file
 
+# eza universal Dracula
+
+export EZA_COLORS="\
+uu=36:\
+uR=31:\
+un=35:\
+gu=37:\
+da=2;34:\
+ur=34:\
+uw=95:\
+ux=36:\
+ue=36:\
+gr=34:\
+gw=35:\
+gx=36:\
+tr=34:\
+tw=35:\
+tx=36:\
+xx=95:"
+
+# AI section
+
+export GEMINI_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
+export ZSH_AI_PROVIDER="gemini"
+
 # Paths
 
 # Function to safely append to PATH only if directory exists
