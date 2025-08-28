@@ -1,3 +1,7 @@
+if_command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
 pollCommand() {
     while true; do clear; $@; sleep 1; done
 }
@@ -25,7 +29,7 @@ prg() {
   echo $branches | xargs git branch -D
 }
 
-if command -v systemctl &> /dev/null; then
+if if_command_exists systemctl; then
   start() {
     sudo systemctl start $1.service
   }
@@ -50,7 +54,7 @@ fi
 mkcd() { [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1"; }
 backup() { cp "$1"{,.bak};}
 
-if command -v aspell &> /dev/null; then
+if if_command_exists aspell; then
   # Usage: spl paranoya
   # & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
   spl () {
@@ -120,7 +124,7 @@ f() {
 
   local devcontainer_file=".devcontainer/devcontainer.json"
 
-  if [ -f "$devcontainer_file" ] && command -v jq &> /dev/null; then
+  if [ -f "$devcontainer_file" ] && if_command_exists jq; then
     local default_workspace_folder="/workspace"
     local container_workspace_folder
     container_workspace_folder=$(jq -r '.workspaceFolder' "$devcontainer_file")
@@ -134,7 +138,7 @@ f() {
     folder_path=$(pwd) # Get the absolute path of the current directory
 
     # Ensure xxd command is available for hex encoding
-    if ! command -v xxd &> /dev/null; then
+    if ! if_command_exists xxd; then
         echo "Error: xxd command not found. Please install it (e.g., using 'brew install vim' or 'sudo apt-get install xxd')." >&2
         return 1
     fi
@@ -171,10 +175,10 @@ $(git diff HEAD)
 Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are supposed to not output any new comment or docstring and also remove the obvious ones. Here is the format I need after confirmation:"
 
   # Check OS and use the appropriate clipboard command
-  if command -v pbcopy &> /dev/null; then # macOS
+  if if_command_exists pbcopy; then # macOS
     echo "$diff_content" | pbcopy
     echo "Code review template with git diff copied to clipboard"
-  elif command -v wl-copy &> /dev/null; then # Linux with Wayland
+  elif if_command_exists wl-copy; then # Linux with Wayland
     echo "$diff_content" | wl-copy
     echo "Code review template with git diff copied to clipboard"
   else
@@ -249,7 +253,7 @@ cleaner() {
   }
 
   # Docker
-  if command -v docker &> /dev/null; then
+  if if_command_exists docker; then
     if _cleaner_confirm "Clean unused Docker images, containers, volumes, and networks?"; then
       echo "Cleaning Docker..."
       docker system prune -a --volumes
@@ -257,7 +261,7 @@ cleaner() {
   fi
 
   # yay (Arch Linux)
-  if command -v yay &> /dev/null; then
+  if if_command_exists yay; then
     if _cleaner_confirm "Clean yay cache?"; then
       echo "Cleaning yay cache..."
       yay -Scc
@@ -265,7 +269,7 @@ cleaner() {
   fi
 
   # Homebrew (macOS)
-  if command -v brew &> /dev/null; then
+  if if_command_exists brew; then
     if _cleaner_confirm "Clean up Homebrew?"; then
       echo "Cleaning up Homebrew..."
       brew cleanup
@@ -273,7 +277,7 @@ cleaner() {
   fi
 
   # mise
-  if command -v mise &> /dev/null; then
+  if if_command_exists mise; then
     if _cleaner_confirm "Clear mise cache?"; then
       echo "Clearing mise cache..."
       mise cache clear
@@ -281,7 +285,7 @@ cleaner() {
   fi
 
   # npm
-  if command -v npm &> /dev/null; then
+  if if_command_exists npm; then
     if _cleaner_confirm "Clean npm cache?"; then
       echo "Cleaning npm cache..."
       npm cache clean --force
@@ -289,7 +293,7 @@ cleaner() {
   fi
 
   # uv
-  if command -v uv &> /dev/null; then
+  if if_command_exists uv; then
     if _cleaner_confirm "Clean uv cache?"; then
       echo "Cleaning uv cache..."
       uv cache clean

@@ -1,7 +1,6 @@
 mattmc3/ez-compinit
 zsh-users/zsh-completions kind:fpath path:src
 wintermi/zsh-mise
-wintermi/zsh-brew
 zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
 hlissner/zsh-autopair

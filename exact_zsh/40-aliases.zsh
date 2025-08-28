@@ -2,7 +2,7 @@
 alias df='df -h'
 alias du='du -c -h'
 
-if command -v eza &> /dev/null; then
+if if_command_exists eza; then
   alias ls='eza -lh --group-directories-first'
   alias l='eza --git-ignore --group-directories-first'
   alias ll='eza --all --header --long --group-directories-first'
@@ -97,7 +97,7 @@ alias lzg='lazygit'
 alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
-if [ ! -x "$(command -v gitkraken)" ]; then
+if ! if_command_exists gitkraken; then
   alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
 fi
 alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
