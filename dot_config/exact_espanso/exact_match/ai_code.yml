@@ -40,7 +40,7 @@ matches:
       ---
       # User Prompt
 
-  - trigger: ":aiexec"
+  - trigger: ":aiex"
     replace: |
       {{system_instructions_base}}
       **Coding Standards & Task Execution Framework (AGENT_TASKS):**
@@ -88,7 +88,7 @@ matches:
       **Current Objective:**
       Locate and execute the next `[ ]` subtask in `AGENT_TASKS/*.md`. Ensure `make ci` passes. Propose task file update. Then stop.
 
-  - trigger: ":aicreate"
+  - trigger: ":aicr"
     replace: |
       {{system_instructions_base}}
       You are an AI assistant responsible for creating detailed task definitions for another AI assistant. These task definitions will be in Markdown format, following the AGENT_TASKS framework detailed in `AGENT_TASKS/.rules.md`. Your primary role is to translate user requests into a structured task file that the other AI can execute subtask by subtask.
@@ -191,6 +191,3 @@ matches:
       ```
 
       </system_instructions>
-      <prompt>
-      Whenever proposing a file use the markdown code block syntax and always add file path in the first line comment. Please show me the full code of the changed files, I have a disability which means I can't type and need to be able to copy and paste the full code. Don't use XML for files.
-      </prompt>

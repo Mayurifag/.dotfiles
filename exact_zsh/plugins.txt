@@ -7,7 +7,6 @@ geometry-zsh/geometry
 hlissner/zsh-autopair
 soimort/translate-shell
 hcgraf/zsh-sudo
-# babarot/enhancd kind:defer
 zpm-zsh/undollar
 jgogstad/zsh-mask
 matheusml/zsh-ai
