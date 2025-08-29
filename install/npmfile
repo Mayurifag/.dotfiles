@@ -1,5 +1,6 @@
+@google/gemini-cli
+@playwright/test
+eslint
+markdownlint-cli2
 npm
 prettier
-markdownlint-cli2
-eslint
-@playwright/test
