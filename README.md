@@ -170,6 +170,12 @@ Krunner: Meta+Space
 * Enable asterisks on sudo password: `echo 'Defaults pwfeedback' | sudo tee /etc/sudoers.d/20-pwfeedback`
 * <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
 * Use mvln for compatdata [NTFS mount](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows)
+* Set kernel params. For me on 128gb unified RAM, [src](https://github.com/kyuz0/amd-strix-halo-toolboxes?tab=readme-ov-file#62-kernel-parameters-tested-on-fedora-42):
+
+```sh
+# /boot/refind_linux.conf
+"Boot using default options"     "root=PARTUUID=13bbf375-9a9a-45cf-a256-3ea4f77ca6e0 rw nowatchdog zswap.enabled=0 amd_iommu=off amdgpu.gttsize=131072 ttm.pages_limit=33554432"
+```
 
 ## Notes
 

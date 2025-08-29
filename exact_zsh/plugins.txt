@@ -1,4 +1,6 @@
+# must be first
 mattmc3/ez-compinit
+
 zsh-users/zsh-completions kind:fpath path:src
 wintermi/zsh-mise
 zsh-users/zsh-autosuggestions
@@ -9,4 +11,6 @@ hcgraf/zsh-sudo
 zpm-zsh/undollar
 jgogstad/zsh-mask
 matheusml/zsh-ai
+
+# must be last
 zdharma-continuum/fast-syntax-highlighting
