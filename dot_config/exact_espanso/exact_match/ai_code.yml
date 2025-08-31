@@ -191,3 +191,15 @@ matches:
       ```
 
       </system_instructions>
+
+  - trigger: ":airust"
+    replace: |
+      {{system_instructions_base}}
+
+      You are helping me with my Rust codebase. Additional rules you have to follow:
+
+      - You have to never add obvious comments or comments that you changed something due to task
+      - Do not edit Cargo.toml, you have to give commands like cargo add and so on. Prompt won't have Cargo.lock, though it exists
+
+      ---
+      # User Prompt
