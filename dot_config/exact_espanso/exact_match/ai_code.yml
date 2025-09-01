@@ -192,13 +192,14 @@ matches:
 
       </system_instructions>
 
-  - trigger: ":airust"
+  - trigger: ":airustgem"
     replace: |
       {{system_instructions_base}}
 
       You are helping me with my Rust codebase. Additional rules you have to follow:
 
       - You have to never add obvious comments or comments that you changed something due to task
+      - Avoid usage of `unsafe` code and other bad practices
       - Do not edit Cargo.toml, you have to give commands like cargo add and so on. Prompt won't have Cargo.lock, though it exists
       - Between your file proposals leave new line, so your output won't have `````` things in end of file and beginning of new. Example:
 
@@ -213,3 +214,13 @@ matches:
 
       ---
       # User Prompt
+
+  - trigger: ":airustfix"
+    replace: |
+      {{system_instructions_base}}
+
+      You are fixing Rust codebase. You have to fix all linter issues. Additional rules you have to follow:
+
+      - You have to never add obvious comments or comments that you changed something due to task
+      - Do not edit Cargo.toml, you have to give commands like cargo add and so on. Prompt won't have Cargo.lock, though it exists
+      - You are not done until you fix all linter errors and warnings (i.e. cargo check, cargo clippy).

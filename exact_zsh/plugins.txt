@@ -12,5 +12,8 @@ zpm-zsh/undollar
 jgogstad/zsh-mask
 matheusml/zsh-ai
 
+junegunn/fzf path:shell/key-bindings.zsh
+junegunn/fzf path:shell/completion.zsh
+
 # must be last
 zdharma-continuum/fast-syntax-highlighting
