@@ -165,8 +165,6 @@ Krunner: Meta+Space
 ```
 
 * Clean system time to time: `sudo systemctl enable --now yaycache.timer`
-* Install `nerd-dictation`. That will require to install `ydotool` and its setup
-  for wayland. Install model.
 * Enable asterisks on sudo password: `echo 'Defaults pwfeedback' | sudo tee /etc/sudoers.d/20-pwfeedback`
 * <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
 * Use mvln for compatdata [NTFS mount](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows)
@@ -208,3 +206,5 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 * Claude code configuration inspired by [this repo](https://github.com/roderik/ai-rules)
 
 * [Playwright installation](https://github.com/microsoft/playwright/issues/2621#issuecomment-2083083392)
+
+* [Strange Steam autostart bug](https://www.reddit.com/r/Steam/comments/dbohal/how_can_i_start_up_steam_minimized/). [Windows](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)

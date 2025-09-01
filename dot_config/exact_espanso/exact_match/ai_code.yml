@@ -200,6 +200,16 @@ matches:
 
       - You have to never add obvious comments or comments that you changed something due to task
       - Do not edit Cargo.toml, you have to give commands like cargo add and so on. Prompt won't have Cargo.lock, though it exists
+      - Between your file proposals leave new line, so your output won't have `````` things in end of file and beginning of new. Example:
+
+      ```
+      // src/filename.rs
+      ...
+      ```
+      ```
+      // src/file.cfg
+      ...
+      ```
 
       ---
       # User Prompt
