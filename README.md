@@ -207,4 +207,4 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 * [Playwright installation](https://github.com/microsoft/playwright/issues/2621#issuecomment-2083083392)
 
-* [Strange Steam autostart bug](https://www.reddit.com/r/Steam/comments/dbohal/how_can_i_start_up_steam_minimized/). [Windows](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
+* Make steam silent, i.e. on [Windows](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
