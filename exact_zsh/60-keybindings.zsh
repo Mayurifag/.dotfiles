@@ -25,3 +25,16 @@ bindkey '\e[1;5C' forward-word
 # This is a fallback for other terminals that might send different codes.
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
+
+# --- Swap Tab and Right Arrow for autosuggestions and completions ---
+
+# Use Tab to accept autosuggestions. This overrides Tab's default
+# completion behavior.
+bindkey '\t' autosuggest-accept
+
+# Use Right Arrow for completion. This overrides Right Arrow's default
+# behavior of moving forward a character. The key sequence for Right Arrow can
+# vary between terminals. '\e[C' is a common one.
+bindkey '\e[C' expand-or-complete
+# Fallback for other terminals.
+bindkey '^[[C' expand-or-complete
