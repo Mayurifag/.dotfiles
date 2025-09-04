@@ -32,9 +32,20 @@ bindkey '^[[1;5C' forward-word
 # completion behavior.
 bindkey '\t' autosuggest-accept
 
-# Use Right Arrow for completion. This overrides Right Arrow's default
-# behavior of moving forward a character. The key sequence for Right Arrow can
-# vary between terminals. '\e[C' is a common one.
-bindkey '\e[C' expand-or-complete
+# Use Right Arrow for completion at the end of a line, and for navigation otherwise.
+smart-forward-or-complete() {
+  # If the cursor is at the end of the line (RBUFFER is empty),
+  # trigger completion. Otherwise, move forward one character.
+  if [[ -z "$RBUFFER" ]]; then
+    zle expand-or-complete
+  else
+    zle forward-char
+  fi
+}
+zle -N smart-forward-or-complete
+
+# The key sequence for Right Arrow can vary between terminals.
+# '\e[C' is a common one.
+bindkey '\e[C' smart-forward-or-complete
 # Fallback for other terminals.
-bindkey '^[[C' expand-or-complete
+bindkey '^[[C' smart-forward-or-complete
