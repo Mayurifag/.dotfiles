@@ -28,24 +28,13 @@ bindkey '^[[1;5C' forward-word
 
 # --- Swap Tab and Right Arrow for autosuggestions and completions ---
 
-# Use Tab to accept autosuggestions. This overrides Tab's default
-# completion behavior.
-bindkey '\t' autosuggest-accept
-
-# Use Right Arrow for completion at the end of a line, and for navigation otherwise.
-smart-forward-or-complete() {
-  # If the cursor is at the end of the line (RBUFFER is empty),
-  # trigger completion. Otherwise, move forward one character.
-  if [[ -z "$RBUFFER" ]]; then
-    zle expand-or-complete
+# Use Tab to accept autosuggestions if one is available, otherwise fall back to completion.
+smart-tab-accept-or-complete() {
+  if [[ -n "${ZSH_AUTOSUGGEST_SUGGESTION-}" ]]; then
+    zle autosuggest-accept
   else
-    zle forward-char
+    zle expand-or-complete
   fi
 }
-zle -N smart-forward-or-complete
-
-# The key sequence for Right Arrow can vary between terminals.
-# '\e[C' is a common one.
-bindkey '\e[C' smart-forward-or-complete
-# Fallback for other terminals.
-bindkey '^[[C' smart-forward-or-complete
+zle -N smart-tab-accept-or-complete
+bindkey '\t' smart-tab-accept-or-complete

@@ -1,9 +1,11 @@
 ayugram-desktop
 browsers-bin
+btop
 chezmoi
 docker
 docker-buildx
 docker-compose
+eget-bin
 espanso-wayland
 eza
 firefox-pure
@@ -11,13 +13,13 @@ fzf
 git
 github-cli
 gitkraken
+htop
 jujutsu
 keepassxc
 less
 mise
 nano
 nano-syntax-highlighting
-neohtop-bin
 nextcloud-client-appimage-daily
 ntfs-3g
 openssh
@@ -41,5 +43,5 @@ which
 wl-clipboard
 yay
 yaycache
-zsh-antidote
 zoxide
+zsh-antidote

@@ -65,7 +65,8 @@ safe_append_to_path() {
 
 safe_append_to_path "$HOME/.lmstudio/bin" # LM Studio CLI
 safe_append_to_path "$HOME/.cargo/bin" # Rust/cargo
-safe_append_to_path "$HOME/.local/bin" # Local binaries I use or install
+safe_append_to_path "$HOME/.local/eget_binaries" # Binaries from github I want to have
+safe_append_to_path "$HOME/.local/bin" # By default, mise/uv setup puts shortcuts to ~/.local/bin
 
 ### Go ###
 # export GOPATH="$HOME/go"
