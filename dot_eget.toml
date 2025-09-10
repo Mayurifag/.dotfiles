@@ -1,8 +1,0 @@
-[global]
-target = "~/.local/eget_binaries"
-upgrade-only = true
-
-["BleedDev/augmentcode-free-vip"]
-
-["Mayurifag/conditional-launcher"]
-target = "~/.local/bin/conditional-launcher"

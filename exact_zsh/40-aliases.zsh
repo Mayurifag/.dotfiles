@@ -109,4 +109,8 @@ alias cz='chezmoi'
 alias czcd='chezmoi cd'
 alias czapply='chezmoi apply -v && source "$HOME/.zshrc"'
 alias fakeczapply='chezmoi apply -v --dry-run'
-alias egetbins='eget --download-all'
+if if_command_exists stew; then
+  alias stewbins='stew upgrade --all'
+else
+  alias stewbins='echo "Install stew"'
+fi

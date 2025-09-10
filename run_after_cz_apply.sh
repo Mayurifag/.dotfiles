@@ -8,6 +8,7 @@ main() {
 
   zsh -i -c "lnsf \"$SOURCE_FILE\" \"$DEST_FILE\""
   zsh -i -c "bundleantidote"
+  zsh -i -c "stewbins"
 }
 
 main "$@"

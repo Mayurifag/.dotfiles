@@ -1,0 +1,26 @@
+{
+	"os": "linux",
+	"arch": "amd64",
+	"packages": [
+		{
+			"source": "github",
+			"owner": "Mayurifag",
+			"repo": "conditional-launcher",
+			"tag": "v0.1.8",
+			"asset": "conditional-launcher-linux-x86_64",
+			"binary": "conditional-launcher",
+			"url": "https://api.github.com/repos/Mayurifag/conditional-launcher/releases/assets/288900969",
+			"binaryHash": "28aa989d2a968e60cc5b8c6e93e7b9f379a8e75f27188b65bad72694b4d94bb9"
+		},
+		{
+			"source": "github",
+			"owner": "BleedDev",
+			"repo": "augmentcode-free-vip",
+			"tag": "LUM-V3.0",
+			"asset": "lumina-vip-linux",
+			"binary": "lumina",
+			"url": "https://api.github.com/repos/BleedDev/augmentcode-free-vip/releases/assets/290049465",
+			"binaryHash": "69b0cf5d9bdb37bdf17d8fa5907d0983ede568635a6d01c8a9a998ff7ab950d5"
+		}
+	]
+}
