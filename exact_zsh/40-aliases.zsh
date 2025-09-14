@@ -112,5 +112,5 @@ alias fakeczapply='chezmoi apply -v --dry-run'
 if if_command_exists stew; then
   alias stewbins='stew upgrade --all'
 else
-  alias stewbins='echo "Install stew"'
+  alias stewbins='echo "This commands requires stew package manager to be installed"'
 fi

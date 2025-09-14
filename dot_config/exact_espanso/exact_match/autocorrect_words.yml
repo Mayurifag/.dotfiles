@@ -883,3 +883,6 @@ matches:
   - trigger: completly
     replace: completely
     word: true
+  - trigger: isntalled
+    replace: installed
+    word: true
