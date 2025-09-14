@@ -1,5 +1,5 @@
 .PHONY: mise-packages
-mise-packages: mise-install node-packages rust-packages ruby-packages go-packages uv-packages
+mise-packages: mise-install node-packages rust-packages ruby-packages go-packages uv-packages stew-packages
 
 .PHONY: node-packages
 node-packages:
@@ -25,6 +25,28 @@ uv-packages:
 .PHONY: mise-install
 mise-install:
 	mise install
+
+.PHONY: stew-packages
+stew-packages:
+	@while IFS= read -r package <&3; do \
+		if [ -n "$$package" ] && [ "$${package#\#}" = "$$package" ]; then \
+			if [ -f ~/.local/share/stew/Stewfile.lock.json ]; then \
+				owner_repo="$$package"; \
+				owner=$$(echo "$$owner_repo" | cut -d'/' -f1); \
+				repo=$$(echo "$$owner_repo" | cut -d'/' -f2); \
+				if jq -e --arg owner "$$owner" --arg repo "$$repo" '.packages[] | select(.owner == $$owner and .repo == $$repo)' ~/.local/share/stew/Stewfile.lock.json >/dev/null 2>&1; then \
+					echo "Package $$package already installed, skipping..."; \
+				else \
+					echo "Package $$package not found in lock file, installing..."; \
+					stew install "$$package" </dev/tty || exit 1; \
+				fi; \
+			else \
+				echo "No lock file found, installing $$package..."; \
+				stew install "$$package" </dev/tty || exit 1; \
+			fi; \
+		fi; \
+	done 3< install/Stewfile
+	stew upgrade --all
 
 ################################################
 # Thats better to fully upgrade first before using those package managers
