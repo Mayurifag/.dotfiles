@@ -228,6 +228,10 @@ matches:
     replace: piece
     propagate_case: true
     word: true
+  - trigger: persistance
+    replace: persistence
+    propagate_case: true
+    word: true
   - trigger: persiverence
     replace: perseverance
     propagate_case: true

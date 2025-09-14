@@ -16,11 +16,11 @@
 			"source": "github",
 			"owner": "BleedDev",
 			"repo": "augmentcode-free-vip",
-			"tag": "LUM-V3.0",
+			"tag": "LUM-V4.0",
 			"asset": "lumina-vip-linux",
 			"binary": "lumina",
-			"url": "https://api.github.com/repos/BleedDev/augmentcode-free-vip/releases/assets/290049465",
-			"binaryHash": "69b0cf5d9bdb37bdf17d8fa5907d0983ede568635a6d01c8a9a998ff7ab950d5"
+			"url": "https://api.github.com/repos/BleedDev/augmentcode-free-vip/releases/assets/292119695",
+			"binaryHash": "59336b7fd63a059f1687f9f79b703ea867f1d8d6d963eb3a5f7a00f7e7e701cc"
 		}
 	]
 }
