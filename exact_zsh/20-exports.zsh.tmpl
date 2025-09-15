@@ -1,3 +1,7 @@
+{{ if eq .chezmoi.os "linux" -}}
+export YDOTOOL_SOCKET=/tmp/.ydotool_socket
+{{- end }}
+
 # Ripgrep
 if type rg &> /dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files --hidden'

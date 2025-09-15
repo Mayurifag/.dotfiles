@@ -175,6 +175,19 @@ Krunner: Meta+Space
 "Boot using default options"     "root=PARTUUID=13bbf375-9a9a-45cf-a256-3ea4f77ca6e0 rw nowatchdog zswap.enabled=0 amd_iommu=off amdgpu.gttsize=131072 ttm.pages_limit=33554432"
 ```
 
+* Instructions to use [waystt](https://github.com/sevos/waystt) as Speech-to-Text
+  software:
+
+```bash
+sudo usermod -a -G input $USER
+systemctl --user enable --now ydotool.service
+echo '## Give ydotoold access to the uinput device
+## Solution by https://github.com/ReimuNotMoe/ydotool/issues/25#issuecomment-535842993
+KERNEL=="uinput", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"
+' | sudo tee /etc/udev/rules.d/80-uinput.rules > /dev/null
+waystt --download-model
+```
+
 ## Notes
 
 * Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file,

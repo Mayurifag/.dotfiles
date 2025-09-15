@@ -1,0 +1,2 @@
+TRANSCRIPTION_PROVIDER=local
+WHISPER_MODEL=ggml-medium.en.bin

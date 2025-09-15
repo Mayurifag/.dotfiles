@@ -27,6 +27,7 @@ otf-apple-sf-pro
 pacman-contrib
 papirus-icon-theme
 partitionmanager
+pipewire
 qbittorrent
 refind
 refind-theme-dracula
@@ -43,5 +44,7 @@ which
 wl-clipboard
 yay
 yaycache
+ydotool
 zoxide
 zsh-antidote
+waystt-bin
