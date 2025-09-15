@@ -22,7 +22,5 @@ matches:
     replace: "Mayurifag@users.noreply.github.com"
   - trigger: ":gpgkey"
     replace: "BFBB7D82EB4816600C2F3DDD871672CCF33EDE72"
-  - trigger: ":sshkey"
-    replace: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad"
-  - trigger: ":sshpub"
+  - triggers: [:sshkey, :sshpub]
     replace: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKc+qX1yWHK1A1vVHrL7HcqAQZrhZnPywCTrcMHB/z/b ed25519-vlad"
