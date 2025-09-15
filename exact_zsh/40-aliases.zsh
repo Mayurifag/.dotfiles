@@ -95,7 +95,6 @@ alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
 alias gl='jj log'
 alias lzg='lazygit'
-alias q='yawn'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
 if ! if_command_exists gitkraken; then

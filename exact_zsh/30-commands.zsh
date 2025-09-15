@@ -408,3 +408,14 @@ stewbins() {
     return 0
   fi
 }
+
+q() {
+  if if_command_exists yawn-debug; then
+    yawn-debug "$@"
+  elif if_command_exists yawn; then
+    yawn "$@"
+  else
+    echo "No yawn executable found." >&2
+    return 1
+  fi
+}
