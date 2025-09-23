@@ -2,9 +2,9 @@
 
 matches:
   # Arrows
-  - trigger: ":rarrow"
+  - triggers: [":rarrow", ":-->"]
     replace: "→"
-  - trigger: ":larrow"
+  - triggers: [":larrow", ":<--"]
     replace: "←"
   - trigger: ":uarrow"
     replace: "↑"
