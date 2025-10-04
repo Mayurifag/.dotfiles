@@ -47,3 +47,7 @@ matches:
       I’m going to give you a prompt I’ve written. Your task is to critically analyze it and suggest specific ways it could be improved — such as through greater clarity, better structure, added context, more precise instruction, etc. For each suggested enhancement, explain why it would improve the prompt’s effectiveness. Do not rewrite or output the enhanced prompt yet. I’ll ask for that separately after reviewing your suggestions.
 
       # Prompt to analyze
+
+  - trigger: ":mdcode"
+    replace: |
+      {{markdown_code_block_syntax_example}}

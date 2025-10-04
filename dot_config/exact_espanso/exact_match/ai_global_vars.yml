@@ -32,3 +32,16 @@ global_vars:
         If you are in process of fixing something and your solution did not work, first you have to think why your solution did not work and secondly you have to revert your not working fixes to try solution from beginning.
 
         ---
+
+  - name: "markdown_code_block_syntax_example"
+    type: "echo"
+    params:
+      echo: |
+        If you have to output Markdown Code Block syntax, it will have to look like that (notice ticks have to be on the last line):
+
+        ```extension
+        # path/to/file.extension
+        ... content ...
+        ```
+
+        Do not output changes for markdown files which already have Markdown Code Block Syntax inside them, just mention this changes on the end.

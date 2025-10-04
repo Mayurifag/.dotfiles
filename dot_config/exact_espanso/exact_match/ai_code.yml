@@ -5,11 +5,13 @@ matches:
     replace: |
       {{system_instructions_base}}
       {{generic_task_with_code}}
+      {{markdown_code_block_syntax_example}}
 
   - trigger: ":aikarabiner"
     replace: |
       {{system_instructions_base}}
       {{generic_task_with_code}}
+      {{markdown_code_block_syntax_example}}
       ### File Handling for `private_karabiner.json`
 
       - Ignore every file in `<files>` section; the question will only be regarding `private_karabiner.json`.
@@ -32,6 +34,7 @@ matches:
   - trigger: ":aiimprovements"
     replace: |
       {{system_instructions_base}}
+      {{markdown_code_block_syntax_example}}
       ## Task-Specific Rules
 
       Your task is to analyze the provided project, think, and suggest improvements or enhancements.
@@ -43,6 +46,7 @@ matches:
   - trigger: ":aiex"
     replace: |
       {{system_instructions_base}}
+      {{markdown_code_block_syntax_example}}
       **Coding Standards & Task Execution Framework (AGENT_TASKS):**
 
       1.  **File Structure & Task Identification**:
@@ -91,6 +95,7 @@ matches:
   - trigger: ":aicr"
     replace: |
       {{system_instructions_base}}
+      {{markdown_code_block_syntax_example}}
       You are an AI assistant responsible for creating detailed task definitions for another AI assistant. These task definitions will be in Markdown format, following the AGENT_TASKS framework detailed in `AGENT_TASKS/.rules.md`. Your primary role is to translate user requests into a structured task file that the other AI can execute subtask by subtask.
 
       The user will communicate their needs. If the user's request is clear and provides enough detail for you to define a complete task with subtasks, you will proceed to generate the task file. However, if the request is ambiguous, lacks context, or if you identify potential blind spots, you must engage in a clarification process.
@@ -123,7 +128,7 @@ matches:
       `**Relevant Make Commands (Optional)**`: e.g., `make front-lint, make back-test`.
 
       - Subtasks should be large enough to represent a testable feature chunk that can pass `make ci`.
-      - MAKE ONLY 1 (ONE) SUBTASK ([ ] point) unless user told you to do more.
+      - MAKE ONLY 1 (ONE) SUBTASK ([ ] point) unless user told you to do more. One file has to be for full feature, do not expect user to create another file for additional subtasks for the same feature.
       - There has to be no additional "review", "testing", "CI" or similar step. Each subtask implies it was tested and reviewed.
       - If a subtask involves running specific commands, detail these, potentially suggesting a `make` command.
       - Promote maintainable and clean code.
@@ -195,6 +200,7 @@ matches:
   - trigger: ":airustgem"
     replace: |
       {{system_instructions_base}}
+      {{markdown_code_block_syntax_example}}
 
       You are helping me with my Rust codebase. Additional rules you have to follow:
 
@@ -219,6 +225,7 @@ matches:
   - trigger: ":airustfix"
     replace: |
       {{system_instructions_base}}
+      {{markdown_code_block_syntax_example}}
 
       You are fixing Rust codebase. You have to fix all linter issues. Additional rules you have to follow:
 

@@ -106,5 +106,6 @@ alias g='gk'
 ## Chezmoi
 alias cz='chezmoi'
 alias czcd='chezmoi cd'
+alias cdcz='chezmoi cd'
 alias czapply='chezmoi apply -v && source "$HOME/.zshrc"'
 alias fakeczapply='chezmoi apply -v --dry-run'
