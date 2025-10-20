@@ -33,10 +33,9 @@ alias grep='grep --color=auto'
 alias y='yay'
 
 ## yt-dlp
-alias yt="yt-dlp -v -o \"%(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic\" --embed-thumbnail --embed-chapters --embed-metadata --concurrent-fragments 3 --throttled-rate 100K --retries 3"
-alias yt-full="yt-dlp -v -o \"%(upload_date)s %(title)s.%(ext)s\" -f bv*+?ba/b --extractor-args \"youtube:player_client=default,ios\" -S hdr:dv,res,vcodec:av1,acodec:opus,br --sponsorblock-mark all --sponsorblock-remove \"sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic\" --embed-thumbnail --embed-chapters --embed-metadata --embed-subs --sub-langs all --concurrent-fragments 3 --throttled-rate 100K --retries 3"
+alias yt="yt-dlp -v -o \"%(title)s.%(ext)s\" --sponsorblock-mark all --sponsorblock-remove \"sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic\" --embed-thumbnail --embed-chapters --embed-metadata --concurrent-fragments 3 --retries 3"
 alias yta="yt-dlp -f 'ba' -x --audio-format mp3 --audio-quality 0 \
-  -o '%(artist,uploader|Unknown Artist)s - %(title)s.%(ext)s' \
+  -o '%(title)s.%(ext)s' \
   --embed-thumbnail --convert-thumbnails jpg \
   --embed-metadata \
   --parse-metadata 'title:%(title)s' \
