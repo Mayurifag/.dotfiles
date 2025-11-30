@@ -3,10 +3,7 @@ Include ~/.orbstack/ssh/config
 {{- end }}
 
 # Read more about SSH config files: https://linux.die.net/man/5/ssh_config
-Host *
-  Protocol 2
-  ServerAliveInterval 120
-  ServerAliveCountMax 2
+
 Host gitlab.com
   UpdateHostKeys no
 Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_one }}
@@ -18,3 +15,10 @@ Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two }}
 Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_three }}
   HostName {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_three_hostname }}
   User {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).ssh_user }}
+
+Host *
+  StrictHostKeyChecking ask
+  UpdateHostKeys ask
+  Protocol 2
+  ServerAliveInterval 120
+  ServerAliveCountMax 2
