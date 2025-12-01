@@ -1,7 +1,7 @@
 [user]
   name = Mayurifag
   email = Mayurifag@users.noreply.github.com
-  siginingKey = BFBB7D82EB4816600C2F3DDD871672CCF33EDE72
+  siginingKey = 871672CCF33EDE72
 [alias]
 	co = checkout
 	st = status
@@ -44,3 +44,5 @@
 	autoStash = true
 [pull]
 	rebase = true
+[commit]
+  gpgsign = true
