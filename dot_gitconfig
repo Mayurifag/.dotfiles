@@ -3,20 +3,20 @@
   email = Mayurifag@users.noreply.github.com
   siginingKey = 871672CCF33EDE72
 [alias]
-	co = checkout
-	st = status
-	lg = log --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%an%Creset' --abbrev-commit
+  co = checkout
+  st = status
+  lg = log --pretty=format:'%Cred%h%Creset%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)%an%Creset' --abbrev-commit
   # https://stackoverflow.com/a/48999882/8303979
-	amend-to = "!f() { SHA=`git rev-parse \"$1\"`; git stash -k && git commit --fixup \"$SHA\" && GIT_SEQUENCE_EDITOR=true git rebase --interactive --autosquash \"$SHA^\" && git stash pop; }; f"
-	recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
+  amend-to = "!f() { SHA=`git rev-parse \"$1\"`; git stash -k && git commit --fixup \"$SHA\" && GIT_SEQUENCE_EDITOR=true git rebase --interactive --autosquash \"$SHA^\" && git stash pop; }; f"
+  recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
 [core]
-	autocrlf = input
-	editor = vim
-	attributesfile = ~/.gitattributes
+  autocrlf = input
+  editor = vim
+  attributesfile = ~/.gitattributes
 [credential]
-	helper = cache --timeout=3600
+  helper = cache --timeout=3600
 [color]
-	ui = auto
+  ui = auto
 [merge]
   conflictstyle = diff3
 [diff "rspec"]
@@ -35,14 +35,14 @@
   changed = green
   untracked = cyan
 [gui]
-	pruneDuringFetch = true
+  pruneDuringFetch = true
 [ssh]
-	variant = ssh
+  variant = ssh
 [init]
-	defaultBranch = main
+  defaultBranch = main
 [rebase]
-	autoStash = true
+  autoStash = true
 [pull]
-	rebase = true
+  rebase = true
 [commit]
   gpgsign = true
