@@ -101,7 +101,8 @@ espanso start # its for linux, on macos launch app and go through accessibility 
 * Sudo with TouchID <https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
 * Setup karabiner (I have config but not sure if something else needed)
 * Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
-* After orbstack installation check docker commands working for regular user.
+* After orbstack installation check docker commands working for regular user
+* [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
 
 ### Paid macos apps I use (not in Brewfile)
 
