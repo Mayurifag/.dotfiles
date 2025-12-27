@@ -1,5 +1,0 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
-
-matches:
-  - trigger: ":lum"
-    replace: "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).lum }}"

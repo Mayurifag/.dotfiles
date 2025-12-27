@@ -12,6 +12,8 @@ Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_one }}
 Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two }}
   HostName {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two_hostname }}
   User {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).ssh_user }}
+  RequestTTY yes
+  RemoteCommand tmux attach -d || tmux new-session -s main
 Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_three }}
   HostName {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_three_hostname }}
   User {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).ssh_user }}
