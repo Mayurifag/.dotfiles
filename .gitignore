@@ -1,2 +1,4 @@
 lazydocker/development.log
 install/Brewfile.lock.json
+
+/.ruby-lsp

@@ -69,7 +69,8 @@ safe_append_to_path() {
 
 safe_append_to_path "$HOME/.lmstudio/bin" # LM Studio CLI
 safe_append_to_path "$HOME/.cargo/bin" # Rust/cargo
-safe_append_to_path "$HOME/.local/bin" # By default, mise/uv setup puts shortcuts to ~/.local/bin. Also used for stew.
+safe_append_to_path "$HOME/.local/bin" # By default, mise/uv/pipx setup puts shortcuts to ~/.local/bin. Also used for stew.
+safe_append_to_path "$HOME/.antigravity/antigravity/bin" # Google Antigravity
 
 ### Go ###
 # export GOPATH="$HOME/go"
