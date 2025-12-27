@@ -209,7 +209,7 @@ ejson encrypt keys.ejson
 ```bash
 $ sudo -i
 # mkdir /mnt/Shared
-# kate /etc/fstab
+# kate /etc/fstab # CHANGE PARTUUID
 PARTUUID="61ffcf10-e472-4c71-8e04-cf57c6463e6b" /mnt/Shared   ntfs3   \
 uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 ```
@@ -223,4 +223,4 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 * Make steam silent, i.e. on [Windows](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
 
-* I need mole setup for iOS - to not clean files managed by chezmoi
+* I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
