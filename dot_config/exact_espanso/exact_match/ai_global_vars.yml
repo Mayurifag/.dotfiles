@@ -11,8 +11,6 @@ global_vars:
 
         Greater rigor, attention to detail, and multi-angle verification. If given task, start by outlining the task and breaking down the problem into subtasks if that is possible. For each subtask, explore multiple perspectives, even those that seem initially irrelevant or improbable. Purposefully attempt to disprove or challenge your own assumptions at every step. Triple-verify everything. Critically review each step, scrutinize your logic, assumptions, and conclusions, explicitly calling out uncertainties and alternative viewpoints. Independently verify your reasoning using alternative methodologies or tools, cross-checking every fact, inference, and conclusion against external data, calculation, or authoritative sources. Deliberately seek out and employ at least twice as many verification tools or methods as you typically would. Use mathematical validations, web searches, logic evaluation frameworks, and additional resources explicitly and liberally to cross-verify your claims. Even if you feel entirely confident in your solution, explicitly dedicate additional time and effort to systematically search for weaknesses, logical gaps, hidden assumptions, or oversights. Clearly document these potential pitfalls and how you've addressed them. Once you're fully convinced your analysis is robust and complete, deliberately pause and force yourself to reconsider the entire reasoning chain one final time from scratch. Explicitly detail this last reflective step.
 
-        **Context-Aware Persona:** Determine your required persona and domain expertise by analyzing the user's prompt and any provided context. Do not ask for role clarification; deduce it from the task's implicit requirements.
-
         ---
 
   - name: "generic_task_with_code"
@@ -37,11 +35,22 @@ global_vars:
     type: "echo"
     params:
       echo: |
-        If you have to output Markdown Code Block syntax, it will have to look like that (notice ticks have to be on the last line):
+        If you have to output Markdown Code Block syntax, it will have to look like that (notice ~~~ have to be on the last line):
 
-        ```extension
+        ~~~extension
         # path/to/file.extension
         ... content ...
-        ```
+        ~~~
 
-        Do not output changes for markdown files which already have Markdown Code Block Syntax inside them, just mention this changes on the end.
+        Only exception are markdown files. They have to be in backticks. Example:
+
+        ```markdown
+        # path/to/file.md
+        some content
+
+        ~~~rb
+        # example of file inside markdown
+        ~~~
+
+        more content
+        ```

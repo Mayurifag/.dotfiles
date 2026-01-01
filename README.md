@@ -39,7 +39,7 @@ also require to setup/choose another profile, because default one is read-only.
 * Install `chezmoi`, `mise` and `ejson` using your system manager.
 
 ```bash
-sudo ln -s $HOME/Nextcloud/ejson/ /opt/ejson # or any other way to export your ejson key
+sudo ln -s /Volumes/exfat/OpenCloud/Personal/Software/dotfiles/ejson /opt/ejson # or any other way to export your ejson key
 ```
 
 Apply `.dotfiles`:

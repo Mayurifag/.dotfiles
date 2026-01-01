@@ -303,6 +303,122 @@ cleaner() {
   echo "Cleaning process finished."
 }
 
+fixntfs() {
+  lsblk -f -n -l -o NAME,FSTYPE,LABEL,UUID | awk '$2=="ntfs"{print "/dev/"$1, $3, $4}' | while read -r device label uuid; do
+    local display_label="${label:-<no label>}"
+    echo "--- Checking $device ($display_label) ---"
+
+    if findmnt -n --source "$device" >/dev/null; then
+      echo "Status: Already mounted. Skipping."
+      echo ""
+      continue
+    fi
+
+    local mount_point
+    # Try to find mount point by device, then by UUID from /etc/fstab
+    mount_point=$(findmnt -n -o TARGET --source "$device" 2>/dev/null)
+    if [[ -z "$mount_point" ]]; then
+        # Search fstab for device or UUID
+        mount_point=$(awk -v dev="$device" -v uuid="UUID=$uuid" '($1==dev || $1==uuid){print $2; exit}' /etc/fstab)
+    fi
+
+    if [[ -z "$mount_point" ]]; then
+      echo "Status: No mount point found in /etc/fstab. Skipping."
+      echo ""
+      continue
+    fi
+
+    echo "Status: Not mounted. Attempting to mount at $mount_point..."
+    if sudo mount "$mount_point" 2>/dev/null; then
+      echo "Success: Mounted successfully at $mount_point."
+    else
+      echo "Failure: Could not mount partition."
+      read "response?Attempt to fix with 'ntfsfix -bd'? (Y/n) "
+      if [[ -z "$response" || "$response" =~ ^[Yy]$ ]]; then
+        echo "Running: sudo ntfsfix -bd $device"
+        sudo ntfsfix -bd "$device"
+        echo "Fix attempt finished. Retrying mount..."
+        if sudo mount "$mount_point"; then
+          echo "Success: Mounted successfully at $mount_point after fix."
+        else
+          echo "Failure: Still unable to mount after fix."
+        fi
+      fi
+    fi
+    echo ""
+  done
+}
+
+# ejson decrypt keys.ejson, print the decrypted content, and overwrite keys.ejson with the decrypted content.
+dec() {
+  if ! if_command_exists ejson; then
+    echo "Error: ejson command not found." >&2
+    return 1
+  fi
+  if [[ -f "keys.ejson" ]]; then
+    local tmp_file=$(mktemp)
+    # Decrypt to temp file
+    if ejson decrypt keys.ejson > "$tmp_file"; then
+      # Print decrypted content to stdout
+      cat "$tmp_file"
+      # Atomically move decrypted content back to original file
+      if mv "$tmp_file" keys.ejson; then
+        echo "keys.ejson decrypted and file overwritten successfully."
+      else
+        echo "Error: Failed to move temporary file to keys.ejson." >&2
+        rm -f "$tmp_file"
+        return 1
+      fi
+    else
+      echo "Error during ejson decrypt keys.ejson." >&2
+      rm -f "$tmp_file"
+      return 1
+    fi
+  else
+    echo "Error: keys.ejson not found in the current directory." >&2
+    return 1
+  fi
+}
+
+# ejson encrypt keys.ejson.
+enc() {
+  if ! if_command_exists ejson; then
+    echo "Error: ejson command not found." >&2
+    return 1
+  fi
+  if [[ -f "keys.ejson" ]]; then
+    if ejson encrypt keys.ejson; then
+      echo "keys.ejson encrypted successfully."
+    else
+      echo "Error during ejson encrypt keys.ejson." >&2
+      return 1
+    fi
+  else
+    echo "Error: keys.ejson not found in the current directory." >&2
+    return 1
+  fi
+}
+
+stewbins() {
+  if if_command_exists stew; then
+    stew upgrade --all
+  else
+    echo "This command requires stew package manager to be installed" >&2
+    return 0
+  fi
+}
+
+q() {
+  if if_command_exists yawn-debug; then
+    yawn-debug "$@"
+  elif if_command_exists yawn; then
+    yawn "$@"
+  else
+    echo "No yawn executable found." >&2
+    return 1
+  fi
+}
+
 # enhanced make command that finds Makefile in parent directories
 make() {
   local original_dir
@@ -351,71 +467,5 @@ function cd {
       echo "cd: no such file or directory: $@"
       return 1
     fi
-  fi
-}
-
-fixntfs() {
-  lsblk -f -n -l -o NAME,FSTYPE,LABEL,UUID | awk '$2=="ntfs"{print "/dev/"$1, $3, $4}' | while read -r device label uuid; do
-    local display_label="${label:-<no label>}"
-    echo "--- Checking $device ($display_label) ---"
-
-    if findmnt -n --source "$device" >/dev/null; then
-      echo "Status: Already mounted. Skipping."
-      echo ""
-      continue
-    fi
-
-    local mount_point
-    # Try to find mount point by device, then by UUID from /etc/fstab
-    mount_point=$(findmnt -n -o TARGET --source "$device" 2>/dev/null)
-    if [[ -z "$mount_point" ]]; then
-        # Search fstab for device or UUID
-        mount_point=$(awk -v dev="$device" -v uuid="UUID=$uuid" '($1==dev || $1==uuid){print $2; exit}' /etc/fstab)
-    fi
-
-    if [[ -z "$mount_point" ]]; then
-      echo "Status: No mount point found in /etc/fstab. Skipping."
-      echo ""
-      continue
-    fi
-
-    echo "Status: Not mounted. Attempting to mount at $mount_point..."
-    if sudo mount "$mount_point" 2>/dev/null; then
-      echo "Success: Mounted successfully at $mount_point."
-    else
-      echo "Failure: Could not mount partition."
-      read "response?Attempt to fix with 'ntfsfix -bd'? (Y/n) "
-      if [[ -z "$response" || "$response" =~ ^[Yy]$ ]]; then
-        echo "Running: sudo ntfsfix -bd $device"
-        sudo ntfsfix -bd "$device"
-        echo "Fix attempt finished. Retrying mount..."
-        if sudo mount "$mount_point"; then
-          echo "Success: Mounted successfully at $mount_point after fix."
-        else
-          echo "Failure: Still unable to mount after fix."
-        fi
-      fi
-    fi
-    echo ""
-  done
-}
-
-stewbins() {
-  if if_command_exists stew; then
-    stew upgrade --all
-  else
-    echo "This command requires stew package manager to be installed" >&2
-    return 0
-  fi
-}
-
-q() {
-  if if_command_exists yawn-debug; then
-    yawn-debug "$@"
-  elif if_command_exists yawn; then
-    yawn "$@"
-  else
-    echo "No yawn executable found." >&2
-    return 1
   fi
 }
