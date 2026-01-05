@@ -38,3 +38,23 @@ smart-tab-accept-or-complete() {
 }
 zle -N smart-tab-accept-or-complete
 bindkey '\t' smart-tab-accept-or-complete
+
+# --- Multiline history navigation ---
+# Fixes issue where Up Arrow jumps to history instead of moving cursor up in multiline command
+# NOT SURE IF IT WORKS
+
+autoload -Uz up-line-or-beginning-search
+autoload -Uz down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+# Also bind standard terminfo keys if available (covers other terminal modes)
+if [[ -n "${terminfo[kcuu1]}" ]]; then
+  bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
+fi
+if [[ -n "${terminfo[kcud1]}" ]]; then
+  bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+fi
+# ---

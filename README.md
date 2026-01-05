@@ -195,9 +195,9 @@ waystt --download-model
   which is needed to be reencrypted on changes:
 
 ```shell
-ejson decrypt keys.ejson
+ejson decrypt keys.ejson # or alias - dec
 # edit ...
-ejson encrypt keys.ejson
+ejson encrypt keys.ejson # or alias - enc
 ```
 
 * If previous command did required sudo, you may do Esc+Esc in terminal due to
@@ -223,6 +223,7 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 * Make steam silent, i.e. on [Windows](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
 
-* I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
+## TODO
 
 * Test <https://github.com/atuinsh/atuin> as I need shell history
+* I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

@@ -28,3 +28,8 @@ insert_final_newline = false
 [dot_config/stew/stew.config.json.tmpl]
 insert_final_newline = false
 indent_style = tab
+
+# Orbstack overrides config with its own version so lets comply with it, I love its developer
+[dot_docker/config.json.tmpl]
+insert_final_newline = false
+indent_style = tab

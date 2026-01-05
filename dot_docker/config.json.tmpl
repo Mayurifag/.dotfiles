@@ -1,15 +1,19 @@
 {
-  "auths": {
-    "https://index.docker.io/v1/": {
-      "auth": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).docker_auth }}"
-    }
-  },
-  "default-ulimits": {
-    "nofile": {
-      "Name": "nofile",
-      "Soft": 1024,
-      "Hard": 524288
-    }
-  },
-  "current_context": "{{ if eq .chezmoi.os "darwin" -}}orbstack{{- else }}default{{- end }}"
+	"auths": {
+		"https://index.docker.io/v1/": {
+			"auth": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).docker_auth }}"
+		}
+	}
+{{- if ne .chezmoi.os "darwin" -}}
+,
+	"default-ulimits": {
+		"nofile": {
+			"Name": "nofile",
+			"Soft": 1024,
+			"Hard": 524288
+		}
+	}
+{{- end -}}
+,
+	"currentContext": "{{ if eq .chezmoi.os "darwin" -}}orbstack{{- else }}default{{- end }}"
 }
