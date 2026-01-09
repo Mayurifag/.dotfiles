@@ -88,6 +88,7 @@ alias docker-clean=' \
   docker volume prune -f '
 
 ## Git
+# TODO: those aliases have also provide link to repository/merge request if possible
 alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
 alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'

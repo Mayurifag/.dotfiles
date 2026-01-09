@@ -349,6 +349,18 @@ fixntfs() {
   done
 }
 
+cs-unban-me() {
+  local MY_IP
+
+  MY_IP=$(curl -fs https://api.ipify.org) || return 1
+
+  ssh -T \
+    -o RemoteCommand=none \
+    -o RequestTTY=no \
+    c1v \
+    "docker exec crowdsec cscli decisions delete -i ${MY_IP}"
+}
+
 # ejson decrypt keys.ejson, print the decrypted content, and overwrite keys.ejson with the decrypted content.
 dec() {
   if ! if_command_exists ejson; then
@@ -410,6 +422,7 @@ stewbins() {
 
 q() {
   if if_command_exists yawn-debug; then
+    echo "Executing yawn-debug"
     yawn-debug "$@"
   elif if_command_exists yawn; then
     yawn "$@"
