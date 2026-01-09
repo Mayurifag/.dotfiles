@@ -358,7 +358,17 @@ cs-unban-me() {
     -o RemoteCommand=none \
     -o RequestTTY=no \
     c1v \
-    "docker exec crowdsec cscli decisions delete -i ${MY_IP}"
+    "ids=\$(docker exec crowdsec cscli alerts list -i ${MY_IP} -o raw --color no | awk -F, 'NR>1 {print \$1}' | xargs); \
+    if [ -n \"\$ids\" ]; then \
+      echo \">>> Inspecting alerts: \$ids\"; \
+      docker exec crowdsec cscli alerts inspect \$ids --color no; \
+      echo \">>> Deleting alerts for ${MY_IP}\"; \
+      docker exec crowdsec cscli alerts delete -i ${MY_IP}; \
+    else \
+      echo \">>> No alerts found for ${MY_IP}\"; \
+    fi; \
+    echo \">>> Deleting decisions (unban) for ${MY_IP}\"; \
+    docker exec crowdsec cscli decisions delete -i ${MY_IP}"
 }
 
 # ejson decrypt keys.ejson, print the decrypted content, and overwrite keys.ejson with the decrypted content.
