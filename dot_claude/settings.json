@@ -1,10 +1,4 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "node \"/home/mayurifag/.claude/hooks/gsd-statusline.js\""
-  },
-  "enableAllProjectMcpServers": true,
-  "includeCoAuthoredBy": false,
   "env": {
     "ENABLE_BACKGROUND_TASKS": "1",
     "FORCE_AUTO_BACKGROUND_TASKS": "1",
@@ -22,6 +16,9 @@
     "DISABLE_ERROR_REPORTING": "1",
     "DISABLE_BUG_COMMAND": "1"
   },
+  "includeCoAuthoredBy": false,
+  "model": "sonnet",
+  "enableAllProjectMcpServers": true,
   "hooks": {
     "SessionStart": [
       {
@@ -43,5 +40,10 @@
         ]
       }
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"/home/mayurifag/.claude/hooks/gsd-statusline.js\""
+  },
+  "skipDangerousModePermissionPrompt": true
 }
