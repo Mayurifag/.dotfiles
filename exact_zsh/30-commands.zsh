@@ -105,7 +105,7 @@ killport() {
   kill -9 "$(lsof -t -i:"${1}" -sTCP:LISTEN)"
 }
 
-# Function to open Cursor, automatically with dev container if available
+# Function to open Code, automatically with dev container if available
 # Prevents accidental opening in home (~) or root (/) directories
 unalias f 2>/dev/null
 f() {
@@ -152,39 +152,6 @@ f() {
     local uri="vscode-remote://dev-container+${hex_path}${container_workspace_folder}"
 
     code --folder-uri "$uri"
-  fi
-}
-
-mr() {
-  local diff_content="You are reviewing the following git diff from my codebase.
-Your job is **NOT to invent** new changes, but to **analyze only the code changes shown in the git diff below**.
-
-Task:
-
-1 Propose improvements to these changes, if any, in the form of exact edits — using imperative mood, e.g., \"Replace X with Y\", \"Remove this block and use Z instead\".
-2 Later you might be proposed to output the exact files instead of brief summary.
-3 Do NOT comment on unchanged files or say things like \"this looks good\".
-
-Be concise and exact. Your feedback will be used to improve the shown changes, not create new ones from scratch.
-
-Below is my current git diff — these are changes I already made and want to improve:
-
-$(git diff HEAD)
-
----
-
-Do NOT output full files unless I respond with \"QWE\" or \"ЙЦУ\". You are supposed to not output any new comment or docstring and also remove the obvious ones. Here is the format I need after confirmation:"
-
-  # Check OS and use the appropriate clipboard command
-  if if_command_exists pbcopy; then # macOS
-    echo "$diff_content" | pbcopy
-    echo "Code review template with git diff copied to clipboard"
-  elif if_command_exists wl-copy; then # Linux with Wayland
-    echo "$diff_content" | wl-copy
-    echo "Code review template with git diff copied to clipboard"
-  else
-    echo "Clipboard command not found (pbcopy or wl-copy)." >&2
-    return 1
   fi
 }
 
