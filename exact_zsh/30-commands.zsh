@@ -107,6 +107,7 @@ killport() {
 
 # Function to open Cursor, automatically with dev container if available
 # Prevents accidental opening in home (~) or root (/) directories
+unalias f 2>/dev/null
 f() {
   local current_dir
   current_dir=$(pwd)
@@ -430,6 +431,7 @@ stewbins() {
   fi
 }
 
+unalias q 2>/dev/null
 q() {
   if if_command_exists yawn-debug; then
     echo "Executing yawn-debug"
@@ -440,6 +442,11 @@ q() {
     echo "No yawn executable found." >&2
     return 1
   fi
+}
+
+unalias c 2>/dev/null
+c() {
+  IS_SANDBOX=1 claude --dangerously-skip-permissions "$@";
 }
 
 # enhanced make command that finds Makefile in parent directories

@@ -56,7 +56,6 @@ alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.s
 alias brewfile='brew bundle dump --file=$(chezmoi source-path)/install/Brewfile --force --no-vscode'
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 alias yabs='curl -sL https://yabs.sh | bash'
-alias c='claude --dangerously-skip-permissions'
 
 # Development
 ## Rails
