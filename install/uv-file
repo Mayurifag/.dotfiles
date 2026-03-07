@@ -1,5 +1,6 @@
 ansible-lint
 gallery-dl
-maigret
 ruff
+shcheck
+sherlock-project
 yt-dlp
