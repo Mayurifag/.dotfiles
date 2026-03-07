@@ -224,5 +224,7 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 ## TODO
 
+* stew (template without conditional launcher for windows) and yawn
+* bash profile WTF HAPPENED, get it back and think what to do. I want shared aliases and commands to say the least. Think what can be shared between zsh and bashrc.
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

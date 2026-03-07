@@ -1,7 +1,7 @@
 [user]
   name = Mayurifag
   email = Mayurifag@users.noreply.github.com
-  siginingKey = 871672CCF33EDE72
+  signingKey = 871672CCF33EDE72
 [alias]
   co = checkout
   st = status
@@ -13,8 +13,15 @@
   autocrlf = input
   editor = vim
   attributesfile = ~/.gitattributes
+{{- if eq .chezmoi.os "windows" }}
+  sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
+{{- end }}
 [credential]
+{{- if eq .chezmoi.os "windows" }}
+  helper = manager
+{{- else }}
   helper = cache --timeout=3600
+{{- end }}
 [color]
   ui = auto
 [merge]
@@ -46,3 +53,7 @@
   rebase = true
 [commit]
   gpgsign = true
+{{- if eq .chezmoi.os "windows" }}
+[gpg]
+  program = C:/Program Files/GnuPG/bin/gpg.exe
+{{- end }}
