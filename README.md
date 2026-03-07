@@ -2,6 +2,8 @@
 
 Yes, that's better to be NixOS config here, but I use arch (btw).
 
+Windows setup is completely different — see [windows/](windows/README.md).
+
 ## Preparation for MacOS
 
 * Update system. Install [homebrew](https://brew.sh/).
@@ -226,3 +228,4 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
+* Migrate ejson installation to `go install` on macOS/Linux (currently Windows-only via `go install github.com/Shopify/ejson/v2/cmd/ejson@latest`)

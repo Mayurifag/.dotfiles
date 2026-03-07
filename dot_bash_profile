@@ -1,0 +1,7 @@
+# ~/.bash_profile
+# Sources .bashrc for login shells (required by Git Bash on Windows).
+# On Linux/macOS, bash is not the primary shell (zsh is), so this is harmless.
+
+if [ -f "$HOME/.bashrc" ]; then
+  source "$HOME/.bashrc"
+fi

@@ -1,0 +1,31 @@
+# install/Wingetfile
+# Windows packages installed via winget
+# Usage: Read by windows/install.ps1
+
+# Infrastructure
+Git.Git
+twpayne.chezmoi
+jdx.mise
+KeePassXCTeam.KeePassXC
+Espanso.Espanso
+GnuPG.Gpg4win
+DEVCOM.JetBrainsMonoNerdFont
+
+# CLI Tools
+eza-community.eza
+sharkdp.bat
+sharkdp.fd
+junegunn.fzf
+BurntSushi.ripgrep.MSVC
+ajeetdsouza.zoxide
+jqlang.jq
+JesseDuffield.lazygit
+GitHub.cli
+Neovim.Neovim
+
+# Extras
+7zip.7zip
+Microsoft.PowerShell
+Microsoft.VisualStudioCode
+Obsidian.Obsidian
+Microsoft.WindowsTerminal

@@ -1,0 +1,108 @@
+{{ if eq .chezmoi.os "windows" -}}
+# ~/.bashrc -- Git Bash on Windows
+# Deployed by chezmoi from dot_bashrc.tmpl
+
+# History
+export HISTSIZE=1000
+export HISTTIMEFORMAT='%F %T '
+export HISTCONTROL=ignoreboth
+shopt -s histappend
+
+# Prompt
+export PS1="$ "
+
+# Editors
+export EDITOR=vim
+export VISUAL=code
+
+# Mise shims (provides node, go, ejson, etc.)
+# DO NOT use `eval "$(mise activate bash)"` -- it corrupts Git Bash PATH on Windows
+export PATH="$HOME/AppData/Local/mise/shims:$PATH"
+
+# Helper function
+if_command_exists() { command -v "$1" >/dev/null 2>&1; }
+
+# FZF / ripgrep integration
+if if_command_exists rg; then
+  export FZF_DEFAULT_COMMAND='rg --files --hidden'
+  export FZF_DEFAULT_OPTS='-m --height 50% --border'
+fi
+
+# eza Dracula color theme
+export EZA_COLORS="\
+uu=36:\
+uR=31:\
+un=35:\
+gu=37:\
+da=2;34:\
+ur=34:\
+uw=95:\
+ux=36:\
+ue=36:\
+gr=34:\
+gw=35:\
+gx=36:\
+tr=34:\
+tw=35:\
+tx=36:\
+xx=95:"
+
+# eza aliases
+if if_command_exists eza; then
+  alias ls='eza -lh --group-directories-first'
+  alias l='eza --git-ignore --group-directories-first'
+  alias ll='eza --all --header --long --group-directories-first'
+  alias llm='eza --all --header --long --sort=modified --group-directories-first'
+  alias lt='eza --tree'
+  alias tree='eza --tree'
+fi
+
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Git
+alias lzg='lazygit'
+alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push'
+
+# Editors
+alias vi='vim'
+alias v='vim'
+
+# Chezmoi
+alias cz='chezmoi'
+alias czapply='chezmoi apply -v && source "$HOME/.bashrc"'
+
+# Misc
+alias grep='grep --color=auto'
+
+# Zoxide
+if if_command_exists zoxide; then
+  eval "$(zoxide init bash)"
+fi
+
+# Portable functions
+mkcd() { [ -n "$1" ] && mkdir -p "$@" && cd "$1"; }
+backup() { cp "$1"{,.bak}; }
+{{ else -}}
+# ~/.bashrc -- Linux/macOS
+# On these platforms, zsh is the primary shell. This file is minimal.
+
+# Opt out of homebrew analytics collection
+export HOMEBREW_NO_ANALYTICS=1
+# Number of lines to keep in the history file
+export HISTSIZE=1000
+# bash history is timestamped as YYYY-MM-DD HH:MM:SS
+export HISTTIMEFORMAT='%F %T '
+# Ignore commands that start with spaces and duplicates.
+export HISTCONTROL=ignoreboth
+# For macOS disable deprecation warning
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+## Append to history file; do not overwrite
+shopt -s histappend
+
+export PS1="$ "
+
+eval "$(mise activate bash)"
+{{ end -}}

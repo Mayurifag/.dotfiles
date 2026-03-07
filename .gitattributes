@@ -1,0 +1,13 @@
+# Auto-detect text files and enforce LF in the repo
+* text=auto eol=lf
+
+# PowerShell scripts must use CRLF (Windows requirement)
+*.ps1 text eol=crlf
+
+# Explicitly mark binary files
+*.png binary
+*.jpg binary
+*.ico binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
