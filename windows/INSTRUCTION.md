@@ -7,8 +7,11 @@
 - Setup drivers
 - Layout switch hotkey has to be CTRL+SHIFT
 - Enable Developer Mode in Windows Settings (required for symlinks/junctions).
-- Enable powershell scripts
 - Setup external disks (router disk) - TODO: instruction
+
+~~~powershell
+powershell -ExecutionPolicy Bypass -File .\windows\setup.ps1
+~~~
 
 ## Packages
 
@@ -28,16 +31,15 @@
 
 ~~~powershell
 mkdir "$HOME\.ejson"
-# Replace path with actual location of your keys
-cmd /c mklink /J "$HOME\.ejson\keys" "C:\Path\To\Your\Decrypted\Keys"
+New-Item -ItemType SymbolicLink -Path "$HOME\.ejson" -Target "C:\Path\To\Your\Decrypted\Keys"
 ~~~
 
 ## Chezmoi
 
 Apply `.dotfiles`:
 
-~~~bash
-chezmoi --version # check things are working
+~~~powershell
+chezmoi --version # check chezmoi is installed
 chezmoi cd
 chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh
 chezmoi diff # preview
@@ -57,6 +59,8 @@ chezmoi apply
 - [ ] Create Wingetfile - with NanaZip, LocalSend, etc.
 - [ ] Make automated things from README.md. Minimalistic, idempotent.
 - [ ] Other TODOs
+- [ ] Powershell profile
+- [ ] Even though PowerShell profile will have mise, install it also for bash in windows for claude
 - [ ] Setup VSCode - sync settings
 - [ ] Setup browser - addons settings and keepassxc config if needed
 - [ ] Setup gitkraken with activation (requires full path)
