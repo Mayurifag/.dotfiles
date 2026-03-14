@@ -1,0 +1,13 @@
+{
+  "model_profile": "balanced",
+  "commit_docs": false,
+  "parallelization": true,
+  "branching_strategy": "none",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "auto_advance": true,
+    "nyquist_validation": true
+  }
+}
