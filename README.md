@@ -216,6 +216,7 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 ## TODO
 
-* macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`.
+* macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`, `lazydocker`, `chezmoi`, `stew` (uninstall), `claude`
+* Try kanata. Migrate from karabiner/autohotkey/some espanso things?
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

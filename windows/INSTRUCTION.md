@@ -1,11 +1,16 @@
 # Windows environment setup instruction
 
-## Before installation
+## System preparation
 
-- Make sure you are an Administrator user. TODO: instructions for RU/EN + switch
-- Setup drivers.
+- Make sure you are an Administrator user. TODO: instructions for RU/EN +
+  switch to user
+- Setup drivers
+- Layout switch hotkey has to be CTRL+SHIFT
 - Enable Developer Mode in Windows Settings (required for symlinks/junctions).
 - Enable powershell scripts
+
+## Packages
+
 - Make sure `winget` is installed.
 - Install all packages from Wingetfile (TODO: instruction using downloading raw
   file from github.com)
@@ -40,13 +45,16 @@ chezmoi apply
 
 ## TODO
 
-- [ ] Create Wingetfile
+- [ ] Create Wingetfile - with NanaZip, LocalSend, etc.
 - [ ] Make automated things from README.md. Minimalistic, idempotent.
 - [ ] Other TODOs
 - [ ] Setup VSCode - sync settings
 - [ ] Setup browser - addons settings and keepassxc config if needed
 - [ ] Setup gitkraken with activation (requires full path)
 - [ ] Setup PowerToys - only with tools I use
+- [ ] Make sure espanso working
+- [ ] Autohotkey cfg: copied onto repo and script to Startup to launch
+- [ ] Migrate to kanata/komokana. See whats not needed in espanso
 - [ ] Shared aliases between zsh and pwsh setups
 - [ ] Script to configure Windows Terminal:
   - [ ] Set JetBrainsMono as default font face (make sure right name is selected).
