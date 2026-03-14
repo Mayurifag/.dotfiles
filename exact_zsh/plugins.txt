@@ -7,7 +7,6 @@ zsh-users/zsh-autosuggestions
 geometry-zsh/geometry
 hlissner/zsh-autopair
 soimort/translate-shell
-hcgraf/zsh-sudo
 zpm-zsh/undollar
 jgogstad/zsh-mask
 matheusml/zsh-ai

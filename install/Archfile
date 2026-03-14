@@ -1,7 +1,6 @@
 ayugram-desktop
 browsers-bin
 btop
-chezmoi
 docker
 docker-buildx
 docker-compose
@@ -32,7 +31,6 @@ qbittorrent
 refind
 refind-theme-dracula
 ripgrep
-shopify-ejson-bin
 thorium-browser-avx2-bin
 ttf-firacode-nerd
 ttf-jetbrains-mono-nerd
@@ -45,6 +43,5 @@ wl-clipboard
 yay
 yaycache
 ydotool
-zoxide
 zsh-antidote
 waystt-bin

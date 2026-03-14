@@ -1,4 +1,4 @@
-@playwright/test
+@anthropic-ai/claude-code
 eslint
 markdownlint-cli2
 npm

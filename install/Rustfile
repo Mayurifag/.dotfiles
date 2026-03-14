@@ -1,4 +1,5 @@
 cargo-update
+zoxide
 create-tauri-app
 tealdeer
 llmfit
