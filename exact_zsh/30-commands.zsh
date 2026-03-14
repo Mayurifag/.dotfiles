@@ -389,14 +389,6 @@ enc() {
   fi
 }
 
-stewbins() {
-  if if_command_exists stew; then
-    stew upgrade --all
-  else
-    echo "This command requires stew package manager to be installed" >&2
-    return 0
-  fi
-}
 
 unalias q 2>/dev/null
 q() {

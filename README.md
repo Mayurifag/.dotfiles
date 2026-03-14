@@ -36,7 +36,7 @@ also require to setup/choose another profile, because default one is read-only.
 * Set `dracula` theme everywhere you can, starting from terminal.
 * Go to KeepassXC and check that it works with ssh-agent. `ssh-add -l` has to
   print key which works with Github.
-* Install `chezmoi` and `mise` using your system manager.
+* Install `mise` using your system manager.
 
 ```bash
 sudo ln -s /Volumes/exfat/OpenCloud/Personal/Software/dotfiles/ejson /opt/ejson # or any other way to export your ejson key
@@ -224,8 +224,7 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 
 ## TODO
 
-* macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide` and stew.
-* stew (template without conditional launcher for windows) and yawn
+* macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`.
 * bash profile WTF HAPPENED, get it back and think what to do. I want shared aliases and commands to say the least. Think what can be shared between zsh and bashrc.
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
