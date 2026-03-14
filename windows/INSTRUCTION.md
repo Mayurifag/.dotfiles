@@ -6,7 +6,6 @@
   switch to user
 - Setup drivers
 - Layout switch hotkey has to be CTRL+SHIFT
-- Enable Developer Mode in Windows Settings (required for symlinks/junctions).
 - Setup external disks (router disk) - TODO: instruction
 
 ~~~powershell
