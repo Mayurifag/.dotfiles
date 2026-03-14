@@ -14,7 +14,6 @@ It mostly implies you should use KDE on Wayland.
 
 * Setup font: use `JetBrains Mono Nerd Font` 11pt for `monospace` and
   `San Francisco` apple font for other things.
-* Nextcloud from Appimage works better than any version, idk why.
 * KeepassXC with custom browsers requires
   `Browser integration -> Advanced -> Use a custom browser configuration`.
   For example, Thorium requires to have `Chromium` type and
@@ -55,8 +54,7 @@ chezmoi apply
 
 ## Things to do after
 
-* Initiate sync on VSCode (I did not have backup outside of proprietary
-  microsoft binaries)
+* Initiate sync on VSCode
 * Import and DO NOT FORGET ultimately TRUST gpg key:
 
 ```bash
@@ -71,24 +69,9 @@ Do you really want to set this key to ultimate trust? (y/N) y
 gpg> quit
 ```
 
-* Install and configure gitkraken. Make sure it updates or not either itself
-  or with package manager:
-
-```txt
-# /etc/hosts
-# prevent autoupdates of gitkraken because its managed with package manager
-0.0.0.0 release.gitkraken.com
-```
-
+* Install and configure gitkraken
 * Setup external disks like windows one or samba or whatever
 * Setup espanso. On MacOS go through Accessibility "privacy" hell first.
-
-```shell
-sudo setcap "cap_dac_override+p" $(which espanso) # for wayland
-espanso service register
-espanso start # its for linux, on macos launch app and go through accessibility hell
-# ... # cron setup for macos with espanso restart due to memory leaking
-```
 
 * Setup obsidian (use nextcloud)
 * Setup [Browsers.app](https://browsers.software/) as default browser
@@ -104,12 +87,13 @@ espanso start # its for linux, on macos launch app and go through accessibility 
 * Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
 * After orbstack installation check docker commands working for regular user
 * [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
+* Setup espanso - accessibility settings. Check if
+  [memory leak fixed](https://github.com/espanso/espanso/issues/1675).
 
 ### Paid macos apps I use (not in Brewfile)
 
 * Bartender
 * BetterSnapTool
-* GitKraken
 * Cleanshot
 * ...
 
@@ -153,6 +137,14 @@ sudo systemctl enable --now docker.service
 sudo groupadd docker # Check or create group docker
 sudo gpasswd -a $USER docker
 docker info # run docker info and check that Native Overlay Diff is true
+```
+
+* Setup espanso
+
+```shell
+sudo setcap "cap_dac_override+p" $(which espanso) # for wayland
+espanso service register
+espanso start
 ```
 
 * Setup bluetooth (maybe
@@ -225,6 +217,5 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 ## TODO
 
 * macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`.
-* bash profile WTF HAPPENED, get it back and think what to do. I want shared aliases and commands to say the least. Think what can be shared between zsh and bashrc.
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
