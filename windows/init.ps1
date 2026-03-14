@@ -1,4 +1,3 @@
-# windows/init.ps1
 # Idempotent setup script for Windows environment
 
 $ErrorActionPreference = "Stop"
@@ -13,81 +12,99 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Set Execution Policy
-Write-Host "`n[1/6] Setting Execution Policy..."
+Write-Host "`n[1/10] Setting Execution Policy..."
 $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
 if ($currentPolicy -ne "RemoteSigned") {
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-    Write-Host "Success: Execution Policy set to RemoteSigned." -ForegroundColor Green
-} else {
-    Write-Host "Skip: Execution Policy is already RemoteSigned." -ForegroundColor Gray
 }
 
 # Enable Developer Mode
-Write-Host "`n[2/6] Enabling Developer Mode (required for symlinks)..."
-$registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
-if (!(Test-Path $registryPath)) {
-    New-Item -Path $registryPath -Force | Out-Null
-}
-New-ItemProperty -Path $registryPath -Name "AllowDevelopmentWithoutDevLicense" -Value 1 -PropertyType DWORD -Force | Out-Null
-New-ItemProperty -Path $registryPath -Name "AllowAllTrustedApps" -Value 1 -PropertyType DWORD -Force | Out-Null
-Write-Host "Success: Developer Mode enabled." -ForegroundColor Green
+Write-Host "`n[2/10] Enabling Developer Mode..."
+$devRegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
+if (!(Test-Path $devRegPath)) { New-Item -Path $devRegPath -Force | Out-Null }
+Set-ItemProperty -Path $devRegPath -Name "AllowDevelopmentWithoutDevLicense" -Value 1 -Force
+Set-ItemProperty -Path $devRegPath -Name "AllowAllTrustedApps" -Value 1 -Force
+
+# UI Customization (Dark Theme, Taskbar Left, Disable Bing Search)
+Write-Host "`n[3/10] Applying UI Preferences (Dark Theme, Taskbar Left, No Bing)..."
+$personalize = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+Set-ItemProperty -Path $personalize -Name "AppsUseLightTheme" -Value 0 -Force
+Set-ItemProperty -Path $personalize -Name "SystemUsesLightTheme" -Value 0 -Force
+
+$advanced = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+Set-ItemProperty -Path $advanced -Name "TaskbarAl" -Value 0 -Force # Left alignment
+
+$search = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"
+if (!(Test-Path $search)) { New-Item -Path $search -Force | Out-Null }
+Set-ItemProperty -Path $search -Name "BingSearchEnabled" -Value 0 -Force
+Set-ItemProperty -Path $search -Name "CortanaConsent" -Value 0 -Force
+
+# Explorer Preferences
+Write-Host "`n[4/10] Configuring Explorer (Show Hidden, Show Extensions)..."
+Set-ItemProperty -Path $advanced -Name "Hidden" -Value 1 -Force
+Set-ItemProperty -Path $advanced -Name "HideFileExt" -Value 0 -Force
 
 # Check and Install OpenSSH Client
-Write-Host "`n[3/6] Checking OpenSSH Client..."
+Write-Host "`n[5/10] Checking OpenSSH Client..."
 $sshCapability = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*'
 if ($sshCapability.State -ne 'Installed') {
-    Write-Host "Installing OpenSSH Client (this may take a minute)..." -ForegroundColor Yellow
     Add-WindowsCapability -Online -Name $sshCapability.Name | Out-Null
-    Write-Host "Success: OpenSSH Client installed." -ForegroundColor Green
-} else {
-    Write-Host "Skip: OpenSSH Client is already installed." -ForegroundColor Gray
 }
 
 # Configure SSH Agent Service
-Write-Host "`n[4/6] Configuring SSH Agent Service..."
-$sshAgent = Get-Service -Name ssh-agent -ErrorAction SilentlyContinue
-if ($null -eq $sshAgent) {
-    Write-Host "Error: OpenSSH Agent still not found after installation attempt." -ForegroundColor Red
-} else {
-    if ($sshAgent.StartType -ne "Automatic") {
-        Set-Service -Name ssh-agent -StartupType Automatic
-        Write-Host "Success: SSH Agent service set to Automatic." -ForegroundColor Green
-    }
-    if ($sshAgent.Status -ne "Running") {
-        Start-Service ssh-agent
-        Write-Host "Success: SSH Agent service started." -ForegroundColor Green
-    } else {
-        Write-Host "Skip: SSH Agent service is already running." -ForegroundColor Gray
-    }
-}
+Write-Host "`n[6/10] Configuring SSH Agent Service..."
+Set-Service -Name ssh-agent -StartupType Automatic
+if ((Get-Service ssh-agent).Status -ne "Running") { Start-Service ssh-agent }
 
 # Download and Install apps via Winget
-Write-Host "`n[5/6] Downloading and Installing apps via Winget..."
+Write-Host "`n[7/10] Installing apps via Winget..."
 $wingetfileUrl = "https://raw.githubusercontent.com/Mayurifag/.dotfiles/main/install/Wingetfile"
 $tempWingetfile = Join-Path $env:TEMP "Wingetfile.txt"
 Invoke-RestMethod -Uri $wingetfileUrl -OutFile $tempWingetfile
 
 $apps = Get-Content $tempWingetfile | Where-Object { $_ -match '\S' -and $_ -notmatch '^#' }
 foreach ($app in $apps) {
-    $cleanApp = $app.Trim()
-    Write-Host "Installing $cleanApp via winget..." -ForegroundColor Yellow
-    winget install --id $cleanApp --exact --accept-package-agreements --accept-source-agreements
+    Write-Host "Installing $app..." -ForegroundColor Yellow
+    winget install --id $app.Trim() --exact --accept-package-agreements --accept-source-agreements --upgrade --silent
 }
 
-# Configure mise in PowerShell
-Write-Host "`n[6/6] Configuring mise in PowerShell profile..."
+# Refresh Environment Variables for the current process
+Write-Host "`n[8/10] Refreshing environment PATH..."
+$env:PATH = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
+
+# Configure mise in PowerShell profile
+Write-Host "`n[9/10] Configuring mise in PowerShell profile..."
 $profileDir = Split-Path -Parent $PROFILE
-if (!(Test-Path $profileDir)) {
-    New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
-}
-$miseCommand = 'Invoke-Expression (mise activate powershell)'
+if (!(Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -Force | Out-Null }
+$miseLine = 'Invoke-Expression (mise activate powershell)'
 if (!(Test-Path $PROFILE) -or !(Select-String -Path $PROFILE -Pattern 'mise activate powershell' -Quiet)) {
-    Add-Content -Path $PROFILE -Value $miseCommand
-    Write-Host "Success: mise added to `$PROFILE." -ForegroundColor Green
-} else {
-    Write-Host "Skip: mise is already in `$PROFILE." -ForegroundColor Gray
+    Add-Content -Path $PROFILE -Value $miseLine
 }
 
-Write-Host "`n--- Setup Finished. Restarting PowerShell... ---" -ForegroundColor Cyan
-Start-Process (Get-Process -Id $PID).Path
-exit
+# Install Mise Packages
+Write-Host "`n[10/10] Installing language packages via Mise..."
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    # We must trust the local config to allow automatic installation
+    mise trust
+    mise install -y
+
+    # Function to install global packages
+    function Install-PackageList($file, $execCmd) {
+        $path = Join-Path (Get-Location) "install/$file"
+        if (Test-Path $path) {
+            Get-Content $path | Where-Object { $_ -match '\S' } | ForEach-Object {
+                Write-Host "Installing $_ via $execCmd..." -ForegroundColor Gray
+                Invoke-Expression "$execCmd $_"
+            }
+        }
+    }
+
+    # Install packages defined in dotfiles
+    Install-PackageList "npmfile" "npm install -g"
+    Install-PackageList "Rustfile" "cargo install"
+    Install-PackageList "uv-file" "uv tool install"
+} else {
+    Write-Host "Warning: mise not found in PATH. You may need to run 'mise install' after restarting." -ForegroundColor Red
+}
+
+Write-Host "`n--- Setup Finished. Please restart your terminal. ---" -ForegroundColor Cyan
