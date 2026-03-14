@@ -46,7 +46,7 @@ Apply `.dotfiles`:
 
 ```bash
 chezmoi cd
-chezmoi init git@github.com:Mayurifag/.dotfiles.git
+chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh
 chezmoi diff # preview
 chezmoi apply
 ```
