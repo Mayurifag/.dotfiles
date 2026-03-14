@@ -3,7 +3,7 @@ if_command_exists() {
 }
 
 pollCommand() {
-    while true; do clear; $@; sleep 1; done
+  while true; do clear; $@; sleep 1; done
 }
 
 prg() {

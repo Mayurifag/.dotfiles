@@ -92,7 +92,6 @@ alias gp='[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]]
 alias gpf='LEFTHOOK=0 git push origin HEAD --force-with-lease'
 alias grc='LEFTHOOK=0 git rebase --continue'
 alias gri='LEFTHOOK=0 git rebase --interactive'
-alias gl='jj log'
 alias lzg='lazygit'
 alias qwe='git add . && git commit --amend --no-edit && LEFTHOOK=0 git push --force-with-lease origin HEAD'
 alias reset_file='git checkout origin/master'
