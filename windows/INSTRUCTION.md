@@ -8,6 +8,7 @@
 - Layout switch hotkey has to be CTRL+SHIFT
 - Enable Developer Mode in Windows Settings (required for symlinks/junctions).
 - Enable powershell scripts
+- Setup external disks (router disk) - TODO: instruction
 
 ## Packages
 
@@ -35,13 +36,21 @@ cmd /c mklink /J "$HOME\.ejson\keys" "C:\Path\To\Your\Decrypted\Keys"
 
 Apply `.dotfiles`:
 
-```bash
+~~~bash
 chezmoi --version # check things are working
 chezmoi cd
 chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh
 chezmoi diff # preview
 chezmoi apply
-```
+~~~
+
+## Other apps
+
+- Setup Obsidian
+- Setup [get-shit-done](https://github.com/gsd-build/get-shit-done)
+- Setup [Browsers.app](https://browsers.software/) as default browser
+- Make [steam silent](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
+  (requires script)
 
 ## TODO
 
@@ -61,5 +70,8 @@ chezmoi apply
   - [ ] Setup Global Summon (Quake Mode) shortcut CTRL+~ and CTRL+ё.
   - [ ] Set Dracula color scheme.
   - [ ] Default profile to PowerShell latest version.
+  - [ ] Quake mode has to toggle focus mode so tabs will be seen
 - [ ] Extract shared aliases from `exact_zsh/40-aliases.zsh` to `.chezmoidata/aliases.yaml`.
 - [ ] Create `dot_config/powershell/Microsoft.PowerShell_profile.ps1.tmpl` to auto-generate PowerShell functions from shared alias data.
+- [ ] Wait for `mise` to support `winget` backend and migrate to it.
+  <https://github.com/jdx/mise/discussions/8311>

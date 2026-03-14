@@ -71,9 +71,7 @@ gpg> quit
 
 * Install and configure gitkraken
 * Setup external disks like windows one or samba or whatever
-* Setup espanso. On MacOS go through Accessibility "privacy" hell first.
-
-* Setup obsidian (use nextcloud)
+* Setup Obsidian
 * Setup [Browsers.app](https://browsers.software/) as default browser
 * Setup [get-shit-done](https://github.com/gsd-build/get-shit-done)
 
@@ -89,6 +87,8 @@ gpg> quit
 * [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
 * Setup espanso - accessibility settings. Check if
   [memory leak fixed](https://github.com/espanso/espanso/issues/1675).
+* If some shit goes with Privacy in MacOS settings, try to remove entry with
+  little buttons and launch app once again to go through that hell once more.
 
 ### Paid macos apps I use (not in Brewfile)
 
@@ -104,6 +104,16 @@ gpg> quit
   * You need ones with typographic symbols (not sure its easy nowadays, needs guide).
   * Setup CapsLock to change layouts and right Alt as 3rd line modifier.
 * Setup guake-like terminal and shortcuts
+* Example of `/etc/fstab` entry for shared NTFS partition:
+
+```bash
+$ sudo -i
+# mkdir /mnt/Shared
+# kate /etc/fstab # CHANGE PARTUUID
+PARTUUID="61ffcf10-e472-4c71-8e04-cf57c6463e6b" /mnt/Shared   ntfs3   \
+uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
+```
+
 * Setup [Wi-fi regulatory domain](https://wiki.cachyos.org/configuration/post_install_setup/#configure-wi-fi-regulatory-domain)
   to South Korea:
 
@@ -162,11 +172,11 @@ Krunner: Meta+Space
 * Enable asterisks on sudo password: `echo 'Defaults pwfeedback' | sudo tee /etc/sudoers.d/20-pwfeedback`
 * <https://wiki.cachyos.org/configuration/gaming/#increase-maximum-shader-cache-size>
 * Use mvln for compatdata [NTFS mount](https://github.com/ValveSoftware/Proton/wiki/Using-a-NTFS-disk-with-Linux-and-Windows)
-* Set kernel params. For me on 128gb unified RAM, [src](https://github.com/kyuz0/amd-strix-halo-toolboxes?tab=readme-ov-file#62-kernel-parameters-tested-on-fedora-42):
+* Set kernel params. On 128gb unified RAM, [src](https://github.com/kyuz0/amd-strix-halo-toolboxes?tab=readme-ov-file#62-kernel-parameters-tested-on-fedora-42):
 
 ```sh
 # /boot/refind_linux.conf
-"Boot using default options"     "root=PARTUUID=13bbf375-9a9a-45cf-a256-3ea4f77ca6e0 rw nowatchdog zswap.enabled=0 amd_iommu=off amdgpu.gttsize=131072 ttm.pages_limit=33554432"
+"Boot using default options" "root=PARTUUID=13bbf375-9a9a-45cf-a256-3ea4f77ca6e0 rw nowatchdog zswap.enabled=0 amd_iommu=off transparent_hugepage=always numa_balancing=disable ttm.pages_limit=29360128 ttm.page_pool_size=25165824"
 ```
 
 * Instructions to use [waystt](https://github.com/sevos/waystt) as Speech-to-Text
@@ -182,7 +192,18 @@ KERNEL=="uinput", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"
 waystt --download-model
 ```
 
-## Notes
+* [Playwright installation](https://github.com/microsoft/playwright/issues/2621#issuecomment-2083083392)
+
+```sh
+# install playwright and enchant (not in archfile/npmfile)
+sudo ln /usr/lib/libicudata.so /usr/lib/libicudata.so.66
+sudo ln /usr/lib/libicui18n.so /usr/lib/libicui18n.so.66
+sudo ln /usr/lib/libicuuc.so /usr/lib/libicuuc.so.66
+sudo ln /usr/lib/libwebp.so /usr/lib/libwebp.so.6
+sudo ln /usr/lib/libffi.so /usr/lib/libffi.so.7
+```
+
+## Notes on repo
 
 * Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file,
   which is needed to be reencrypted on changes:
@@ -193,30 +214,9 @@ ejson decrypt keys.ejson # or alias - dec
 ejson encrypt keys.ejson # or alias - enc
 ```
 
-* If previous command did required sudo, you may do Esc+Esc in terminal due to
-  `zsh-sudo` plugin
-* Bluetooth for dualboot requires a lot of attention because of many updates
-  going on on win and bluez sides.
-* Example of `/etc/fstab` entry for shared NTFS partition:
-
-```bash
-$ sudo -i
-# mkdir /mnt/Shared
-# kate /etc/fstab # CHANGE PARTUUID
-PARTUUID="61ffcf10-e472-4c71-8e04-cf57c6463e6b" /mnt/Shared   ntfs3   \
-uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
-```
-
-* If some shit goes with Privacy in MacOS settings, try to remove entry with
-  little buttons and launch app once again to go through that hell once more.
-
-* [Playwright installation](https://github.com/microsoft/playwright/issues/2621#issuecomment-2083083392)
-
-* Make steam silent, i.e. on [Windows](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
-
 ## TODO
 
 * macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`, `lazydocker`, `chezmoi`, `stew` (uninstall), `claude`
-* Try kanata. Migrate from karabiner/autohotkey/some espanso things?
+* Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
