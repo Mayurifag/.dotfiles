@@ -1,4 +1,4 @@
-# windows/setup.ps1
+# windows/init.ps1
 # Idempotent setup script for Windows environment
 
 $ErrorActionPreference = "Stop"
@@ -13,7 +13,7 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 }
 
 # Set Execution Policy
-Write-Host "`n[1/4] Setting Execution Policy..."
+Write-Host "`n[1/6] Setting Execution Policy..."
 $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
 if ($currentPolicy -ne "RemoteSigned") {
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
@@ -23,7 +23,7 @@ if ($currentPolicy -ne "RemoteSigned") {
 }
 
 # Enable Developer Mode
-Write-Host "`n[2/4] Enabling Developer Mode (required for symlinks)..."
+Write-Host "`n[2/6] Enabling Developer Mode (required for symlinks)..."
 $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock"
 if (!(Test-Path $registryPath)) {
     New-Item -Path $registryPath -Force | Out-Null
@@ -33,7 +33,7 @@ New-ItemProperty -Path $registryPath -Name "AllowAllTrustedApps" -Value 1 -Prope
 Write-Host "Success: Developer Mode enabled." -ForegroundColor Green
 
 # Check and Install OpenSSH Client
-Write-Host "`n[3/4] Checking OpenSSH Client..."
+Write-Host "`n[3/6] Checking OpenSSH Client..."
 $sshCapability = Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*'
 if ($sshCapability.State -ne 'Installed') {
     Write-Host "Installing OpenSSH Client (this may take a minute)..." -ForegroundColor Yellow
@@ -44,7 +44,7 @@ if ($sshCapability.State -ne 'Installed') {
 }
 
 # Configure SSH Agent Service
-Write-Host "`n[4/4] Configuring SSH Agent Service..."
+Write-Host "`n[4/6] Configuring SSH Agent Service..."
 $sshAgent = Get-Service -Name ssh-agent -ErrorAction SilentlyContinue
 if ($null -eq $sshAgent) {
     Write-Host "Error: OpenSSH Agent still not found after installation attempt." -ForegroundColor Red
@@ -61,4 +61,33 @@ if ($null -eq $sshAgent) {
     }
 }
 
-Write-Host "`n--- Setup Finished ---" -ForegroundColor Cyan
+# Download and Install apps via Winget
+Write-Host "`n[5/6] Downloading and Installing apps via Winget..."
+$wingetfileUrl = "https://raw.githubusercontent.com/Mayurifag/.dotfiles/main/install/Wingetfile"
+$tempWingetfile = Join-Path $env:TEMP "Wingetfile.txt"
+Invoke-RestMethod -Uri $wingetfileUrl -OutFile $tempWingetfile
+
+$apps = Get-Content $tempWingetfile | Where-Object { $_ -match '\S' -and $_ -notmatch '^#' }
+foreach ($app in $apps) {
+    $cleanApp = $app.Trim()
+    Write-Host "Installing $cleanApp via winget..." -ForegroundColor Yellow
+    winget install --id $cleanApp --exact --accept-package-agreements --accept-source-agreements
+}
+
+# Configure mise in PowerShell
+Write-Host "`n[6/6] Configuring mise in PowerShell profile..."
+$profileDir = Split-Path -Parent $PROFILE
+if (!(Test-Path $profileDir)) {
+    New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+}
+$miseCommand = 'Invoke-Expression (mise activate powershell)'
+if (!(Test-Path $PROFILE) -or !(Select-String -Path $PROFILE -Pattern 'mise activate powershell' -Quiet)) {
+    Add-Content -Path $PROFILE -Value $miseCommand
+    Write-Host "Success: mise added to `$PROFILE." -ForegroundColor Green
+} else {
+    Write-Host "Skip: mise is already in `$PROFILE." -ForegroundColor Gray
+}
+
+Write-Host "`n--- Setup Finished. Restarting PowerShell... ---" -ForegroundColor Cyan
+Start-Process (Get-Process -Id $PID).Path
+exit

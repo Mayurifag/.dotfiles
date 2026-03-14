@@ -6,25 +6,12 @@
   switch to user
 - Setup drivers
 - Layout switch hotkey has to be CTRL+SHIFT
-- Setup external disks (router disk) - TODO: instruction
+- Setup external disks (NAS/router/...)
+- Make sure `winget` is installed.
 
 ~~~powershell
-powershell -ExecutionPolicy Bypass -File .\windows\setup.ps1
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/main/windows/init.ps1" | Invoke-Expression
 ~~~
-
-## Packages
-
-- Make sure `winget` is installed.
-- Install all packages from Wingetfile (TODO: instruction using downloading raw
-  file from github.com)
-- Add `mise` shims to `PATH` and install packages (TODO: instruction)
-
-## SSH, GPG, KeepassXC
-
-- Make sure OpenSSH Client is working. (TODO: doc. Service? Enabling in windows?)
-- Open KeePassXC -> Settings -> SSH Agent -> Enable SSH Agent. Check its working
-  via `ssh-add -l`.
-- Import and DO NOT FORGET ultimately TRUST gpg key (TODO: full docs)
 
 ## ejson
 
@@ -35,7 +22,9 @@ New-Item -ItemType SymbolicLink -Path "$HOME\.ejson" -Target "C:\Path\To\Your\De
 
 ## Chezmoi
 
-Apply `.dotfiles`:
+- Open KeePassXC -> Settings -> SSH Agent -> Enable SSH Agent. Check its working
+  via `ssh-add -l`.
+- Apply `.dotfiles`:
 
 ~~~powershell
 chezmoi --version # check chezmoi is installed
@@ -45,8 +34,9 @@ chezmoi diff # preview
 chezmoi apply
 ~~~
 
-## Other apps
+## Other
 
+- Import and DO NOT FORGET ultimately TRUST gpg key (TODO: full docs)
 - Setup Obsidian
 - Setup [get-shit-done](https://github.com/gsd-build/get-shit-done)
 - Setup [Browsers.app](https://browsers.software/) as default browser
@@ -55,9 +45,6 @@ chezmoi apply
 
 ## TODO
 
-- [ ] Create Wingetfile - with NanaZip, LocalSend, etc.
-- [ ] Make automated things from README.md. Minimalistic, idempotent.
-- [ ] Other TODOs
 - [ ] Powershell profile
 - [ ] Even though PowerShell profile will have mise, install it also for bash in windows for claude
 - [ ] Setup VSCode - sync settings
