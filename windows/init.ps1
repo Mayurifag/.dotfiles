@@ -73,12 +73,15 @@ Write-Host "`n[8/14] Refreshing environment PATH..."
 $env:PATH = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
 # Configure mise in PowerShell profile
+# Always target the PS7 profile explicitly — using $PROFILE here would write to the
+# PS5.1 profile if init.ps1 is invoked via powershell.exe instead of pwsh.exe.
 Write-Host "`n[9/14] Configuring mise in PowerShell profile..."
-$profileDir = Split-Path -Parent $PROFILE
+$ps7Profile = "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
+$profileDir = Split-Path -Parent $ps7Profile
 if (!(Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -Force | Out-Null }
 $miseLine = 'mise activate pwsh | Out-String | Invoke-Expression'
-if (!(Test-Path $PROFILE) -or !(Select-String -Path $PROFILE -Pattern 'mise activate pwsh' -Quiet)) {
-  Add-Content -Path $PROFILE -Value $miseLine
+if (!(Test-Path $ps7Profile) -or !(Select-String -Path $ps7Profile -Pattern 'mise activate pwsh' -Quiet)) {
+  Add-Content -Path $ps7Profile -Value $miseLine
 }
 
 # Ensure make and Git POSIX utils are on PATH

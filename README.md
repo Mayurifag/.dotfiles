@@ -223,6 +223,9 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
+* windows install espanso. analyze what else first
+* windows terminal ctrl+ё
+* why chezmoi cd spawns new terminal? fix that. realias or somehow
 * reinstall ripgrep from rust, not from package manager arch/macos
 * Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
