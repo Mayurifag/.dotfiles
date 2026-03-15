@@ -29,3 +29,8 @@ insert_final_newline = false
 [dot_docker/config.json.tmpl]
 insert_final_newline = false
 indent_style = tab
+
+[dot_config/windows-terminal/settings.json]
+indent_size = 4
+insert_final_newline = false
+indent_style = space

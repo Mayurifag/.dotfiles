@@ -5,6 +5,10 @@
     // due to karabiner.json generated without it
     "files.insertFinalNewline": false
   },
+  "[jsonc]": {
+    "editor.formatOnSave": false,
+    "files.insertFinalNewline": false
+  },
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,

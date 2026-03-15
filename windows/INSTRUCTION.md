@@ -71,11 +71,5 @@ mise install    # install any tools added by chezmoi config
 - [ ] Setup PowerToys - only with tools I use
 - [ ] Make sure espanso working
 - [ ] Autohotkey cfg: copied onto repo and script to Startup to launch
-- [ ] Script to configure Windows Terminal:
-  - [ ] Set JetBrainsMono as default font face (make sure right name is selected).
-  - [ ] Setup Global Summon (Quake Mode) shortcut CTRL+~ and CTRL+ё.
-  - [ ] Set Dracula color scheme.
-  - [ ] Default profile to PowerShell latest version.
-  - [ ] Quake mode has to toggle focus mode so tabs will be see
 - [ ] Wait for `mise` to support `winget` backend and migrate to it.
   <https://github.com/jdx/mise/discussions/8311>
