@@ -21,7 +21,6 @@ cdcz = { cmd = "chezmoi cd" }
 
 [sharedAliases.Git]
 lzg = { cmd = "lazygit" }
-reset_file = { cmd = "git checkout origin/master" }
 grc = { cmd = "git rebase --continue" }
 gpf = { cmd = "git push origin HEAD --force-with-lease" }
 gri = { cmd = "git rebase --interactive" }
@@ -31,6 +30,7 @@ gp = { cmd = '[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge"
 [sharedAliases.Docker]
 dcp = { cmd = "docker-compose" }
 docker-clean = { cmd = "docker container prune -f ; docker image prune -f ; docker network prune -f ; docker volume prune -f" }
+lzd = { cmd = "lazydocker" }
 
 [sharedAliases.eza]
 ls = { cmd = "eza -lh --group-directories-first" }

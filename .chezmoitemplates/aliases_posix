@@ -46,6 +46,17 @@ sq() {
     *) echo "Skipped force push" ;;
   esac
 }
+reset_file() {
+  local branch
+  if git rev-parse --verify --quiet origin/main > /dev/null 2>&1; then
+    branch=main
+  elif git rev-parse --verify --quiet origin/master > /dev/null 2>&1; then
+    branch=master
+  else
+    echo "reset_file: cannot determine default branch" >&2; return 1
+  fi
+  git checkout "origin/$branch" -- "$@"
+}
 
 ## System utilities (complex)
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"

@@ -51,13 +51,40 @@ function sq {
         Write-Host "Skipped force push"
     }
 }
-
-## Docker (complex)
-function docker-clean {
-    docker container prune -f
-    docker image prune -f
-    docker network prune -f
-    docker volume prune -f
+function reset_file {
+    $branch = $null
+    if (git rev-parse --verify --quiet origin/main 2>$null) { $branch = "main" }
+    elseif (git rev-parse --verify --quiet origin/master 2>$null) { $branch = "master" }
+    else { Write-Error "reset_file: cannot determine default branch"; return }
+    git checkout "origin/$branch" -- @args
+}
+function gcd {
+    git clone --recurse-submodules $args[0]
+    if ($LASTEXITCODE -eq 0) {
+        $dir = [System.IO.Path]::GetFileNameWithoutExtension($args[0].Split('/')[-1])
+        Set-Location $dir
+    }
+}
+function grom {
+    $branch = $null
+    if (git rev-parse --verify --quiet origin/main 2>$null) { $branch = "main" }
+    elseif (git rev-parse --verify --quiet origin/master 2>$null) { $branch = "master" }
+    elseif (git rev-parse --verify --quiet origin/source 2>$null) { $branch = "source" }
+    else { Write-Error "grom: neither 'origin/main', 'origin/master' nor 'origin/source' branch exists"; return }
+    $env:LEFTHOOK = "0"
+    git rebase -i "origin/$branch"
+    Remove-Item Env:\LEFTHOOK -ErrorAction SilentlyContinue
+    git submodule update --init --recursive
+}
+function prg {
+    git pull -a | Out-Null
+    $branches = git branch --list '*[^master][^main]' --format='%(refname:short)' | Where-Object { $_ -ne '' }
+    if (-not $branches) { Write-Host "No branches to delete."; return }
+    Write-Host ($branches -join "`n")
+    $ans = Read-Host "Do you want to delete these merged branches? (y/n)"
+    if ($ans -notmatch '^[yY]$') { return }
+    git remote prune origin
+    $branches | ForEach-Object { git branch -D $_ }
 }
 
 ## System utilities (complex)
@@ -86,3 +113,26 @@ function gk {
     Start-Process -FilePath $gkExe -ArgumentList "--new-window", "-p", $root
 }
 Set-Alias -Name g -Value gk
+
+## Shell utilities (complex)
+function mkcd {
+    New-Item -ItemType Directory -Path $args[0] -Force | Out-Null
+    Set-Location $args[0]
+}
+
+## Apps (complex)
+function c {
+    $env:IS_SANDBOX = "1"
+    claude --dangerously-skip-permissions @args
+    Remove-Item Env:\IS_SANDBOX -ErrorAction SilentlyContinue
+}
+function q {
+    if (Get-Command yawn-debug -ErrorAction SilentlyContinue) {
+        Write-Host "Executing yawn-debug"
+        yawn-debug @args
+    } elseif (Get-Command yawn -ErrorAction SilentlyContinue) {
+        yawn @args
+    } else {
+        Write-Error "No yawn executable found."
+    }
+}
