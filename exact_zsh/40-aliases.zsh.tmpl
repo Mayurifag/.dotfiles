@@ -2,6 +2,8 @@
 
 ## Chezmoi (zsh-only)
 alias czapply='chezmoi apply -v && source "$HOME/.zshrc"'
+alias czcd='cd "$(chezmoi source-path)"'
+alias cdcz='czcd'
 
 ## Root (zsh/Linux-only)
 alias reboot='sudo reboot'

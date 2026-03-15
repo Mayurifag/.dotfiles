@@ -1,0 +1,166 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions":
+    [
+        {
+            "command":
+            {
+                "action": "globalSummon",
+                "desktop": "toCurrent",
+                "dropdownDuration": 200,
+                "monitor": "toMouse",
+                "name": "_quake",
+                "toggleVisibility": true
+            },
+            "id": "User.quakeMode"
+        },
+        {
+            "command": "newTab",
+            "id": "User.newTab"
+        },
+        {
+            "command": "closePane",
+            "id": "User.closePane"
+        },
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "right"
+            },
+            "id": "User.splitVertical"
+        },
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "down"
+            },
+            "id": "User.splitHorizontal"
+        }
+    ],
+    "alwaysShowNotificationIcon": true,
+    "compatibility.allowHeadless": true,
+    "startOnUserLogin": true,
+    "launchMode": "default",
+    "firstWindowPreference": "persistedWindowLayout",
+    "compatibility.enableUnfocusedAcrylic": true,
+    "copyFormatting": "none",
+    "copyOnSelect": true,
+    "defaultProfile": "{7ba9151d-519b-4ef2-96c6-1f272623435a}",
+    "disableAnimations": true,
+    "disabledProfileSources":
+    [
+        "Windows.Terminal.Azure",
+        "Windows.Terminal.PowershellCore",
+        "Windows.Terminal.VisualStudio",
+        "Windows.Terminal.Wsl"
+    ],
+    "focusFollowMouse": false,
+    "initialRows": 80,
+    "keybindings":
+    [
+        {
+            "id": "User.quakeMode",
+            "keys": "ctrl+`"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "ctrl+ё"
+        },
+        {
+            "id": "User.newTab",
+            "keys": "ctrl+t"
+        },
+        {
+            "id": "User.closePane",
+            "keys": "ctrl+w"
+        },
+        {
+            "id": "User.splitVertical",
+            "keys": "ctrl+|"
+        },
+        {
+            "id": "User.splitHorizontal",
+            "keys": "ctrl+-"
+        }
+    ],
+    "language": "ru",
+    "newTabMenu": [],
+    "profiles":
+    {
+        "defaults":
+        {
+            "colorScheme": "Dracula",
+            "elevate": true
+        },
+        "list":
+        [
+            {
+                "elevate": true,
+                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                "hidden": true,
+                "name": "Windows PowerShell"
+            },
+            {
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": true,
+                "name": "Command Prompt"
+            },
+            {
+                "altGrAliasing": true,
+                "antialiasingMode": "grayscale",
+                "closeOnExit": "automatic",
+                "commandline": "pwsh.exe -NoLogo",
+                "cursorShape": "bar",
+                "elevate": true,
+                "font":
+                {
+                    "face": "JetBrainsMonoNL Nerd Font Mono",
+                    "size": 12
+                },
+                "guid": "{7ba9151d-519b-4ef2-96c6-1f272623435a}",
+                "hidden": false,
+                "historySize": 9001,
+                "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
+                "name": "pwsh",
+                "padding": "8, 8, 8, 8",
+                "snapOnInput": true,
+                "startingDirectory": null,
+                "useAcrylic": false
+            }
+        ]
+    },
+    "schemes":
+    [
+        {
+            "background": "#282A36",
+            "black": "#21222C",
+            "blue": "#BD93F9",
+            "brightBlack": "#6272A4",
+            "brightBlue": "#D6ACFF",
+            "brightCyan": "#A4FFFF",
+            "brightGreen": "#69FF94",
+            "brightPurple": "#FF92DF",
+            "brightRed": "#FF6E6E",
+            "brightWhite": "#FFFFFF",
+            "brightYellow": "#FFFFA5",
+            "cursorColor": "#F8F8F2",
+            "cyan": "#8BE9FD",
+            "foreground": "#F8F8F2",
+            "green": "#50FA7B",
+            "name": "Dracula",
+            "purple": "#FF79C6",
+            "red": "#FF5555",
+            "selectionBackground": "#44475A",
+            "white": "#F8F8F2",
+            "yellow": "#F1FA8C"
+        }
+    ],
+    "showAdminShield": false,
+    "showTabsFullscreen": true,
+    "showTabsInTitlebar": true,
+    "themes": [],
+    "windowingBehavior": "useAnyExisting"
+}

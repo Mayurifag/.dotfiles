@@ -24,17 +24,34 @@ function prompt {
     return $out
 }
 
-# === Tool Activation ===
-# mise — version manager (pwsh target required for PS7; NOT "powershell" target)
-(&mise activate pwsh) | Out-String | Invoke-Expression
+# === Tool Activation (cached for speed) ===
+$_cacheDir = "$env:LOCALAPPDATA\shell-cache"
+if (-not (Test-Path $_cacheDir)) { New-Item -ItemType Directory -Path $_cacheDir -Force | Out-Null }
 
-# zoxide — smart cd replacement
-Invoke-Expression (& { (zoxide init powershell | Out-String) })
+function _CachedInit([string]$name, [string]$exe, [scriptblock]$generator) {
+    $cache = "$_cacheDir\$name.ps1"
+    $exePath = (Get-Command $exe -ErrorAction SilentlyContinue)?.Source
+    if ($exePath -and (Test-Path $cache) -and (Get-Item $cache).LastWriteTime -ge (Get-Item $exePath).LastWriteTime) {
+        . $cache
+    } else {
+        $content = & $generator
+        $content | Set-Content -Path $cache -Force
+        . $cache
+    }
+}
+
+# mise — version manager
+_CachedInit 'mise' 'mise' { & mise activate pwsh }
 
 # starship — cross-shell prompt
-Invoke-Expression (&starship init powershell)
+_CachedInit 'starship' 'starship' { starship init powershell }
+
+Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
+Remove-Variable _cacheDir
 
 # === Aliases ===
 {{ template "aliases_ps1" . }}
 # chezmoi apply — re-sources the profile automatically after apply
 function czapply { chezmoi apply -v; . $PROFILE }
+function czcd { Set-Location (chezmoi source-path) }
+Set-Alias -Name cdcz -Value czcd

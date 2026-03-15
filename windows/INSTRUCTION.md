@@ -58,6 +58,7 @@ mise install    # install any tools added by chezmoi config
 ## Other
 
 - Import and DO NOT FORGET ultimately TRUST gpg key (TODO: full docs)
+- Setup espanso (it will write itself into PATH)
 - Setup Obsidian
 - Setup [Browsers.app](https://browsers.software/) as default browser
 - Make [steam silent](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
@@ -71,11 +72,5 @@ mise install    # install any tools added by chezmoi config
 - [ ] Setup PowerToys - only with tools I use
 - [ ] Make sure espanso working
 - [ ] Autohotkey cfg: copied onto repo and script to Startup to launch
-- [ ] Script to configure Windows Terminal:
-  - [ ] Set JetBrainsMono as default font face (make sure right name is selected).
-  - [ ] Setup Global Summon (Quake Mode) shortcut CTRL+~ and CTRL+ё.
-  - [ ] Set Dracula color scheme.
-  - [ ] Default profile to PowerShell latest version.
-  - [ ] Quake mode has to toggle focus mode so tabs will be see
 - [ ] Wait for `mise` to support `winget` backend and migrate to it.
   <https://github.com/jdx/mise/discussions/8311>

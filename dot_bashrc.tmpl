@@ -53,3 +53,5 @@ export PATH="$HOME/.local/bin:$PATH"
 # === Aliases ===
 {{ template "aliases_posix" . }}
 alias czapply='chezmoi apply -v && source ~/.bashrc'
+alias czcd='cd "$(chezmoi source-path)"'
+alias cdcz='czcd'

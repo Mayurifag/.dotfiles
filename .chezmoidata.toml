@@ -16,8 +16,6 @@ v = { cmd = "vim" }
 
 [sharedAliases.Chezmoi]
 cz = { cmd = "chezmoi" }
-czcd = { cmd = "chezmoi cd" }
-cdcz = { cmd = "chezmoi cd" }
 
 [sharedAliases.Git]
 lzg = { cmd = "lazygit" }
@@ -25,7 +23,6 @@ grc = { cmd = "git rebase --continue" }
 gpf = { cmd = "git push origin HEAD --force-with-lease" }
 gri = { cmd = "git rebase --interactive" }
 qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-with-lease origin HEAD", ps_cmd = "git add .; git commit --amend --no-edit; git push --force-with-lease origin HEAD" }
-gp = { cmd = '[[ -z $(git config "branch.$(git symbolic-ref --short HEAD).merge") ]] && git push -u origin $(git symbolic-ref --short HEAD) || git push', ps_cmd = '$branch = git symbolic-ref --short HEAD; if (git config "branch.$branch.merge") { git push } else { git push -u origin $branch }' }
 
 [sharedAliases.Docker]
 dcp = { cmd = "docker-compose" }

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A cross-shell configuration sharing system within the chezmoi dotfiles repo. Uses chezmoi templates to generate shell-specific files (PowerShell profile, Git Bash `.bashrc`, and zsh aliases) from shared definitions, so aliases and env vars are defined once and rendered in the correct syntax for each target shell. Covers zsh (Linux), PowerShell (Windows), and Git Bash (Windows). **All milestones complete — M001 through M005-6h5649 shipped.**
+A cross-shell configuration sharing system within the chezmoi dotfiles repo. Uses chezmoi templates to generate shell-specific files (PowerShell profile, Git Bash `.bashrc`, and zsh aliases) from shared definitions, so aliases and env vars are defined once and rendered in the correct syntax for each target shell. Covers zsh (Linux), PowerShell (Windows), and Git Bash (Windows). **All milestones complete — M001 through M008-9m50ua shipped.**
 
 ## Core Value
 
@@ -76,6 +76,7 @@ None — all requirements validated.
 - **M005-6h5649** — PowerShell Alias Parity ✓ complete
 - **M006-mbvfvm** — Kanata Cross-Platform Key Remapping ✓ complete
 - **M007** — Windows Bootstrap Flow (init → preflight → chezmoi) ✓ complete
+- **M008-9m50ua** — Windows Terminal Config + chezmoiignore Cleanup ✓ complete
 
 ## Recent Hotfixes
 

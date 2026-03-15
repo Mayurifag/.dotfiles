@@ -82,10 +82,12 @@ grom () {
     GIT_BRANCH=main
   elif git rev-parse --verify --quiet origin/master > /dev/null 2>&1; then
     GIT_BRANCH=master
+  elif git rev-parse --verify --quiet origin/dev > /dev/null 2>&1; then
+    GIT_BRANCH=dev
   elif git rev-parse --verify --quiet origin/source > /dev/null 2>&1; then
     GIT_BRANCH=source
   else
-    echo "Neither 'origin/main' nor 'origin/master' branch exists."
+    echo "Neither 'origin/main', 'origin/master' nor 'origin/dev' branch exists."
     return 1
   fi
 
@@ -120,39 +122,6 @@ f() {
   fi
 
   code .
-
-  sleep 3 # I am trying to make sure that Gemini Coder extension will work fine when both windows are opened
-
-  local devcontainer_file=".devcontainer/devcontainer.json"
-
-  if [ -f "$devcontainer_file" ] && if_command_exists jq; then
-    local default_workspace_folder="/workspace"
-    local container_workspace_folder
-    container_workspace_folder=$(jq -r '.workspaceFolder' "$devcontainer_file")
-
-    if [ "$container_workspace_folder" = "null" ] || [ -z "$container_workspace_folder" ]; then
-      echo "Warning: '.workspaceFolder' not found or empty in $devcontainer_file. Defaulting to '$default_workspace_folder'." >&2
-      container_workspace_folder="$default_workspace_folder"
-    fi
-
-    local folder_path
-    folder_path=$(pwd) # Get the absolute path of the current directory
-
-    # Ensure xxd command is available for hex encoding
-    if ! if_command_exists xxd; then
-        echo "Error: xxd command not found. Please install it (e.g., using 'brew install vim' or 'sudo apt-get install xxd')." >&2
-        return 1
-    fi
-
-    # Hex-encode the host folder path
-    local hex_path
-    hex_path=$(echo -n "$folder_path" | xxd -p | tr -d '\n')
-
-    # Construct the URI
-    local uri="vscode-remote://dev-container+${hex_path}${container_workspace_folder}"
-
-    code --folder-uri "$uri"
-  fi
 }
 
 # Move a file or directory and create a symbolic link at the original location
