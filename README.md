@@ -13,7 +13,7 @@ Yes, that's better to be NixOS config here, but I use arch (btw).
 It mostly implies you should use KDE on Wayland.
 
 * Setup font: use `JetBrains Mono Nerd Font` 11pt for `monospace` and
-  `San Francisco` apple font for other things.
+  `San Francisco` font for other things.
 * KeepassXC with custom browsers requires
   `Browser integration -> Advanced -> Use a custom browser configuration`.
   For example, Thorium requires to have `Chromium` type and
@@ -111,6 +111,7 @@ gpg> quit
   * You need ones with typographic symbols (not sure its easy nowadays, needs guide).
   * Setup CapsLock to change layouts and right Alt as 3rd line modifier.
 * Setup guake-like terminal and shortcuts
+* Install/copy windows fonts
 * Example of `/etc/fstab` entry for shared NTFS partition:
 
 ```bash
@@ -223,7 +224,16 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
+* Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that! next step = /gsd auto
+* windows - fix gp alias
+
+```sh
+cmdlet Get-ItemProperty at command pipeline position 1
+Supply values for the following parameters:
+Path[0]:
+Get-ItemProperty: Cannot bind argument to parameter 'Path' because it is an empty array.
+```
+
 * arch/macos: reinstall ripgrep from rust, not from package manager
-* Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

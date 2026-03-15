@@ -11,3 +11,4 @@
 | 2026-03-15 | M006-mbvfvm | Kanata Cross-Platform Key Remapping | Queued |
 | 2026-03-15 | M007 | Windows Bootstrap Flow (init → preflight → chezmoi) | Complete |
 | 2026-03-15 | M008-9m50ua | Windows Terminal Config + chezmoiignore Cleanup | Complete |
+| 2026-03-15 | M009 | Kanata Typography Layer + AHK Cleanup | Queued |

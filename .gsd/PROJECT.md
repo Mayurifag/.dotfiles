@@ -77,6 +77,7 @@ None — all requirements validated.
 - **M006-mbvfvm** — Kanata Cross-Platform Key Remapping ✓ complete
 - **M007** — Windows Bootstrap Flow (init → preflight → chezmoi) ✓ complete
 - **M008-9m50ua** — Windows Terminal Config + chezmoiignore Cleanup ✓ complete
+- **M009** — Kanata Typography Layer + AHK Cleanup
 
 ## Recent Hotfixes
 

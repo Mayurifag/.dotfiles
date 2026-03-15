@@ -70,7 +70,6 @@ mise install    # install any tools added by chezmoi config
 - [ ] Setup browser - addons settings and keepassxc config if needed
 - [ ] Setup gitkraken with activation (requires full path)
 - [ ] Setup PowerToys - only with tools I use
-- [ ] Make sure espanso working
 - [ ] Autohotkey cfg: copied onto repo and script to Startup to launch
 - [ ] Wait for `mise` to support `winget` backend and migrate to it.
   <https://github.com/jdx/mise/discussions/8311>
