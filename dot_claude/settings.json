@@ -1,4 +1,3 @@
-{{- $home := .chezmoi.homeDir | replace "\\" "/" -}}
 {
   "env": {
     "ENABLE_BACKGROUND_TASKS": "1",
@@ -20,32 +19,6 @@
   "includeCoAuthoredBy": false,
   "model": "sonnet",
   "enableAllProjectMcpServers": true,
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"{{ $home }}/.claude/hooks/gsd-check-update.js\""
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"{{ $home }}/.claude/hooks/gsd-context-monitor.js\""
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "node \"{{ $home }}/.claude/hooks/gsd-statusline.js\""
-  },
   "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true,
   "effortLevel": "high"

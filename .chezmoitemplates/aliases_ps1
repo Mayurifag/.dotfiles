@@ -1,0 +1,88 @@
+{{- /* aliases_ps1 — PowerShell function blocks for PS profile */}}
+{{- /* Include with: {{ template "aliases_ps1" . }} (trailing dot is mandatory) */}}
+{{- /* Simple aliases are generated from[sharedAliases] maps in .chezmoidata.toml */}}
+{{- /* Complex/multi-line functions are defined explicitly below                    */}}
+
+## Navigation
+function .. { Set-Location .. }
+function ... { Set-Location ..\.. }
+function .... { Set-Location ..\..\.. }
+
+{{- /* Generated simple aliases — mapped by category */}}
+{{- $groups := keys .sharedAliases | sortAlpha }}
+{{- range $groupName := $groups }}
+
+## {{ $groupName }}
+{{- $groupData := index $.sharedAliases $groupName }}
+{{- $aliasNames := keys $groupData | sortAlpha }}
+{{- range $aliasName := $aliasNames }}
+{{- $data := index $groupData $aliasName }}
+{{- $body := $data.cmd }}
+{{- if hasKey $data "ps_cmd" }}{{- $body = $data.ps_cmd }}{{- end }}
+function {{ $aliasName }} { {{ $body }} @args }
+{{- end }}
+{{- end }}
+
+## Git (complex)
+function sq {
+    $base = $null
+    if (git rev-parse --abbrev-ref "@{upstream}" 2>$null) {
+        $base = git merge-base HEAD "@{upstream}" 2>$null
+    }
+    if (-not $base) {
+        if (git rev-parse origin/main 2>$null) {
+            $base = git merge-base HEAD origin/main 2>$null
+        } elseif (git rev-parse origin/master 2>$null) {
+            $base = git merge-base HEAD origin/master 2>$null
+        } else {
+            Write-Error "sq: cannot determine branch base"; return
+        }
+    }
+    $count = (git rev-list --count "${base}..HEAD")
+    if ([int]$count -le 1) { Write-Host "sq: only $count commit(s) — nothing to squash"; return }
+    $firstSha = (git log --format='%H' "${base}..HEAD" | Select-Object -Last 1)
+    $firstMsg = (git log --format='%B' -1 $firstSha)
+    git reset --soft $base
+    git commit -m $firstMsg
+    $ans = Read-Host "Force push? [y/N]"
+    if ($ans -match '^[yY]$') {
+        git push origin HEAD --force-with-lease
+    } else {
+        Write-Host "Skipped force push"
+    }
+}
+
+## Docker (complex)
+function docker-clean {
+    docker container prune -f
+    docker image prune -f
+    docker network prune -f
+    docker volume prune -f
+}
+
+## System utilities (complex)
+function myip {
+    $ip = $null
+    try { $ip = (Resolve-DnsName -Name myip.opendns.com -Server resolver1.opendns.com -Type A -ErrorAction Stop).IPAddress } catch {}
+    if (-not $ip) { try { $ip = (Invoke-WebRequest -Uri 'http://ipecho.net/plain' -UseBasicParsing -TimeoutSec 3).Content.Trim() } catch {} }
+    if ($ip) { Write-Output $ip } else { Write-Warning "myip: could not determine public IP" }
+}
+function free {
+    $os = Get-CimInstance Win32_OperatingSystem
+    $total = [int]($os.TotalVisibleMemorySize / 1024)
+    $free  = [int]($os.FreePhysicalMemory / 1024)
+    $used  = $total - $free
+    Write-Output "              total        used        free"
+    Write-Output ("Mem:   {0,11}  {1,10}  {2,10}" -f $total, $used, $free)
+}
+
+## GitKraken
+function gk {
+    $gkExe = Get-Item "$env:LOCALAPPDATA\gitkraken\app-*\gitkraken.exe" -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty FullName
+    if (-not $gkExe) { Write-Warning "GitKraken not found"; return }
+    $root = git rev-parse --show-toplevel 2>$null
+    if (-not $root) { Write-Warning "Not a git repository"; return }
+    $root = (Resolve-Path $root).Path
+    Start-Process -FilePath $gkExe -ArgumentList "--new-window", "-p", $root
+}
+Set-Alias -Name g -Value gk

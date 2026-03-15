@@ -9,11 +9,7 @@ if type rg &> /dev/null; then
 fi
 
 # System
-export LC_ALL=en_US.UTF-8
-export VISUAL=code
-export EDITOR=vim
-export SUDO_EDITOR=vim
-
+{{ template "env_vars_posix" . }}
 # Homebrew
 export HOMEBREW_CASK_OPTS="--no-quarantine"
 # export HOMEBREW_NO_AUTO_UPDATE=1
@@ -55,7 +51,6 @@ xx=95:"
 
 # AI section
 
-export GEMINI_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
 export ZSH_AI_PROVIDER="gemini"
 
 # Paths

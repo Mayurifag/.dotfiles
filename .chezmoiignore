@@ -26,3 +26,7 @@ zsh/.zsh_plugins.sh
 {{ if eq .chezmoi.os "windows" -}}
 run_after_cz_apply.sh
 {{- end }}
+
+{{- if ne .chezmoi.os "windows" }}
+Documents/
+{{- end }}

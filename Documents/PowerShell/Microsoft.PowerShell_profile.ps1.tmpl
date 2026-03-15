@@ -1,0 +1,24 @@
+{{- /* chezmoi:template:line-endings lf */ -}}
+{{- /* Microsoft.PowerShell_profile.ps1 — managed by chezmoi; edit source at */ -}}
+{{- /* Documents/PowerShell/Microsoft.PowerShell_profile.ps1.tmpl */ -}}
+
+# === Environment Variables ===
+{{ template "env_vars_ps1" . }}
+# === PATH Additions ===
+$env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
+$env:PATH = "$env:USERPROFILE\.local\bin;" + $env:PATH
+
+# === Tool Activation ===
+# mise — version manager (pwsh target required for PS7; NOT "powershell" target)
+(&mise activate pwsh) | Out-String | Invoke-Expression
+
+# zoxide — smart cd replacement
+Invoke-Expression (& { (zoxide init powershell | Out-String) })
+
+# starship — cross-shell prompt
+Invoke-Expression (&starship init powershell)
+
+# === Aliases ===
+{{ template "aliases_ps1" . }}
+# chezmoi apply — re-sources the profile automatically after apply
+function czapply { chezmoi apply -v; . $PROFILE }

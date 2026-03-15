@@ -6,7 +6,6 @@ docker-buildx
 docker-compose
 eget-bin
 espanso-wayland
-eza
 firefox-pure
 fzf
 git

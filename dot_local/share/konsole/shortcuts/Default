@@ -1,0 +1,15 @@
+<gui name="konsole" version="1">
+  <ActionProperties>
+    <Action name="edit_copy" shortcut="Ctrl+Shift+C; Ctrl+Ins"/>
+    <Action name="edit_paste" shortcut="Ctrl+Shift+V; Shift+Ins"/>
+    <Action name="paste-selection" shortcut="Ctrl+Shift+Ins"/>
+    <Action name="select-mode" shortcut="Ctrl+Shift+D"/>
+    <Action name="file_save_as" shortcut="Ctrl+Shift+S"/>
+    <Action name="file_print" shortcut="Ctrl+Shift+P"/>
+    <Action name="next-profile" shortcut="Ctrl+Alt+N"/>
+    <Action name="prev-profile" shortcut="Ctrl+Alt+M"/>
+    <Action name="edit_find" shortcut="Ctrl+Shift+F"/>
+    <Action name="edit_find_next" shortcut="F3"/>
+    <Action name="edit_find_prev" shortcut="Shift+F3"/>
+  </ActionProperties>
+</gui>

@@ -1,5 +1,6 @@
-@anthropic-ai/claude-code
 eslint
 markdownlint-cli2
 npm
 prettier
+mcporter
+gsd-pi

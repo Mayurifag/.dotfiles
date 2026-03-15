@@ -1,0 +1,55 @@
+{{- /* chezmoi:template:line-endings lf */ -}}
+
+# This file is used by Bash on Windows (Claude code) and Linux (claude, else).
+
+# Opt out of homebrew analytics collection
+export HOMEBREW_NO_ANALYTICS=1
+# Number of lines to keep in the history file
+export HISTSIZE=1000
+# bash history is timestamped as YYYY-MM-DD HH:MM:SS
+export HISTTIMEFORMAT='%F %T '
+# Ignore commands that start with spaces and duplicates.
+export HISTCONTROL=ignoreboth
+# Enables displaying colors in the terminal
+# export TERM=xterm-color
+# For macos disable deprecation warning
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+####################################
+
+## Append to history file; do not overwrite
+shopt -s histappend
+
+######################################################
+
+export PS1="$ "
+
+# === Mise Activation ===
+# Note: eval "$(mise activate bash)" is known to be fragile on Windows/Git Bash (jdx/mise #3961, #4806).
+# Partial fix merged in mise PR #4048 (Jan 2025). If PATH corruption occurs (ls/git not found),
+# replace with the shims fallback:
+#   export PATH="$(cygpath -u "$LOCALAPPDATA")/mise/shims:$PATH"
+eval "$(mise activate bash)"
+
+{{- if eq .chezmoi.os "windows" }}
+# === Windows OpenSSH Agent Routing ===
+# GIT_SSH forces Git to use Windows' native ssh.exe which reads the
+# OpenSSH agent named pipe (\\.\pipe\openssh-ssh-agent) directly.
+# No second ssh-agent is spawned — the Windows OpenSSH service handles keys.
+# SSH_AUTH_SOCK is set for other tools that check for it.
+# Windows OpenSSH service must be running (handled by init.ps1).
+# Note: Git Bash's bundled ssh (usr/bin/ssh) cannot read named pipes;
+# Windows ssh.exe (/c/Windows/System32/OpenSSH/ssh.exe) can.
+export SSH_AUTH_SOCK="//./pipe/openssh-ssh-agent"
+export GIT_SSH="/c/Windows/System32/OpenSSH/ssh.exe"
+{{- end }}
+
+# === Environment Variables ===
+{{ template "env_vars_posix" . }}
+# === PATH Additions ===
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+# === Aliases ===
+{{ template "aliases_posix" . }}
+alias czapply='chezmoi apply -v && source ~/.bashrc'
