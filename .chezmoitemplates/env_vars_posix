@@ -1,0 +1,8 @@
+{{- /* env_vars_posix — POSIX export statements for bash/zsh */}}
+{{- /* Include with: {{ template "env_vars_posix" . }} (trailing dot is mandatory) */}}
+export EDITOR={{ .sharedEnv.EDITOR }}
+export VISUAL={{ .sharedEnv.VISUAL }}
+export LC_ALL={{ .sharedEnv.LC_ALL }}
+export SUDO_EDITOR={{ .sharedEnv.SUDO_EDITOR }}
+export GEMINI_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
+export CONTEXT7_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).context7_api_key }}"

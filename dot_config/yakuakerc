@@ -1,0 +1,46 @@
+[Animation]
+Frames=0
+UseWMAssist=false
+
+[Appearance]
+HideSkinBorders=true
+Skin=arc-dark
+SkinInstalledWithKns=true
+
+[Desktop Entry]
+DefaultProfile=zsh.profile
+
+[Dialogs]
+FirstRun=false
+
+[Shortcuts]
+close-active-terminal=Alt+W
+close-session=Ctrl+W
+toggle-session-prevent-closing=Ctrl+Shift+W
+file_quit=none
+help_whats_this=none
+new-session=Ctrl+Shift+T; Ctrl+T
+next-session=Shift+Right; Ctrl+Tab
+next-terminal=;\s
+options_configure_keybinding=none
+previous-session=Shift+Left; Ctrl+Shift+Tab
+previous-terminal=;\s
+split-left-right=Ctrl+(; Ctrl+\\
+split-top-bottom=Ctrl+); Ctrl+-
+switch-to-session-1=Alt+1; Ctrl+1
+switch-to-session-10=Alt+0; Ctrl+0
+switch-to-session-2=Alt+2; Ctrl+2
+switch-to-session-3=Alt+3; Ctrl+3
+switch-to-session-4=Alt+4; Ctrl+4
+switch-to-session-5=Alt+5; Ctrl+5
+switch-to-session-6=Alt+6; Ctrl+6
+switch-to-session-7=Alt+7; Ctrl+7
+switch-to-session-8=Alt+8; Ctrl+8
+switch-to-session-9=Alt+9; Ctrl+9
+toggle-window-state=;\s
+
+[Window]
+DynamicTabTitles=true
+Height=80
+ShowSystrayIcon=false
+Width=100

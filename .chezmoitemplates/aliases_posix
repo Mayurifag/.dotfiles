@@ -1,0 +1,62 @@
+{{- /* aliases_posix — POSIX alias block for zsh and Git Bash - yet this commands work on windows */}}
+
+## Navigation
+alias ..='builtin cd ..'
+alias ...='builtin cd ...'
+alias ....='builtin cd ....'
+
+{{- /* Generated simple aliases — mapped by category */}}
+{{- $groups := keys .sharedAliases | sortAlpha }}
+{{- range $groupName := $groups }}
+
+## {{ $groupName }}
+{{- $groupData := index $.sharedAliases $groupName }}
+{{- $aliasNames := keys $groupData | sortAlpha }}
+{{- range $aliasName := $aliasNames }}
+{{- $data := index $groupData $aliasName }}
+alias {{ $aliasName }}='{{ $data.cmd }}'
+{{- end }}
+{{- end }}
+
+## Git (complex)
+sq() {
+  local base
+  if git rev-parse --abbrev-ref "@{upstream}" >/dev/null 2>&1; then
+    base=$(git merge-base HEAD "@{upstream}")
+  elif git rev-parse origin/main >/dev/null 2>&1; then
+    base=$(git merge-base HEAD origin/main)
+  elif git rev-parse origin/master >/dev/null 2>&1; then
+    base=$(git merge-base HEAD origin/master)
+  else
+    echo "sq: cannot determine branch base" >&2; return 1
+  fi
+  local count first_sha first_msg
+  count=$(git rev-list --count "${base}..HEAD")
+  if [ "$count" -le 1 ]; then
+    echo "sq: only ${count} commit(s) — nothing to squash"; return 0
+  fi
+  first_sha=$(git log --format='%H' "${base}..HEAD" | tail -1)
+  first_msg=$(git log --format='%B' -1 "$first_sha")
+  git reset --soft "$base"
+  git commit -m "$first_msg"
+  printf 'Force push? [y/N] '
+  read -r _sq_ans
+  case "$_sq_ans" in
+    [yY]) git push origin HEAD --force-with-lease ;;
+    *) echo "Skipped force push" ;;
+  esac
+}
+reset_file() {
+  local branch
+  if git rev-parse --verify --quiet origin/main > /dev/null 2>&1; then
+    branch=main
+  elif git rev-parse --verify --quiet origin/master > /dev/null 2>&1; then
+    branch=master
+  else
+    echo "reset_file: cannot determine default branch" >&2; return 1
+  fi
+  git checkout "origin/$branch" -- "$@"
+}
+
+## System utilities (complex)
+alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"

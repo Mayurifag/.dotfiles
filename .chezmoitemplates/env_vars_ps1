@@ -1,0 +1,7 @@
+{{- /* env_vars_ps1 — PowerShell $env: assignments */}}
+{{- /* Include with: {{ template "env_vars_ps1" . }} (trailing dot is mandatory) */}}
+$env:EDITOR = "{{ .sharedEnv.EDITOR }}"
+$env:VISUAL = "{{ .sharedEnv.VISUAL }}"
+$env:LC_ALL = "{{ .sharedEnv.LC_ALL }}"
+$env:GEMINI_API_KEY = "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
+$env:CONTEXT7_API_KEY = "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).context7_api_key }}"

@@ -4,5 +4,25 @@
     "editor.defaultFormatter": "vscode.json-language-features",
     // due to karabiner.json generated without it
     "files.insertFinalNewline": false
-  }
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/CVS": true,
+    "**/.ruby-lsp": true,
+    "**/.gsd/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/.ruby-lsp": true,
+    "**/.gsd/**": true
+  },
+  "codeWebChat.ignorePatterns": [
+    "/.gsd/**"
+  ]
 }

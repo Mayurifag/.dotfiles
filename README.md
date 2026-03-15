@@ -73,7 +73,6 @@ gpg> quit
 * Setup external disks like windows one or samba or whatever
 * Setup Obsidian
 * Setup [Browsers.app](https://browsers.software/) as default browser
-* Setup [get-shit-done](https://github.com/gsd-build/get-shit-done)
 
 ## Sidenotes for MacOS
 
@@ -216,7 +215,7 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
-* macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`, `lazydocker`, `chezmoi`, `stew` (uninstall), `claude`
+* remove node packages and migrate to bun. yet install nodejs/npm latest
 * Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

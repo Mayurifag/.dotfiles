@@ -8,5 +8,8 @@ usage = "latest"
 uv = "latest"
 bun = "latest"
 chezmoi = "latest"
+claude-code = "latest"
 "github:Mayurifag/yawn" = "latest"
+{{- if eq .chezmoi.os "linux" }}
 "github:Mayurifag/conditional-launcher" = "latest"
+{{- end }}
