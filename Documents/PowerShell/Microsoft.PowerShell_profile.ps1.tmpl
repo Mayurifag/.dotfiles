@@ -8,6 +8,22 @@
 $env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
 $env:PATH = "$env:USERPROFILE\.local\bin;" + $env:PATH
 
+# === Default directory ===
+# On a fresh tab WT starts in System32; navigate to Code instead
+if ((Get-Location).Path -eq "$env:SystemRoot\System32") { Set-Location ~\Code }
+
+# === Shell Integration (Windows Terminal CWD tracking for same-dir new tabs) ===
+# Starship overrides this prompt function automatically when active
+function prompt {
+    $loc = $executionContext.SessionState.Path.CurrentLocation
+    $out = "PS $loc$('>' * ($nestedPromptLevel + 1)) "
+    $out += "$([char]27)]9;12$([char]7)"
+    if ($loc.Provider.Name -eq "FileSystem") {
+        $out += "$([char]27)]9;9;`"$($loc.ProviderPath)`"$([char]7)"
+    }
+    return $out
+}
+
 # === Tool Activation ===
 # mise — version manager (pwsh target required for PS7; NOT "powershell" target)
 (&mise activate pwsh) | Out-String | Invoke-Expression

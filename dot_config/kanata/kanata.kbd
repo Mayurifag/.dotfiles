@@ -1,0 +1,18 @@
+;; kanata.kbd — cross-platform key remapping
+;; Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd
+;;
+;; Deploys to: ~/.config/kanata/kanata.kbd
+;; Platforms:  Linux (systemd user service) + Windows (registry Run key via kanata_gui)
+;; macOS:      karabiner-elements handles remapping there; this file is unused on macOS
+
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  caps
+)
+
+(deflayer default
+  (multi lctl lsft) ;; CapsLock → Ctrl+Shift (language switch)
+)

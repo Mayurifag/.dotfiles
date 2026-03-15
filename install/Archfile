@@ -13,6 +13,7 @@ github-cli
 gitkraken
 htop
 jujutsu
+kanata
 keepassxc
 less
 mise
@@ -29,7 +30,6 @@ pipewire
 qbittorrent
 refind
 refind-theme-dracula
-ripgrep
 thorium-browser-avx2-bin
 ttf-firacode-nerd
 ttf-jetbrains-mono-nerd

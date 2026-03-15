@@ -74,6 +74,8 @@ None — all requirements validated.
 - **M003-f3vdyg** — GitKraken PS Alias ✓ complete
 - **M004-fqlkfh** — Mise Config OS Gating ✓ complete
 - **M005-6h5649** — PowerShell Alias Parity ✓ complete
+- **M006-mbvfvm** — Kanata Cross-Platform Key Remapping ✓ complete
+- **M007** — Windows Bootstrap Flow (init → preflight → chezmoi) ✓ complete
 
 ## Recent Hotfixes
 
