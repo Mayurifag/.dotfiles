@@ -30,6 +30,13 @@ SSH_AUTH_SOCK=${XDG_RUNTIME_DIR}/ssh-agent.socket
 Make sure `zsh` is default shell: `chsh -s /usr/bin/zsh`. For Yakuake it will
 also require to setup/choose another profile, because default one is read-only.
 
+* Add user to input/uinput (for kanata):
+
+```sh
+sudo usermod -aG input "$USER"
+sudo usermod -aG uinput "$USER"
+```
+
 ## Installation of environment
 
 * Set `dracula` theme everywhere you can, starting from terminal.
@@ -70,9 +77,10 @@ gpg> quit
 ```
 
 * Install and configure gitkraken
-* Setup external disks like windows one or samba or whatever
+* Setup external disks (router or else)
 * Setup Obsidian
 * Setup [Browsers.app](https://browsers.software/) as default browser
+* Setup `gsd` - login. Perhaps also needed model/thinking levels, not sure
 
 ## Sidenotes for MacOS
 
@@ -215,7 +223,7 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
-* remove node packages and migrate to bun. yet install nodejs/npm latest
+* reinstall ripgrep from rust, not from package manager arch/macos
 * Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

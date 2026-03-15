@@ -1,0 +1,19 @@
+[Unit]
+Description=kanata keyboard remapper
+Documentation=https://github.com/jtroo/kanata
+After=graphical-session.target
+PartOf=graphical-session.target
+; NOTE: If kanata fails to start with "Permission denied", you need to log out
+; and log back in after running chezmoi apply for the first time.
+; The run_once setup script adds your user to the 'input' and 'uinput' groups,
+; but group changes only take effect after re-login.
+
+[Service]
+Type=simple
+ExecStart=kanata --cfg %h/.config/kanata/kanata.kbd
+Restart=no
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

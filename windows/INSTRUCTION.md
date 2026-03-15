@@ -9,29 +9,49 @@
 - Setup external disks (NAS/router/...)
 - Make sure `winget` is installed.
 
+Run `init.ps1` as Administrator — installs winget apps, mise runtimes, and
+language packages:
+
 ~~~powershell
-Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/main/windows/init.ps1" | Invoke-Expression
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/windows/init.ps1" | Invoke-Expression
 ~~~
 
-## ejson
+## Manual setup (after init.ps1)
+
+### SSH Key
+
+Open KeePassXC → Settings → SSH Agent → Enable SSH Agent integration. Then
+enable the SSH key entry in your KeePass database for agent use. Verify:
 
 ~~~powershell
-mkdir "$HOME\.ejson"
-New-Item -ItemType SymbolicLink -Path "$HOME\.ejson" -Target "C:\Path\To\Your\Decrypted\Keys"
+ssh-add -l
 ~~~
 
-## Chezmoi
+### EJSON Keys
 
-- Open KeePassXC -> Settings -> SSH Agent -> Enable SSH Agent. Check its working
-  via `ssh-add -l`.
-- Apply `.dotfiles`:
+Symlink the ejson keys directory:
 
 ~~~powershell
-chezmoi --version # check chezmoi is installed
-chezmoi cd
-chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh
-chezmoi diff # preview
-chezmoi apply
+cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"
+~~~
+
+## Preflight & chezmoi init
+
+Open a **new terminal** (not the one init.ps1 ran in) and run:
+
+~~~powershell
+Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/windows/preflight.ps1" | Invoke-Expression
+~~~
+
+This checks that git, bash, chezmoi, ejson, ejson keys, and SSH key are all
+ready, then runs `chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh`.
+
+## After chezmoi init
+
+~~~powershell
+chezmoi diff    # preview changes
+chezmoi apply   # apply dotfiles
+mise install    # install any tools added by chezmoi config
 ~~~
 
 ## Other
@@ -44,15 +64,12 @@ chezmoi apply
 
 ## TODO
 
-- [ ] Powershell profile
 - [ ] Setup VSCode - sync settings
 - [ ] Setup browser - addons settings and keepassxc config if needed
 - [ ] Setup gitkraken with activation (requires full path)
 - [ ] Setup PowerToys - only with tools I use
 - [ ] Make sure espanso working
 - [ ] Autohotkey cfg: copied onto repo and script to Startup to launch
-- [ ] Migrate to kanata/komokana. See whats not needed in espanso
-- [ ] Shared aliases between zsh and pwsh setups
 - [ ] Script to configure Windows Terminal:
   - [ ] Set JetBrainsMono as default font face (make sure right name is selected).
   - [ ] Setup Global Summon (Quake Mode) shortcut CTRL+~ and CTRL+ё.
