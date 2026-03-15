@@ -4,3 +4,5 @@ npm
 prettier
 mcporter
 gsd-pi
+node-addon-api
+node-gyp

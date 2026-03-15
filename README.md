@@ -215,7 +215,7 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
-* macOS: remove ejson from Brewfile and install via `go install github.com/Shopify/ejson/cmd/ejson@latest` (already done for Linux via Gofile). Same goes with `zoxide`, `lazydocker`, `chezmoi`, `stew` (uninstall), `claude`; golangci-lint-v2 in brewfile; `eza`
+* remove node packages and migrate to bun. yet install nodejs/npm latest
 * Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

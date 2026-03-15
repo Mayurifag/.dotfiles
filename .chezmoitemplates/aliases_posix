@@ -1,7 +1,4 @@
-{{- /* aliases_posix — POSIX alias block for zsh and Git Bash */}}
-{{- /* Include with: {{ template "aliases_posix" . }} (trailing dot is mandatory) */}}
-{{- /* Simple aliases are generated from [sharedAliases] maps in .chezmoidata.toml */}}
-{{- /* Complex/multi-line functions are defined explicitly below                    */}}
+{{- /* aliases_posix — POSIX alias block for zsh and Git Bash - yet this commands work on windows */}}
 
 ## Navigation
 alias ..='builtin cd ..'
@@ -35,7 +32,7 @@ sq() {
   fi
   local count first_sha first_msg
   count=$(git rev-list --count "${base}..HEAD")
-  if[ "$count" -le 1 ]; then
+  if [ "$count" -le 1 ]; then
     echo "sq: only ${count} commit(s) — nothing to squash"; return 0
   fi
   first_sha=$(git log --format='%H' "${base}..HEAD" | tail -1)
@@ -49,9 +46,6 @@ sq() {
     *) echo "Skipped force push" ;;
   esac
 }
-
-## Docker (complex)
-alias docker-clean='docker container prune -f ; docker image prune -f ; docker network prune -f ; docker volume prune -f'
 
 ## System utilities (complex)
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"

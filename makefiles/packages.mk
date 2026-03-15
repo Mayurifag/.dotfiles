@@ -26,7 +26,6 @@ uv-packages:
 mise-install:
 	mise install
 
-
 ################################################
 # Thats better to fully upgrade first before using those package managers
 
