@@ -29,10 +29,11 @@ ssh-add -l
 
 ### EJSON Keys
 
-Symlink the ejson keys directory:
+Symlink the ejson keys directory and set `EJSON_KEYDIR` (ejson defaults to `/opt/ejson/keys` on all platforms, which doesn't exist on Windows):
 
 ~~~powershell
-cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.ejson" | Out-Null; cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"
+[System.Environment]::SetEnvironmentVariable("EJSON_KEYDIR", "$env:USERPROFILE\.ejson\keys", "User")
 ~~~
 
 ## Preflight & chezmoi init

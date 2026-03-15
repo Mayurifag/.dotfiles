@@ -81,10 +81,20 @@ if (Test-Path $ejsonKeysDir) {
   }
 } else {
   Write-Host "FAIL" -ForegroundColor Red
-  $failed += 'ejson keys: directory not found. Run: cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"'
+  $failed += 'ejson keys: directory not found. Run: New-Item -ItemType Directory -Force "$env:USERPROFILE\.ejson" | Out-Null; cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"'
 }
 
-# Check 6: SSH key loaded
+# Check 6: EJSON_KEYDIR environment variable
+Write-Host -NoNewline "  EJSON_KEYDIR ..... "
+$ejsonKeyDirEnv = [System.Environment]::GetEnvironmentVariable("EJSON_KEYDIR", "User")
+if ($ejsonKeyDirEnv) {
+  Write-Host "PASS ($ejsonKeyDirEnv)" -ForegroundColor Green
+} else {
+  Write-Host "FAIL" -ForegroundColor Red
+  $failed += "EJSON_KEYDIR: not set. ejson defaults to /opt/ejson/keys which does not exist on Windows. Run init.ps1 or set manually: [System.Environment]::SetEnvironmentVariable('EJSON_KEYDIR', `"`$env:USERPROFILE\.ejson\keys`", 'User')"
+}
+
+# Check 7: SSH key loaded
 Write-Host -NoNewline "  ssh key ......... "
 $sshOutput = ssh-add -l 2>&1
 if ($LASTEXITCODE -eq 0 -and $sshOutput -notmatch "no identities") {

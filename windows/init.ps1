@@ -135,7 +135,7 @@ foreach ($dir in @($gnuMakeBin, $gitUsrBin, $gitMingwBin, $miseShims)) {
 }
 
 # Install language packages (npm, cargo, go, gem, uv)
-Write-Host "`n[13/14] Installing language packages..."
+Write-Host "`n[13/15] Installing language packages..."
 $baseUrl = "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/install"
 $tempDir = Join-Path $env:TEMP "dotfiles-packages"
 if (!(Test-Path $tempDir)) { New-Item -ItemType Directory -Path $tempDir -Force | Out-Null }
@@ -184,8 +184,15 @@ foreach ($pkg in $uvPkgs) {
 
 Write-Host "  Language packages installed." -ForegroundColor Green
 
+# Set EJSON_KEYDIR user environment variable (ejson defaults to /opt/ejson/keys on all platforms)
+Write-Host "`n[14/15] Setting EJSON_KEYDIR environment variable..."
+$ejsonKeyDir = Join-Path $env:USERPROFILE ".ejson\keys"
+[System.Environment]::SetEnvironmentVariable("EJSON_KEYDIR", $ejsonKeyDir, "User")
+$env:EJSON_KEYDIR = $ejsonKeyDir
+Write-Host "  EJSON_KEYDIR set to: $ejsonKeyDir" -ForegroundColor Green
+
 # Post-install instructions
-Write-Host "`n[14/14] Setup complete! Manual steps remaining:" -ForegroundColor Cyan
+Write-Host "`n[15/15] Setup complete! Manual steps remaining:" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  NEXT STEPS (do these in order):" -ForegroundColor Cyan
@@ -197,7 +204,7 @@ Write-Host "   Then enable the SSH key entry in your KeePass database for agent 
 Write-Host "   Verify with: ssh-add -l" -ForegroundColor White
 Write-Host ""
 Write-Host "2. EJSON Keys:" -ForegroundColor Yellow
-Write-Host '   cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"' -ForegroundColor White
+Write-Host '   New-Item -ItemType Directory -Force "$env:USERPROFILE\.ejson" | Out-Null; cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"' -ForegroundColor White
 Write-Host ""
 Write-Host "3. Run preflight check (IN A NEW TERMINAL!!!):" -ForegroundColor Yellow
 Write-Host '   Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/windows/preflight.ps1" | Invoke-Expression' -ForegroundColor Green
