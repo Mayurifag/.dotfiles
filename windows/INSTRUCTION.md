@@ -58,6 +58,7 @@ mise install    # install any tools added by chezmoi config
 ## Other
 
 - Import and DO NOT FORGET ultimately TRUST gpg key (TODO: full docs)
+- Setup espanso (it will write itself into PATH)
 - Setup Obsidian
 - Setup [Browsers.app](https://browsers.software/) as default browser
 - Make [steam silent](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)

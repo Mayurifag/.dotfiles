@@ -223,7 +223,6 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
-* windows install espanso. analyze what else first
 * arch/macos: reinstall ripgrep from rust, not from package manager
 * Try kanata. Migrate from karabiner/autohotkey/some espanso things? Remove layout things from README after that!
 * Test <https://github.com/atuinsh/atuin> as I need shell history
