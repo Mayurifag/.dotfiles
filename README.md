@@ -231,5 +231,6 @@ ejson encrypt keys.ejson # or alias - enc
 
 * arch/macos: reinstall ripgrep from rust, not from package manager
 * macos: test kanata
+* arch/macos: migrate to starship, remove geometry
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
