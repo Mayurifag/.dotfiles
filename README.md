@@ -14,6 +14,7 @@ It mostly implies you should use KDE on Wayland.
 
 * Setup font: use `JetBrains Mono Nerd Font` 11pt for `monospace` and
   `San Francisco` font for other things.
+* Setup CapsLock to change layouts
 * KeepassXC with custom browsers requires
   `Browser integration -> Advanced -> Use a custom browser configuration`.
   For example, Thorium requires to have `Chromium` type and
@@ -88,7 +89,14 @@ gpg> quit
 * Setup Ilya Birman's layouts, use layout from `macos/` folder (needs guide)
 * iCloud — delete all the syncs (needs guide)
 * Sudo with TouchID <https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
-* Setup karabiner (I have config but not sure if something else needed)
+* Setup karabiner-elements (per-app rules: CapsLock, Cmd+E, Opt/Cmd swap, etc.)
+* Setup kanata (RAlt typography layer — automated by `chezmoi apply` run_once script):
+  1. Install Karabiner-DriverKit-VirtualHIDDevice from
+     <https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/tree/main/dist>
+  2. Approve the driver in System Settings > Privacy & Security
+  3. Reboot
+  4. Verify kanata is running: `sudo launchctl list | grep kanata`
+  5. Test RAlt typography layer: press RAlt+hyphen for em dash (—)
 * Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
 * After orbstack installation check docker commands working for regular user
 * [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
@@ -107,9 +115,6 @@ gpg> quit
 ## Sidenotes for Linux
 
 * Run `updatedesktopdb` alias after installing `arch-packages` and `chezmoi` things.
-* Setup layouts
-  * You need ones with typographic symbols (not sure its easy nowadays, needs guide).
-  * Setup CapsLock to change layouts and right Alt as 3rd line modifier.
 * Setup guake-like terminal and shortcuts
 * Install/copy windows fonts
 * Example of `/etc/fstab` entry for shared NTFS partition:
@@ -225,5 +230,6 @@ ejson encrypt keys.ejson # or alias - enc
 ## TODO
 
 * arch/macos: reinstall ripgrep from rust, not from package manager
+* macos: test kanata
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

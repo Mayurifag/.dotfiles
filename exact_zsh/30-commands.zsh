@@ -178,64 +178,31 @@ lnsf() {
 }
 
 cleaner() {
-  # Helper function to ask for confirmation
   _cleaner_confirm() {
     local prompt="$1 (Y/n) "
     local response
     read "response?$prompt"
-    if [[ "$response" == "n" || "$response" == "N" ]]; then
-      return 1
-    fi
+    [[ "$response" == "n" || "$response" == "N" ]] && return 1
     return 0
   }
 
-  # Docker
-  if if_command_exists docker; then
-    if _cleaner_confirm "Clean unused Docker images, containers, volumes, and networks?"; then
-      echo "Cleaning Docker..."
-      docker system prune -a --volumes
+  _cleaner_run() {
+    local label="$1"; shift
+    if _cleaner_confirm "Clean $label?"; then
+      echo "Cleaning $label..."
+      "$@"
     fi
-  fi
+  }
 
-  # yay (Arch Linux)
-  if if_command_exists yay; then
-    if _cleaner_confirm "Clean yay cache?"; then
-      echo "Cleaning yay cache..."
-      yay -Scc
-    fi
-  fi
-
-  # Homebrew (macOS)
-  if if_command_exists brew; then
-    if _cleaner_confirm "Clean up Homebrew?"; then
-      echo "Cleaning up Homebrew..."
-      brew cleanup
-    fi
-  fi
-
-  # mise
-  if if_command_exists mise; then
-    if _cleaner_confirm "Clear mise cache?"; then
-      echo "Clearing mise cache..."
-      mise cache clear
-    fi
-  fi
-
-  # npm
-  if if_command_exists npm; then
-    if _cleaner_confirm "Clean npm cache?"; then
-      echo "Cleaning npm cache..."
-      npm cache clean --force
-    fi
-  fi
-
-  # uv
-  if if_command_exists uv; then
-    if _cleaner_confirm "Clean uv cache?"; then
-      echo "Cleaning uv cache..."
-      uv cache clean
-    fi
-  fi
+  if_command_exists docker   && _cleaner_run "unused Docker resources" docker system prune -a --volumes
+  if_command_exists yay      && _cleaner_run "yay cache" yay -Scc
+  if_command_exists brew     && _cleaner_run "Homebrew" brew cleanup
+  if_command_exists mise     && _cleaner_run "mise cache" mise cache clear
+  if_command_exists npm      && _cleaner_run "npm cache" npm cache clean --force
+  if_command_exists uv       && _cleaner_run "uv cache" uv cache clean
+  if_command_exists cargo    && _cleaner_run "cargo cache" cargo cache -a
+  if_command_exists gem      && _cleaner_run "old gem versions" gem cleanup
+  if_command_exists claude   && _cleaner_run "Claude Code cache" claude-clean
 
   echo "Cleaning process finished."
 }

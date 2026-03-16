@@ -1,16 +1,20 @@
+{{- /* kanata.kbd — cross-platform key remapping */ -}}
+{{- /* Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd.tmpl */ -}}
 ;; kanata.kbd — cross-platform key remapping
-;; Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd
+;; Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd.tmpl
 ;;
 ;; Deploys to: ~/.config/kanata/kanata.kbd
 ;; Platforms:  Linux (systemd user service) + Windows (registry Run key via kanata_gui)
-;; macOS:      karabiner-elements handles remapping there; this file is unused on macOS
+;;             + macOS (launchd daemon, alongside karabiner-elements for per-app rules)
 ;;
 ;; RAlt typography layer: 18 Birman layout unicode mappings.
 ;; CapsLock is NOT in defsrc — it passes through to AHK/OS via process-unmapped-keys.
 
 (defcfg
   process-unmapped-keys yes
+{{- if eq .chezmoi.os "windows" }}
   windows-altgr cancel-lctl-press
+{{- end }}
 )
 
 (defsrc

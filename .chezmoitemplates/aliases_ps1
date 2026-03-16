@@ -27,6 +27,19 @@ function {{ $aliasName }} { {{ $body }} @args }
 {{- end }}
 
 ## Git (complex)
+function gpr {
+    $url = git remote get-url origin 2>$null
+    if (-not $url) { Write-Error "gpr: no origin remote found"; return }
+    $baseUrl = $url -replace '^git@([^:]+):', 'https://$1/' -replace '\.git$', ''
+    if ($args[0] -in 'ls', 'list') {
+        $link = "${baseUrl}/pulls"
+    } else {
+        $branch = git symbolic-ref --short HEAD 2>$null
+        if (-not $branch) { Write-Error "gpr: not on a branch"; return }
+        $link = "${baseUrl}/pull/new/${branch}"
+    }
+    Write-Output "$([char]27)]8;;${link}$([char]27)\${link}$([char]27)]8;;$([char]27)\"
+}
 function gp {
     $branch = git symbolic-ref --short HEAD
     if (git config "branch.$branch.merge") { git push @args } else { git push -u origin $branch @args }
@@ -130,6 +143,18 @@ function gk {
     Start-Process -FilePath $gkExe -ArgumentList "--new-window", "-p", $root -RedirectStandardError NUL
 }
 Set-Alias -Name g -Value gk
+
+## GSD guard — block launch from ~ and ~/Code
+function gsd {
+    $cwd = (Get-Location).ProviderPath
+    $home = (Resolve-Path ~).ProviderPath
+    $code = Join-Path $home 'Code'
+    if ($cwd -eq $home -or $cwd -eq $code) {
+        Write-Error "gsd: blocked in $cwd — cd into a project directory first"
+        return
+    }
+    & (Get-Command gsd -CommandType Application | Select-Object -First 1).Source @args
+}
 
 ## Claude Code
 function claude-clean {

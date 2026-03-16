@@ -46,8 +46,24 @@ _CachedInit 'mise' 'mise' { & mise activate pwsh }
 # starship — cross-shell prompt
 _CachedInit 'starship' 'starship' { starship init powershell }
 
+# zoxide — smart cd
+_CachedInit 'zoxide' 'zoxide' { zoxide init powershell }
+
 Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
 Remove-Variable _cacheDir
+
+# === Smart cd (falls back to zoxide, like posix) ===
+function cd {
+    if ($args.Count -eq 0) { Set-Location ~ ; return }
+    $target = $args[0]
+    if (Test-Path $target) {
+        Set-Location $target
+    } else {
+        try { z @args } catch {
+            Write-Error "cd: no such file or directory: $target"
+        }
+    }
+}
 
 # === Aliases ===
 {{ template "aliases_ps1" . }}

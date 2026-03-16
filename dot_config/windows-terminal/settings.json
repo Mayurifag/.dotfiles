@@ -79,7 +79,7 @@
         },
         {
             "id": "User.splitVertical",
-            "keys": "ctrl+|"
+            "keys": "ctrl+\\"
         },
         {
             "id": "User.splitHorizontal",
@@ -93,7 +93,12 @@
         "defaults":
         {
             "colorScheme": "Dracula",
-            "elevate": true
+            "elevate": true,
+            "opacity": 100,
+            "unfocusedAppearance":
+            {
+                "opacity": 75
+            }
         },
         "list":
         [

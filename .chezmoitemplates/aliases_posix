@@ -19,6 +19,27 @@ alias {{ $aliasName }}='{{ $data.cmd }}'
 {{- end }}
 
 ## Git (complex)
+gpr() {
+  local url base_url branch link
+  url=$(git remote get-url origin 2>/dev/null)
+  if [ -z "$url" ]; then
+    echo "gpr: no origin remote found" >&2; return 1
+  fi
+  base_url=$(echo "$url" | sed -e 's|^git@\([^:]*\):|https://\1/|' -e 's|\.git$||')
+  case "${1:-}" in
+    ls|list)
+      link="${base_url}/pulls"
+      ;;
+    *)
+      branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+      if [ -z "$branch" ]; then
+        echo "gpr: not on a branch" >&2; return 1
+      fi
+      link="${base_url}/pull/new/${branch}"
+      ;;
+  esac
+  printf '\033]8;;%s\033\\%s\033]8;;\033\\\n' "$link" "$link"
+}
 gp() {
   local branch
   branch=$(git symbolic-ref --short HEAD)
@@ -81,6 +102,19 @@ reset_file() {
 
 ## Apps (complex)
 f() { if [ $# -eq 0 ]; then code .; else code "$@"; fi }
+
+## GSD guard — block launch from ~ and ~/Code
+gsd() {
+  local _gsd_cwd
+  _gsd_cwd=$(pwd -P 2>/dev/null || pwd)
+  local _gsd_home
+  _gsd_home=$(cd ~ && pwd -P 2>/dev/null)
+  if [ "$_gsd_cwd" = "$_gsd_home" ] || [ "$_gsd_cwd" = "$_gsd_home/Code" ]; then
+    printf 'gsd: blocked in %s — cd into a project directory first\n' "$_gsd_cwd" >&2
+    return 1
+  fi
+  command gsd "$@"
+}
 
 ## Claude Code
 claude-clean() {
