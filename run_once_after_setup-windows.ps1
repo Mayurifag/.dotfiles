@@ -1,8 +1,9 @@
 # run_once_after_setup-windows.ps1
 # One-time Windows setup tasks managed by chezmoi:
 #   1. Prepend user-local tool directories to persistent User PATH
-#   2. Configure kanata_gui keyboard remapper to start at login
+#   2. Configure kanata keyboard remapper to start at login
 #   3. Symlink Windows Terminal settings.json to chezmoi source
+#   4. Create AHK startup shortcut in shell:startup
 
 if ($env:OS -ne 'Windows_NT') { exit 0 }
 
@@ -41,15 +42,16 @@ if ($newPath -ine $oldPath) {
 # ---------------------------------------------------------------------------
 # 2. Kanata keyboard remapper
 # ---------------------------------------------------------------------------
-# Sets a registry Run key so kanata_gui starts at login, pointing at the
+# Sets a registry Run key so kanata starts at login, pointing at the
 # chezmoi-managed config: ~/.config/kanata/kanata.kbd
+# Binary: kanata_windows_gui_winIOv2_x64.exe (from winget or PATH)
 
 $kanataExe = $null
 
 # Try winget packages directory first (common install path)
 $wingetBase = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
 if (Test-Path $wingetBase) {
-    $match = Get-ChildItem -Path $wingetBase -Filter "kanata_gui.exe" -Recurse -ErrorAction SilentlyContinue |
+    $match = Get-ChildItem -Path $wingetBase -Filter "kanata*gui*winIOv2*" -Recurse -ErrorAction SilentlyContinue |
              Sort-Object FullName -Descending |
              Select-Object -First 1
     if ($match) { $kanataExe = $match.FullName }
@@ -57,14 +59,14 @@ if (Test-Path $wingetBase) {
 
 # Fall back to PATH resolution (works after winget installs add shim to PATH)
 if (-not $kanataExe) {
-    $resolved = Get-Command kanata_gui -ErrorAction SilentlyContinue
+    $resolved = Get-Command kanata_windows_gui_winIOv2_x64 -ErrorAction SilentlyContinue
     if ($resolved) { $kanataExe = $resolved.Source }
 }
 
 # Final fallback: just use the name (relies on PATH at login time)
 if (-not $kanataExe) {
-    $kanataExe = "kanata_gui"
-    Write-Host "[kanata] kanata_gui not found in expected paths; using name only — ensure it is on PATH." -ForegroundColor Yellow
+    $kanataExe = "kanata_windows_gui_winIOv2_x64.exe"
+    Write-Host "[kanata] kanata_windows_gui_winIOv2_x64.exe not found in expected paths; using name only — ensure it is on PATH." -ForegroundColor Yellow
 }
 
 $configPath = Join-Path $env:USERPROFILE ".config\kanata\kanata.kbd"
@@ -76,7 +78,7 @@ Set-ItemProperty `
     -Name "Kanata" `
     -Value $runValue
 
-Write-Host "[kanata] Done. kanata_gui will start automatically at next login." -ForegroundColor Green
+Write-Host "[kanata] Done. kanata will start automatically at next login." -ForegroundColor Green
 Write-Host "         Config: $configPath"
 
 # ---------------------------------------------------------------------------
@@ -148,4 +150,31 @@ if (Test-Path $target) {
     Write-Host "[wt] ERROR: Symlink creation failed." -ForegroundColor Red
     Write-Host "     Try running: cmd /c mklink `"$target`" `"$source`"" -ForegroundColor Red
     exit 1
+}
+
+# ---------------------------------------------------------------------------
+# 4. AHK Startup shortcut
+# ---------------------------------------------------------------------------
+# Creates a .lnk shortcut in the user's Startup folder pointing to the
+# chezmoi source copy of ahkv2.ahk. Windows file association launches it
+# via AutoHotkey. Idempotent: overwrites if the shortcut already exists.
+
+$ahkSource = Join-Path $env:USERPROFILE ".local\share\chezmoi\windows\ahkv2.ahk"
+$startupDir = [System.Environment]::GetFolderPath('Startup')
+$shortcutPath = Join-Path $startupDir "ahkv2.ahk.lnk"
+
+if (-not (Test-Path $ahkSource)) {
+    Write-Host "[ahk] WARNING: AHK source file not found: $ahkSource" -ForegroundColor Yellow
+    Write-Host "     Shortcut not created. Ensure chezmoi source is populated." -ForegroundColor Yellow
+} else {
+    $ws = New-Object -ComObject WScript.Shell
+    $shortcut = $ws.CreateShortcut($shortcutPath)
+    $shortcut.TargetPath = $ahkSource
+    $shortcut.WorkingDirectory = Split-Path $ahkSource
+    $shortcut.Description = "AutoHotkey v2 keyboard remapper (chezmoi-managed)"
+    $shortcut.Save()
+
+    Write-Host "[ahk] Done. AHK startup shortcut created." -ForegroundColor Green
+    Write-Host "     Shortcut: $shortcutPath"
+    Write-Host "     Target:   $ahkSource"
 }

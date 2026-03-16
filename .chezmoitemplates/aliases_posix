@@ -82,5 +82,22 @@ reset_file() {
 ## Apps (complex)
 f() { if [ $# -eq 0 ]; then code .; else code "$@"; fi }
 
+## Claude Code
+claude-clean() {
+  local dirs=(shell-snapshots file-history paste-cache backups cache debug)
+  local total=0
+  for d in "${dirs[@]}"; do
+    local target="$HOME/.claude/$d"
+    if [ -d "$target" ]; then
+      local size
+      size=$(du -sh "$target" 2>/dev/null | cut -f1)
+      total=$((total + $(find "$target" -type f 2>/dev/null | wc -l)))
+      echo "Cleaning $d ($size)"
+      rm -rf "${target:?}/"*
+    fi
+  done
+  echo "Removed $total file(s)"
+}
+
 ## System utilities (complex)
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"

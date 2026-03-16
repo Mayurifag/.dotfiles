@@ -4,15 +4,44 @@
 ;; Deploys to: ~/.config/kanata/kanata.kbd
 ;; Platforms:  Linux (systemd user service) + Windows (registry Run key via kanata_gui)
 ;; macOS:      karabiner-elements handles remapping there; this file is unused on macOS
+;;
+;; RAlt typography layer: 18 Birman layout unicode mappings.
+;; CapsLock is NOT in defsrc — it passes through to AHK/OS via process-unmapped-keys.
 
 (defcfg
   process-unmapped-keys yes
+  windows-altgr cancel-lctl-press
 )
 
 (defsrc
-  caps
+  ralt  -  2  3  4  5  6  7  8  9  0  =  r  t  p  /  h  ,  .
+)
+
+(defalias
+  emdash (unicode —)
+  sq2    (unicode ²)
+  sq3    (unicode ³)
+  qtr    (unicode ¼)
+  half   (unicode ½)
+  tqtr   (unicode ¾)
+  ique   (unicode ¿)
+  inf    (unicode ∞)
+  larr   (unicode ←)
+  rarr   (unicode →)
+  pm     (unicode ±)
+  reg    (unicode ®)
+  tm     (unicode ™)
+  ost    (unicode Ø)
+  elip   (unicode …)
+  rub    (unicode ₽)
+  laq    (unicode «)
+  raq    (unicode »)
 )
 
 (deflayer default
-  (multi lctl lsft) ;; CapsLock → Ctrl+Shift (language switch)
+  (layer-while-held typography)  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _
+)
+
+(deflayer typography
+  _  @emdash  @sq2  @sq3  @qtr  @half  @tqtr  @ique  @inf  @larr  @rarr  @pm  @reg  @tm  @ost  @elip  @rub  @laq  @raq
 )
