@@ -89,14 +89,7 @@ gpg> quit
 * Setup Ilya Birman's layouts, use layout from `macos/` folder (needs guide)
 * iCloud — delete all the syncs (needs guide)
 * Sudo with TouchID <https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
-* Setup karabiner-elements (per-app rules: CapsLock, Cmd+E, Opt/Cmd swap, etc.)
-* Setup kanata (RAlt typography layer — automated by `chezmoi apply` run_once script):
-  1. Install Karabiner-DriverKit-VirtualHIDDevice from
-     <https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/tree/main/dist>
-  2. Approve the driver in System Settings > Privacy & Security
-  3. Reboot
-  4. Verify kanata is running: `sudo launchctl list | grep kanata`
-  5. Test RAlt typography layer: press RAlt+hyphen for em dash (—)
+* Setup karabiner-elements
 * Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
 * After orbstack installation check docker commands working for regular user
 * [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
