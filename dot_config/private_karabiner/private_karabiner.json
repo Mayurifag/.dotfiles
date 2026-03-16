@@ -45,42 +45,6 @@
                                 ]
                                 }
                             ]
-                            },
-                            {
-                            "type": "basic",
-                            "from": {
-                                "key_code": "right_option",
-                                "modifiers": { "optional": ["any"] }
-                            },
-                            "to": [{ "key_code": "right_command" }],
-                            "conditions": [
-                                {
-                                "type": "device_unless",
-                                "identifiers": [
-                                    {
-                                    "is_built_in_keyboard": true
-                                    }
-                                ]
-                                }
-                            ]
-                            },
-                            {
-                            "type": "basic",
-                            "from": {
-                                "key_code": "right_command",
-                                "modifiers": { "optional": ["any"] }
-                            },
-                            "to": [{ "key_code": "right_option" }],
-                            "conditions": [
-                                {
-                                "type": "device_unless",
-                                "identifiers": [
-                                    {
-                                    "is_built_in_keyboard": true
-                                    }
-                                ]
-                                }
-                            ]
                             }
                         ]
                     },

@@ -1,8 +1,8 @@
-eslint
-markdownlint-cli2
-npm
-prettier
-mcporter
-gsd-pi
-node-addon-api
-node-gyp
+eslint@latest
+markdownlint-cli2@latest
+npm@latest
+prettier@latest
+mcporter@latest
+gsd-pi@latest
+node-addon-api@latest
+node-gyp@latest

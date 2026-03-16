@@ -110,6 +110,13 @@ defaults write com.apple.BezelServices kDimTime -int 30
 # Disable auto-correct
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 
+# Remove English ABC keyboard layout, keep only Kotoeri (Japanese/Roman) and utility palettes
+defaults write com.apple.HIToolbox AppleEnabledInputSources -array \
+  '<dict><key>Bundle ID</key><string>com.apple.CharacterPaletteIM</string><key>InputSourceKind</key><string>Non Keyboard Input Method</string></dict>' \
+  '<dict><key>Bundle ID</key><string>com.apple.inputmethod.Kotoeri.RomajiTyping</string><key>Input Mode</key><string>com.apple.inputmethod.Japanese</string><key>InputSourceKind</key><string>Input Mode</string></dict>' \
+  '<dict><key>Bundle ID</key><string>com.apple.inputmethod.Kotoeri.RomajiTyping</string><key>Input Mode</key><string>com.apple.inputmethod.Roman</string><key>InputSourceKind</key><string>Input Mode</string></dict>' \
+  '<dict><key>Bundle ID</key><string>com.apple.50onPaletteIM</string><key>InputSourceKind</key><string>Non Keyboard Input Method</string></dict>'
+
 ###############################################################################
 # Trackpad, mouse, Bluetooth accessories                                      #
 ###############################################################################
