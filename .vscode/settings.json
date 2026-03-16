@@ -17,16 +17,18 @@
     "**/Thumbs.db": true,
     "**/CVS": true,
     "**/.ruby-lsp": true,
-    "**/.gsd/**": true
+    "**/.gsd/**": true,
+    "**/.bg-shell/**": true
   },
   "search.exclude": {
     "**/node_modules": true,
     "**/bower_components": true,
     "**/*.code-search": true,
     "**/.ruby-lsp": true,
-    "**/.gsd/**": true
+    "**/.gsd/**": true,
+    "**/.bg-shell/**": true
   },
   "codeWebChat.ignorePatterns": [
-    "/.gsd/**"
+    "/.gsd/**", "**/.git/**"
   ]
 }

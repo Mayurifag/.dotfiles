@@ -10,7 +10,7 @@
   amend-to = "!f() { SHA=`git rev-parse \"$1\"`; git stash -k && git commit --fixup \"$SHA\" && GIT_SEQUENCE_EDITOR=true git rebase --interactive --autosquash \"$SHA^\" && git stash pop; }; f"
   recent = branch --sort=-committerdate --format=\"%(committerdate:relative)%09%(refname:short)\"
 [core]
-  autocrlf = input
+  autocrlf = false
   editor = vim
   attributesfile = ~/.gitattributes
 {{- if eq .chezmoi.os "windows" }}

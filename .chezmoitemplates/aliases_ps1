@@ -3,6 +3,9 @@
 {{- /* Simple aliases are generated from[sharedAliases] maps in .chezmoidata.toml */}}
 {{- /* Complex/multi-line functions are defined explicitly below                    */}}
 
+## Remove PowerShell built-in aliases that conflict with our functions
+@('rm', 'ls', 'gp') | ForEach-Object { Remove-Alias -Name $_ -Force -ErrorAction SilentlyContinue }
+
 ## Navigation
 function .. { Set-Location .. }
 function ... { Set-Location ..\.. }
@@ -124,9 +127,28 @@ function gk {
     $root = git rev-parse --show-toplevel 2>$null
     if (-not $root) { Write-Warning "Not a git repository"; return }
     $root = (Resolve-Path $root).Path
-    Start-Process -FilePath $gkExe -ArgumentList "--new-window", "-p", $root
+    Start-Process -FilePath $gkExe -ArgumentList "--new-window", "-p", $root -RedirectStandardError NUL
 }
 Set-Alias -Name g -Value gk
+
+## Claude Code
+function claude-clean {
+    $dirs = @('shell-snapshots', 'file-history', 'paste-cache', 'backups', 'cache', 'debug')
+    $total = 0
+    foreach ($d in $dirs) {
+        $target = Join-Path $env:USERPROFILE ".claude\$d"
+        if (Test-Path $target) {
+            $items = Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue
+            $count = ($items | Measure-Object).Count
+            $size = ($items | Measure-Object -Property Length -Sum).Sum
+            $sizeMB = [math]::Round($size / 1MB, 1)
+            $total += $count
+            Write-Host "Cleaning $d (${sizeMB}MB)"
+            Remove-Item "$target\*" -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+    Write-Host "Removed $total file(s)"
+}
 
 ## Shell utilities (complex)
 function mkcd {

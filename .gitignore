@@ -38,3 +38,6 @@ coverage/
 tmp/
 
 .bg-shell/
+
+# ── GSD (local-only, commit_docs: false) ──
+.gsd/
