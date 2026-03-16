@@ -53,6 +53,15 @@
   rebase = true
 [commit]
   gpgsign = true
+[rerere]
+  enabled = true
+[maintenance]
+  auto = true
+[fetch]
+  writeCommitGraph = true
+[diff]
+  algorithm = histogram
+  colorMoved = default
 {{- if eq .chezmoi.os "windows" }}
 [gpg]
   program = C:/Program Files/GnuPG/bin/gpg.exe

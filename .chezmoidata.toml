@@ -25,7 +25,7 @@ gri = { cmd = "git rebase --interactive" }
 qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-with-lease origin HEAD", ps_cmd = "git add .; git commit --amend --no-edit; git push --force-with-lease origin HEAD" }
 
 [sharedAliases.Docker]
-dcp = { cmd = "docker-compose" }
+dcp = { cmd = "docker compose" }
 docker-clean = { cmd = "docker container prune -f ; docker image prune -f ; docker network prune -f ; docker volume prune -f" }
 lzd = { cmd = "lazydocker" }
 

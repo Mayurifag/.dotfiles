@@ -16,6 +16,7 @@ zsh/.zsh_plugins.sh
 
 {{ if ne .chezmoi.os "darwin" -}}
 .config/karabiner/
+setup-kanata-macos.sh
 {{- end }}
 
 {{ if ne .chezmoi.os "linux" -}}
@@ -24,6 +25,9 @@ zsh/.zsh_plugins.sh
 .local/share/konsole/
 .local/share/systemd/
 setup-kanata-linux.sh
+{{- end }}
+
+{{ if ne .chezmoi.os "windows" -}}
 {{- end }}
 
 {{ if eq .chezmoi.os "windows" -}}
@@ -41,5 +45,6 @@ zsh/
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
+cz_apply.ps1
 Documents/
 {{- end }}
