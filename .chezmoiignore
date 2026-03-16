@@ -16,8 +16,11 @@ zsh/.zsh_plugins.sh
 
 {{ if ne .chezmoi.os "darwin" -}}
 .config/karabiner/
-setup-kanata-macos.sh
 Library/
+{{- end }}
+
+{{ if eq .chezmoi.os "darwin" -}}
+.config/kanata/
 {{- end }}
 
 {{ if ne .chezmoi.os "linux" -}}
