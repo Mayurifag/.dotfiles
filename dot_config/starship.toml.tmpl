@@ -1,7 +1,12 @@
 # Starship — cross-shell prompt config
 # Managed by chezmoi → deploys to ~/.config/starship.toml
 
+{{ if eq .chezmoi.os "windows" -}}
 format = "$character$directory\u001b7$fill$git_branch$git_status$git_metrics$git_state$cmd_duration\u001b8"
+{{- else -}}
+format = "$character$directory"
+right_format = "$git_branch$git_status$git_metrics$git_state$cmd_duration"
+{{- end }}
 add_newline = false
 
 [character]
@@ -69,7 +74,11 @@ disabled = true
 [fennel]
 disabled = true
 [fill]
+{{ if eq .chezmoi.os "windows" -}}
 symbol = " "
+{{- else -}}
+disabled = true
+{{- end }}
 [fortran]
 disabled = true
 [fossil_branch]

@@ -4,7 +4,7 @@ mattmc3/ez-compinit
 zsh-users/zsh-completions kind:fpath path:src
 wintermi/zsh-mise
 zsh-users/zsh-autosuggestions
-geometry-zsh/geometry
+axieax/zsh-starship
 hlissner/zsh-autopair
 soimort/translate-shell
 zpm-zsh/undollar
