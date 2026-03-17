@@ -6,7 +6,6 @@ docker-buildx
 docker-compose
 eget-bin
 espanso-wayland
-firefox-pure
 fzf
 git
 github-cli
@@ -19,7 +18,6 @@ less
 mise
 nano
 nano-syntax-highlighting
-nextcloud-client-appimage-daily
 ntfs-3g
 openssh
 otf-apple-sf-pro
