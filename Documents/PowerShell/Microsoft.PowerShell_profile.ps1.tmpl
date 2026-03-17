@@ -12,18 +12,6 @@ $env:PATH = "$env:USERPROFILE\.local\bin;" + $env:PATH
 # On a fresh tab WT starts in System32; navigate to Code instead
 if ((Get-Location).Path -eq "$env:SystemRoot\System32") { Set-Location ~\Code }
 
-# === Shell Integration (Windows Terminal CWD tracking for same-dir new tabs) ===
-# Starship overrides this prompt function automatically when active
-function prompt {
-    $loc = $executionContext.SessionState.Path.CurrentLocation
-    $out = "PS $loc$('>' * ($nestedPromptLevel + 1)) "
-    $out += "$([char]27)]9;12$([char]7)"
-    if ($loc.Provider.Name -eq "FileSystem") {
-        $out += "$([char]27)]9;9;`"$($loc.ProviderPath)`"$([char]7)"
-    }
-    return $out
-}
-
 # === Tool Activation (cached for speed) ===
 $_cacheDir = "$env:LOCALAPPDATA\shell-cache"
 if (-not (Test-Path $_cacheDir)) { New-Item -ItemType Directory -Path $_cacheDir -Force | Out-Null }

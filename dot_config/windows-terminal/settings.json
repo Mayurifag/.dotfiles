@@ -16,7 +16,7 @@
             "id": "User.quakeMode"
         },
         {
-            "command": "newTab",
+            "command": "duplicateTab",
             "id": "User.newTab"
         },
         {
@@ -27,7 +27,8 @@
             "command":
             {
                 "action": "splitPane",
-                "split": "right"
+                "split": "right",
+                "splitMode": "duplicate"
             },
             "id": "User.splitVertical"
         },
@@ -35,7 +36,8 @@
             "command":
             {
                 "action": "splitPane",
-                "split": "down"
+                "split": "down",
+                "splitMode": "duplicate"
             },
             "id": "User.splitHorizontal"
         }
@@ -68,6 +70,14 @@
         {
             "id": "User.quakeMode",
             "keys": "ctrl+ё"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "alt+`"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "alt+ё"
         },
         {
             "id": "User.newTab",

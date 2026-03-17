@@ -147,9 +147,9 @@ Set-Alias -Name g -Value gk
 ## GSD guard — block launch from ~ and ~/Code
 function gsd {
     $cwd = (Get-Location).ProviderPath
-    $home = (Resolve-Path ~).ProviderPath
-    $code = Join-Path $home 'Code'
-    if ($cwd -eq $home -or $cwd -eq $code) {
+    $homeDir = (Resolve-Path ~).ProviderPath
+    $code = Join-Path $homeDir 'Code'
+    if ($cwd -eq $homeDir -or $cwd -eq $code) {
         Write-Error "gsd: blocked in $cwd — cd into a project directory first"
         return
     }
