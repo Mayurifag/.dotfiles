@@ -115,6 +115,7 @@ gsd() {
   fi
   command gsd "$@"
 }
+alias '/gsd'='gsd'
 
 ## Claude Code
 claude-clean() {

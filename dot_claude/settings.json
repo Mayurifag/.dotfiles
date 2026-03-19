@@ -21,5 +21,17 @@
   "enableAllProjectMcpServers": true,
   "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'test -f Makefile || exit 0; make ci && exit 0 || exit 2'"
+          }
+        ]
+      }
+    ]
+  }
 }

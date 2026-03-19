@@ -155,6 +155,7 @@ function gsd {
     }
     & (Get-Command gsd -CommandType Application | Select-Object -First 1).Source @args
 }
+Set-Alias -Name '/gsd' -Value gsd
 
 ## Claude Code
 function claude-clean {

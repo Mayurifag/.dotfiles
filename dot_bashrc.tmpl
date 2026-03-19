@@ -32,6 +32,12 @@ export PS1="$ "
 eval "$(mise activate bash)"
 
 {{- if eq .chezmoi.os "windows" }}
+# === Windows GnuPG — use the native install, not MSYS2's bundled gpg ===
+# Without this, Git Bash auto-starts its own gpg-agent (2.4.x) which conflicts
+# with the Windows GnuPG agent (2.5.x) configured in .gitconfig, causing
+# "socket file removed - retrying binding" errors and failed GPG-signed commits.
+export PATH="/c/Program Files/GnuPG/bin:$PATH"
+
 # === Windows OpenSSH Agent Routing ===
 # GIT_SSH forces Git to use Windows' native ssh.exe which reads the
 # OpenSSH agent named pipe (\\.\pipe\openssh-ssh-agent) directly.
