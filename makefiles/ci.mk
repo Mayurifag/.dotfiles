@@ -12,8 +12,7 @@ markdownlint:
 
 .PHONY: jsonlint
 jsonlint:
-	@if ! command -v jsonlint >/dev/null 2>&1; then echo "jsonlint not found, skipping"; exit 0; fi; \
-	json_files=$$(/usr/bin/find . -name "*.json" -not -path "./.git/*" $(JSONC_EXCLUDES)); \
+	@json_files=$$(/usr/bin/find . -name "*.json" -not -path "./.git/*" $(JSONC_EXCLUDES)); \
 	if [ -n "$$json_files" ]; then \
 		echo "$$json_files" | xargs jsonlint --mode json --quiet; \
 	fi; \
@@ -21,8 +20,7 @@ jsonlint:
 
 .PHONY: shellcheck
 shellcheck:
-	@if ! command -v shellcheck >/dev/null 2>&1; then echo "shellcheck not found, skipping"; exit 0; fi; \
-	sh_files=$$(find . -name "*.sh" -not -path "./.git/*"); \
+	@sh_files=$$(find . -name "*.sh" -not -path "./.git/*"); \
 	if [ -n "$$sh_files" ]; then \
 		shellcheck $$sh_files; \
 	fi

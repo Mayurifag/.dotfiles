@@ -369,7 +369,7 @@ defaults write -g com.apple.scrollwheel.scaling -integer -1
 ###############################################################################
 
 for app in "Address Book" "Calendar" "Contacts" "Dock" "Finder" "Mail" "Safari" "SystemUIServer" "iCal"; do
-  killall "${app}" &> /dev/null
+  killall "${app}" >/dev/null 2>&1
 done
 
 # TODO: https://github.com/mathiasbynens/dotfiles/blob/main/.macos
