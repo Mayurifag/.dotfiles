@@ -186,7 +186,7 @@ function mkcd {
 function f { if ($args.Count -eq 0) { code . } else { code @args } }
 function c {
     $env:IS_SANDBOX = "1"
-    claude --dangerously-skip-permissions @args
+    claude --continue --dangerously-skip-permissions @args
     Remove-Item Env:\IS_SANDBOX -ErrorAction SilentlyContinue
 }
 function q {

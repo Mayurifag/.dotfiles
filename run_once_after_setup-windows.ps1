@@ -4,6 +4,7 @@
 #   2. Configure kanata keyboard remapper to start at login
 #   3. Symlink Windows Terminal settings.json to chezmoi source
 #   4. Create AHK startup shortcut in shell:startup
+#   5. Register scheduled task to kill stale gpg-agent sockets at logon
 
 if ($env:OS -ne 'Windows_NT') { exit 0 }
 
@@ -177,4 +178,43 @@ if (-not (Test-Path $ahkSource)) {
     Write-Host "[ahk] Done. AHK startup shortcut created." -ForegroundColor Green
     Write-Host "     Shortcut: $shortcutPath"
     Write-Host "     Target:   $ahkSource"
+}
+
+# ---------------------------------------------------------------------------
+# 5. GPG agent cleanup at logon
+# ---------------------------------------------------------------------------
+# After a reboot, Windows kills gpg-agent but leaves stale socket files under
+# %APPDATA%\gnupg. When git later tries to sign a commit, a fresh agent cannot
+# bind to those sockets and retries in a loop until it fails (exit 128).
+#
+# Fix: register a Task Scheduler task that runs `gpgconf --kill gpg-agent` at
+# every logon. GnuPG's own tool removes stale sockets cleanly so the agent
+# starts fresh the first time it is needed.
+#
+# Trigger: AtLogon, current user only — runs in the user session context.
+# Idempotent: -Force overwrites the task if it already exists.
+
+$gpgconf = "C:\Program Files\GnuPG\bin\gpgconf.exe"
+
+if (-not (Test-Path $gpgconf)) {
+    Write-Host "[gpg] WARNING: gpgconf.exe not found at expected path: $gpgconf" -ForegroundColor Yellow
+    Write-Host "     Skipping scheduled task - install GnuPG and re-run 'chezmoi apply'." -ForegroundColor Yellow
+} else {
+    $taskName = "GpgAgentCleanupAtLogon"
+    $action   = New-ScheduledTaskAction -Execute $gpgconf -Argument "--kill gpg-agent"
+    $trigger  = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+    $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -StartWhenAvailable
+
+    Register-ScheduledTask `
+        -TaskName   $taskName `
+        -Action     $action `
+        -Trigger    $trigger `
+        -Settings   $settings `
+        -RunLevel   Limited `
+        -Force | Out-Null
+
+    Write-Host "[gpg] Done. Scheduled task '$taskName' registered." -ForegroundColor Green
+    Write-Host "     gpgconf --kill gpg-agent will run at every logon for $env:USERNAME."
+    Write-Host "     To apply immediately without rebooting, run once now:"
+    Write-Host ("     `"" + $gpgconf + "`" --kill gpg-agent") -ForegroundColor Cyan
 }

@@ -41,6 +41,8 @@ Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
 Remove-Variable _cacheDir
 
 # === Smart cd (falls back to zoxide, like posix) ===
+# Aliases take precedence over functions in PowerShell — must remove the built-in 'cd' alias first.
+Remove-Item Alias:cd -Force -ErrorAction SilentlyContinue
 function cd {
     if ($args.Count -eq 0) { Set-Location ~ ; return }
     $target = $args[0]
