@@ -1,5 +1,7 @@
+actions-up@latest
 eslint@latest
 markdownlint-cli2@latest
+@prantlf/jsonlint@latest
 npm@latest
 prettier@latest
 mcporter@latest
