@@ -7,17 +7,18 @@
 ;; Platforms:  Linux (systemd user service) + Windows (registry Run key via kanata_gui)
 ;;
 ;; RAlt typography layer: 18 Birman layout unicode mappings.
-;; CapsLock is NOT in defsrc — it passes through to AHK/OS via process-unmapped-keys.
+;; CapsLock is in defsrc with passthrough (_) so it reaches AHK on Windows
+;; without needing process-unmapped-keys (which would re-inject all keys via
+;; SendInput and break espanso's Win32Source keystroke detection).
 
 (defcfg
-  process-unmapped-keys yes
 {{- if eq .chezmoi.os "windows" }}
   windows-altgr cancel-lctl-press
 {{- end }}
 )
 
 (defsrc
-  ralt  -  2  3  4  5  6  7  8  9  0  =  r  t  p  /  h  ,  .
+  caps  ralt  -  2  3  4  5  6  7  8  9  0  =  r  t  p  /  h  ,  .
 )
 
 (defalias
@@ -42,9 +43,9 @@
 )
 
 (deflayer default
-  (layer-while-held typography)  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _
+  _  (layer-while-held typography)  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _  _
 )
 
 (deflayer typography
-  _  @emdash  @sq2  @sq3  @qtr  @half  @tqtr  @ique  @inf  @larr  @rarr  @pm  @reg  @tm  @ost  @elip  @rub  @laq  @raq
+  _  _  @emdash  @sq2  @sq3  @qtr  @half  @tqtr  @ique  @inf  @larr  @rarr  @pm  @reg  @tm  @ost  @elip  @rub  @laq  @raq
 )

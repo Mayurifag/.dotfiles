@@ -25,11 +25,13 @@ shopt -s histappend
 export PS1="$ "
 
 # === Mise Activation ===
-# Note: eval "$(mise activate bash)" is known to be fragile on Windows/Git Bash (jdx/mise #3961, #4806).
-# Partial fix merged in mise PR #4048 (Jan 2025). If PATH corruption occurs (ls/git not found),
-# replace with the shims fallback:
-#   export PATH="$(cygpath -u "$LOCALAPPDATA")/mise/shims:$PATH"
+{{- if eq .chezmoi.os "windows" }}
+# Windows/MSYS2: eval "$(mise activate bash)" corrupts PATH on Git Bash (jdx/mise #3961, #4806).
+# Using shims fallback instead.
+export PATH="$(cygpath -u "$LOCALAPPDATA")/mise/shims:$PATH"
+{{- else }}
 eval "$(mise activate bash)"
+{{- end }}
 
 {{- if eq .chezmoi.os "windows" }}
 # === Windows GnuPG — use the native install, not MSYS2's bundled gpg ===

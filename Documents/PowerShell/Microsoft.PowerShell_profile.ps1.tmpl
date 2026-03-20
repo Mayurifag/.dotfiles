@@ -55,6 +55,9 @@ function cd {
 
 # === Aliases ===
 {{ template "aliases_ps1" . }}
+# python3 → Windows App Execution Alias is a Store stub; point it at the real python
+Set-Alias python3 python
+
 # chezmoi apply — re-sources the profile automatically after apply
 function czapply { chezmoi apply -v; . $PROFILE }
 function czcd { Set-Location (chezmoi source-path) }
