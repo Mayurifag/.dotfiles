@@ -42,10 +42,10 @@
             "id": "User.splitHorizontal"
         }
     ],
-    "alwaysShowNotificationIcon": true,
+    "alwaysShowNotificationIcon": false,
     "compatibility.allowHeadless": true,
     "startOnUserLogin": true,
-    "launchMode": "default",
+    "launchMode": "focus",
     "firstWindowPreference": "persistedWindowLayout",
     "compatibility.enableUnfocusedAcrylic": true,
     "copyFormatting": "none",

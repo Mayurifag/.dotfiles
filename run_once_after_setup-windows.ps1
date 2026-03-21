@@ -5,6 +5,7 @@
 #   3. Symlink Windows Terminal settings.json to chezmoi source
 #   4. Create AHK startup shortcut in shell:startup
 #   5. Register scheduled task to kill stale gpg-agent sockets at logon
+#   6. Remove stale WindowsTerminalSetup scheduled task (old dotfiles path)
 
 if ($env:OS -ne 'Windows_NT') { exit 0 }
 
@@ -217,4 +218,19 @@ if (-not (Test-Path $gpgconf)) {
     Write-Host "     gpgconf --kill gpg-agent will run at every logon for $env:USERNAME."
     Write-Host "     To apply immediately without rebooting, run once now:"
     Write-Host ("     `"" + $gpgconf + "`" --kill gpg-agent") -ForegroundColor Cyan
+}
+
+# ---------------------------------------------------------------------------
+# 6. Remove stale WindowsTerminalSetup scheduled task
+# ---------------------------------------------------------------------------
+# An old scheduled task was registered when the dotfiles lived at
+# C:\Users\Administrator\Code\.dotfiles. The script it points to no longer
+# exists. Remove it so it stops firing silently on every login.
+
+$staleTask = "WindowsTerminalSetup"
+if (Get-ScheduledTask -TaskName $staleTask -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $staleTask -Confirm:$false
+    Write-Host "[wt-task] Removed stale scheduled task '$staleTask'." -ForegroundColor Green
+} else {
+    Write-Host "[wt-task] Stale task '$staleTask' not present — nothing to remove." -ForegroundColor Green
 }
