@@ -55,6 +55,13 @@ chezmoi apply   # apply dotfiles
 mise install    # install any tools added by chezmoi config
 ~~~
 
+Authenticate GitHub CLI (token stored in Windows Credential Manager):
+
+~~~powershell
+gh auth login
+# → GitHub.com → SSH → Login with a web browser
+~~~
+
 ## Other
 
 - Import and DO NOT FORGET ultimately TRUST gpg key (TODO: full docs)

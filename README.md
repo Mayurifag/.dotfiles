@@ -62,6 +62,13 @@ chezmoi apply
 
 ## Things to do after
 
+* Authenticate GitHub CLI (token stored in OS keyring — same on macOS/Linux):
+
+```bash
+gh auth login
+# → GitHub.com → SSH → Login with a web browser
+```
+
 * Initiate sync on VSCode
 * Import and DO NOT FORGET ultimately TRUST gpg key:
 
