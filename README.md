@@ -1,6 +1,8 @@
 # Setup environment cheatsheet
 
-Yes, that's better to be NixOS config here, but I use arch (btw).
+That is my dotfiles repository and little cheatsheet on how to setup my systems.
+It works on MacOS/Windows 11/CachyOS (Linux). Windows one differs from others,
+so I put it on [another instruction file](./windows/INSTRUCTION.md).
 
 ## Preparation for MacOS
 
