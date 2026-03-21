@@ -1,5 +1,9 @@
 # Project Rules — chezmoi dotfiles repo
 
+## Windows shell
+
+- Always use `pwsh.exe` (PowerShell 7), never `powershell.exe` (legacy PS 5).
+
 ## Dotfiles workflow
 
 - This is the chezmoi source directory. All persistent changes to shell config, aliases, and profiles MUST be made here, not to the rendered files in their target locations (e.g. `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`).
