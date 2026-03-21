@@ -46,7 +46,7 @@
     "compatibility.allowHeadless": true,
     "startOnUserLogin": true,
     "launchMode": "focus",
-    "firstWindowPreference": "persistedWindowLayout",
+    "firstWindowPreference": "defaultProfile",
     "compatibility.enableUnfocusedAcrylic": true,
     "copyFormatting": "none",
     "copyOnSelect": true,

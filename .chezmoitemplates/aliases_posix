@@ -103,7 +103,7 @@ reset_file() {
 ## Apps (complex)
 f() { if [ $# -eq 0 ]; then code .; else code "$@"; fi }
 
-## GSD guard — block launch from ~ and ~/Code
+## GSD guard — block launch from ~ and ~/Code; auto-update gsd-pi if a new version is available
 gsd() {
   local _gsd_cwd
   _gsd_cwd=$(pwd -P 2>/dev/null || pwd)
@@ -113,6 +113,34 @@ gsd() {
     printf 'gsd: blocked in %s — cd into a project directory first\n' "$_gsd_cwd" >&2
     return 1
   fi
+
+  # --- Auto-update check (3 s timeout) ---
+  local _gsd_bin
+  _gsd_bin=$(command -v gsd)
+  if [ -n "$_gsd_bin" ]; then
+    local _gsd_root
+    _gsd_root=$(dirname "$(readlink -f "$_gsd_bin" 2>/dev/null || echo "$_gsd_bin")")
+    local _pkg="$_gsd_root/node_modules/gsd-pi/package.json"
+    if [ -f "$_pkg" ]; then
+      local _installed
+      _installed=$(node -e "process.stdout.write(require('$_pkg').version)" 2>/dev/null)
+      if [ -n "$_installed" ]; then
+        local _latest
+        _latest=$(timeout 3 npm show gsd-pi version 2>/dev/null)
+        local _rc=$?
+        if [ $_rc -eq 124 ]; then
+          printf 'gsd: version check timed out — skipping update\n' >&2
+        elif [ $_rc -ne 0 ]; then
+          printf 'gsd: version check failed (npm exited %d) — skipping update\n' "$_rc" >&2
+        elif [ -n "$_latest" ] && [ "$_latest" != "$_installed" ]; then
+          printf '↑ gsd-pi %s → %s (updating…)\n' "$_installed" "$_latest"
+          npm install -g "gsd-pi@${_latest}" --silent
+        fi
+      fi
+    fi
+  fi
+  # ----------------------------------------
+
   command gsd "$@"
 }
 alias '/gsd'='gsd'

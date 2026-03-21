@@ -144,7 +144,7 @@ function gk {
 }
 Set-Alias -Name g -Value gk
 
-## GSD guard — block launch from ~ and ~/Code
+## GSD guard — block launch from ~ and ~/Code; auto-update gsd-pi if a new version is available
 function gsd {
     $cwd = (Get-Location).ProviderPath
     $homeDir = (Resolve-Path ~).ProviderPath
@@ -153,7 +153,31 @@ function gsd {
         Write-Error "gsd: blocked in $cwd — cd into a project directory first"
         return
     }
-    & (Get-Command gsd -CommandType Application | Select-Object -First 1).Source @args
+
+    # --- Auto-update check (fast: 3 s timeout) ---
+    $gsdBin = (Get-Command gsd -CommandType Application | Select-Object -First 1).Source
+    try {
+        $pkgJson   = Join-Path (Split-Path $gsdBin) 'node_modules\gsd-pi\package.json'
+        $installed = (Get-Content $pkgJson -Raw -ErrorAction Stop | ConvertFrom-Json).version
+        $job       = Start-Job { npm show gsd-pi version 2>$null }
+        $done      = Wait-Job $job -Timeout 3
+        if ($done) {
+            $latest = (Receive-Job $job).Trim()
+            if ($latest -and $latest -ne $installed) {
+                Write-Host "↑ gsd-pi $installed → $latest (updating…)"
+                npm install -g "gsd-pi@$latest" --silent
+            }
+        } else {
+            Stop-Job $job
+            Write-Warning "gsd: version check timed out — skipping update"
+        }
+        Remove-Job $job -Force -ErrorAction SilentlyContinue
+    } catch {
+        Write-Warning "gsd: version check failed — $($_.Exception.Message)"
+    }
+    # -----------------------------------------------------------------
+
+    & $gsdBin @args
 }
 Set-Alias -Name '/gsd' -Value gsd
 
