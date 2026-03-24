@@ -4,7 +4,6 @@ markdownlint-cli2@latest
 @prantlf/jsonlint@latest
 npm@latest
 prettier@latest
-mcporter@latest
 gsd-pi@latest
 node-addon-api@latest
 node-gyp@latest
