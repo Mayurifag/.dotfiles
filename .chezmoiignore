@@ -52,5 +52,6 @@ zsh/
 {{- if ne .chezmoi.os "windows" }}
 cz_apply.ps1
 setup-windows.ps1
+windhawk-restore.ps1
 Documents/
 {{- end }}

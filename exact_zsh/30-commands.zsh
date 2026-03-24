@@ -341,7 +341,7 @@ q() {
 
 unalias c 2>/dev/null
 c() {
-  IS_SANDBOX=1 claude --continue --dangerously-skip-permissions "$@";
+  IS_SANDBOX=1 claude --dangerously-skip-permissions "$@";
 }
 
 # enhanced make command that finds Makefile in parent directories
