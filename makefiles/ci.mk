@@ -20,7 +20,7 @@ jsonlint:
 
 .PHONY: shellcheck
 shellcheck:
-	@sh_files=$$(find . -name "*.sh" -not -path "./.git/*"); \
+	@sh_files=$$(find . -name "*.sh" -not -path "./.git/*" -not -path "./.gsd/*"); \
 	if [ -n "$$sh_files" ]; then \
 		shellcheck $$sh_files; \
 	fi
