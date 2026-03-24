@@ -1,4 +1,5 @@
 ansible-lint
+codespell
 gallery-dl
 ruff
 shcheck

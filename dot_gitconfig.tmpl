@@ -13,6 +13,7 @@
   autocrlf = false
   editor = vim
   attributesfile = ~/.gitattributes
+  excludesfile = ~/.gitignore_global
 {{- if eq .chezmoi.os "windows" }}
   sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 {{- end }}

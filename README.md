@@ -231,6 +231,5 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
-* arch: reinstall ripgrep from rust, not from package manager
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
