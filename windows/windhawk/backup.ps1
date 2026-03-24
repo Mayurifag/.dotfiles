@@ -1,0 +1,34 @@
+# windows/windhawk/backup.ps1
+# Re-exports the current Windhawk state from the live machine back into this repo.
+# Run this manually after changing mod settings in Windhawk so the dotfiles stay current.
+#
+# Usage:
+#   pwsh -File "$env:USERPROFILE\.local\share\chezmoi\windows\windhawk\backup.ps1"
+#   # or from within the chezmoi repo:
+#   pwsh -File windows/windhawk/backup.ps1
+
+$ErrorActionPreference = 'Stop'
+
+$scriptDir    = $PSScriptRoot
+$windhawkData = 'C:\ProgramData\Windhawk'
+
+Write-Host '[windhawk-backup] Exporting Windhawk config to dotfiles...' -ForegroundColor Cyan
+
+# 1. userprofile.json
+$profileSrc = Join-Path $windhawkData 'userprofile.json'
+if (Test-Path $profileSrc) {
+    Copy-Item -Path $profileSrc -Destination (Join-Path $scriptDir 'userprofile.json') -Force
+    Write-Host '  [OK] userprofile.json' -ForegroundColor Green
+} else {
+    Write-Host '  [SKIP] userprofile.json not found at expected path' -ForegroundColor Yellow
+}
+
+# 2. Registry export — mod settings
+$regDst = Join-Path $scriptDir 'mods-settings.reg'
+reg export 'HKLM\SOFTWARE\Windhawk\Engine\Mods' $regDst /y | Out-Null
+Write-Host '  [OK] mods-settings.reg (HKLM\SOFTWARE\Windhawk\Engine\Mods)' -ForegroundColor Green
+
+Write-Host ''
+Write-Host '[windhawk-backup] Done. Commit the changes to keep your dotfiles current:' -ForegroundColor Cyan
+Write-Host "  git -C '$scriptDir\..\..' add windows/windhawk/" -ForegroundColor White
+Write-Host "  git -C '$scriptDir\..\..' commit -m 'chore(windhawk): update mod settings backup'" -ForegroundColor White

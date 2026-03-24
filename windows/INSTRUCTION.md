@@ -29,7 +29,8 @@ ssh-add -l
 
 ### EJSON Keys
 
-Symlink the ejson keys directory and set `EJSON_KEYDIR` (ejson defaults to `/opt/ejson/keys` on all platforms, which doesn't exist on Windows):
+Symlink the ejson keys directory and set `EJSON_KEYDIR` (ejson defaults to
+`/opt/ejson/keys` on all platforms, which doesn't exist on Windows):
 
 ~~~powershell
 New-Item -ItemType Directory -Force "$env:USERPROFILE\.ejson" | Out-Null; cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"
@@ -75,7 +76,11 @@ gh auth login
 
 - [ ] Setup VSCode - sync settings
 - [ ] Setup browser - addons settings and keepassxc config if needed
-- [ ] Setup gitkraken with activation (requires full path)
+- [ ] Setup gitkraken with activation (requires full path) and configure (system
+  ssh, etc.)
+- [ ] Everything with settings for powertoys (+plugin) and for windhawk
 - [ ] Setup PowerToys - only with tools I use
+- [ ] Windhawk - config
+- [ ] Local LLM?
 - [ ] Wait for `mise` to support `winget` backend and migrate to it.
   <https://github.com/jdx/mise/discussions/8311>

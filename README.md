@@ -86,7 +86,7 @@ Do you really want to set this key to ultimate trust? (y/N) y
 gpg> quit
 ```
 
-* Install and configure gitkraken
+* Install and configure gitkraken (ssh from system, etc.)
 * Setup external disks (router or else)
 * Setup Obsidian
 * Setup [Browsers.app](https://browsers.software/) as default browser

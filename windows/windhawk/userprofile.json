@@ -1,0 +1,93 @@
+{
+  "app": {
+    "latestVersion": "1.7.3",
+    "version": "1.7.3"
+  },
+  "id": "{44373961-052C-4D20-9D5A-FEB8BE73FA56}",
+  "mods": {
+    "alt-tab-delayer": {
+      "latestVersion": "1.2.0",
+      "version": "1.2.0"
+    },
+    "block-win-v": {
+      "latestVersion": "1.0.1",
+      "version": "1.0.1"
+    },
+    "chrome-wheel-scroll-tabs": {
+      "latestVersion": "1.3.1",
+      "version": "1.3.1"
+    },
+    "dark-menus": {
+      "latestVersion": "1.4.2",
+      "version": "1.4.2"
+    },
+    "disable-open-close-anims": {
+      "latestVersion": "1.0",
+      "version": "1.0"
+    },
+    "explorer-details-better-file-sizes": {
+      "latestVersion": "1.5",
+      "version": "1.5"
+    },
+    "extension-change-no-warning": {
+      "latestVersion": "1.0.1",
+      "version": "1.0.1"
+    },
+    "f1-blocker": {
+      "latestVersion": "0.0.3",
+      "version": "0.0.3"
+    },
+    "file-explorer-remove-suffixes": {
+      "latestVersion": "1.1.1",
+      "version": "1.1.1"
+    },
+    "fix-explorer-white-flash": {
+      "latestVersion": "1.2",
+      "version": "1.2"
+    },
+    "invisible-borders": {
+      "latestVersion": "1.0.0",
+      "version": "1.0.0"
+    },
+    "notepad-dark-mode": {
+      "latestVersion": "1.0",
+      "version": "1.0"
+    },
+    "remove-fullscreen-popup-chrome": {
+      "version": "1.3"
+    },
+    "taskbar-auto-hide-speed": {
+      "latestVersion": "1.1",
+      "version": "1.1"
+    },
+    "taskbar-auto-hide-when-maximized": {
+      "latestVersion": "1.2.4",
+      "version": "1.2.4"
+    },
+    "taskbar-button-click": {
+      "latestVersion": "1.0.9",
+      "version": "1.0.9"
+    },
+    "taskbar-clock-customization": {
+      "latestVersion": "1.7.1",
+      "version": "1.7.1"
+    },
+    "taskbar-icon-size": {
+      "latestVersion": "1.3.6",
+      "version": "1.3.6"
+    },
+    "taskbar-labels": {
+      "latestVersion": "1.4.2",
+      "version": "1.4.2"
+    },
+    "taskbar-volume-control": {
+      "latestVersion": "1.3",
+      "version": "1.3"
+    },
+    "windows-11-notification-center-styler": {
+      "latestVersion": "1.4",
+      "version": "1.4"
+    }
+  },
+  "os": "10.0.26100"
+}
