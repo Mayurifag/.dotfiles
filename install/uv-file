@@ -1,4 +1,5 @@
 ansible-lint
+yamllint
 codespell
 gallery-dl
 ruff
