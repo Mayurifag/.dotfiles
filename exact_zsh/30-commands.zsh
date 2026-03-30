@@ -352,6 +352,7 @@ c() {
     if [ -n "$_latest" ] && [ $_rc -eq 0 ] && [ "$_latest" != "$_installed" ]; then
       printf '↑ claude-code %s → %s (updating…)\n' "$_installed" "$_latest"
       mise use -g claude-code@latest
+      mise prune claude-code --yes
     fi
   fi
   # ----------------------------------------

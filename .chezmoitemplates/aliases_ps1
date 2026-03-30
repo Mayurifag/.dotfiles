@@ -221,6 +221,7 @@ function c {
                 if ($latest -and $latest -ne $installed) {
                     Write-Host "↑ claude-code $installed → $latest (updating…)"
                     mise use -g claude-code@latest
+                    mise prune claude-code --yes
                 }
             } else {
                 Stop-Job $job
