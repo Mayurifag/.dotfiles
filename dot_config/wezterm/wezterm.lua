@@ -11,6 +11,10 @@ config.initial_cols        = 220
 config.initial_rows        = 32
 config.window_decorations  = 'INTEGRATED_BUTTONS|RESIZE'
 
+-- Use EGL to avoid both the WGL probing window and the wgpu device-class window
+config.front_end  = 'OpenGL'
+config.prefer_egl = true
+
 -- Appearance
 config.hide_tab_bar_if_only_one_tab = true
 config.font = wezterm.font { family = 'JetBrainsMonoNL Nerd Font Mono', weight = 'Medium' }

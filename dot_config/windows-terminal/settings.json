@@ -31,9 +31,8 @@
         }
     ],
     "alwaysShowNotificationIcon": false,
-    "compatibility.allowHeadless": true,
     "startOnUserLogin": false,
-    "launchMode": "focus",
+    "launchMode": "default",
     "firstWindowPreference": "defaultProfile",
     "compatibility.enableUnfocusedAcrylic": true,
     "copyFormatting": "none",
@@ -47,8 +46,6 @@
         "Windows.Terminal.VisualStudio",
         "Windows.Terminal.Wsl"
     ],
-    "focusFollowMouse": false,
-    "initialRows": 80,
     "keybindings":
     [
         {
@@ -76,10 +73,10 @@
         {
             "colorScheme": "Dracula",
             "elevate": true,
-            "opacity": 100,
+            "opacity": 90,
             "unfocusedAppearance":
             {
-                "opacity": 75
+                "opacity": 70
             }
         },
         "list":
