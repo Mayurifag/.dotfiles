@@ -30,14 +30,14 @@ docker-clean = { cmd = "docker container prune -f ; docker image prune -f ; dock
 lzd = { cmd = "lazydocker" }
 
 [sharedAliases.eza]
-ls = { cmd = "eza -lh --group-directories-first" }
-l = { cmd = "eza --git-ignore --group-directories-first" }
-ll = { cmd = "eza --all --header --long --group-directories-first" }
-llm = { cmd = "eza --all --header --long --sort=modified --group-directories-first" }
+ls = { cmd = "eza -lh --all --git --icons --group-directories-first" }
+l = { cmd = "eza --all --icons --group-directories-first" }
+ll = { cmd = "eza --all --header --long --git --icons --group-directories-first" }
+llm = { cmd = "eza --all --header --long --sort=modified --git --icons --group-directories-first" }
 la = { cmd = "eza -lbhHigUmuSa" }
 lx = { cmd = "eza -lbhHigUmuSa@" }
-lt = { cmd = "eza --tree" }
-tree = { cmd = "eza --tree" }
+lt = { cmd = "eza --tree --level=2 --icons" }
+tree = { cmd = "eza --tree --level=2 --icons" }
 
 [sharedAliases."yt-dlp"]
 yt = { cmd = 'yt-dlp -v -o "%(title)s.%(ext)s" --sponsorblock-mark all --sponsorblock-remove "sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic" --embed-thumbnail --embed-chapters --embed-metadata --concurrent-fragments 3 --retries 3' }

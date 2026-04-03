@@ -130,28 +130,39 @@ if (Test-Path $target) {
     $item = Get-Item $target -Force
     if ($item.LinkType -eq 'SymbolicLink' -and $item.Target -contains $source) {
         Write-Host "[wt] Symlink already correct: $target -> $source" -ForegroundColor Green
-        exit 0
+    } else {
+        # Back up existing settings.json and recreate symlink
+        $backup = Join-Path $wtLocalState "settings.json.bak"
+        Write-Host "[wt] Backing up existing settings.json to settings.json.bak"
+        Copy-Item -Path $target -Destination $backup -Force
+        Remove-Item -Path $target -Force
+
+        Write-Host "[wt] Creating symlink: $target -> $source"
+        cmd /c mklink "$target" "$source" | Out-Null
+
+        if (Test-Path $target) {
+            Write-Host "[wt] Done. Windows Terminal will use chezmoi-managed settings." -ForegroundColor Green
+            Write-Host "     Source: $source"
+            Write-Host "     Target: $target"
+        } else {
+            Write-Host "[wt] ERROR: Symlink creation failed." -ForegroundColor Red
+            Write-Host "     Try running: cmd /c mklink `"$target`" `"$source`"" -ForegroundColor Red
+            exit 1
+        }
     }
-
-    # Back up existing settings.json
-    $backup = Join-Path $wtLocalState "settings.json.bak"
-    Write-Host "[wt] Backing up existing settings.json to settings.json.bak"
-    Copy-Item -Path $target -Destination $backup -Force
-    Remove-Item -Path $target -Force
-}
-
-# Create symlink
-Write-Host "[wt] Creating symlink: $target -> $source"
-cmd /c mklink "$target" "$source" | Out-Null
-
-if (Test-Path $target) {
-    Write-Host "[wt] Done. Windows Terminal will use chezmoi-managed settings." -ForegroundColor Green
-    Write-Host "     Source: $source"
-    Write-Host "     Target: $target"
 } else {
-    Write-Host "[wt] ERROR: Symlink creation failed." -ForegroundColor Red
-    Write-Host "     Try running: cmd /c mklink `"$target`" `"$source`"" -ForegroundColor Red
-    exit 1
+    Write-Host "[wt] Creating symlink: $target -> $source"
+    cmd /c mklink "$target" "$source" | Out-Null
+
+    if (Test-Path $target) {
+        Write-Host "[wt] Done. Windows Terminal will use chezmoi-managed settings." -ForegroundColor Green
+        Write-Host "     Source: $source"
+        Write-Host "     Target: $target"
+    } else {
+        Write-Host "[wt] ERROR: Symlink creation failed." -ForegroundColor Red
+        Write-Host "     Try running: cmd /c mklink `"$target`" `"$source`"" -ForegroundColor Red
+        exit 1
+    }
 }
 
 # ---------------------------------------------------------------------------

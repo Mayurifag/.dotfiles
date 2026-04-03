@@ -4,18 +4,6 @@
     "actions":
     [
         {
-            "command":
-            {
-                "action": "globalSummon",
-                "desktop": "toCurrent",
-                "dropdownDuration": 200,
-                "monitor": "toMouse",
-                "name": "_quake",
-                "toggleVisibility": true
-            },
-            "id": "User.quakeMode"
-        },
-        {
             "command": "duplicateTab",
             "id": "User.newTab"
         },
@@ -44,7 +32,7 @@
     ],
     "alwaysShowNotificationIcon": false,
     "compatibility.allowHeadless": true,
-    "startOnUserLogin": true,
+    "startOnUserLogin": false,
     "launchMode": "focus",
     "firstWindowPreference": "defaultProfile",
     "compatibility.enableUnfocusedAcrylic": true,
@@ -63,22 +51,6 @@
     "initialRows": 80,
     "keybindings":
     [
-        {
-            "id": "User.quakeMode",
-            "keys": "ctrl+`"
-        },
-        {
-            "id": "User.quakeMode",
-            "keys": "ctrl+ё"
-        },
-        {
-            "id": "User.quakeMode",
-            "keys": "alt+`"
-        },
-        {
-            "id": "User.quakeMode",
-            "keys": "alt+ё"
-        },
         {
             "id": "User.newTab",
             "keys": "ctrl+t"

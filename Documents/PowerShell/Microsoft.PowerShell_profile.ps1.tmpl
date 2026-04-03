@@ -40,6 +40,16 @@ _CachedInit 'zoxide' 'zoxide' { zoxide init powershell }
 Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
 Remove-Variable _cacheDir
 
+# === OSC 7 — report CWD to terminal (enables WezTerm new-tab-in-same-dir) ===
+function Invoke-Starship-PreCommand {
+    $loc = $executionContext.SessionState.Path.CurrentLocation
+    if ($loc.Provider.Name -eq 'FileSystem') {
+        $path = $loc.ProviderPath -replace '\\', '/'
+        $esc  = [char]27
+        Write-Host -NoNewline "${esc}]7;file://localhost/${path}${esc}\"
+    }
+}
+
 # === GPG agent warmup ===
 # Pre-start gpg-agent on shell open so it's ready before the first `git commit`.
 # Without this, the first commit after reboot races against agent startup → signing fails.
