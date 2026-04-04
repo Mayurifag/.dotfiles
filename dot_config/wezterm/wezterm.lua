@@ -1,5 +1,17 @@
 local wezterm = require 'wezterm'
 local act    = wezterm.action
+local mux    = wezterm.mux
+
+-- Single-window enforcement: focus existing window instead of spawning a second one
+wezterm.on('gui-startup', function(cmd)
+  local wins = wezterm.gui.gui_windows()
+  if #wins > 0 then
+    wins[1]:focus()
+    return
+  end
+  mux.spawn_window(cmd or {})
+end)
+
 local config = wezterm.config_builder()
 
 -- Shell
