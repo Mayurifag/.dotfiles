@@ -380,6 +380,10 @@ make() {
 }
 
 function cd {
+  if [[ $# -eq 0 ]]; then
+    zi
+    return
+  fi
   if builtin cd "$@" >/dev/null 2>&1; then
     # If `cd` succeeds, do nothing else.
     :

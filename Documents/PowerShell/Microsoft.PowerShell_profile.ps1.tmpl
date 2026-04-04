@@ -57,17 +57,19 @@ if (Test-Path "C:\Program Files\GnuPG\bin\gpgconf.exe") {
     & "C:\Program Files\GnuPG\bin\gpgconf.exe" --launch gpg-agent 2>$null
 }
 
-# === Smart cd (falls back to zoxide, like posix) ===
+# === Smart cd (falls back to zoxide, like zsh) ===
 # Aliases take precedence over functions in PowerShell — must remove the built-in 'cd' alias first.
 Remove-Item Alias:cd -Force -ErrorAction SilentlyContinue
 function cd {
-    if ($args.Count -eq 0) { Set-Location ~ ; return }
-    $target = $args[0]
-    if (Test-Path $target) {
-        Set-Location $target
-    } else {
-        try { z @args } catch {
-            Write-Error "cd: no such file or directory: $target"
+    if ($args.Count -eq 0) { zi; return }
+    try {
+        Set-Location @args
+    } catch {
+        $null = zoxide query -s @args 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            z @args
+        } else {
+            Write-Error "cd: no such file or directory: $($args -join ' ')"
         }
     }
 }

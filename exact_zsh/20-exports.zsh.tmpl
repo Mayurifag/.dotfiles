@@ -2,12 +2,6 @@
 export YDOTOOL_SOCKET=/tmp/.ydotool_socket
 {{- end }}
 
-# Ripgrep
-if type rg &> /dev/null; then
-  export FZF_DEFAULT_COMMAND='rg --files --hidden'
-  export FZF_DEFAULT_OPTS='-m --height 50% --border'
-fi
-
 # System
 {{ template "env_vars_posix" . }}
 # Homebrew
@@ -66,7 +60,3 @@ safe_append_to_path "$HOME/.lmstudio/bin" # LM Studio CLI
 safe_append_to_path "$HOME/.cargo/bin" # Rust/cargo
 safe_append_to_path "$HOME/.local/bin" # By default, mise/uv/pipx setup puts shortcuts to ~/.local/bin.
 safe_append_to_path "$HOME/.antigravity/antigravity/bin" # Google Antigravity
-
-### Go ###
-# export GOPATH="$HOME/go"
-# safe_append_to_path "$GOPATH/bin"
