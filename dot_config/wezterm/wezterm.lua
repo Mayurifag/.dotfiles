@@ -47,6 +47,16 @@ config.keys = {
   { key = 'w',          mods = 'CTRL',       action = act.CloseCurrentPane { confirm = false } },
   { key = '[',          mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(-1) },
   { key = ']',          mods = 'CTRL|SHIFT', action = act.ActivateTabRelative(1) },
+  -- Switch to tab by index
+  { key = '1', mods = 'CTRL', action = act.ActivateTab(0) },
+  { key = '2', mods = 'CTRL', action = act.ActivateTab(1) },
+  { key = '3', mods = 'CTRL', action = act.ActivateTab(2) },
+  { key = '4', mods = 'CTRL', action = act.ActivateTab(3) },
+  { key = '5', mods = 'CTRL', action = act.ActivateTab(4) },
+  { key = '6', mods = 'CTRL', action = act.ActivateTab(5) },
+  { key = '7', mods = 'CTRL', action = act.ActivateTab(6) },
+  { key = '8', mods = 'CTRL', action = act.ActivateTab(7) },
+  { key = '9', mods = 'CTRL', action = act.ActivateTab(8) },
   -- Splits
   { key = '\\',         mods = 'CTRL',       action = act.SplitPane { direction = 'Right' } },
   { key = '-',          mods = 'CTRL',       action = act.SplitPane { direction = 'Down'  } },
