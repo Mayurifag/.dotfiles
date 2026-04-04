@@ -57,27 +57,8 @@ CapsLock::
   }
 }
 
-; Pre-launch WezTerm hidden so first Alt+` is instant
 global gWezTermVisible := false
 global gWezTermHwnd := 0
-if WinExist("ahk_exe wezterm-gui.exe") {
-    ; Adopt an already-running instance (e.g. AHK reloaded)
-    gWezTermHwnd := WinGetID("ahk_exe wezterm-gui.exe")
-    gWezTermVisible := true
-} else {
-    Run "C:\Program Files\WezTerm\wezterm-gui.exe"
-    SetTimer WaitAndHideWezTerm, 200
-}
-
-WaitAndHideWezTerm() {
-    global gWezTermVisible, gWezTermHwnd
-    if WinExist("ahk_exe wezterm-gui.exe") {
-        gWezTermHwnd := WinGetID("ahk_exe wezterm-gui.exe")
-        WinHide(gWezTermHwnd)
-        gWezTermVisible := false
-        SetTimer WaitAndHideWezTerm, 0
-    }
-}
 
 ; WezTerm pseudo-quake toggle (sc029 = physical ` / ё key, layout-independent)
 !sc029::ToggleWezTerm()

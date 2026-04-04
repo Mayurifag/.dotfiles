@@ -208,27 +208,6 @@ function mkcd {
 ## Apps (complex)
 function f { if ($args.Count -eq 0) { code . } else { code @args } }
 function c {
-    # --- Auto-update check (3 s timeout) ---
-    $claudePath = (Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
-    if ($claudePath) {
-        try {
-            $installed = [regex]::Match($claudePath, 'claude-code[/\\](\d+\.\d+\.\d+)').Groups[1].Value
-            $job  = Start-Job { mise ls-remote claude 2>$null | Select-Object -Last 1 }
-            $done = Wait-Job $job -Timeout 3
-            if ($done) {
-                $latest = (Receive-Job $job).Trim()
-                if ($latest -and $latest -ne $installed) {
-                    Write-Host "↑ claude $installed → $latest (updating…)"
-                    mise use -g claude@latest
-                    mise prune claude --yes
-                }
-            } else {
-                Stop-Job $job
-            }
-            Remove-Job $job -Force -ErrorAction SilentlyContinue
-        } catch { }
-    }
-    # -----------------------------------------------------------------
     $env:IS_SANDBOX = "1"
     claude --dangerously-skip-permissions @args
     Remove-Item Env:\IS_SANDBOX -ErrorAction SilentlyContinue

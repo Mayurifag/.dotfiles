@@ -17,9 +17,11 @@ config.prefer_egl = true
 
 -- Appearance
 config.hide_tab_bar_if_only_one_tab = true
+config.tab_bar_at_bottom = true
+config.use_fancy_tab_bar = false
 config.font = wezterm.font { family = 'JetBrainsMonoNL Nerd Font Mono', weight = 'Medium' }
 config.font_size = 13.0
-config.color_scheme = 'Dracula'
+config.color_scheme = 'Dracula (Official)'
 config.window_background_opacity = 0.96
 config.win32_system_backdrop = 'Acrylic'
 config.enable_scroll_bar = true

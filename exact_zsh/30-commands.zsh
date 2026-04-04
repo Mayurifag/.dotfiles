@@ -341,21 +341,6 @@ q() {
 
 unalias c 2>/dev/null
 c() {
-  # --- Auto-update check (3 s timeout) ---
-  local _installed
-  _installed=$(mise which claude 2>/dev/null | sed 's|.*/claude-code/\([^/]*\)/.*|\1|')
-  if [ -n "$_installed" ]; then
-    local _all_versions _latest _rc
-    _all_versions=$(timeout 3 mise ls-remote claude 2>/dev/null)
-    _rc=$?
-    _latest=$(printf '%s\n' "$_all_versions" | tail -1)
-    if [ -n "$_latest" ] && [ $_rc -eq 0 ] && [ "$_latest" != "$_installed" ]; then
-      printf '↑ claude %s → %s (updating…)\n' "$_installed" "$_latest"
-      mise use -g claude@latest
-      mise prune claude --yes
-    fi
-  fi
-  # ----------------------------------------
   IS_SANDBOX=1 claude --dangerously-skip-permissions "$@"
 }
 
