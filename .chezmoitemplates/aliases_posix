@@ -143,7 +143,6 @@ gsd() {
 
   command gsd "$@"
 }
-alias '/gsd'='gsd'
 
 ## Claude Code
 claude-clean() {

@@ -179,7 +179,6 @@ function gsd {
 
     & $gsdBin @args
 }
-Set-Alias -Name '/gsd' -Value gsd
 
 ## Claude Code
 function claude-clean {
@@ -214,14 +213,14 @@ function c {
     if ($claudePath) {
         try {
             $installed = [regex]::Match($claudePath, 'claude-code[/\\](\d+\.\d+\.\d+)').Groups[1].Value
-            $job  = Start-Job { mise ls-remote claude-code 2>$null | Select-Object -Last 1 }
+            $job  = Start-Job { mise ls-remote claude 2>$null | Select-Object -Last 1 }
             $done = Wait-Job $job -Timeout 3
             if ($done) {
                 $latest = (Receive-Job $job).Trim()
                 if ($latest -and $latest -ne $installed) {
-                    Write-Host "↑ claude-code $installed → $latest (updating…)"
-                    mise use -g claude-code@latest
-                    mise prune claude-code --yes
+                    Write-Host "↑ claude $installed → $latest (updating…)"
+                    mise use -g claude@latest
+                    mise prune claude --yes
                 }
             } else {
                 Stop-Job $job

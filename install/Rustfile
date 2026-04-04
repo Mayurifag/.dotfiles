@@ -1,7 +1,7 @@
 cargo-update
 zoxide
 create-tauri-app
-tealdeer
+tlrc
 llmfit
 eza
 ripgrep

@@ -1,0 +1,7 @@
+[output]
+compact = false
+platform_title = true
+
+[updates]
+auto_update = true
+defer_auto_update = true
