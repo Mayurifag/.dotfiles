@@ -6,7 +6,6 @@ docker-buildx
 docker-compose
 eget-bin
 espanso-wayland
-fzf
 git
 github-cli
 gitkraken
