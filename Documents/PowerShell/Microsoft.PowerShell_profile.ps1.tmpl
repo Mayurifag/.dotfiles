@@ -63,7 +63,7 @@ Remove-Item Alias:cd -Force -ErrorAction SilentlyContinue
 function cd {
     if ($args.Count -eq 0) { zi; return }
     try {
-        Set-Location @args
+        Set-Location @args -ErrorAction Stop
     } catch {
         $null = zoxide query -s @args 2>$null
         if ($LASTEXITCODE -eq 0) {

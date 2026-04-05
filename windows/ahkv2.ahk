@@ -59,6 +59,7 @@ CapsLock::
 
 global gWezTermVisible := false
 global gWezTermHwnd := 0
+global gWezTermToggling := false
 
 ; WezTerm pseudo-quake toggle (sc029 = physical ` / ё key, layout-independent)
 !sc029::ToggleWezTerm()
@@ -82,37 +83,52 @@ ShowWezTerm() {
     WinMove(-border, 0, A_ScreenWidth + border * 2,, gWezTermHwnd)
     WinSetAlwaysOnTop(true, gWezTermHwnd)
     WinActivate(gWezTermHwnd)
+    WinWaitActive(gWezTermHwnd,, 1)
     local h := gWezTermHwnd
     SetTimer(() => WinSetAlwaysOnTop(false, h), -100)
 }
 
 ToggleWezTerm() {
-    global gWezTermVisible, gWezTermHwnd
-    if !gWezTermHwnd || !WinExist(gWezTermHwnd) {
-        gWezTermVisible := false
-        gWezTermHwnd := 0
-        Run "C:\Program Files\WezTerm\wezterm-gui.exe"
-        WinWait("ahk_exe wezterm-gui.exe",, 15)
-        gWezTermHwnd := WinGetID("ahk_exe wezterm-gui.exe")
-        ShowWezTerm()
-        gWezTermVisible := true
+    global gWezTermVisible, gWezTermHwnd, gWezTermToggling
+    if gWezTermToggling
         return
-    }
-    if gWezTermVisible {
-        if WinActive(gWezTermHwnd) {
-            ; Visible and focused — hide
-            WinHide(gWezTermHwnd)
+    gWezTermToggling := true
+    try {
+        if !gWezTermHwnd || !WinExist(gWezTermHwnd) {
             gWezTermVisible := false
-        } else {
-            ; Visible but unfocused — just bring to front
-            WinSetAlwaysOnTop(true, gWezTermHwnd)
-            WinActivate(gWezTermHwnd)
-            local h := gWezTermHwnd
-            SetTimer(() => WinSetAlwaysOnTop(false, h), -100)
+            gWezTermHwnd := 0
+            Run "C:\Program Files\WezTerm\wezterm-gui.exe"
+            WinWait("ahk_exe wezterm-gui.exe",, 15)
+            gWezTermHwnd := WinGetID("ahk_exe wezterm-gui.exe")
+            ShowWezTerm()
+            gWezTermVisible := true
+            return
         }
-    } else {
-        ; Hidden — show, snap, focus
-        ShowWezTerm()
-        gWezTermVisible := true
+        ; Re-check actual OS visibility to avoid stale state
+        actuallyVisible := (WinGetStyle(gWezTermHwnd) & 0x10000000) != 0
+        gWezTermVisible := actuallyVisible
+        if gWezTermVisible {
+            if WinActive(gWezTermHwnd) {
+                ; Visible and focused — hide
+                WinHide(gWezTermHwnd)
+                deadline := A_TickCount + 1000
+                while (A_TickCount < deadline) && (WinGetStyle(gWezTermHwnd) & 0x10000000)
+                    Sleep(20)
+                gWezTermVisible := false
+            } else {
+                ; Visible but unfocused — just bring to front
+                WinSetAlwaysOnTop(true, gWezTermHwnd)
+                WinActivate(gWezTermHwnd)
+                WinWaitActive(gWezTermHwnd,, 1)
+                local h := gWezTermHwnd
+                SetTimer(() => WinSetAlwaysOnTop(false, h), -100)
+            }
+        } else {
+            ; Hidden — show, snap, focus
+            ShowWezTerm()
+            gWezTermVisible := true
+        }
+    } finally {
+        gWezTermToggling := false
     }
 }
