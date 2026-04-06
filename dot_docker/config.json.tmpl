@@ -4,7 +4,7 @@
 			"auth": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).docker_auth }}"
 		}
 	}
-{{- if ne .chezmoi.os "darwin" -}}
+{{- if eq .chezmoi.os "linux" -}}
 ,
 	"default-ulimits": {
 		"nofile": {
@@ -15,5 +15,5 @@
 	}
 {{- end -}}
 ,
-	"currentContext": "{{ if eq .chezmoi.os "darwin" -}}orbstack{{- else }}default{{- end }}"
+	"currentContext": "{{ if eq .chezmoi.os "darwin" -}}orbstack{{- else if eq .chezmoi.os "windows" -}}desktop-linux{{- else }}default{{- end }}"
 }

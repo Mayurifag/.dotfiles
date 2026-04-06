@@ -80,6 +80,14 @@
     "windows-11-notification-center-styler": {
       "latestVersion": "1.4",
       "version": "1.4"
+    },
+    "force-kill-active-window": {
+      "version": "1.0",
+      "latestVersion": "1.0"
+    },
+    "taskbar-fade": {
+      "version": "2.1.1",
+      "latestVersion": "2.1.1"
     }
   },
   "os": "10.0.26100"
