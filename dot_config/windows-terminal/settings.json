@@ -28,11 +28,22 @@
                 "splitMode": "duplicate"
             },
             "id": "User.splitHorizontal"
+        },
+        {
+            "command":
+            {
+                "action": "quakeMode",
+                "dropdownDuration": 0,
+                "monitor": "toMouse",
+                "name": "_quake",
+                "toggleVisibility": true
+            },
+            "id": "User.quakeMode"
         }
     ],
     "alwaysShowNotificationIcon": false,
-    "startOnUserLogin": false,
-    "launchMode": "default",
+    "startOnUserLogin": true,
+    "launchMode": "focus",
     "firstWindowPreference": "defaultProfile",
     "compatibility.enableUnfocusedAcrylic": true,
     "copyFormatting": "none",
@@ -63,6 +74,22 @@
         {
             "id": "User.splitHorizontal",
             "keys": "ctrl+-"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "ctrl+`"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "alt+`"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "alt+ё"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "ctrl+ё"
         }
     ],
     "language": "ru",

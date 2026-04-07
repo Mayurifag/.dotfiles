@@ -41,3 +41,7 @@ tmp/
 
 # ── GSD (local-only, commit_docs: false) ──
 .gsd/
+
+# ── GSD baseline (auto-generated) ──
+.gsd
+.gsd-id
