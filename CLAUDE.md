@@ -10,6 +10,12 @@
 
 - Always use `pwsh.exe` (PowerShell 7), never `powershell.exe` (legacy PS 5)
 
+## Chezmoi file naming
+
+- `dot_foo` → `~/.foo` (e.g. `dot_npmrc` → `~/.npmrc`)
+- `dot_config/` → `~/.config/`
+- `.tmpl` suffix → treated as a Go template
+
 ## Dotfiles workflow
 
 - This is the chezmoi source directory. All persistent changes to shell config, aliases, and profiles MUST be made
