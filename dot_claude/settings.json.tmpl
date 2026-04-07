@@ -20,18 +20,9 @@
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"{{ if eq .chezmoi.os "windows" }},
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1"{{ end }}
   },
-  "feedbackSurveyRate": 0,
   "includeCoAuthoredBy": false,
   "model": "sonnet",
   "enableAllProjectMcpServers": true,
-  "voiceEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high",
-  "enabledPlugins": {
-    "context7@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true
-  },
   "hooks": {
     "Stop": [
       {
@@ -43,5 +34,13 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true
+  },
+  "feedbackSurveyRate": 0,
+  "voiceEnabled": true,
+  "skipDangerousModePermissionPrompt": true
 }

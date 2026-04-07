@@ -10,6 +10,7 @@ unique_milestone_ids: true
 budget_ceiling: 50
 git:
   main_branch: master
+  isolation: none
 verification_commands:
   - "! make -n ci 2>/dev/null || make ci"
 ---
