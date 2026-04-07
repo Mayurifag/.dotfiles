@@ -53,6 +53,6 @@ zsh/
 cz_apply.ps1
 setup-windows.ps1
 windhawk-restore.ps1
-run_after_windhawk-backup.ps1
+windhawk-backup.ps1
 Documents/
 {{- end }}
