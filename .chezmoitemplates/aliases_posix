@@ -104,7 +104,7 @@ reset_file() {
 f() { if [ $# -eq 0 ]; then code .; else code "$@"; fi }
 
 ## Claude Code
-a() { claude -p --bare --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text "$*"; }
+a() { claude -p --strict-mcp-config --tools "" --no-session-persistence --disable-slash-commands --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text "$*" | glow -; }
 claude-clean() {
   local dirs=(shell-snapshots file-history paste-cache backups cache debug)
   local total=0

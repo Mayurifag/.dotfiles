@@ -12,7 +12,7 @@ markdownlint:
 
 .PHONY: jsonlint
 jsonlint:
-	@json_files=$$(/usr/bin/find . -name "*.json" -not -path "./.git/*" $(JSONC_EXCLUDES)); \
+	@json_files=$$(/usr/bin/find . -name "*.json" -not -path "./.git/*" -not -path "./.gsd/*" $(JSONC_EXCLUDES)); \
 	if [ -n "$$json_files" ]; then \
 		echo "$$json_files" | xargs jsonlint --mode json --quiet; \
 	fi; \

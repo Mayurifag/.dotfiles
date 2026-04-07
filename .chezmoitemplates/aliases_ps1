@@ -145,7 +145,7 @@ function gk {
 Set-Alias -Name g -Value gk
 
 ## Claude Code
-function a { claude -p --bare --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text ($args -join ' ') }
+function a { claude -p --strict-mcp-config --tools "" --no-session-persistence --disable-slash-commands --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text ($args -join ' ') | glow - }
 function claude-clean {
     $dirs = @('shell-snapshots', 'file-history', 'paste-cache', 'backups', 'cache', 'debug')
     $total = 0
