@@ -49,6 +49,10 @@ matches:
 
       # Prompt to analyze
 
+  - trigger: ":md-doc"
+    replace: |
+      Write the output as a single Markdown document inside a ```md code block. Any nested code blocks within it must use ~~~extension fences instead of backticks.
+
   - trigger: ":mdcode"
     replace: |
       {{markdown_code_block_syntax_example}}
