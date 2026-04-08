@@ -28,6 +28,10 @@ matches:
   - trigger: cypher
     replace: cipher
     propagate_case: true
+  - trigger: consice
+    replace: concise
+    propagate_case: true
+    word: true
   - trigger: concious
     replace: conscious
     propagate_case: true
