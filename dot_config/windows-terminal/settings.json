@@ -32,8 +32,7 @@
         {
             "command":
             {
-                "action": "quakeMode",
-                "dropdownDuration": 0,
+                "action": "globalSummon",
                 "monitor": "toMouse",
                 "name": "_quake",
                 "toggleVisibility": true
@@ -138,7 +137,7 @@
                 "name": "pwsh",
                 "padding": "8, 8, 8, 8",
                 "snapOnInput": true,
-                "startingDirectory": null,
+                "startingDirectory": ".",
                 "useAcrylic": false
             }
         ]

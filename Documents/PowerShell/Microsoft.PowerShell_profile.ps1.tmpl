@@ -45,8 +45,7 @@ function Invoke-Starship-PreCommand {
     $loc = $executionContext.SessionState.Path.CurrentLocation
     if ($loc.Provider.Name -eq 'FileSystem') {
         $path = $loc.ProviderPath -replace '\\', '/'
-        $esc  = [char]27
-        Write-Host -NoNewline "${esc}]7;file://localhost/${path}${esc}\"
+        [System.Console]::Write("`e]7;file://localhost/$path`a")
     }
 }
 
