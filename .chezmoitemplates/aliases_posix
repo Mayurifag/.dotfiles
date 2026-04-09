@@ -121,5 +121,23 @@ claude-clean() {
   echo "Removed $total file(s)"
 }
 
+## npm (complex)
+npmug() {
+  local before after
+  before=$(npm list -g --depth=0 --json 2>/dev/null)
+  npm update -g "$@"
+  after=$(npm list -g --depth=0 --json 2>/dev/null)
+  node -e "
+    const b = JSON.parse(process.argv[1]).dependencies || {};
+    const a = JSON.parse(process.argv[2]).dependencies || {};
+    const changed = Object.keys(a).filter(k => b[k]?.version !== a[k]?.version);
+    if (!changed.length) { console.log('Nothing updated.'); process.exit(0); }
+    changed.forEach(k => {
+      const from = b[k] ? b[k].version : '(new)';
+      console.log(k + ': ' + from + ' \u2192 ' + a[k].version);
+    });
+  " "$before" "$after"
+}
+
 ## System utilities (complex)
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"

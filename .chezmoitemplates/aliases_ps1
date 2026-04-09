@@ -117,6 +117,21 @@ function prg {
     $branches | ForEach-Object { git branch -D $_ }
 }
 
+## npm (complex)
+function npmug {
+    $before = npm list -g --depth=0 --json 2>$null | ConvertFrom-Json
+    npm update -g @args
+    $after = npm list -g --depth=0 --json 2>$null | ConvertFrom-Json
+    $bDeps = if ($before.dependencies) { $before.dependencies } else { @{} }
+    $aDeps = if ($after.dependencies) { $after.dependencies } else { @{} }
+    $changed = $aDeps.PSObject.Properties | Where-Object { $bDeps.($_.Name)?.version -ne $_.Value.version }
+    if (-not $changed) { Write-Host "Nothing updated."; return }
+    $changed | ForEach-Object {
+        $from = if ($bDeps.($_.Name)) { $bDeps.($_.Name).version } else { '(new)' }
+        Write-Host "$($_.Name): $from → $($_.Value.version)"
+    }
+}
+
 ## System utilities (complex)
 function myip {
     $ip = $null
