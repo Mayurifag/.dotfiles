@@ -1,27 +1,27 @@
 {
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
-    "actions":
+    "actions": 
     [
         {
             "command": "duplicateTab",
             "id": "User.newTab"
         },
         {
+            "command":
+            {
+                "action": "newTab",
+                "profile": "pwsh",
+                "startingDirectory": "."
+            },
+            "id": "User.newTabSameDir"
+        },
+        {
             "command": "closePane",
             "id": "User.closePane"
         },
         {
-            "command":
-            {
-                "action": "splitPane",
-                "split": "right",
-                "splitMode": "duplicate"
-            },
-            "id": "User.splitVertical"
-        },
-        {
-            "command":
+            "command": 
             {
                 "action": "splitPane",
                 "split": "down",
@@ -30,7 +30,16 @@
             "id": "User.splitHorizontal"
         },
         {
-            "command":
+            "command": 
+            {
+                "action": "splitPane",
+                "split": "right",
+                "splitMode": "duplicate"
+            },
+            "id": "User.splitVertical"
+        },
+        {
+            "command": 
             {
                 "action": "globalSummon",
                 "monitor": "toMouse",
@@ -41,30 +50,36 @@
         }
     ],
     "alwaysShowNotificationIcon": false,
-    "startOnUserLogin": true,
-    "launchMode": "focus",
-    "firstWindowPreference": "defaultProfile",
     "compatibility.enableUnfocusedAcrylic": true,
     "copyFormatting": "none",
     "copyOnSelect": true,
     "defaultProfile": "{7ba9151d-519b-4ef2-96c6-1f272623435a}",
     "disableAnimations": true,
-    "disabledProfileSources":
+    "disabledProfileSources": 
     [
         "Windows.Terminal.Azure",
         "Windows.Terminal.PowershellCore",
         "Windows.Terminal.VisualStudio",
         "Windows.Terminal.Wsl"
     ],
-    "keybindings":
+    "firstWindowPreference": "defaultProfile",
+    "keybindings": 
     [
         {
             "id": "User.newTab",
             "keys": "ctrl+t"
         },
         {
+            "id": "User.newTabSameDir",
+            "keys": "ctrl+shift+t"
+        },
+        {
             "id": "User.closePane",
             "keys": "ctrl+w"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "ctrl+`"
         },
         {
             "id": "User.splitVertical",
@@ -72,40 +87,30 @@
         },
         {
             "id": "User.splitHorizontal",
-            "keys": "ctrl+-"
-        },
-        {
-            "id": "User.quakeMode",
-            "keys": "ctrl+`"
+            "keys": "ctrl+minus"
         },
         {
             "id": "User.quakeMode",
             "keys": "alt+`"
-        },
-        {
-            "id": "User.quakeMode",
-            "keys": "alt+ё"
-        },
-        {
-            "id": "User.quakeMode",
-            "keys": "ctrl+ё"
         }
     ],
     "language": "ru",
+    "launchMode": "focus",
     "newTabMenu": [],
-    "profiles":
+    "profiles": 
     {
-        "defaults":
+        "defaults": 
         {
             "colorScheme": "Dracula",
             "elevate": true,
             "opacity": 90,
-            "unfocusedAppearance":
+            "unfocusedAppearance": 
             {
                 "opacity": 70
-            }
+            },
+            "useAcrylic": true
         },
-        "list":
+        "list": 
         [
             {
                 "elevate": true,
@@ -125,7 +130,7 @@
                 "commandline": "pwsh.exe -NoLogo",
                 "cursorShape": "bar",
                 "elevate": true,
-                "font":
+                "font": 
                 {
                     "face": "JetBrainsMonoNL Nerd Font Mono",
                     "size": 12
@@ -137,12 +142,11 @@
                 "name": "pwsh",
                 "padding": "8, 8, 8, 8",
                 "snapOnInput": true,
-                "startingDirectory": ".",
-                "useAcrylic": false
+                "startingDirectory": "."
             }
         ]
     },
-    "schemes":
+    "schemes": 
     [
         {
             "background": "#282A36",
@@ -171,6 +175,7 @@
     "showAdminShield": false,
     "showTabsFullscreen": true,
     "showTabsInTitlebar": true,
+    "tabSwitcherMode": "mru",
     "themes": [],
     "windowingBehavior": "useAnyExisting"
 }

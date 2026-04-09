@@ -55,3 +55,10 @@ CapsLock::
     Send("{LWin Down}{LWin Up}")
   }
 }
+
+; Launch Windows Terminal in quake mode if not already running.
+; When WT is running, these keys pass through to WT's own globalSummon handler.
+#HotIf !ProcessExist("WindowsTerminal.exe")
+^`::Run("wt.exe -w _quake")
+!`::Run("wt.exe -w _quake")
+#HotIf

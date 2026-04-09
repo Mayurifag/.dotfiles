@@ -40,12 +40,11 @@ _CachedInit 'zoxide' 'zoxide' { zoxide init powershell }
 Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
 Remove-Variable _cacheDir
 
-# === OSC 7 — report CWD to terminal (enables new-tab-in-same-dir) ===
-function Invoke-Starship-PreCommand {
+# === OSC 9;9 — report CWD to terminal (enables new-tab-in-same-dir) ===
+function global:Invoke-Starship-PreCommand {
     $loc = $executionContext.SessionState.Path.CurrentLocation
     if ($loc.Provider.Name -eq 'FileSystem') {
-        $path = $loc.ProviderPath -replace '\\', '/'
-        [System.Console]::Write("`e]7;file://localhost/$path`a")
+        [System.Console]::Write("`e]9;9;$($loc.ProviderPath)`a")
     }
 }
 
