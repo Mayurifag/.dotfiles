@@ -92,6 +92,14 @@
         {
             "id": "User.quakeMode",
             "keys": "alt+`"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "ctrl+ё"
+        },
+        {
+            "id": "User.quakeMode",
+            "keys": "alt+ё"
         }
     ],
     "language": "ru",
