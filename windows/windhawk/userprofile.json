@@ -87,7 +87,8 @@
     },
     "taskbar-fade": {
       "version": "2.1.1",
-      "latestVersion": "2.1.1"
+      "latestVersion": "2.1.1",
+      "disabled": true
     }
   },
   "os": "10.0.26100"
