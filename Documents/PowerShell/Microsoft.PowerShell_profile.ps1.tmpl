@@ -63,9 +63,11 @@ function cd {
     try {
         Set-Location @args -ErrorAction Stop
     } catch {
-        $null = zoxide query -s @args 2>$null
+        # Tab-completion may prepend .\  — strip it so zoxide can match
+        $zArgs = @($args | ForEach-Object { if ($_ -is [string]) { $_ -replace '^\.[\\/]', '' -replace '[\\/]+$', '' } else { $_ } })
+        $null = zoxide query -s @zArgs 2>$null
         if ($LASTEXITCODE -eq 0) {
-            z @args
+            z @zArgs
         } else {
             Write-Error "cd: no such file or directory: $($args -join ' ')"
         }
