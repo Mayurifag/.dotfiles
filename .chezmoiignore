@@ -46,7 +46,6 @@ cz_apply.sh
 .config/espanso/
 .zshrc
 zsh/
-.local/bin/
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
@@ -55,4 +54,5 @@ setup-windows.ps1
 windhawk-restore.ps1
 windhawk-backup.ps1
 Documents/
+.local/bin/python3
 {{- end }}
