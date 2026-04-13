@@ -19,8 +19,6 @@ It mostly implies you should use KDE on Wayland.
 * Setup CapsLock to change layouts
 * KeepassXC with custom browsers requires
   `Browser integration -> Advanced -> Use a custom browser configuration`.
-  For example, Thorium requires to have `Chromium` type and
-  `~/.config/thorium/NativeMessagingHosts` there.
 * Setup ssh agent. Here will be working example for ArchLinux (btw) and Wayland KDE.
 
 ```bash
