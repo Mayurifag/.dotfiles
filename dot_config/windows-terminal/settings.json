@@ -150,7 +150,7 @@
                 "name": "pwsh",
                 "padding": "8, 8, 8, 8",
                 "snapOnInput": true,
-                "startingDirectory": "."
+                "startingDirectory": "%USERPROFILE%/Code"
             }
         ]
     },
