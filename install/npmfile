@@ -7,3 +7,4 @@ prettier@latest
 gsd-pi@latest
 node-addon-api@latest
 node-gyp@latest
+@openai/codex@latest
