@@ -21,6 +21,5 @@
 - This is the chezmoi source directory. All persistent changes to shell config, aliases, and profiles MUST be made
   here, not to the rendered files in their target locations
   (e.g. `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`)
-- After editing source files, first run `timeout 3 chezmoi diff` as a canary — if it completes, secrets are already
-  unlocked and it's safe to run `timeout 3 chezmoi apply -v`. If either times out, tell the user to run `czapply`
-  manually (chezmoi is waiting for interactive input, e.g. password/secret decryption)
+- After editing source files, first run `timeout 3 chezmoi diff` as a canary — if it completes, it's safe to run `timeout 3 chezmoi apply -v`. If either times out, tell the user to run `czapply`
+  manually (chezmoi is waiting for interactive input)

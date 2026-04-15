@@ -1,7 +1,6 @@
 {
   "env": {
-    "ENABLE_BACKGROUND_TASKS": "1",
-    "FORCE_AUTO_BACKGROUND_TASKS": "1",
+    "CLAUDE_AUTO_BACKGROUND_TASKS": "1",
     "CLAUDE_CODE_ENABLE_UNIFIED_READ_TOOL": "1",
     "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": "1",
     "BASH_MAX_TIMEOUT_MS": "6000000",
@@ -20,12 +19,15 @@
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
     "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-4-6-opus"{{ if eq .chezmoi.os "windows" }},
+    "DISABLE_AUTOUPDATER": "1"{{ if eq .chezmoi.os "windows" }},
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1"{{ end }}
   },
-  "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "autoUpdates": false,
   "model": "sonnet",
-  "enableAllProjectMcpServers": true,
   "hooks": {
     "Stop": [
       {
@@ -45,6 +47,5 @@
   },
   "feedbackSurveyRate": 0,
   "effortLevel": "high",
-  "voiceEnabled": true,
   "skipDangerousModePermissionPrompt": true
 }
