@@ -26,60 +26,11 @@ function {{ $aliasName }} { {{ $body }} @args }
 {{- end }}
 {{- end }}
 
-## Git (complex)
-function gpr {
-    $url = git remote get-url origin 2>$null
-    if (-not $url) { Write-Error "gpr: no origin remote found"; return }
-    $baseUrl = $url -replace '^git@([^:]+):', 'https://$1/' -replace '\.git$', ''
-    if ($args[0] -in 'ls', 'list') {
-        $link = "${baseUrl}/pulls"
-    } else {
-        $branch = git symbolic-ref --short HEAD 2>$null
-        if (-not $branch) { Write-Error "gpr: not on a branch"; return }
-        $link = "${baseUrl}/pull/new/${branch}"
-    }
-    Write-Output "$([char]27)]8;;${link}$([char]27)\${link}$([char]27)]8;;$([char]27)\"
-}
 function gp {
     $branch = git symbolic-ref --short HEAD
     if (git config "branch.$branch.merge") { git push @args } else { git push -u origin $branch @args }
 }
-function sq {
-    if (git status --porcelain) {
-        Write-Error "sq: working tree is dirty — commit or stash changes first"; return
-    }
-    $base = $null
-    if (git rev-parse --verify --quiet master 2>$null) {
-        $base = git merge-base HEAD master 2>$null
-    } elseif (git rev-parse --verify --quiet main 2>$null) {
-        $base = git merge-base HEAD main 2>$null
-    } elseif (git rev-parse --verify --quiet dev 2>$null) {
-        $base = git merge-base HEAD dev 2>$null
-    } elseif (git rev-parse --verify --quiet origin/master 2>$null) {
-        $base = git merge-base HEAD origin/master 2>$null
-    } elseif (git rev-parse --verify --quiet origin/main 2>$null) {
-        $base = git merge-base HEAD origin/main 2>$null
-    } elseif (git rev-parse --verify --quiet origin/dev 2>$null) {
-        $base = git merge-base HEAD origin/dev 2>$null
-    } else {
-        Write-Error "sq: cannot determine branch base"; return
-    }
-    $count = (git rev-list --count "${base}..HEAD")
-    if ([int]$count -le 1) { Write-Host "sq: only $count commit(s) — nothing to squash"; return }
-    $firstSha = (git rev-list "${base}..HEAD" | Select-Object -Last 1)
-    if (-not $firstSha) { Write-Error "sq: could not determine first commit"; return }
-    $firstMsg = (git log --format='%s' -1 $firstSha)
-    git reset --soft $base
-    if ($LASTEXITCODE -ne 0) { Write-Error "sq: reset failed"; return }
-    git commit -m $firstMsg
-    if ($LASTEXITCODE -ne 0) { Write-Error "sq: commit failed"; return }
-    $ans = Read-Host "Force push? [y/N]"
-    if ($ans -match '^[yY]$') {
-        git push origin HEAD --force-with-lease
-    } else {
-        Write-Host "Skipped force push"
-    }
-}
+function sq { yawn squash @args }
 function reset_file {
     $branch = $null
     if (git rev-parse --verify --quiet origin/main 2>$null) { $branch = "main" }

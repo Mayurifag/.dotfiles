@@ -1,3 +1,5 @@
+# Claude Code Rules
+
 Edit over rewrite. Test before done. Simple and direct. Do not add comments and descriptions unless user told you so.
 Keep code lines count low, proactively ask to refactor files that became big. DRY. Eliminate tech debt.
 

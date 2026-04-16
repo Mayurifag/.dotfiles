@@ -18,28 +18,6 @@ alias {{ $aliasName }}='{{ $data.cmd }}'
 {{- end }}
 {{- end }}
 
-## Git (complex)
-gpr() {
-  local url base_url branch link
-  url=$(git remote get-url origin 2>/dev/null)
-  if [ -z "$url" ]; then
-    echo "gpr: no origin remote found" >&2; return 1
-  fi
-  base_url=$(echo "$url" | sed -e 's|^git@\([^:]*\):|https://\1/|' -e 's|\.git$||')
-  case "${1:-}" in
-    ls|list)
-      link="${base_url}/pulls"
-      ;;
-    *)
-      branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-      if [ -z "$branch" ]; then
-        echo "gpr: not on a branch" >&2; return 1
-      fi
-      link="${base_url}/pull/new/${branch}"
-      ;;
-  esac
-  printf '\033]8;;%s\033\\%s\033]8;;\033\\\n' "$link" "$link"
-}
 gp() {
   local branch
   branch=$(git symbolic-ref --short HEAD)
@@ -49,45 +27,7 @@ gp() {
     git push "$@"
   fi
 }
-sq() {
-  if [ -n "$(git status --porcelain)" ]; then
-    echo "sq: working tree is dirty — commit or stash changes first" >&2; return 1
-  fi
-  local base
-  if git rev-parse --verify --quiet master >/dev/null 2>&1; then
-    base=$(git merge-base HEAD master)
-  elif git rev-parse --verify --quiet main >/dev/null 2>&1; then
-    base=$(git merge-base HEAD main)
-  elif git rev-parse --verify --quiet dev >/dev/null 2>&1; then
-    base=$(git merge-base HEAD dev)
-  elif git rev-parse --verify --quiet origin/master >/dev/null 2>&1; then
-    base=$(git merge-base HEAD origin/master)
-  elif git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
-    base=$(git merge-base HEAD origin/main)
-  elif git rev-parse --verify --quiet origin/dev >/dev/null 2>&1; then
-    base=$(git merge-base HEAD origin/dev)
-  else
-    echo "sq: cannot determine branch base" >&2; return 1
-  fi
-  local count first_sha first_msg
-  count=$(git rev-list --count "${base}..HEAD")
-  if [ "$count" -le 1 ]; then
-    echo "sq: only ${count} commit(s) — nothing to squash"; return 0
-  fi
-  first_sha=$(git rev-list "${base}..HEAD" | tail -1)
-  if [ -z "$first_sha" ]; then
-    echo "sq: could not determine first commit" >&2; return 1
-  fi
-  first_msg=$(git log --format='%s' -1 "$first_sha")
-  git reset --soft "$base" || { echo "sq: reset failed" >&2; return 1; }
-  git commit -m "$first_msg" || { echo "sq: commit failed" >&2; return 1; }
-  printf 'Force push? [y/N] '
-  read -r _sq_ans
-  case "$_sq_ans" in
-    [yY]) git push origin HEAD --force-with-lease ;;
-    *) echo "Skipped force push" ;;
-  esac
-}
+sq() { yawn squash "$@"; }
 reset_file() {
   local branch
   if git rev-parse --verify --quiet origin/main > /dev/null 2>&1; then
