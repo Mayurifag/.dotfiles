@@ -26,7 +26,11 @@ alias ten='trans :en'
 
 ## Antidote/Brew/Desktop helpers (zsh/Linux-only)
 alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.sh'
-alias brewfile='brew bundle dump --file=$(chezmoi source-path)/install/Brewfile --force --no-vscode'
+brewfile() {
+  local f; f=$(chezmoi source-path)/install/Brewfile
+  brew bundle dump --file="$f" --force --no-vscode
+  awk 'NF{print $1}' "$f" | awk '!x[$0]++' | while IFS= read -r t; do grep "^$t " "$f" | sort; done > "$f.tmp" && mv "$f.tmp" "$f"
+}
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 
 ## macOS-specific (conditional)

@@ -13,6 +13,6 @@ fzf = "latest"
 lazygit = "latest"
 starship = "latest"
 "github:Mayurifag/yawn" = "latest"
-[%- if ne .chezmoi.os "windows" %]
+[%- if eq .chezmoi.os "linux" %]
 "github:Mayurifag/conditional-launcher" = "latest"
 [%- end %]
