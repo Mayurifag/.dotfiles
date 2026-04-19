@@ -59,17 +59,19 @@ if ((Get-Service ssh-agent).Status -ne "Running") { Start-Service ssh-agent }
 # Enable WSL2
 Write-Host "`n[7/16] Enabling WSL2 (VirtualMachinePlatform + Windows Subsystem for Linux)..."
 $wslState = (Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux).State
-$vmState  = (Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform).State
+$vmState = (Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform).State
 if ($wslState -ne "Enabled") {
   Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux -NoRestart | Out-Null
   Write-Host "  WSL feature enabled (restart required before first use)." -ForegroundColor Yellow
-} else {
+}
+else {
   Write-Host "  WSL feature already enabled." -ForegroundColor Green
 }
 if ($vmState -ne "Enabled") {
   Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform -NoRestart | Out-Null
   Write-Host "  VirtualMachinePlatform enabled (restart required before first use)." -ForegroundColor Yellow
-} else {
+}
+else {
   Write-Host "  VirtualMachinePlatform already enabled." -ForegroundColor Green
 }
 wsl --set-default-version 2 2>&1 | Out-Null
@@ -119,7 +121,8 @@ foreach ($dir in @($gnuMakeBin, $gitUsrBin, $gitMingwBin, $miseShims, $dockerBin
 
 if (Get-Command make -ErrorAction SilentlyContinue) {
   Write-Host "  make found: $(make --version 2>&1 | Select-Object -First 1)" -ForegroundColor Green
-} else {
+}
+else {
   Write-Host "  Warning: make not found on PATH. GnuWin32.Make may not have installed correctly." -ForegroundColor Yellow
   Write-Host "  This is non-blocking — packages will be installed directly." -ForegroundColor Yellow
 }
@@ -140,7 +143,8 @@ if (!(Test-Path $miseConfigFile)) {
   }
   Set-Content -Path $miseConfigFile -Value $cleanConfig -NoNewline
   Write-Host "  Downloaded and cleaned mise config to $miseConfigFile" -ForegroundColor Green
-} else {
+}
+else {
   Write-Host "  mise config already exists at $miseConfigFile — skipping" -ForegroundColor Green
 }
 

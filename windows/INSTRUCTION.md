@@ -7,7 +7,10 @@
 - Setup drivers
 - Layout switch hotkey has to be CTRL+SHIFT
 - Setup external disks (NAS/router/...)
-- Make sure `winget` is installed.
+- Setup OpenCloud
+- Setup KeepassXC
+- Activate all [tweaks](./tweaks/)
+- Make sure `winget` is installed
 
 Run `init.ps1` as Administrator — installs winget apps, mise runtimes, and
 language packages:
@@ -71,16 +74,22 @@ gh auth login
 - Setup [Browsers.app](https://browsers.software/) as default browser
 - Make [steam silent](https://leo3418.github.io/2023/07/15/minimize-steam-for-game-shortcuts.html)
   (requires script)
+- [Enable emoji flags (chrome/...)](https://github.com/tuannvbg/unicode-flags-for-windows)
+- Setup Helium with profile sync
 
 ## TODO
 
 - [ ] Setup VSCode - sync settings
-- [ ] Setup browser - addons settings and keepassxc config if needed
 - [ ] Setup gitkraken with activation (requires full path) and configure (system
   ssh, etc.)
 - [ ] Everything with settings for powertoys (+plugin) and for windhawk
 - [ ] Setup PowerToys - only with tools I use
-- [ ] Windhawk - config
+- [ ] Altsnap
+- [ ] JPEGView - setup with cfg from Opencloud / migrate here
+- [ ] LocalSend - desktop shortcut from Opencloud
+- [ ] ShareX - autostart
+- [ ] WinAero - not sure what exactly to tweak. Hidden drives hiding?
+- [ ] simplewall - but needs to have pareto principle setup
 - [ ] Local LLM?
 - [ ] Wait for `mise` to support `winget` backend and migrate to it.
   <https://github.com/jdx/mise/discussions/8311>

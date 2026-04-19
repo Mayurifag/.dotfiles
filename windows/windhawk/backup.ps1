@@ -26,6 +26,9 @@ if (Test-Path $profileSrc) {
 # 2. Registry export — mod settings
 $regDst = Join-Path $scriptDir 'mods-settings.reg'
 reg export 'HKLM\SOFTWARE\Windhawk\Engine\Mods' $regDst /y | Out-Null
+# reg export outputs UTF-16 LE; convert to UTF-8 for editor compatibility
+$regContent = Get-Content $regDst -Encoding Unicode
+[System.IO.File]::WriteAllLines($regDst, $regContent, [System.Text.UTF8Encoding]::new($false))
 Write-Host '  [OK] mods-settings.reg (HKLM\SOFTWARE\Windhawk\Engine\Mods)' -ForegroundColor Green
 
 Write-Host ''

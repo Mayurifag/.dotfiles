@@ -16,10 +16,7 @@
     "DISABLE_BUG_COMMAND": "1",
     "DISABLE_FEEDBACK_COMMAND": "1",
     "CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1",
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
-    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1",
-    "DISABLE_AUTOUPDATER": "1"{{ if eq .chezmoi.os "windows" }},
+    "CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING": "1"{{ if eq .chezmoi.os "windows" }},
     "CLAUDE_CODE_USE_POWERSHELL_TOOL": "1"{{ end }}
   },
   "attribution": {
@@ -53,8 +50,19 @@
       }
     }
   },
+  "mcpServers": {
+    "cavekit": {
+      "type": "stdio",
+      "command": {{ if eq .chezmoi.os "windows" }}"cmd",
+      "args": ["/c", "npx", "-y", "github:JuliusBrussee/cavekit"]{{ else }}"npx",
+      "args": ["-y", "github:JuliusBrussee/cavekit"]{{ end }}
+    }
+  },
   "feedbackSurveyRate": 0,
-  "effortLevel": "high",
-  "skipDangerousModePermissionPrompt": true,
-  "autoUpdates": false
+  "effortLevel": "xhigh",
+  "skipDangerousModePermissionPrompt": true{{ if eq .chezmoi.os "windows" }},
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -ExecutionPolicy Bypass -File \"C:\\Users\\Administrator\\.claude\\plugins\\cache\\caveman\\caveman\\63e797cd753b\\hooks\\caveman-statusline.ps1\""
+  }{{ end }}
 }
