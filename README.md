@@ -100,6 +100,9 @@ gpg> quit
 * Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
 * After orbstack installation check docker commands working for regular user
 * [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
+* iTerm2 prefs backed up at `macos/iterm/com.googlecode.iterm2.plist` (not chezmoi-managed).
+  Restore: Prefs → General → Preferences → "Load preferences from custom folder" →
+  point to `$(chezmoi source-path)/macos/iterm`.
 * Setup espanso - accessibility settings. Check if
   [memory leak fixed](https://github.com/espanso/espanso/issues/1675).
 * If some shit goes with Privacy in MacOS settings, try to remove entry with
