@@ -28,6 +28,8 @@ if (Test-Path $profileSrc) {
 $regDst = Join-Path $destDir 'mods-settings.reg'
 reg export 'HKLM\SOFTWARE\Windhawk\Engine\Mods' $regDst /y 2>&1 | Out-Null
 if ($LASTEXITCODE -eq 0) {
+    $regContent = Get-Content $regDst -Encoding Unicode -Raw
+    [System.IO.File]::WriteAllText($regDst, $regContent, [System.Text.UTF8Encoding]::new($false))
     Write-Host '  [OK] mods-settings.reg' -ForegroundColor Green
 } else {
     Write-Host '  [WARN] reg export failed (needs admin)' -ForegroundColor Yellow
