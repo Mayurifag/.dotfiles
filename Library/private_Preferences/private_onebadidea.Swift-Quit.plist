@@ -19,8 +19,8 @@
 	AAASIAAA1AAAAAAAAAATIAAA5AAAAAAAAAAgIAAAIAEAAAAAAAAwIAAAqAAAAAAAAAAB
 	0AAAqAAAAAAAAAAQ0AAABAAAAAAAAAA=
 	</data>
-	<key>NSStatusItem Preferred Position Item-0</key>
-	<real>806</real>
+	<key>NSStatusItem Visible Item-0</key>
+	<false/>
 	<key>NSWindow Frame NSNavPanelAutosaveName</key>
 	<string>560 455 800 448 0 0 1920 1055 </string>
 	<key>SwiftQuitExcludedApps</key>
@@ -28,7 +28,6 @@
 		<string>/Applications/Raycast.app</string>
 		<string>/Applications/Karabiner-Elements.app</string>
 		<string>/Applications/qBittorrent.app</string>
-		<string>/Applications/Karabiner-Elements.app</string>
 		<string>/Applications/iTerm.app</string>
 	</array>
 	<key>SwiftQuitSettings</key>
@@ -38,7 +37,7 @@
 		<key>launchAtLogin</key>
 		<string>true</string>
 		<key>menubarIconEnabled</key>
-		<string>true</string>
+		<string>false</string>
 	</dict>
 	<key>launchAtLogin.isEnabled</key>
 	<integer>1</integer>
