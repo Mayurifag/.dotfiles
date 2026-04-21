@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSNavPanelExpandedSizeForOpenMode</key>
+	<string>{800, 448}</string>
+	<key>NSOSPLastRootDirectory</key>
+	<data>
+	Ym9va0gCAAAAAAUQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	AAAAAAAAAAAAAAAAAEwBAAAEAAAAAwMAAAAAACAMAAAAAQEAAEFwcGxpY2F0aW9ucwkA
+	AAABAQAAaVRlcm0uYXBwAAAACAAAAAEGAAAQAAAAJAAAAAgAAAAEAwAAlMzUCwAAAAAI
+	AAAABAMAAGqjPAEAAAAACAAAAAEGAABIAAAAWAAAAAgAAAAABAAAQcSSDwAAAAAYAAAA
+	AQIAAAIAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAABBQAACAAAAAEJAABmaWxlOi8v
+	LwwAAAABAQAATWFjaW50b3NoIEhECAAAAAQDAAAAUKEbcwAAAAgAAAAABAAAQceXkgsA
+	AAAkAAAAAQEAADczMzg2QTFELTY2NTItNEFCNy1CRjVDLUU5ODY1MUI3OTg1NxgAAAAB
+	AgAAgQAAAAEAAADvEwAAAQAAAAAAAAAAAAAAAQAAAAEBAAAvAAAAtAAAAP7///8BAAAA
+	AAAAAA4AAAAEEAAAOAAAAAAAAAAFEAAAaAAAAAAAAAAQEAAAiAAAAAAAAABAEAAAeAAA
+	AAAAAAACIAAAQAEAAAAAAAAFIAAAsAAAAAAAAAAQIAAAwAAAAAAAAAARIAAA9AAAAAAA
+	AAASIAAA1AAAAAAAAAATIAAA5AAAAAAAAAAgIAAAIAEAAAAAAAAwIAAAqAAAAAAAAAAB
+	0AAAqAAAAAAAAAAQ0AAABAAAAAAAAAA=
+	</data>
+	<key>NSStatusItem Preferred Position Item-0</key>
+	<real>806</real>
+	<key>NSWindow Frame NSNavPanelAutosaveName</key>
+	<string>560 455 800 448 0 0 1920 1055 </string>
+	<key>SwiftQuitExcludedApps</key>
+	<array>
+		<string>/Applications/Raycast.app</string>
+		<string>/Applications/Karabiner-Elements.app</string>
+		<string>/Applications/qBittorrent.app</string>
+		<string>/Applications/Karabiner-Elements.app</string>
+		<string>/Applications/iTerm.app</string>
+	</array>
+	<key>SwiftQuitSettings</key>
+	<dict>
+		<key>excludeBehaviour</key>
+		<string>excludeApps</string>
+		<key>launchAtLogin</key>
+		<string>true</string>
+		<key>menubarIconEnabled</key>
+		<string>true</string>
+	</dict>
+	<key>launchAtLogin.isEnabled</key>
+	<integer>1</integer>
+</dict>
+</plist>
