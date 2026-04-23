@@ -1,6 +1,7 @@
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 allow_login_shell = false
+model_reasoning_effort = "xhigh"
 
 [features]
 apps = false
@@ -17,6 +18,9 @@ sandbox = "unelevated"
 
 {{- else if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
 [projects."{{ .chezmoi.homeDir }}/Code"]
+trust_level = "trusted"
+
+[projects."{{ .chezmoi.sourceDir }}"]
 trust_level = "trusted"
 
 {{- end }}

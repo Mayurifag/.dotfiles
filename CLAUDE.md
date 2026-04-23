@@ -1,5 +1,10 @@
 # Project Rules — chezmoi dotfiles repo
 
+## Dotfiles workflow
+
+- This is chezmoi source dir. All persistent changes to shell config, aliases, software, profiles MUST go here, not rendered files at target locations (e.g. `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`)
+- After editing source files, run `timeout 3 chezmoi diff` as canary — completes = safe to run `timeout 3 chezmoi apply -v`. Either times out = tell user to run `czapply` manually (chezmoi waiting for interactive input)
+
 ## Cross-platform compatibility
 
 - Keep systems (Arch/MacOS/Win11) same where possible. Example: adding/changing alias? Check all locations (e.g. env vars: `.chezmoitemplates/env_vars_ps1` and `.chezmoitemplates/env_vars_posix`)
@@ -17,8 +22,3 @@
 - Use `cmd` for shared command; add `ps_cmd` when Windows needs a different invocation (e.g. `NUL` vs `/dev/null`)
 - Template renders POSIX as `alias name='cmd'` and PS1 as `function name { cmd @args }`
 - Complex functions (conditionals, multi-step, platform-specific) stay in `.chezmoitemplates/aliases_posix` and `aliases_ps1`
-
-## Dotfiles workflow
-
-- This is chezmoi source dir. All persistent changes to shell config, aliases, profiles MUST go here, not rendered files at target locations (e.g. `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`)
-- After editing source files, run `timeout 3 chezmoi diff` as canary — completes = safe to run `timeout 3 chezmoi apply -v`. Either times out = tell user to run `czapply` manually (chezmoi waiting for interactive input)

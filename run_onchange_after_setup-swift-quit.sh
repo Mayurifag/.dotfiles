@@ -17,4 +17,6 @@ defaults write onebadidea.Swift-Quit SwiftQuitExcludedApps -array \
   "/Applications/Karabiner-Elements.app" \
   "/Applications/qBittorrent.app" \
   "/Applications/iTerm.app" \
+  "/Applications/AyuGram.app" \
+  "/Applications/OrbStack.app" \
   "/Users/mayurifag/Applications/chromium-profile-syncer.app"
