@@ -18,6 +18,7 @@ zsh/.zsh_plugins.sh
 {{ if ne .chezmoi.os "darwin" -}}
 .config/karabiner/
 Library/
+run_onchange_after_setup-swift-quit.sh
 {{- end }}
 
 {{ if eq .chezmoi.os "darwin" -}}

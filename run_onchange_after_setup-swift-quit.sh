@@ -4,8 +4,6 @@
 
 set -eu
 
-[ "$(uname)" = "Darwin" ] || exit 0
-
 defaults write onebadidea.Swift-Quit "NSStatusItem Visible Item-0" -bool false
 defaults write onebadidea.Swift-Quit "launchAtLogin.isEnabled" -int 1
 
