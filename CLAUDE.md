@@ -11,6 +11,13 @@
 - `dot_config/` → `~/.config/`
 - `.tmpl` suffix → treated as Go template
 
+## Aliases
+
+- Simple aliases (single command + args, no conditionals) → `.chezmoidata.toml` under `[sharedAliases.<Category>]`
+- Use `cmd` for shared command; add `ps_cmd` when Windows needs a different invocation (e.g. `NUL` vs `/dev/null`)
+- Template renders POSIX as `alias name='cmd'` and PS1 as `function name { cmd @args }`
+- Complex functions (conditionals, multi-step, platform-specific) stay in `.chezmoitemplates/aliases_posix` and `aliases_ps1`
+
 ## Dotfiles workflow
 
 - This is chezmoi source dir. All persistent changes to shell config, aliases, profiles MUST go here, not rendered files at target locations (e.g. `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`)

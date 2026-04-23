@@ -23,6 +23,10 @@ grc = { cmd = "git rebase --continue" }
 gpf = { cmd = "git push origin HEAD --force-with-lease" }
 gri = { cmd = "git rebase --interactive" }
 qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-with-lease origin HEAD", ps_cmd = "git add .; git commit --amend --no-edit; git push --force-with-lease origin HEAD" }
+sq = { cmd = "yawn squash" }
+
+[sharedAliases.Apps]
+sher = { cmd = "sherlock --output /dev/null", ps_cmd = "sherlock --output NUL" }
 
 [sharedAliases.Docker]
 dcp = { cmd = "docker compose" }

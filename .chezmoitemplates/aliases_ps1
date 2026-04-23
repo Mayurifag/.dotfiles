@@ -30,7 +30,6 @@ function gp {
     $branch = git symbolic-ref --short HEAD
     if (git config "branch.$branch.merge") { git push @args } else { git push -u origin $branch @args }
 }
-function sq { yawn squash @args }
 function reset_file {
     $branch = $null
     if (git rev-parse --verify --quiet origin/main 2>$null) { $branch = "main" }
