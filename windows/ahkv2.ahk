@@ -62,3 +62,24 @@ CapsLock::
 ^vkC0::Run("wt.exe -w _quake")
 !vkC0::Run("wt.exe -w _quake")
 #HotIf
+
+; RAlt typography layer (ported from kanata; kanata dropped on Windows
+; because its Interception driver prevents espanso from detecting keystrokes).
+>!-::SendText("—")
+>!2::SendText("²")
+>!3::SendText("³")
+>!4::SendText("¼")
+>!5::SendText("½")
+>!6::SendText("¾")
+>!7::SendText("¿")
+>!8::SendText("∞")
+>!9::SendText("←")
+>!0::SendText("→")
+>!=::SendText("±")
+>!r::SendText("®")
+>!t::SendText("™")
+>!p::SendText("Ø")
+>!/::SendText("…")
+>!h::SendText("₽")
+>!,::SendText("«")
+>!.::SendText("»")

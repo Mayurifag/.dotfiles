@@ -1,0 +1,11 @@
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[mcp_servers.cavekit]
+{{- if eq .chezmoi.os "windows" }}
+command = "cmd"
+args = ["/c", "npx", "-y", "github:JuliusBrussee/cavekit"]
+{{- else }}
+command = "npx"
+args = ["-y", "github:JuliusBrussee/cavekit"]
+{{- end }}

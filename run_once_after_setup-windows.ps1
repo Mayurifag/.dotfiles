@@ -1,11 +1,10 @@
 # run_once_after_setup-windows.ps1
 # One-time Windows setup tasks managed by chezmoi:
 #   1. Prepend user-local tool directories to persistent User PATH
-#   2. Configure kanata keyboard remapper to start at login
-#   3. Symlink Windows Terminal settings.json to chezmoi source
-#   4. Create AHK startup shortcut in shell:startup
-#   5. Register scheduled task to kill stale gpg-agent sockets at logon
-#   6. Remove stale WindowsTerminalSetup scheduled task (old dotfiles path)
+#   2. Symlink Windows Terminal settings.json to chezmoi source
+#   3. Create AHK startup shortcut in shell:startup
+#   4. Register scheduled task to kill stale gpg-agent sockets at logon
+#   5. Remove stale WindowsTerminalSetup scheduled task (old dotfiles path)
 
 if ($env:OS -ne 'Windows_NT') { exit 0 }
 
@@ -42,49 +41,7 @@ if ($newPath -ine $oldPath) {
 }
 
 # ---------------------------------------------------------------------------
-# 2. Kanata keyboard remapper
-# ---------------------------------------------------------------------------
-# Sets a registry Run key so kanata starts at login, pointing at the
-# chezmoi-managed config: ~/.config/kanata/kanata.kbd
-# Binary: kanata_windows_gui_winIOv2_x64.exe (from winget or PATH)
-
-$kanataExe = $null
-
-# Try winget packages directory first (common install path)
-$wingetBase = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
-if (Test-Path $wingetBase) {
-    $match = Get-ChildItem -Path $wingetBase -Filter "kanata*gui*winIOv2*" -Recurse -ErrorAction SilentlyContinue |
-             Sort-Object FullName -Descending |
-             Select-Object -First 1
-    if ($match) { $kanataExe = $match.FullName }
-}
-
-# Fall back to PATH resolution (works after winget installs add shim to PATH)
-if (-not $kanataExe) {
-    $resolved = Get-Command kanata_windows_gui_winIOv2_x64 -ErrorAction SilentlyContinue
-    if ($resolved) { $kanataExe = $resolved.Source }
-}
-
-# Final fallback: just use the name (relies on PATH at login time)
-if (-not $kanataExe) {
-    $kanataExe = "kanata_windows_gui_winIOv2_x64.exe"
-    Write-Host "[kanata] kanata_windows_gui_winIOv2_x64.exe not found in expected paths; using name only — ensure it is on PATH." -ForegroundColor Yellow
-}
-
-$configPath = Join-Path $env:USERPROFILE ".config\kanata\kanata.kbd"
-$runValue = "`"$kanataExe`" --cfg `"$configPath`""
-
-Write-Host "[kanata] Setting registry Run key: $runValue"
-Set-ItemProperty `
-    -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" `
-    -Name "Kanata" `
-    -Value $runValue
-
-Write-Host "[kanata] Done. kanata will start automatically at next login." -ForegroundColor Green
-Write-Host "         Config: $configPath"
-
-# ---------------------------------------------------------------------------
-# 3. Windows Terminal symlink
+# 2. Windows Terminal symlink
 # ---------------------------------------------------------------------------
 # Symlinks Windows Terminal's settings.json directly to the chezmoi source at
 # ~/.local/share/chezmoi/dot_config/windows-terminal/settings.json so that WT
@@ -166,7 +123,7 @@ if (Test-Path $target) {
 }
 
 # ---------------------------------------------------------------------------
-# 4. AHK Startup shortcut
+# 3. AHK Startup shortcut
 # ---------------------------------------------------------------------------
 # Creates a .lnk shortcut in the user's Startup folder pointing to the
 # chezmoi source copy of ahkv2.ahk. Windows file association launches it
@@ -193,7 +150,7 @@ if (-not (Test-Path $ahkSource)) {
 }
 
 # ---------------------------------------------------------------------------
-# 5. GPG agent cleanup at logon
+# 4. GPG agent cleanup at logon
 # ---------------------------------------------------------------------------
 # After a reboot, Windows kills gpg-agent but leaves stale socket files under
 # %APPDATA%\gnupg. When git later tries to sign a commit, a fresh agent cannot
@@ -232,7 +189,7 @@ if (-not (Test-Path $gpgconf)) {
 }
 
 # ---------------------------------------------------------------------------
-# 6. Remove stale WindowsTerminalSetup scheduled task
+# 5. Remove stale WindowsTerminalSetup scheduled task
 # ---------------------------------------------------------------------------
 # An old scheduled task was registered when the dotfiles lived at
 # C:\Users\Administrator\Code\.dotfiles. The script it points to no longer
