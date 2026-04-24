@@ -137,6 +137,14 @@ function mkcd {
 
 ## Apps (complex)
 function f { if ($args.Count -eq 0) { code . } else { code @args } }
+function webmtogif {
+    param([Parameter(Mandatory)][string]$in)
+    if ([IO.Path]::GetExtension($in) -ieq '.gif') {
+        Write-Error "webmtogif: input already .gif"; return
+    }
+    $out = [IO.Path]::ChangeExtension($in, 'gif')
+    ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
+}
 function c {
     $env:IS_SANDBOX = "1"
     claude --dangerously-skip-permissions @args

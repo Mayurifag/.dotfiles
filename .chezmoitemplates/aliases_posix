@@ -41,6 +41,12 @@ reset_file() {
 
 ## Apps (complex)
 f() { if [ $# -eq 0 ]; then code .; else code "$@"; fi }
+webmtogif() {
+  case "$1" in
+    *.gif|*.GIF) echo "webmtogif: input already .gif" >&2; return 1 ;;
+  esac
+  ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
+}
 
 ## Claude Code
 a() { claude -p --strict-mcp-config --tools "" --no-session-persistence --disable-slash-commands --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text "$*" | glow -; }

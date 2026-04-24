@@ -198,12 +198,12 @@ Windows Registry Editor Version 5.00
 "oldTaskbarOnWin11"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\taskbar-clock-customization]
-"LibraryFileName"="taskbar-clock-customization_1.7.3_435088.dll"
+"LibraryFileName"="taskbar-clock-customization_1.7.4_963191.dll"
 "Disabled"=dword:00000000
 "Include"="explorer.exe"
 "Exclude"=""
 "Architecture"="x86-64"
-"Version"="1.7.3"
+"Version"="1.7.4"
 "SettingsChangeTime"=dword:69cab3bd
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\taskbar-clock-customization\Settings]

@@ -5,8 +5,25 @@
 # === Environment Variables ===
 {{ template "env_vars_ps1" . }}
 # === PATH Additions ===
-$env:PATH = "$env:USERPROFILE\.cargo\bin;" + $env:PATH
-$env:PATH = "$env:USERPROFILE\.local\bin;" + $env:PATH
+function _PrependToPath([string]$dir) {
+    if ([string]::IsNullOrWhiteSpace($dir) -or -not (Test-Path $dir)) { return }
+    if (($env:PATH -split ';') -contains $dir) { return }
+    $env:PATH = "$dir;$env:PATH"
+}
+
+# Cold start: skip dedup work. Re-source (czapply): dedup to avoid stacking.
+if ($env:_PROFILE_LOADED) {
+    _PrependToPath "$env:USERPROFILE\.cargo\bin"
+    _PrependToPath "$env:USERPROFILE\.local\bin"
+} else {
+    $env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.cargo\bin;$env:PATH"
+}
+$env:_PROFILE_LOADED = '1'
+
+$script:_isInteractiveShell = try {
+    [Environment]::UserInteractive -and -not [Console]::IsInputRedirected
+} catch { $true }
+$script:_hasZoxide = $null -ne (Get-Command zoxide -ErrorAction SilentlyContinue)
 
 # === Default directory ===
 # On a fresh tab WT starts in System32; navigate to Code instead
@@ -16,53 +33,81 @@ if ((Get-Location).Path -eq "$env:SystemRoot\System32") { Set-Location ~\Code }
 $_cacheDir = "$env:LOCALAPPDATA\shell-cache"
 if (-not (Test-Path $_cacheDir)) { New-Item -ItemType Directory -Path $_cacheDir -Force | Out-Null }
 
-function _CachedInit([string]$name, [string]$exe, [scriptblock]$generator) {
-    $cache = "$_cacheDir\$name.ps1"
-    $exePath = (Get-Command $exe -ErrorAction SilentlyContinue)?.Source
-    if ($exePath -and (Test-Path $cache) -and (Get-Item $cache).LastWriteTime -ge (Get-Item $exePath).LastWriteTime) {
-        . $cache
-    } else {
-        $content = & $generator
-        $content | Set-Content -Path $cache -Force
-        . $cache
+if ($script:_isInteractiveShell) {
+    function _CachedInit([string]$name, [string]$exe, [scriptblock]$generator) {
+        $cache = "$_cacheDir\$name.ps1"
+        $exePath = (Get-Command $exe -ErrorAction SilentlyContinue)?.Source
+        if (-not $exePath) { return }
+
+        $useCache = (Test-Path $cache) -and [IO.File]::GetLastWriteTime($cache) -ge [IO.File]::GetLastWriteTime($exePath)
+        if (-not $useCache) {
+            $content = & $generator 2>$null
+            if (-not [string]::IsNullOrWhiteSpace($content)) {
+                $content | Set-Content -Path $cache -Force
+                $useCache = $true
+            }
+        }
+
+        if ($useCache) {
+            try {
+                . $cache
+            } catch {
+                Remove-Item -Path $cache -Force -ErrorAction SilentlyContinue
+            }
+        }
     }
+
+    # mise — version manager
+    _CachedInit 'mise' 'mise' { & mise activate pwsh }
+
+    # starship — cross-shell prompt
+    _CachedInit 'starship' 'starship' { starship init powershell }
+
+    # zoxide — smart cd
+    _CachedInit 'zoxide' 'zoxide' { zoxide init powershell }
+
+    Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
 }
 
-# mise — version manager
-_CachedInit 'mise' 'mise' { & mise activate pwsh }
-
-# starship — cross-shell prompt
-_CachedInit 'starship' 'starship' { starship init powershell }
-
-# zoxide — smart cd
-_CachedInit 'zoxide' 'zoxide' { zoxide init powershell }
-
-Remove-Item -Path Function:\_CachedInit -ErrorAction SilentlyContinue
-Remove-Variable _cacheDir
+Remove-Item -Path Function:\_PrependToPath -ErrorAction SilentlyContinue
 
 # === OSC 9;9 — report CWD to terminal (enables new-tab-in-same-dir) ===
-function global:Invoke-Starship-PreCommand {
-    $loc = $executionContext.SessionState.Path.CurrentLocation
-    if ($loc.Provider.Name -eq 'FileSystem') {
-        [System.Console]::Write("`e]9;9;$($loc.ProviderPath)`a")
+if ($script:_isInteractiveShell) {
+    function global:Invoke-Starship-PreCommand {
+        $loc = $executionContext.SessionState.Path.CurrentLocation
+        if ($loc.Provider.Name -eq 'FileSystem') {
+            [System.Console]::Write("`e]9;9;$($loc.ProviderPath)`a")
+        }
     }
 }
 
 # === GPG agent warmup ===
 # Pre-start gpg-agent on shell open so it's ready before the first `git commit`.
 # Without this, the first commit after reboot races against agent startup → signing fails.
-if (Test-Path "C:\Program Files\GnuPG\bin\gpgconf.exe") {
-    & "C:\Program Files\GnuPG\bin\gpgconf.exe" --launch gpg-agent 2>$null
+if ($script:_isInteractiveShell) {
+    $gpgconf = "C:\Program Files\GnuPG\bin\gpgconf.exe"
+    if ((Test-Path $gpgconf) -and -not (Get-Process gpg-agent -ErrorAction SilentlyContinue)) {
+        & $gpgconf --launch gpg-agent 2>$null
+    }
 }
 
 # === Smart cd (falls back to zoxide, like zsh) ===
 # Aliases take precedence over functions in PowerShell — must remove the built-in 'cd' alias first.
 Remove-Item Alias:cd -Force -ErrorAction SilentlyContinue
 function cd {
-    if ($args.Count -eq 0) { zi; return }
+    if ($args.Count -eq 0) {
+        if ($script:_hasZoxide) { zi } else { Set-Location ~ }
+        return
+    }
+
     try {
         Set-Location @args -ErrorAction Stop
     } catch {
+        if (-not $script:_hasZoxide) {
+            Write-Error "cd: no such file or directory: $($args -join ' ')"
+            return
+        }
+
         # Tab-completion may prepend .\  — strip it so zoxide can match
         $zArgs = @($args | ForEach-Object { if ($_ -is [string]) { $_ -replace '^\.[\\/]', '' -replace '[\\/]+$', '' } else { $_ } })
         $null = zoxide query -s @zArgs 2>$null
@@ -83,3 +128,6 @@ Set-Alias python3 python
 function czapply { chezmoi apply -v; . $PROFILE }
 function czcd { Set-Location (chezmoi source-path) }
 Set-Alias -Name cdcz -Value czcd
+
+Remove-Variable _cacheDir -ErrorAction SilentlyContinue
+Remove-Variable _isInteractiveShell -ErrorAction SilentlyContinue
