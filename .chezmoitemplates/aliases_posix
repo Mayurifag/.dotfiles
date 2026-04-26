@@ -86,3 +86,8 @@ npmug() {
 
 ## System utilities (complex)
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"
+
+## Xray (complex)
+xray-add() { make -C "$XRAY_CFG" add-domain domain="$1" proxy="${2:-proxy_it}"; }
+xray-rm() { make -C "$XRAY_CFG" remove-domain domain="$1"; }
+xray-remove() { xray-rm "$@"; }

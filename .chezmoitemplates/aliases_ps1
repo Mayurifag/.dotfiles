@@ -160,3 +160,8 @@ function q {
         Write-Error "No yawn executable found."
     }
 }
+
+## Xray (complex)
+function xray-add($d, $p = 'proxy_it') { make -C $env:XRAY_CFG add-domain domain=$d proxy=$p }
+function xray-rm($d) { make -C $env:XRAY_CFG remove-domain domain=$d }
+function xray-remove($d) { xray-rm $d }
