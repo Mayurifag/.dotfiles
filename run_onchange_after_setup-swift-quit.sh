@@ -20,4 +20,12 @@ defaults write onebadidea.Swift-Quit SwiftQuitExcludedApps -array \
   "/Applications/AyuGram.app" \
   "/Applications/OrbStack.app" \
   "/Applications/OpenCloud.app" \
+  "/Applications/Transmission.app" \
+  "/Applications/AltTab.app" \
+  "/Applications/Espanso.app" \
+  "/Applications/LocalSend.app" \
+  "/Applications/MEGAsync.app" \
+  "/Applications/KeePassXC.app" \
+  "/Applications/TickTick.app" \
+  "/Applications/CodexBar.app" \
   "/Users/mayurifag/Applications/chromium-profile-syncer.app"

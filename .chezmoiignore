@@ -19,6 +19,7 @@ zsh/.zsh_plugins.sh
 .config/karabiner/
 Library/
 setup-swift-quit.sh
+setup-alt-tab.sh
 {{- end }}
 
 {{ if eq .chezmoi.os "darwin" -}}

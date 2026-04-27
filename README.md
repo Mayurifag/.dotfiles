@@ -103,6 +103,8 @@ gpg> quit
 * iTerm2 prefs backed up at `macos/iterm/com.googlecode.iterm2.plist` (not chezmoi-managed).
   Restore: Prefs → General → Preferences → "Load preferences from custom folder" →
   point to `$(chezmoi source-path)/macos/iterm`.
+* AltTab settings auto-applied via `run_onchange_after_setup-alt-tab.sh`. Edit that script to tweak.
+  After fresh install, set the trigger shortcut once in AltTab GUI (Cmd by default).
 * Setup espanso - accessibility settings. Check if
   [memory leak fixed](https://github.com/espanso/espanso/issues/1675).
 * If some shit goes with Privacy in MacOS settings, try to remove entry with
