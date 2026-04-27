@@ -20,7 +20,7 @@ cz = { cmd = "chezmoi" }
 [sharedAliases.Git]
 lzg = { cmd = "lazygit" }
 grc = { cmd = "git rebase --continue" }
-gpf = { cmd = "git push origin HEAD --force-with-lease" }
+gpf = { cmd = "yawn force-push" }
 gri = { cmd = "git rebase --interactive" }
 qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-with-lease origin HEAD", ps_cmd = "git add .; git commit --amend --no-edit; git push --force-with-lease origin HEAD" }
 sq = { cmd = "yawn squash" }
