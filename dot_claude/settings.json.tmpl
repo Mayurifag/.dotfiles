@@ -34,7 +34,11 @@
         ]
       }
     ]
-  },
+  },{{ if eq .chezmoi.os "windows" }}
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -ExecutionPolicy Bypass -File \"C:\\Users\\Administrator\\.claude\\plugins\\cache\\caveman\\caveman\\63e797cd753b\\hooks\\caveman-statusline.ps1\""
+  },{{ end }}
   "enabledPlugins": {
     "context7@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
@@ -56,19 +60,15 @@
   "feedbackSurveyRate": 0,
   "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
+  "theme": "auto",
   "mcpServers": {
     "cavekit": {
       "type": "stdio",
-      "command": {{ if eq .chezmoi.os "windows" }}"cmd",
-      "args": ["/c", "npx", "-y", "github:JuliusBrussee/cavekit"]{{ else }}"npx",
+      "command": "npx",
       "args": [
         "-y",
         "github:JuliusBrussee/cavekit"
-      ]{{ end }}
+      ]
     }
-  }{{ if eq .chezmoi.os "windows" }},
-  "statusLine": {
-    "type": "command",
-    "command": "powershell -ExecutionPolicy Bypass -File \"C:\\Users\\Administrator\\.claude\\plugins\\cache\\caveman\\caveman\\63e797cd753b\\hooks\\caveman-statusline.ps1\""
-  }{{ end }}
+  }
 }

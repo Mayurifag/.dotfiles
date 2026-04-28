@@ -1,0 +1,157 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "Community.PowerToys.Run.Plugin.ProcessKiller/1.12.2": {
+        "dependencies": {
+          "System.Management": "9.0.4",
+          "PowerToys.Common.UI": "0.90.1.0",
+          "PowerToys.ManagedCommon": "0.90.1.0",
+          "PowerToys.Settings.UI.Lib": "0.90.1.0",
+          "Wox.Infrastructure": "0.90.1.0",
+          "Wox.Plugin": "0.90.1.0"
+        },
+        "runtime": {
+          "Community.PowerToys.Run.Plugin.ProcessKiller.dll": {}
+        },
+        "resources": {
+          "de-DE/Community.PowerToys.Run.Plugin.ProcessKiller.resources.dll": {
+            "locale": "de-DE"
+          },
+          "pl-PL/Community.PowerToys.Run.Plugin.ProcessKiller.resources.dll": {
+            "locale": "pl-PL"
+          },
+          "tr-TR/Community.PowerToys.Run.Plugin.ProcessKiller.resources.dll": {
+            "locale": "tr-TR"
+          },
+          "uk-UA/Community.PowerToys.Run.Plugin.ProcessKiller.resources.dll": {
+            "locale": "uk-UA"
+          },
+          "zh-CN/Community.PowerToys.Run.Plugin.ProcessKiller.resources.dll": {
+            "locale": "zh-CN"
+          },
+          "zh-TW/Community.PowerToys.Run.Plugin.ProcessKiller.resources.dll": {
+            "locale": "zh-TW"
+          }
+        }
+      },
+      "System.CodeDom/9.0.4": {
+        "runtime": {
+          "lib/net9.0/System.CodeDom.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.425.16305"
+          }
+        }
+      },
+      "System.Management/9.0.4": {
+        "dependencies": {
+          "System.CodeDom": "9.0.4"
+        },
+        "runtime": {
+          "lib/net9.0/System.Management.dll": {
+            "assemblyVersion": "9.0.0.4",
+            "fileVersion": "9.0.425.16305"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net9.0/System.Management.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "9.0.0.4",
+            "fileVersion": "9.0.425.16305"
+          }
+        }
+      },
+      "PowerToys.Common.UI/0.90.1.0": {
+        "runtime": {
+          "PowerToys.Common.UI.dll": {
+            "assemblyVersion": "0.90.1.0",
+            "fileVersion": "0.90.1.0"
+          }
+        }
+      },
+      "PowerToys.ManagedCommon/0.90.1.0": {
+        "runtime": {
+          "PowerToys.ManagedCommon.dll": {
+            "assemblyVersion": "0.90.1.0",
+            "fileVersion": "0.90.1.0"
+          }
+        }
+      },
+      "PowerToys.Settings.UI.Lib/0.90.1.0": {
+        "runtime": {
+          "PowerToys.Settings.UI.Lib.dll": {
+            "assemblyVersion": "0.90.1.0",
+            "fileVersion": "0.90.1.0"
+          }
+        }
+      },
+      "Wox.Infrastructure/0.90.1.0": {
+        "runtime": {
+          "Wox.Infrastructure.dll": {
+            "assemblyVersion": "0.90.1.0",
+            "fileVersion": "0.90.1.0"
+          }
+        }
+      },
+      "Wox.Plugin/0.90.1.0": {
+        "runtime": {
+          "Wox.Plugin.dll": {
+            "assemblyVersion": "0.90.1.0",
+            "fileVersion": "0.90.1.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Community.PowerToys.Run.Plugin.ProcessKiller/1.12.2": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.CodeDom/9.0.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-aJdv7Z87PoPW8ijvGIincocooYRbH3Umtlz7OrJKf6GDInbdu1bvk5X1fFlmbl7WP+9ntoIBd7NjKz+siVFdHA==",
+      "path": "system.codedom/9.0.4",
+      "hashPath": "system.codedom.9.0.4.nupkg.sha512"
+    },
+    "System.Management/9.0.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MfY9+SrkSvchAoFiChTkhQYCAjBaQQ9u3LwiKmho7oTbujucnxCzORlPgLhId/ChLSptsQ/1UmtPGLZaKYVdsA==",
+      "path": "system.management/9.0.4",
+      "hashPath": "system.management.9.0.4.nupkg.sha512"
+    },
+    "PowerToys.Common.UI/0.90.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PowerToys.ManagedCommon/0.90.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PowerToys.Settings.UI.Lib/0.90.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Wox.Infrastructure/0.90.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Wox.Plugin/0.90.1.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

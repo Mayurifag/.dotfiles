@@ -6,6 +6,7 @@ Espanso.Espanso
 Git.Git
 GitHub.cli
 GnuWin32.Make
+Google.PlatformTools
 ImputNet.Helium
 jdx.mise
 KeePassXC.KeePassXC
@@ -14,6 +15,7 @@ lin-ycv.EverythingPowerToys
 LocalSend.LocalSend
 M2Team.NanaZip
 Microsoft.PowerShell
+Microsoft.PowerToys
 Microsoft.VisualStudioCode
 Microsoft.WindowsTerminal
 RadolynLabs.AyuGramDesktop

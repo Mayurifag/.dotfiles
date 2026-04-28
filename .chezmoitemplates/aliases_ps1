@@ -97,6 +97,26 @@ function free {
     Write-Output "              total        used        free"
     Write-Output ("Mem:   {0,11}  {1,10}  {2,10}" -f $total, $used, $free)
 }
+function whois {
+    param([Parameter(Mandatory)][string]$Domain, [string]$Server = 'whois.iana.org')
+    $client = [Net.Sockets.TcpClient]::new($Server, 43)
+    try {
+        $stream = $client.GetStream()
+        $w = [IO.StreamWriter]::new($stream); $w.NewLine = "`r`n"
+        $w.WriteLine($Domain); $w.Flush()
+        $resp = [IO.StreamReader]::new($stream).ReadToEnd()
+    } finally { $client.Close() }
+    if ($Server -eq 'whois.iana.org') {
+        $refer = $resp -split "`n" | Select-String -Pattern '^\s*(refer|whois):\s*(\S+)' | Select-Object -First 1
+        if ($refer) { return whois -Domain $Domain -Server $refer.Matches[0].Groups[2].Value }
+    }
+    $resp
+}
+function ip {
+    param([Parameter(Mandatory)][string]$Name)
+    Resolve-DnsName -Name $Name -Type A_AAAA -ErrorAction Stop |
+        Where-Object IPAddress | Select-Object Name, Type, IPAddress
+}
 
 ## GitKraken
 function gk {

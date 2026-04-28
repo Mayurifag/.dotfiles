@@ -16,6 +16,13 @@
 - `dot_config/` → `~/.config/`
 - `.tmpl` suffix → treated as Go template
 
+## Run scripts & .chezmoiignore
+
+- Scripts at repo root named `run_after_X.ps1` / `run_once_after_X.ps1` execute on every (or first) `chezmoi apply`
+- For ignore purposes, chezmoi matches scripts by target name = filename **with the `run_*_` prefix stripped**. Example: `run_after_backup.ps1` → ignore entry `backup.ps1`
+- When adding/renaming a platform-specific script, update `.chezmoiignore` under the matching `{{ if ne .chezmoi.os "<os>" }}` guard so other OSes skip it
+- `windows/` directory is unconditionally ignored — safe place for Windows-only manual scripts and config snapshots (Windhawk, PowerToys, etc.). No per-file ignore work needed for files inside it
+
 ## Aliases
 
 - Simple aliases (single command + args, no conditionals) → `.chezmoidata.toml` under `[sharedAliases.<Category>]`
