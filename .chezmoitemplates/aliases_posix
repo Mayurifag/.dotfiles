@@ -87,6 +87,38 @@ npmug() {
 ## System utilities (complex)
 alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"
 
+## Shipping
+ship() {
+  if [ $# -eq 0 ]; then echo "Usage: ship <tracking_number>" >&2; return 1; fi
+  if [ -z "$SEVENTEENTRACK_API_KEY" ]; then echo "ship: SEVENTEENTRACK_API_KEY not set" >&2; return 1; fi
+  local num="$1" base="https://api.17track.net/track/v2.2"
+  local body resp http json code accepted
+  body=$(printf '[{"number":"%s","lang":"en"}]' "$num")
+  resp=$(curl -sS -m 15 -w '\n%{http_code}' -X POST "$base/gettrackinfo" \
+    -H "17token: $SEVENTEENTRACK_API_KEY" -H "Content-Type: application/json" -d "$body") || {
+    echo "ship: curl failed" >&2; return 1
+  }
+  http=${resp##*$'\n'}; json=${resp%$'\n'*}
+  if [ "$http" != "200" ]; then echo "ship: HTTP $http" >&2; echo "$json" >&2; return 1; fi
+  code=$(printf '%s' "$json" | jq -r '.code // empty')
+  if [ "$code" != "0" ]; then printf '%s' "$json" | jq . >&2; return 1; fi
+  accepted=$(printf '%s' "$json" | jq -r '.data.accepted | length')
+  if [ "$accepted" = "0" ] || [ "$(printf '%s' "$json" | jq -r '.data.accepted[0].track_info // empty')" = "" ]; then
+    curl -sS -m 15 -X POST "$base/register" \
+      -H "17token: $SEVENTEENTRACK_API_KEY" -H "Content-Type: application/json" -d "$body" >/dev/null
+    echo "ship: registered $num — retry in a moment for events" >&2
+    return 0
+  fi
+  printf '%s' "$json" | jq -r '
+    .data.accepted[0] as $t |
+    "Number:    " + ($t.number // "N/A"),
+    "Status:    " + ($t.track_info.latest_status.status // "N/A") + " / " + ($t.track_info.latest_status.sub_status // "N/A"),
+    "Last:      " + ($t.track_info.latest_event.description // "N/A"),
+    "Location:  " + ($t.track_info.latest_event.location // "N/A"),
+    "Time:      " + ($t.track_info.latest_event.time_iso // "N/A")
+  '
+}
+
 ## Xray (complex)
 xray-add() { make -C "$XRAY_CFG" add-domain domain="$1" proxy="${2:-proxy_it}"; }
 xray-rm() { make -C "$XRAY_CFG" remove-domain domain="$1"; }

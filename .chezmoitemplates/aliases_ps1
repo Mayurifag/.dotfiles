@@ -118,6 +118,37 @@ function ip {
         Where-Object IPAddress | Select-Object Name, Type, IPAddress
 }
 
+## Shipping
+function ship {
+    param([string]$Number)
+    if (-not $Number) { Write-Error "Usage: ship <tracking_number>"; return }
+    if (-not $env:SEVENTEENTRACK_API_KEY) { Write-Error "ship: SEVENTEENTRACK_API_KEY not set"; return }
+    $base = "https://api.17track.net/track/v2.2"
+    $headers = @{ '17token' = $env:SEVENTEENTRACK_API_KEY; 'Content-Type' = 'application/json' }
+    $body = ConvertTo-Json @(@{ number = $Number; lang = 'en' }) -Compress
+    try {
+        $resp = Invoke-RestMethod -Method Post -Uri "$base/gettrackinfo" -Headers $headers -Body $body -TimeoutSec 15 -ErrorAction Stop
+    } catch {
+        Write-Error "ship: $_"; return
+    }
+    if ($resp.code -ne 0) { Write-Error "ship: API code $($resp.code) — $($resp | ConvertTo-Json -Depth 5 -Compress)"; return }
+    $t = $resp.data.accepted | Select-Object -First 1
+    if (-not $t -or -not $t.track_info) {
+        try {
+            Invoke-RestMethod -Method Post -Uri "$base/register" -Headers $headers -Body $body -TimeoutSec 15 -ErrorAction Stop | Out-Null
+        } catch { Write-Error "ship: register failed: $_"; return }
+        Write-Host "ship: registered $Number — retry in a moment for events"
+        return
+    }
+    $ti = $t.track_info
+    $status = "$($ti.latest_status.status) / $($ti.latest_status.sub_status)"
+    "Number:    $($t.number)"
+    "Status:    $status"
+    "Last:      $($ti.latest_event.description)"
+    "Location:  $($ti.latest_event.location)"
+    "Time:      $($ti.latest_event.time_iso)"
+}
+
 ## GitKraken
 function gk {
     $gkExe = Get-Item "$env:LOCALAPPDATA\gitkraken\app-*\gitkraken.exe" -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty FullName
