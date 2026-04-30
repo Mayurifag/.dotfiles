@@ -29,3 +29,9 @@ defaults write onebadidea.Swift-Quit SwiftQuitExcludedApps -array \
   "/Applications/TickTick.app" \
   "/Applications/CodexBar.app" \
   "/Users/mayurifag/Applications/chromium-profile-syncer.app"
+
+# Restart Swift Quit so it picks up the updated excluded-apps list
+# (the running instance caches the list at launch)
+killall "Swift Quit" 2>/dev/null || true
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/Swift Quit.app"
+open -a "Swift Quit"
