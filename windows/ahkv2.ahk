@@ -76,10 +76,11 @@ CapsLock::
 >!9::SendText("←")
 >!0::SendText("→")
 >!=::SendText("±")
->!r::SendText("®")
->!t::SendText("™")
->!p::SendText("Ø")
->!/::SendText("…")
->!h::SendText("₽")
->!,::SendText("«")
->!.::SendText("»")
+; Right Alt + letter/punct — scancodes so layout (EN/RU) doesn't matter
+>!SC013::SendText("®")  ; r
+>!SC014::SendText("™")  ; t
+>!SC019::SendText("Ø")  ; p
+>!SC035::SendText("…")  ; /
+>!SC023::SendText("₽")  ; h
+>!SC033::SendText("«")  ; ,
+>!SC034::SendText("»")  ; .
