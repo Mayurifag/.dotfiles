@@ -234,5 +234,6 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
+* Wait for darrylmorley/whatcable
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
