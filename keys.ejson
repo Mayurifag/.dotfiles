@@ -1,15 +1,16 @@
 {
   "_public_key": "e97b5e6139b43297338c52ab0408874ec642257af0c3aef8454bf2f9c57c8d28",
-  "ssh_user": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:1VJCs0gkSO0XfSbxu+SzHMhEyp930Hjh:jeSMZ2J4K+EZKxqiP8JdZTPf0RAUv3g0Fg==]",
-  "gemini_api_key": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:yUQg/bw5uuqS9hGZbCu7Xeb3UmSEa7bb:AWUbuaxdiSuDEHy6LZN9z4csGkMzxkgBWc4qmYmDWPXh9rOQKivm6/kdb/0ppdNNGB19dWA7FQ==]",
-  "docker_auth": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:H0bvv3jbXTlWUvxTEENeCLMSC2QP8aEM:h2TdTQBCLL/emvm271uM8xnX4xAAq5gC9cHS+Ts/6NhS+MUFjgCdbObu21tahs9mZ4tuyuCo3SE=]",
-  "host_one": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:d1gQMMD9m0Tt3qVxWULq9eADRhL7Kgoa:vMUr9Ru9e2eRM+ZGdMatKuhoWt0m60f0o3Lze+kE]",
-  "host_one_hostname": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:9BrqdGaEYeer5aEGFsyz3cV/CaLHw7Yv:gE1n6H7efDMuJLM7sTtDXWbRtXIcX6zrdERmrg==]",
-  "host_two": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:devSHrFPk+oFhHQh9Xt2akKUORZLdxjG:1/hBjcircknLdvb+kZk3DZjAIg==]",
-  "host_two_hostname": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:1nyleSObLXRfg6B7iCG4fIzHRU8dMXrH:r3mOe2OKObTXSLgXJTG0091PaTrqot4Xn5Q5lWJi]",
-  "host_two_port": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:b5luVJEXvRvf+Vkr2glW4+Im374sOEqP:s+1MTLZITIsApFifLNnrrL37n6g=]",
-  "host_three": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:QM7tRpLLKeaZZSm1pGvzAai9L9DdUgz6:Kr/+bpG8vQ76OMZFBI8so56/z8E=]",
-  "host_three_hostname": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:8x1YgV3Cc1MDnweoKagug3C3aDMgv+H0:PSGRg4JRVHFU0bErZjYYLvs/yu/oreKVFAF/WBIZxA==]",
-  "context7_api_key": "EJ[1:wOyRMOCtCbEruM+Ov4+6aZdLMihA63uPMK4MFPLogCM=:Mdrit9FmXXSacoNE1L5LJKqsedEbF/Sl:6yZig28rqTTMWPyuSjmjod7kSvBLvXbgFDdeMsnuOR4EUhnWLHMsa0yJoiLBkUnTJ0CQZisWYQpaNXs=]",
-  "seventeentrack_api_key": "EJ[1:DHkEYHOtFS4Nhv0YQFGYO4pIfchrXP6/KY5aTCTp8FE=:Uqt9jXNylCsqTqilWGg2tQWBtdsctNNM:WXom1VhMlZ9EzTl6RLzhSV/18grKve5M87ehmJfA8zoxS3CsVDhVK16AqqVMWtRa]"
+  "ssh_user": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:uH3vectZS0w7P4rcPd1JKdqYBBe82MN5:Pa4Nm2ZKVhdHZG6uR89zB3dEx0oke29rtQ==]",
+  "gemini_api_key": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:SOlHDrorodnGTB23Lp3umx0vbfyJZpMv:6gV+Gz14moMXF/dKD4e0/j7AnkynMFfmtBJCC0w0v6mg+YjFQmiapSugr4f0HN/zmKjDoNwP/g==]",
+  "docker_auth": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:4oXJ/DNrMQ1vC7kP8+5GJvITZFhqM1/P:tmslC1TG+Z8V2cw7GI9eIq4vn4KUYtPkYANyymXrR1zGNZKrf5omL6RdedesiSNVeE1LJOqAWM0=]",
+  "host_one": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:GQ0Tc+D9E1Qa6XYKK5DH+yXdRUV0rGmA:0z5bCU5cdaU8/ajj4Qs5IzkjJEffwWwJrICy4GrL]",
+  "host_one_hostname": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:Kx8qlWoLsg85RlpwtGEEk910+L4Dnhf/:4CfFjrJdoaMR9zxlW66ViLash61f9jKol0xAUQ==]",
+  "host_one_port": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:lE2MH8N3Hbb1XCaolImO+//SvetCDFU/:Q++04I2DZtUyc6LfAz24bHeBeYs=]",
+  "host_two": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:lJHCRqQEFKTg7G0uiKIeyXvrh25+b1Qy:ri1EJE7VCU6C5h8T+v0hKErFEA==]",
+  "host_two_hostname": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:X+w1Q5OgN6fwWIzCMdQwGBode8NVwpli:hou9Xzr1S76R8fNwaXhAIzeOu5KW3N95FtAP3I8h]",
+  "host_two_port": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:WnCMdviUl+g1tkHeHpd0BuZiQgVB1Jmn:ItTGOEsEYJvM6Ceo+ICtJG/ezfw=]",
+  "host_three": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:IlcmcSvaVdvZz2XAcf0MUJAHNuid/UDQ:lW6f6oqbx3IsvblVdVGPMblgc6U=]",
+  "host_three_hostname": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:YKc+t3zEuqzCdTlp9GyAF+tmbkJpOZhD:igDsx1CyGP+Ifurw8PDTUcRh4IarK373Kd4+ilhITQ==]",
+  "context7_api_key": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:8uXYiAukgfpLi3B58ZTpHIDgwBOJye5v:vNPg1UWK5PCcESqIbVF4ktXvixbx1h62qHWwF5yu0CVGPTrpbVLbOBioPpMpBulmZa4w0JuC6MTQW8Q=]",
+  "seventeentrack_api_key": "EJ[1:Gn1OR4VhZlyqpxalCgt5b6J5s/sa34pWvn1O4LBNV0U=:bKD81W+H4NOkIDtrigHiFuAJ+Gd+IcmY:rfKZpKKUqXcg+26qbX727wpOiz02Kk5GE2CZTsIet1QK0UOr7jezS6FuV9gmI9SN]"
 }

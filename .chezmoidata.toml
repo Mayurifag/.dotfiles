@@ -17,6 +17,10 @@ v = { cmd = "vim" }
 [sharedAliases.Chezmoi]
 cz = { cmd = "chezmoi" }
 
+[sharedAliases.Deploy]
+dm = { cmd = "cd ~/Code/mayurifag.ru && make deploy HOST=mayurifag" }
+dn = { cmd = "cd ~/Code/mayurifag.ru && make deploy HOST=nnnnn" }
+
 [sharedAliases.Git]
 lzg = { cmd = "lazygit" }
 grc = { cmd = "git rebase --continue" }
