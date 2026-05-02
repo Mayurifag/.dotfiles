@@ -44,7 +44,6 @@ cz_apply.sh
 .config/konsolerc
 .config/ghostty/
 .config/waystt/
-.config/mpv/
 .config/kanata/
 .zshrc
 zsh/

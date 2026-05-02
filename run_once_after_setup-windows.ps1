@@ -5,6 +5,7 @@
 #   3. Create AHK startup shortcut in shell:startup
 #   4. Register scheduled task to kill stale gpg-agent sockets at logon
 #   5. Remove stale WindowsTerminalSetup scheduled task (old dotfiles path)
+#   6. Junction %APPDATA%\mpv -> ~/.config/mpv so mpv picks up chezmoi config
 
 if ($env:OS -ne 'Windows_NT') { exit 0 }
 
@@ -201,4 +202,44 @@ if (Get-ScheduledTask -TaskName $staleTask -ErrorAction SilentlyContinue) {
     Write-Host "[wt-task] Removed stale scheduled task '$staleTask'." -ForegroundColor Green
 } else {
     Write-Host "[wt-task] Stale task '$staleTask' not present — nothing to remove." -ForegroundColor Green
+}
+
+# ---------------------------------------------------------------------------
+# 6. mpv config junction
+# ---------------------------------------------------------------------------
+# mpv on Windows reads %APPDATA%\mpv by default. chezmoi writes its config to
+# ~/.config/mpv. Junction the two so the dotfiles-managed config is what mpv
+# loads. Junctions don't need admin/Developer Mode (unlike symlinks).
+
+$mpvSource = Join-Path $env:USERPROFILE ".config\mpv"
+$mpvTarget = Join-Path $env:APPDATA "mpv"
+
+if (-not (Test-Path $mpvSource)) {
+    Write-Host "[mpv] WARNING: chezmoi mpv config not found: $mpvSource" -ForegroundColor Yellow
+    Write-Host "     Run 'chezmoi apply' first, then re-run this script." -ForegroundColor Yellow
+} else {
+    $needsLink = $true
+    if (Test-Path $mpvTarget) {
+        $item = Get-Item $mpvTarget -Force
+        if ($item.LinkType -in @('Junction', 'SymbolicLink') -and $item.Target -contains $mpvSource) {
+            Write-Host "[mpv] Junction already correct: $mpvTarget -> $mpvSource" -ForegroundColor Green
+            $needsLink = $false
+        } else {
+            $backup = "$mpvTarget.bak"
+            Write-Host "[mpv] Backing up existing $mpvTarget to $backup"
+            if (Test-Path $backup) { Remove-Item -Path $backup -Recurse -Force }
+            Move-Item -Path $mpvTarget -Destination $backup -Force
+        }
+    }
+
+    if ($needsLink) {
+        Write-Host "[mpv] Creating junction: $mpvTarget -> $mpvSource"
+        cmd /c mklink /J "$mpvTarget" "$mpvSource" | Out-Null
+        if (Test-Path $mpvTarget) {
+            Write-Host "[mpv] Done. mpv will load config from chezmoi-managed dir." -ForegroundColor Green
+        } else {
+            Write-Host "[mpv] ERROR: Junction creation failed." -ForegroundColor Red
+            exit 1
+        }
+    }
 }
