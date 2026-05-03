@@ -1,6 +1,5 @@
 cargo-update
 zoxide
-create-tauri-app
 tlrc
 llmfit
 eza

@@ -40,7 +40,7 @@ When editing existing code:
 When your changes create orphans:
 
 - Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
+- Don't remove pre-existing dead code unless asked (suggest to remove if any).
 
 The test: Every changed line should trace directly to the user's request.
 
