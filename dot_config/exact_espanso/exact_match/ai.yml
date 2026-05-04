@@ -1,7 +1,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/espanso/espanso/dev/schemas/match.schema.json
 
 matches:
-  - trigger: ":aigeneral"
+  - trigger: ":pr"
+    replace: |
+      Read PR via `gh` (diff + comments). Fix all issues, make one commit, push (no force-push/rebase/merge), then reply to each comment via `gh api` — fixed with context, or why not viable.
+  - trigger: ":aigen"
     replace: |
       {{system_instructions_base}}
       ## Task-Specific Rules
