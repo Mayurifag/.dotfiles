@@ -15,4 +15,4 @@ export NEXT_TELEMETRY_DISABLED=1
 export VSCODE_TELEMETRY_LEVEL=off
 export POWERSHELL_TELEMETRY_OPTOUT=1
 export GOTELEMETRY=off
-export XRAY_CFG="$HOME/Code/xray-cfg"
+export PROXIES_CFG="$HOME/Code/proxies-cfg"

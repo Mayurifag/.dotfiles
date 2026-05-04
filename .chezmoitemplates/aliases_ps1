@@ -212,7 +212,7 @@ function q {
     }
 }
 
-## Xray (complex)
-function xray-add($d, $p = 'proxy_it') { make -C $env:XRAY_CFG add-domain domain=$d proxy=$p }
-function xray-rm($d) { make -C $env:XRAY_CFG remove-domain domain=$d }
-function xray-remove($d) { xray-rm $d }
+## Proxies (complex)
+function proxies-add($d, $p = 'proxy_it') { make -C $env:PROXIES_CFG add-domain domain=$d proxy=$p }
+function proxies-rm($d) { make -C $env:PROXIES_CFG remove-domain domain=$d }
+function proxies-remove($d) { proxies-rm $d }

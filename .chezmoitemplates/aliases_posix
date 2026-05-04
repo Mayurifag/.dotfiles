@@ -119,7 +119,7 @@ ship() {
   '
 }
 
-## Xray (complex)
-xray-add() { make -C "$XRAY_CFG" add-domain domain="$1" proxy="${2:-proxy_it}"; }
-xray-rm() { make -C "$XRAY_CFG" remove-domain domain="$1"; }
-xray-remove() { xray-rm "$@"; }
+## Proxies (complex)
+proxies-add() { make -C "$PROXIES_CFG" add-domain domain="$1" proxy="${2:-proxy_it}"; }
+proxies-rm() { make -C "$PROXIES_CFG" remove-domain domain="$1"; }
+proxies-remove() { proxies-rm "$@"; }

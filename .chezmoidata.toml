@@ -58,14 +58,14 @@ grep = { cmd = "grep --color=auto", ps_cmd = "grep.exe --color=auto" }
 df = { cmd = "df -h", ps_cmd = "df.exe -h" }
 du = { cmd = "du -c -h", ps_cmd = "du.exe -c -h" }
 
-[sharedAliases.Xray]
-xray-cd = { cmd = 'cd "$XRAY_CFG"', ps_cmd = 'Set-Location $env:XRAY_CFG' }
-xray-setup = { cmd = 'make -C "$XRAY_CFG" setup', ps_cmd = 'make -C $env:XRAY_CFG setup' }
-xray-teardown = { cmd = 'make -C "$XRAY_CFG" teardown', ps_cmd = 'make -C $env:XRAY_CFG teardown' }
-xray-restart = { cmd = 'make -C "$XRAY_CFG" restart', ps_cmd = 'make -C $env:XRAY_CFG restart' }
-xray-test = { cmd = 'make -C "$XRAY_CFG" test', ps_cmd = 'make -C $env:XRAY_CFG test' }
-xray-cycle = { cmd = 'make -C "$XRAY_CFG" cycle', ps_cmd = 'make -C $env:XRAY_CFG cycle' }
-xray-status = { cmd = 'make -C "$XRAY_CFG" status', ps_cmd = 'make -C $env:XRAY_CFG status' }
-xray-logs = { cmd = 'make -C "$XRAY_CFG" logs', ps_cmd = 'make -C $env:XRAY_CFG logs' }
-xray-flush-dns = { cmd = 'make -C "$XRAY_CFG" flush-dns', ps_cmd = 'make -C $env:XRAY_CFG flush-dns' }
-xray-geodata = { cmd = 'make -C "$XRAY_CFG" update-geodata', ps_cmd = 'make -C $env:XRAY_CFG update-geodata' }
+[sharedAliases.Proxies]
+proxies-cd = { cmd = 'cd "$PROXIES_CFG"', ps_cmd = 'Set-Location $env:PROXIES_CFG' }
+proxies-setup = { cmd = 'make -C "$PROXIES_CFG" setup', ps_cmd = 'make -C $env:PROXIES_CFG setup' }
+proxies-teardown = { cmd = 'make -C "$PROXIES_CFG" teardown', ps_cmd = 'make -C $env:PROXIES_CFG teardown' }
+proxies-restart = { cmd = 'make -C "$PROXIES_CFG" restart', ps_cmd = 'make -C $env:PROXIES_CFG restart' }
+proxies-test = { cmd = 'make -C "$PROXIES_CFG" test', ps_cmd = 'make -C $env:PROXIES_CFG test' }
+proxies-cycle = { cmd = 'make -C "$PROXIES_CFG" cycle', ps_cmd = 'make -C $env:PROXIES_CFG cycle' }
+proxies-status = { cmd = 'make -C "$PROXIES_CFG" status', ps_cmd = 'make -C $env:PROXIES_CFG status' }
+proxies-logs = { cmd = 'make -C "$PROXIES_CFG" logs', ps_cmd = 'make -C $env:PROXIES_CFG logs' }
+proxies-flush-dns = { cmd = 'make -C "$PROXIES_CFG" flush-dns', ps_cmd = 'make -C $env:PROXIES_CFG flush-dns' }
+proxies-geodata = { cmd = 'make -C "$PROXIES_CFG" update-geodata', ps_cmd = 'make -C $env:PROXIES_CFG update-geodata' }
