@@ -10,6 +10,7 @@
 *.bat   text eol=crlf
 *.cmd   text eol=crlf
 *.reg   text eol=crlf diff
+*.sln   text eol=crlf
 
 # PowerShell: LF is fine for PS7; keep consistent across OSes
 *.ps1   text eol=lf
