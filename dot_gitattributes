@@ -1,7 +1,25 @@
 # Stick this in your home directory and point your Global Git config at it by running:
 #
 #  $ git config --global core.attributesfile ~/.gitattributes
-#
+
+# Line endings — defaults for repos without their own .gitattributes.
+# Local repo rules override these. Force LF in working tree on all OSes.
+* text=auto eol=lf
+
+# Windows-native formats need CRLF in working tree
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.reg   text eol=crlf diff
+*.sln   text eol=crlf
+
+# PowerShell: LF is fine for PS7; keep consistent across OSes
+*.ps1   text eol=lf
+*.psm1  text eol=lf
+*.psd1  text eol=lf
+
+# Shell scripts must stay LF even when checked out on Windows
+*.sh    text eol=lf
+
 # See https://tekin.co.uk/2020/10/better-git-diff-output-for-ruby-python-elixir-and-more for more details
 
 *_spec.rb  diff=rspec

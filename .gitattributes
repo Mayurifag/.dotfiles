@@ -1,1 +1,11 @@
-*.reg text eol=CRLF diff
+# Default: detect text, normalize to LF in repo and working tree
+* text=auto eol=lf
+
+# Windows-native formats need CRLF
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.reg   text eol=crlf diff
+*.sln   text eol=crlf
+*.ps1   text eol=lf
+*.psm1  text eol=lf
+*.psd1  text eol=lf
