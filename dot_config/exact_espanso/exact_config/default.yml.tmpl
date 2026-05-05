@@ -51,7 +51,11 @@ search_shortcut: OFF
 show_notifications: false
 undo_backspace: true
 backend: Clipboard
+{{ if eq .chezmoi.os "darwin" -}}
+paste_shortcut: CMD+SHIFT+V
+{{ else -}}
 paste_shortcut: CTRL+SHIFT+V
+{{ end -}}
 {{ if eq .chezmoi.os "linux" -}}
 keyboard_layout:
   layout: "us"
