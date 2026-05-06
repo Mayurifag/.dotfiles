@@ -16,10 +16,6 @@ Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two }}
   Port {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two_port }}
   RequestTTY yes
   RemoteCommand tmux attach -d || tmux new-session -s main
-Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_three }}
-  HostName {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_three_hostname }}
-  User {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).ssh_user }}
-
 Host *
   StrictHostKeyChecking ask
   UpdateHostKeys ask
