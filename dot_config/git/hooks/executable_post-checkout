@@ -1,23 +1,20 @@
 #!/bin/bash
 # Global post-checkout hook: sync + trim when arriving on the repo's default branch.
 # Args: $1 = previous HEAD, $2 = new HEAD, $3 = branch flag (1 = branch checkout).
-
-echo "$(date '+%FT%T%z') pid=$$ ppid=$PPID parent=$(ps -o comm= -p $PPID 2>/dev/null) cwd=$PWD path=$PATH home=${HOME:-UNSET} args=$*" >> /Users/mayurifag/.cache/git-sync-probe.log 2>/dev/null || true
+#
+# Foreground does the bare minimum so GUI clients (GitKraken) return instantly.
+# All discovery + git introspection + git-sync run inside a detached background subshell.
 
 set -euo pipefail
 
 ORIG_ARGS=("$@")
-HOOKS_DIR=$(cd "$(dirname "$0")" && pwd)
+HOOKS_DIR="${0%/*}"
 
 run_chain() {
-  local rc=0 hook_name self top_dir git_dir candidate
-  hook_name=$(basename "$0")
-  self="$HOOKS_DIR/$hook_name"
-  top_dir=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
-  git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 0
-  [[ "$git_dir" != /* ]] && git_dir="$top_dir/$git_dir"
-  for candidate in "$top_dir/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
-    if [[ -x "$candidate" && "$candidate" != "$self" ]]; then
+  local rc=0 hook_name="${0##*/}" git_dir="${GIT_DIR:-.git}" candidate
+  [[ "$git_dir" != /* ]] && git_dir="$PWD/$git_dir"
+  for candidate in "$PWD/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
+    if [[ -x "$candidate" && "$candidate" != "$HOOKS_DIR/$hook_name" ]]; then
       "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
     fi
   done
@@ -36,20 +33,21 @@ trap cleanup EXIT
 [[ "${3:-0}" != "1" ]] && exit 0
 [[ "${1:-}" == "0000000000000000000000000000000000000000" ]] && exit 0
 
-new_branch=$(git symbolic-ref --quiet --short HEAD) || exit 0
-remote_head=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || exit 0
-default="${remote_head#refs/remotes/origin/}"
-[[ -z "$default" || "$new_branch" != "$default" ]] && exit 0
-
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "git-sync: working tree dirty, skipping auto-sync on '$default'." >&2
-  exit 0
-fi
-
-GITSYNC=$(command -v git-sync || true)
-[[ -z "$GITSYNC" && -x "$HOME/.local/bin/git-sync" ]] && GITSYNC="$HOME/.local/bin/git-sync"
-if [[ -n "$GITSYNC" ]]; then
-  log="$HOME/.cache/git-sync.log"
-  mkdir -p "$HOME/.cache" 2>/dev/null || true
-  ( "$GITSYNC" </dev/null >>"$log" 2>&1 & ) </dev/null >/dev/null 2>&1
-fi
+(
+  (
+    mkdir -p "$HOME/.cache" 2>/dev/null || true
+    exec </dev/null >>"$HOME/.cache/git-sync.log" 2>&1
+    GITSYNC=$(command -v git-sync 2>/dev/null || true)
+    [[ -z "$GITSYNC" && -x "$HOME/.local/bin/git-sync" ]] && GITSYNC="$HOME/.local/bin/git-sync"
+    [[ -z "$GITSYNC" ]] && exit 0
+    new_branch=$(git symbolic-ref --quiet --short HEAD) || exit 0
+    remote_head=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || exit 0
+    default="${remote_head#refs/remotes/origin/}"
+    [[ -z "$default" || "$new_branch" != "$default" ]] && exit 0
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+      echo "git-sync: working tree dirty, skipping auto-sync on '$default'."
+      exit 0
+    fi
+    "$GITSYNC"
+  ) &
+) </dev/null >/dev/null 2>&1
