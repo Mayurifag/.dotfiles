@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Global pre-push hook: refuse to push commits that contain plaintext secrets.
+
+set -euo pipefail
+
+ORIG_ARGS=("$@")
+HOOKS_DIR=$(cd "$(dirname "$0")" && pwd)
+# shellcheck disable=SC1091
+. "$HOOKS_DIR/_secrets-lib"
+
+INPUT=$(cat)
+REMOTE_NAME=${ORIG_ARGS[0]:-origin}
+
+run_chain() {
+  local rc=0 hook_name self top_dir git_dir candidate
+  hook_name=$(basename "$0")
+  self="$HOOKS_DIR/$hook_name"
+  top_dir=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
+  git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 0
+  [[ "$git_dir" != /* ]] && git_dir="$top_dir/$git_dir"
+  for candidate in "$top_dir/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
+    if [[ -x "$candidate" && "$candidate" != "$self" ]]; then
+      printf '%s\n' "$INPUT" | "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
+    fi
+  done
+  return $rc
+}
+
+cleanup() {
+  local rc=$?
+  local chain_rc=0
+  run_chain || chain_rc=$?
+  (( chain_rc != 0 && rc == 0 )) && rc=$chain_rc
+  exit "$rc"
+}
+trap cleanup EXIT
+
+[[ -z "$INPUT" ]] && exit 0
+
+gc_active=0
+secrets_repo_has_git_crypt && gc_active=1
+
+ZERO=0000000000000000000000000000000000000000
+bad=()
+checked_blobs=$'\n'
+
+while IFS=' ' read -r _local_ref local_oid _remote_ref remote_oid; do
+  [[ -z "${local_oid:-}" || "$local_oid" == "$ZERO" ]] && continue
+  if [[ -z "${remote_oid:-}" || "$remote_oid" == "$ZERO" ]]; then
+    range_args=("$local_oid" --not "--remotes=$REMOTE_NAME")
+  else
+    range_args=("$remote_oid..$local_oid")
+  fi
+
+  paths_raw=$(git log --name-only --pretty=format: "${range_args[@]}" 2>/dev/null | sort -u)
+  [[ -z "$paths_raw" ]] && continue
+
+  ejson_paths=()
+  gc_paths=()
+  while IFS=$'\t' read -r provider path; do
+    case "$provider" in
+      ejson) ejson_paths+=("$path") ;;
+      git-crypt) gc_paths+=("$path") ;;
+    esac
+  done < <(printf '%s\n' "$paths_raw" | secrets_classify_paths "$gc_active")
+
+  (( ${#ejson_paths[@]} == 0 && ${#gc_paths[@]} == 0 )) && continue
+
+  while IFS= read -r commit; do
+    [[ -z "$commit" ]] && continue
+    for p in ${ejson_paths[@]+"${ejson_paths[@]}"}; do
+      blob=$(git rev-parse "$commit:$p" 2>/dev/null) || continue
+      [[ "$checked_blobs" == *$'\n'"$blob"$'\n'* ]] && continue
+      checked_blobs+="$blob"$'\n'
+      if secrets_blob_is_plaintext ejson "$blob"; then
+        bad+=("ejson  ${commit:0:10}  $p")
+      fi
+    done
+    for p in ${gc_paths[@]+"${gc_paths[@]}"}; do
+      blob=$(git rev-parse "$commit:$p" 2>/dev/null) || continue
+      [[ "$checked_blobs" == *$'\n'"$blob"$'\n'* ]] && continue
+      checked_blobs+="$blob"$'\n'
+      if secrets_blob_is_plaintext git-crypt "$blob"; then
+        bad+=("git-crypt  ${commit:0:10}  $p")
+      fi
+    done
+  done < <(git rev-list "${range_args[@]}" 2>/dev/null)
+done <<<"$INPUT"
+
+if (( ${#bad[@]} > 0 )); then
+  printf 'pre-push: refusing — plaintext secret in push range:\n' >&2
+  printf '  %s\n' "${bad[@]}" >&2
+  printf 'pre-push: encrypt the file and amend/rebase before pushing.\n' >&2
+  exit 1
+fi

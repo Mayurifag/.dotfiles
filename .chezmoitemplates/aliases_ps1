@@ -56,17 +56,6 @@ function grom {
     Remove-Item Env:\LEFTHOOK -ErrorAction SilentlyContinue
     git submodule update --init --recursive
 }
-function prg {
-    git pull -a | Out-Null
-    $branches = git branch --list '*[^master][^main]' --format='%(refname:short)' | Where-Object { $_ -ne '' }
-    if (-not $branches) { Write-Host "No branches to delete."; return }
-    Write-Host ($branches -join "`n")
-    $ans = Read-Host "Do you want to delete these merged branches? (y/n)"
-    if ($ans -notmatch '^[yY]$') { return }
-    git remote prune origin
-    $branches | ForEach-Object { git branch -D $_ }
-}
-
 ## npm (complex)
 function npmug {
     $before = npm list -g --depth=0 --json 2>$null | ConvertFrom-Json
@@ -216,3 +205,68 @@ function q {
 function proxies-add($d, $p = 'proxy_it') { make -C $env:PROXIES_CFG add-domain domain=$d proxy=$p }
 function proxies-rm($d) { make -C $env:PROXIES_CFG remove-domain domain=$d }
 function proxies-remove($d) { proxies-rm $d }
+
+## Crypto: smart enc/dec for ejson + git-crypt
+function _EjsonIsDecrypted {
+    param([string]$Path)
+    $lines = Select-String -Path $Path -Pattern '^\s*"[^_][^"]*"\s*:\s*"' -ErrorAction SilentlyContinue
+    if (-not $lines) { return $false }
+    foreach ($l in $lines) {
+        if ($l.Line -notmatch ':\s*"EJ\[1:') { return $true }
+    }
+    return $false
+}
+function _GitCryptUnlocked { [bool](git config --get filter.git-crypt.smudge 2>$null) }
+function _GitCryptRepo {
+    if (Test-Path .git-crypt) { return $true }
+    if ((Test-Path .gitattributes) -and (Select-String -Path .gitattributes -Pattern 'filter=git-crypt' -Quiet)) { return $true }
+    return $false
+}
+function _ListEjson {
+    if (git rev-parse --git-dir 2>$null) {
+        git ls-files --cached --others --exclude-standard '*.ejson' | Where-Object { $_ }
+    } else {
+        Get-ChildItem -Path . -Recurse -Filter *.ejson -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } | ForEach-Object { $_.FullName }
+    }
+}
+function enc {
+    $did = $false
+    if (Get-Command ejson -ErrorAction SilentlyContinue) {
+        _ListEjson | ForEach-Object {
+            if (_EjsonIsDecrypted $_) {
+                ejson encrypt $_ | Out-Null
+                if ($LASTEXITCODE -eq 0) { Write-Host "enc: encrypted $_"; $did = $true }
+            }
+        }
+    }
+    if ((Get-Command git-crypt -ErrorAction SilentlyContinue) -and (git rev-parse --git-dir 2>$null) -and (_GitCryptRepo) -and (_GitCryptUnlocked)) {
+        git-crypt lock
+        if ($LASTEXITCODE -eq 0) { Write-Host "enc: git-crypt locked"; $did = $true }
+    }
+    if (-not $did) { Write-Host "enc: nothing to encrypt" }
+}
+function dec {
+    $did = $false
+    if (Get-Command ejson -ErrorAction SilentlyContinue) {
+        _ListEjson | ForEach-Object {
+            $f = $_
+            if (-not (_EjsonIsDecrypted $f)) {
+                $tmp = New-TemporaryFile
+                ejson decrypt $f 2>$null | Out-File -FilePath $tmp -Encoding utf8 -NoNewline
+                if ($LASTEXITCODE -eq 0 -and (Get-Item $tmp).Length -gt 0) {
+                    Move-Item -Path $tmp -Destination $f -Force
+                    Write-Host "dec: decrypted $f"; $did = $true
+                } else {
+                    Remove-Item $tmp -ErrorAction SilentlyContinue
+                    Write-Error "dec: failed $f"
+                }
+            }
+        }
+    }
+    if ((Get-Command git-crypt -ErrorAction SilentlyContinue) -and (git rev-parse --git-dir 2>$null) -and (_GitCryptRepo) -and (-not (_GitCryptUnlocked))) {
+        git-crypt unlock
+        if ($LASTEXITCODE -eq 0) { Write-Host "dec: git-crypt unlocked"; $did = $true }
+    }
+    if (-not $did) { Write-Host "dec: nothing to decrypt" }
+}

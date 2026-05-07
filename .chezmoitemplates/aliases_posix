@@ -123,3 +123,61 @@ ship() {
 proxies-add() { make -C "$PROXIES_CFG" add-domain domain="$1" proxy="${2:-proxy_it}"; }
 proxies-rm() { make -C "$PROXIES_CFG" remove-domain domain="$1"; }
 proxies-remove() { proxies-rm "$@"; }
+
+## Crypto: smart enc/dec for ejson + git-crypt
+_ejson_is_decrypted() {
+  grep -E '^[[:space:]]*"[^_][^"]*"[[:space:]]*:[[:space:]]*"' "$1" 2>/dev/null | grep -qvE ':[[:space:]]*"EJ\[1:'
+}
+_git_crypt_unlocked() {
+  git config --get filter.git-crypt.smudge >/dev/null 2>&1
+}
+_git_crypt_repo() {
+  [ -d .git-crypt ] || { [ -f .gitattributes ] && grep -q 'filter=git-crypt' .gitattributes; }
+}
+_list_ejson() {
+  if git rev-parse --git-dir >/dev/null 2>&1; then
+    git ls-files --cached --others --exclude-standard '*.ejson'
+  else
+    find . -type f -name '*.ejson' -not -path '*/.git/*' 2>/dev/null
+  fi
+}
+enc() {
+  local did=0 f
+  if command -v ejson >/dev/null 2>&1; then
+    while IFS= read -r f; do
+      [ -z "$f" ] && continue
+      if _ejson_is_decrypted "$f"; then
+        ejson encrypt "$f" >/dev/null && { echo "enc: encrypted $f"; did=1; }
+      fi
+    done <<EOF
+$(_list_ejson)
+EOF
+  fi
+  if command -v git-crypt >/dev/null 2>&1 && git rev-parse --git-dir >/dev/null 2>&1 && _git_crypt_repo && _git_crypt_unlocked; then
+    git-crypt lock && { echo "enc: git-crypt locked"; did=1; }
+  fi
+  [ "$did" = "0" ] && echo "enc: nothing to encrypt"
+}
+dec() {
+  local did=0 f tmp
+  if command -v ejson >/dev/null 2>&1; then
+    while IFS= read -r f; do
+      [ -z "$f" ] && continue
+      if ! _ejson_is_decrypted "$f"; then
+        tmp=$(mktemp) || continue
+        if ejson decrypt "$f" >"$tmp" 2>/dev/null; then
+          mv "$tmp" "$f" && { echo "dec: decrypted $f"; did=1; }
+        else
+          rm -f "$tmp"
+          echo "dec: failed $f" >&2
+        fi
+      fi
+    done <<EOF
+$(_list_ejson)
+EOF
+  fi
+  if command -v git-crypt >/dev/null 2>&1 && git rev-parse --git-dir >/dev/null 2>&1 && _git_crypt_repo && ! _git_crypt_unlocked; then
+    git-crypt unlock && { echo "dec: git-crypt unlocked"; did=1; }
+  fi
+  [ "$did" = "0" ] && echo "dec: nothing to decrypt"
+}

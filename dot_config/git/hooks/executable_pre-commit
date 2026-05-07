@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Global pre-commit hook: encrypt staged plaintext secrets in place via
+# `git update-index --cacheinfo` so the working tree is never disturbed.
+
+set -euo pipefail
+
+ORIG_ARGS=("$@")
+HOOKS_DIR=$(cd "$(dirname "$0")" && pwd)
+# shellcheck disable=SC1091
+. "$HOOKS_DIR/_secrets-lib"
+
+run_chain() {
+  local rc=0 hook_name self top_dir git_dir candidate
+  hook_name=$(basename "$0")
+  self="$HOOKS_DIR/$hook_name"
+  top_dir=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
+  git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 0
+  [[ "$git_dir" != /* ]] && git_dir="$top_dir/$git_dir"
+  for candidate in "$top_dir/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
+    if [[ -x "$candidate" && "$candidate" != "$self" ]]; then
+      "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
+    fi
+  done
+  return $rc
+}
+
+tmp_dir=""
+cleanup() {
+  local rc=$?
+  [[ -n "$tmp_dir" && -d "$tmp_dir" ]] && rm -rf "$tmp_dir"
+  local chain_rc=0
+  run_chain || chain_rc=$?
+  (( chain_rc != 0 && rc == 0 )) && rc=$chain_rc
+  exit "$rc"
+}
+trap cleanup EXIT
+
+staged_raw=$(git diff --cached --name-only --diff-filter=AM 2>/dev/null)
+[[ -z "$staged_raw" ]] && exit 0
+
+gc_active=0
+secrets_repo_has_git_crypt && gc_active=1
+
+ejson_files=()
+gc_files=()
+while IFS=$'\t' read -r provider path; do
+  case "$provider" in
+    ejson) ejson_files+=("$path") ;;
+    git-crypt) gc_files+=("$path") ;;
+  esac
+done < <(printf '%s\n' "$staged_raw" | secrets_classify_paths "$gc_active")
+
+(( ${#ejson_files[@]} == 0 && ${#gc_files[@]} == 0 )) && exit 0
+
+failed=0
+
+for f in ${ejson_files[@]+"${ejson_files[@]}"}; do
+  blob=$(git rev-parse ":$f" 2>/dev/null) || continue
+  secrets_blob_is_plaintext ejson "$blob" || continue
+
+  [[ -z "$tmp_dir" ]] && tmp_dir=$(mktemp -d)
+  copy="$tmp_dir/$blob"
+  git cat-file -p "$blob" >"$copy"
+
+  if secrets_encrypt_file ejson "$copy"; then
+    new_blob=$(git hash-object -w "$copy")
+    mode=$(git ls-files --stage -- "$f" | head -1 | cut -d' ' -f1)
+    [[ -z "$mode" ]] && mode=100644
+    git update-index --cacheinfo "$mode" "$new_blob" "$f"
+    echo "pre-commit: ejson encrypted $f" >&2
+  else
+    echo "pre-commit: ejson failed to encrypt $f" >&2
+    failed=1
+  fi
+done
+
+for f in ${gc_files[@]+"${gc_files[@]}"}; do
+  blob=$(git rev-parse ":$f" 2>/dev/null) || continue
+  secrets_blob_is_plaintext git-crypt "$blob" || continue
+  echo "pre-commit: $f is under git-crypt scope but staged plaintext." >&2
+  echo "pre-commit: run \`git-crypt unlock\` and \`git add\` again, or initialize git-crypt for this repo." >&2
+  failed=1
+done
+
+exit "$failed"

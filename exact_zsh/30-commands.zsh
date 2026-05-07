@@ -275,57 +275,6 @@ cs-unban-me() {
     docker exec crowdsec cscli decisions delete -i ${MY_IP}"
 }
 
-# ejson decrypt keys.ejson, print the decrypted content, and overwrite keys.ejson with the decrypted content.
-dec() {
-  if ! if_command_exists ejson; then
-    echo "Error: ejson command not found." >&2
-    return 1
-  fi
-  if [[ -f "keys.ejson" ]]; then
-    local tmp_file=$(mktemp)
-    # Decrypt to temp file
-    if ejson decrypt keys.ejson > "$tmp_file"; then
-      # Print decrypted content to stdout
-      cat "$tmp_file"
-      # Atomically move decrypted content back to original file
-      if mv "$tmp_file" keys.ejson; then
-        echo "keys.ejson decrypted and file overwritten successfully."
-      else
-        echo "Error: Failed to move temporary file to keys.ejson." >&2
-        rm -f "$tmp_file"
-        return 1
-      fi
-    else
-      echo "Error during ejson decrypt keys.ejson." >&2
-      rm -f "$tmp_file"
-      return 1
-    fi
-  else
-    echo "Error: keys.ejson not found in the current directory." >&2
-    return 1
-  fi
-}
-
-# ejson encrypt keys.ejson.
-enc() {
-  if ! if_command_exists ejson; then
-    echo "Error: ejson command not found." >&2
-    return 1
-  fi
-  if [[ -f "keys.ejson" ]]; then
-    if ejson encrypt keys.ejson; then
-      echo "keys.ejson encrypted successfully."
-    else
-      echo "Error during ejson encrypt keys.ejson." >&2
-      return 1
-    fi
-  else
-    echo "Error: keys.ejson not found in the current directory." >&2
-    return 1
-  fi
-}
-
-
 unalias q 2>/dev/null
 q() {
   if if_command_exists yawn-debug; then
