@@ -1,6 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Global post-checkout hook: sync + trim when arriving on the repo's default branch.
 # Args: $1 = previous HEAD, $2 = new HEAD, $3 = branch flag (1 = branch checkout).
+
+echo "$(date '+%FT%T%z') pid=$$ ppid=$PPID parent=$(ps -o comm= -p $PPID 2>/dev/null) cwd=$PWD path=$PATH home=${HOME:-UNSET} args=$*" >> /Users/mayurifag/.cache/git-sync-probe.log 2>/dev/null || true
 
 set -euo pipefail
 
