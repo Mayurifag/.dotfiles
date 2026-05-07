@@ -1,6 +1,6 @@
 {{- /* chezmoi:template:line-endings lf */ -}}
 
-# This file is used by Bash on Windows (Claude code) and Linux (claude, else).
+# This file is used by Bash on Windows (AI apps) and Linux (claude, else).
 
 # Number of lines to keep in the history file
 export HISTSIZE=1000
@@ -58,6 +58,6 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # === Aliases ===
 {{ template "aliases_posix" . }}
-alias czapply='chezmoi apply -v && source ~/.bashrc'
+alias czapply='echo "edited a file directly? run: czsrc ~/.thatfile" && chezmoi apply -v && source ~/.bashrc'
 alias czcd='cd "$(chezmoi source-path)"'
 alias cdcz='czcd'

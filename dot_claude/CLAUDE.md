@@ -1,4 +1,4 @@
-# Claude Code Rules
+# Rules
 
 Do not add comments and descriptions unless user told you so.
 Proactively ask to refactor files that became big. DRY. Eliminate tech debt.

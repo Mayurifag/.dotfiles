@@ -1,7 +1,7 @@
 {{- /* 40-aliases.zsh — managed by chezmoi; edit source at exact_zsh/40-aliases.zsh.tmpl */ -}}
 
 ## Chezmoi (zsh-only)
-alias czapply='chezmoi apply -v && source "$HOME/.zshrc"'
+alias czapply='echo "edited a file directly? run: czsrc ~/.thatfile" && chezmoi apply -v && source "$HOME/.zshrc"'
 alias czcd='cd "$(chezmoi source-path)"'
 alias cdcz='czcd'
 

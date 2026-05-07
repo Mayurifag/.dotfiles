@@ -1,10 +1,8 @@
+@openai/codex@latest
+@prantlf/jsonlint@latest
 actions-up@latest
 eslint@latest
 markdownlint-cli2@latest
-@prantlf/jsonlint@latest
 npm@latest
+opencode-ai
 prettier@latest
-gsd-pi@latest
-node-addon-api@latest
-node-gyp@latest
-@openai/codex@latest
