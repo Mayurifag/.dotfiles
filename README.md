@@ -223,24 +223,34 @@ sudo ln /usr/lib/libffi.so /usr/lib/libffi.so.7
 
 ## Notes on repo
 
-* Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file,
-  which is needed to be reencrypted on changes:
+* Repo is using [ejson](https://github.com/Shopify/ejson) with keys.ejson file.
+  With the global git hooks below, you just edit and commit; the hook encrypts
+  the staged blob automatically. Manual escape hatch: `dec` / `enc` aliases.
 
-```shell
-ejson decrypt keys.ejson # or alias - dec
-# edit ...
-ejson encrypt keys.ejson # or alias - enc
-```
+### Global secret hooks
+
+`core.hooksPath = ~/.config/git/hooks` is set, so these run for every repo:
+
+* **pre-commit** — for each staged file matched by a provider (`*.ejson`, or
+  any path with `filter=git-crypt` in `.gitattributes`), the staged blob is
+  encrypted in place via `git update-index --cacheinfo`. The working tree is
+  never touched, so a failed/aborted commit cannot leave you with an encrypted
+  working copy. Plaintext under `git-crypt` scope aborts with a hint to unlock.
+* **pre-push** — walks the commits in the push range, inspects only blobs
+  matched by a provider, and refuses the push if any blob is still plaintext.
+  Belt-and-suspenders for `--no-verify` commits or rebase mistakes.
+* **post-checkout** — auto-runs `git-sync` (fetch/prune/ff/trim) when arriving
+  on the repo's default branch with a clean working tree.
+
+All three chain to a repo-local `.githooks/<hook>` or `.git/hooks/<hook>` if
+present, so per-repo hook frameworks (e.g. `pre-commit`, lefthook) keep working.
+
+Add a new provider by adding one `case` arm to each of `secrets_classify_paths`,
+`secrets_blob_is_plaintext`, and `secrets_encrypt_file` in
+`~/.config/git/hooks/_secrets-lib`.
 
 ## TODO
 
-* Adopt dec/enc aliases also to git-crypt. Make those commands smarter.
-  * Do I actually need it? Or just pre-commit hook everywhere?
-  * Well, then check for pre-commit hook? Documentation needed btw 
-* Adopt [git-trim](https://github.com/foriequal0/git-trim)
-  * install with cargo everywhere; adopt prg alias
-  * sync <https://gist.github.com/foriequal0/55763d9177803c325904d089299f0970>
-  * webhook or something?
 * Wait for darrylmorley/whatcable
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

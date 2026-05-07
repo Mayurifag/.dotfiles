@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Global post-checkout hook: sync + trim when arriving on the repo's default branch.
+# Args: $1 = previous HEAD, $2 = new HEAD, $3 = branch flag (1 = branch checkout).
+
+set -euo pipefail
+
+ORIG_ARGS=("$@")
+
+run_chain() {
+  local hook_name self top_dir git_dir candidate
+  hook_name=$(basename "$0")
+  self=$(cd "$(dirname "$0")" && pwd)/$hook_name
+  top_dir=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
+  git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 0
+  [[ "$git_dir" != /* ]] && git_dir="$top_dir/$git_dir"
+  for candidate in "$top_dir/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
+    [[ -x "$candidate" && "$candidate" != "$self" ]] && "$candidate" "${ORIG_ARGS[@]}"
+  done
+}
+trap 'run_chain' EXIT
+
+[[ "${3:-0}" != "1" ]] && exit 0
+[[ "${1:-}" == "0000000000000000000000000000000000000000" ]] && exit 0
+
+new_branch=$(git symbolic-ref --quiet --short HEAD) || exit 0
+remote_head=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || exit 0
+default="${remote_head#refs/remotes/origin/}"
+[[ -z "$default" || "$new_branch" != "$default" ]] && exit 0
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "git-sync: working tree dirty, skipping auto-sync on '$default'." >&2
+  exit 0
+fi
+
+GITSYNC=$(command -v git-sync || true)
+[[ -z "$GITSYNC" && -x "$HOME/.local/bin/git-sync" ]] && GITSYNC="$HOME/.local/bin/git-sync"
+[[ -n "$GITSYNC" ]] && "$GITSYNC"

@@ -57,4 +57,5 @@ backup.ps1
 Documents/
 .local/bin/python3
 .local/bin/python3.cmd
+.local/bin/git-sync.cmd
 {{- end }}

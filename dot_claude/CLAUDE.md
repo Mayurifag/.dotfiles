@@ -76,3 +76,7 @@ Use CLI tool to add/remove/update (e.g. `bundle install`, `uv add`, `npm install
 ## markdown code
 
 Codeblocks in markdown: use `~~~` not backticks. Exception: file already use backticks — keep as-is.
+
+## GitHub
+
+`gh` installed and authenticated. Use it for any github.com action instead of WebFetch.
