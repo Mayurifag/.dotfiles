@@ -7,19 +7,31 @@ echo "$(date '+%FT%T%z') pid=$$ ppid=$PPID parent=$(ps -o comm= -p $PPID 2>/dev/
 set -euo pipefail
 
 ORIG_ARGS=("$@")
+HOOKS_DIR=$(cd "$(dirname "$0")" && pwd)
 
 run_chain() {
-  local hook_name self top_dir git_dir candidate
+  local rc=0 hook_name self top_dir git_dir candidate
   hook_name=$(basename "$0")
-  self=$(cd "$(dirname "$0")" && pwd)/$hook_name
+  self="$HOOKS_DIR/$hook_name"
   top_dir=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
   git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 0
   [[ "$git_dir" != /* ]] && git_dir="$top_dir/$git_dir"
   for candidate in "$top_dir/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
-    [[ -x "$candidate" && "$candidate" != "$self" ]] && "$candidate" "${ORIG_ARGS[@]}"
+    if [[ -x "$candidate" && "$candidate" != "$self" ]]; then
+      "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
+    fi
   done
+  return $rc
 }
-trap 'run_chain' EXIT
+
+cleanup() {
+  local rc=$?
+  local chain_rc=0
+  run_chain || chain_rc=$?
+  (( chain_rc != 0 && rc == 0 )) && rc=$chain_rc
+  exit "$rc"
+}
+trap cleanup EXIT
 
 [[ "${3:-0}" != "1" ]] && exit 0
 [[ "${1:-}" == "0000000000000000000000000000000000000000" ]] && exit 0
