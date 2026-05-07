@@ -80,3 +80,12 @@ Codeblocks in markdown: use `~~~` not backticks. Exception: file already use bac
 ## GitHub
 
 `gh` installed and authenticated. Use it for any github.com action instead of WebFetch.
+
+## Encrypted secrets (only repos using ejson or git-crypt)
+
+Global git hooks handle secrets — applies when repo has `.ejson` files or `.gitattributes` with `filter=git-crypt`. Hooks live in `~/.config/git/hooks/` (sourced from chezmoi).
+
+- **pre-commit**: auto-encrypts staged plaintext `.ejson` in place via `git update-index` (working tree untouched). For git-crypt files staged plaintext → commit refused; user must `git-crypt unlock`.
+- **pre-push**: blocks push if any commit in push range contains plaintext ejson values or unencrypted git-crypt blobs.
+- Edit `.ejson` plaintext freely — staging triggers encryption. Don't manually run `ejson encrypt` before `git add`.
+- For `git-crypt` repos: assume locked unless told otherwise; if blobs look like binary noise it's encrypted, not corrupt.
