@@ -3,18 +3,22 @@ if_command_exists() {
 }
 
 pollCommand() {
-  while true; do clear; $@; sleep 1; done
+  while true; do
+    clear
+    $@
+    sleep 1
+  done
 }
 
 prg() {
-  git pull -a > /dev/null
+  git pull -a >/dev/null
 
   local branches=$(git branch --list '*[^master][^main]' --format='%(refname:short)' | grep -v '^*')
   branches=(${branches//;/ })
 
   if [ -z $branches ]; then
     echo 'No branches to delete.'
-    return;
+    return
   fi
 
   echo $branches
@@ -22,7 +26,7 @@ prg() {
   echo 'Do you want to delete these merged branches? (y/n)'
   read yn
   case $yn in
-      [^Yy]* ) return;;
+  [^Yy]*) return ;;
   esac
 
   git remote prune origin
@@ -52,13 +56,13 @@ fi
 
 # Create a new directory and enter it
 mkcd() { [ -n "$1" ] && mkdir -p "$@" && builtin cd "$1"; }
-backup() { cp "$1"{,.bak};}
+backup() { cp "$1"{,.bak}; }
 
 if if_command_exists aspell; then
   # Usage: spl paranoya
   # & paranoya 8 0: paranoia, Parana, paranoiac (as you see the first option after the 0, gives the correct spelling
-  spl () {
-    aspell -a <<< "$1"
+  spl() {
+    aspell -a <<<"$1"
   }
 fi
 
@@ -66,8 +70,8 @@ fi
 # Alternative: ssh-keygen -R 182.123.212.21
 knownrm() {
   re='^[0-9]+$'
-  if ! [[ $1 =~ $re ]] ; then
-    echo "error: line number missing" >&2;
+  if ! [[ $1 =~ $re ]]; then
+    echo "error: line number missing" >&2
   else
     sed -i '' "$1d" ~/.ssh/known_hosts
   fi
@@ -77,14 +81,14 @@ gcd() {
   git clone --recurse-submodules "$1" && builtin cd "$(basename "$1" .git)"
 }
 
-grom () {
-  if git rev-parse --verify --quiet origin/main > /dev/null 2>&1; then
+grom() {
+  if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
     GIT_BRANCH=main
-  elif git rev-parse --verify --quiet origin/master > /dev/null 2>&1; then
+  elif git rev-parse --verify --quiet origin/master >/dev/null 2>&1; then
     GIT_BRANCH=master
-  elif git rev-parse --verify --quiet origin/dev > /dev/null 2>&1; then
+  elif git rev-parse --verify --quiet origin/dev >/dev/null 2>&1; then
     GIT_BRANCH=dev
-  elif git rev-parse --verify --quiet origin/source > /dev/null 2>&1; then
+  elif git rev-parse --verify --quiet origin/source >/dev/null 2>&1; then
     GIT_BRANCH=source
   else
     echo "Neither 'origin/main', 'origin/master' nor 'origin/dev' branch exists."
@@ -128,7 +132,7 @@ f() {
 # pointing to the new location.
 # Usage: mvln <source> <destination>
 mvln() {
-  if [ "$#" -ne 2 ]; then
+  if [ "$" -ne 2 ]; then
     echo "Usage: mvln <source> <destination>" >&2
     return 1
   fi
@@ -187,22 +191,23 @@ cleaner() {
   }
 
   _cleaner_run() {
-    local label="$1"; shift
+    local label="$1"
+    shift
     if _cleaner_confirm "Clean $label?"; then
       echo "Cleaning $label..."
       "$@"
     fi
   }
 
-  if_command_exists docker   && _cleaner_run "unused Docker resources" docker system prune -a --volumes
-  if_command_exists yay      && _cleaner_run "yay cache" yay -Scc
-  if_command_exists brew     && _cleaner_run "Homebrew" brew cleanup
-  if_command_exists mise     && _cleaner_run "mise cache" mise cache clear
-  if_command_exists npm      && _cleaner_run "npm cache" npm cache clean --force
-  if_command_exists uv       && _cleaner_run "uv cache" uv cache clean
-  if_command_exists cargo    && _cleaner_run "cargo cache" cargo cache -a
-  if_command_exists gem      && _cleaner_run "old gem versions" gem cleanup
-  if_command_exists claude   && _cleaner_run "Claude Code cache" claude-clean
+  if_command_exists docker && _cleaner_run "unused Docker resources" docker system prune -a --volumes
+  if_command_exists yay && _cleaner_run "yay cache" yay -Scc
+  if_command_exists brew && _cleaner_run "Homebrew" brew cleanup
+  if_command_exists mise && _cleaner_run "mise cache" mise cache clear
+  if_command_exists npm && _cleaner_run "npm cache" npm cache clean --force
+  if_command_exists uv && _cleaner_run "uv cache" uv cache clean
+  if_command_exists cargo && _cleaner_run "cargo cache" cargo cache -a
+  if_command_exists gem && _cleaner_run "old gem versions" gem cleanup
+  if_command_exists claude && _cleaner_run "Claude Code cache" claude-clean
 
   echo "Cleaning process finished."
 }
@@ -222,8 +227,8 @@ fixntfs() {
     # Try to find mount point by device, then by UUID from /etc/fstab
     mount_point=$(findmnt -n -o TARGET --source "$device" 2>/dev/null)
     if [[ -z "$mount_point" ]]; then
-        # Search fstab for device or UUID
-        mount_point=$(awk -v dev="$device" -v uuid="UUID=$uuid" '($1==dev || $1==uuid){print $2; exit}' /etc/fstab)
+      # Search fstab for device or UUID
+      mount_point=$(awk -v dev="$device" -v uuid="UUID=$uuid" '($1==dev || $1==uuid){print $2; exit}' /etc/fstab)
     fi
 
     if [[ -z "$mount_point" ]]; then
@@ -290,7 +295,7 @@ q() {
 
 unalias c 2>/dev/null
 c() {
-  IS_SANDBOX=1 claude --dangerously-skip-permissions "$@"
+  OPENCODE_YOLO=1 opencode "$@"
 }
 
 # enhanced make command that finds Makefile in parent directories
@@ -309,7 +314,7 @@ make() {
       break
     fi
     current_dir=$(dirname "$current_dir")
-    (( search_depth++ ))
+    ((search_depth++))
   done
 
   if [[ -n "$makefile_found_dir" ]]; then

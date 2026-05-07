@@ -1,4 +1,4 @@
-# Claude Code Rules
+# Rules
 
 Do not add comments and descriptions unless user told you so.
 Proactively ask to refactor files that became big. DRY. Eliminate tech debt.
@@ -64,9 +64,9 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
----
+## Project AGENTS.md
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+If project has AGENTS.md, you are required to update it with knowledge you got from user, which might be useful in future tasks.
 
 ## Lockfiles
 

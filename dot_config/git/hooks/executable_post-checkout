@@ -2,20 +2,21 @@
 # Global post-checkout hook: sync + trim when arriving on the repo's default branch.
 # Args: $1 = previous HEAD, $2 = new HEAD, $3 = branch flag (1 = branch checkout).
 #
-# Foreground does the bare minimum so GUI clients (GitKraken) return instantly.
-# All discovery + git introspection + git-sync run inside a detached background subshell.
+# Foreground exits immediately. The actual sync runs in a fully detached
+# grandchild process so GUI clients (GitKraken) never wait for it.
 
 set -euo pipefail
 
-ORIG_ARGS=("$@")
 HOOKS_DIR="${0%/*}"
+hook_name="${0##*/}"
 
+# Run any repo-local post-checkout hooks.
 run_chain() {
-  local rc=0 hook_name="${0##*/}" git_dir="${GIT_DIR:-.git}" candidate
+  local rc=0 git_dir="${GIT_DIR:-.git}" candidate
   [[ "$git_dir" != /* ]] && git_dir="$PWD/$git_dir"
   for candidate in "$PWD/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
     if [[ -x "$candidate" && "$candidate" != "$HOOKS_DIR/$hook_name" ]]; then
-      "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
+      "$candidate" "$@" || rc=$?
     fi
   done
   return $rc
@@ -23,31 +24,42 @@ run_chain() {
 
 cleanup() {
   local rc=$?
-  local chain_rc=0
-  run_chain || chain_rc=$?
-  (( chain_rc != 0 && rc == 0 )) && rc=$chain_rc
+  run_chain "$@" || rc=$?
   exit "$rc"
 }
-trap cleanup EXIT
+trap 'cleanup "$@"' EXIT
 
+# Only act on branch checkouts (skip file checkouts and initial clones).
 [[ "${3:-0}" != "1" ]] && exit 0
 [[ "${1:-}" == "0000000000000000000000000000000000000000" ]] && exit 0
 
+# Double-fork to fully detach from GitKraken's process tree.
+#   1. Subshell changes to / and backgrounds a bash process, then exits.
+#   2. That bash backgrounds the actual worker subshell, then exits.
+#   3. The worker is orphaned to init and runs completely independently.
 (
-  (
-    mkdir -p "$HOME/.cache" 2>/dev/null || true
-    exec </dev/null >>"$HOME/.cache/git-sync.log" 2>&1
-    GITSYNC=$(command -v git-sync 2>/dev/null || true)
-    [[ -z "$GITSYNC" && -x "$HOME/.local/bin/git-sync" ]] && GITSYNC="$HOME/.local/bin/git-sync"
-    [[ -z "$GITSYNC" ]] && exit 0
-    new_branch=$(git symbolic-ref --quiet --short HEAD) || exit 0
-    remote_head=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || exit 0
-    default="${remote_head#refs/remotes/origin/}"
-    [[ -z "$default" || "$new_branch" != "$default" ]] && exit 0
-    if ! git diff --quiet || ! git diff --cached --quiet; then
-      echo "git-sync: working tree dirty, skipping auto-sync on '$default'."
-      exit 0
-    fi
-    "$GITSYNC"
-  ) &
-) </dev/null >/dev/null 2>&1
+  cd / || true
+  bash -c "
+    cd /
+    (
+      cd \"$PWD\"
+      exec </dev/null >>\"$HOME/.cache/git-sync.log\" 2>&1
+
+      GITSYNC=\$(command -v git-sync 2>/dev/null || true)
+      [[ -z \"\$GITSYNC\" && -x \"\$HOME/.local/bin/git-sync\" ]] && GITSYNC=\"\$HOME/.local/bin/git-sync\"
+      [[ -z \"\$GITSYNC\" ]] && exit 0
+
+      new_branch=\$(git symbolic-ref --quiet --short HEAD) || exit 0
+      remote_head=\$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || exit 0
+      default=\"\${remote_head#refs/remotes/origin/}\"
+      [[ -z \"\$default\" || \"\$new_branch\" != \"\$default\" ]] && exit 0
+
+      if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo \"git-sync: working tree dirty, skipping auto-sync on '\$default'.\"
+        exit 0
+      fi
+
+      \"\$GITSYNC\"
+    ) &
+  " &
+)

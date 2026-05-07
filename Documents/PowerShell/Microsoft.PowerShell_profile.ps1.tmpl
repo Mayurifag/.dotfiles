@@ -125,7 +125,7 @@ function cd {
 Set-Alias python3 python
 
 # chezmoi apply — re-sources the profile automatically after apply
-function czapply { chezmoi apply -v; . $PROFILE }
+function czapply { Write-Host "edited a file directly? run: czsrc ~/.thatfile"; chezmoi apply -v; . $PROFILE }
 function czcd { Set-Location (chezmoi source-path) }
 Set-Alias -Name cdcz -Value czcd
 
