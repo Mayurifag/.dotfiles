@@ -5,28 +5,16 @@
 
 set -euo pipefail
 
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || exit 0
-[[ "$GIT_DIR" != /* ]] && GIT_DIR="$(pwd)/$GIT_DIR"
+git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
 # Non-TTY (e.g. GitKraken hook) flags any stdout/stderr as a hook error popup.
-# Redirect to a log file when not attached to a terminal, and throttle
-# hook-driven runs so rapid branch switches don't re-fetch every time.
+# Redirect to a log file when not attached to a terminal.
 if [[ ! -t 1 ]]; then
   mkdir -p "$HOME/.cache"
   exec >>"$HOME/.cache/git-sync.log" 2>&1
-  if [[ -f "$GIT_DIR/FETCH_HEAD" ]] \
-    && [[ -n "$(find "$GIT_DIR/FETCH_HEAD" -mmin -5 -print 2>/dev/null)" ]]; then
-    exit 0
-  fi
 fi
 
 CURRENT=$(git branch --show-current)
-
-# Capture default-branch SHA pre-fetch — git-trim is skipped unless it advances
-# (no merge upstream ⇒ nothing to prune locally).
-DEFAULT_REF=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null || true)
-PRE_DEFAULT_SHA=""
-[[ -n "$DEFAULT_REF" ]] && PRE_DEFAULT_SHA=$(git rev-parse --quiet --verify "$DEFAULT_REF" 2>/dev/null || true)
 
 do-ff() {
   local INPUT_REMOTE="${1}"
@@ -73,10 +61,6 @@ if [ -n "${CURRENT}" ]; then
 fi
 
 if command -v git-trim >/dev/null 2>&1; then
-  POST_DEFAULT_SHA=""
-  [[ -n "$DEFAULT_REF" ]] && POST_DEFAULT_SHA=$(git rev-parse --quiet --verify "$DEFAULT_REF" 2>/dev/null || true)
-  if [[ -z "$DEFAULT_REF" || "$PRE_DEFAULT_SHA" != "$POST_DEFAULT_SHA" ]]; then
-    echo "git trim"
-    git trim --no-update --no-confirm
-  fi
+  echo "git trim"
+  git trim --no-update --no-confirm --delete 'merged:origin,local'
 fi
