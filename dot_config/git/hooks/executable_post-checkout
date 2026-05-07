@@ -34,8 +34,4 @@ fi
 
 GITSYNC=$(command -v git-sync || true)
 [[ -z "$GITSYNC" && -x "$HOME/.local/bin/git-sync" ]] && GITSYNC="$HOME/.local/bin/git-sync"
-# Detach so GUI clients (GitKraken) don't block on the fetch+trim run.
-if [[ -n "$GITSYNC" ]]; then
-  nohup "$GITSYNC" </dev/null >/dev/null 2>&1 &
-  disown 2>/dev/null || true
-fi
+[[ -n "$GITSYNC" ]] && "$GITSYNC" </dev/null
