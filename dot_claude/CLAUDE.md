@@ -89,3 +89,11 @@ Global git hooks handle secrets — applies when repo has `.ejson` files or `.gi
 - **pre-push**: blocks push if any commit in push range contains plaintext ejson values or unencrypted git-crypt blobs.
 - Edit `.ejson` plaintext freely — staging triggers encryption. Don't manually run `ejson encrypt` before `git add`.
 - For `git-crypt` repos: assume locked unless told otherwise; if blobs look like binary noise it's encrypted, not corrupt.
+
+### git-crypt: always GPG mode
+
+Key = user's existing GPG key. Never symmetric mode, never separate passphrase.
+
+- Init: `git-crypt init` → `git-crypt add-gpg-user <FPR>` (FPR from `gpg --list-secret-keys --keyid-format=long`).
+- Clone: `git-crypt unlock` (uses gpg-agent).
+- Lock check: `git-crypt status -e`.
