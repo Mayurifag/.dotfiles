@@ -48,4 +48,8 @@ fi
 
 GITSYNC=$(command -v git-sync || true)
 [[ -z "$GITSYNC" && -x "$HOME/.local/bin/git-sync" ]] && GITSYNC="$HOME/.local/bin/git-sync"
-[[ -n "$GITSYNC" ]] && "$GITSYNC" </dev/null
+if [[ -n "$GITSYNC" ]]; then
+  log="$HOME/.cache/git-sync.log"
+  mkdir -p "$HOME/.cache" 2>/dev/null || true
+  ( "$GITSYNC" </dev/null >>"$log" 2>&1 & ) </dev/null >/dev/null 2>&1
+fi
