@@ -3,7 +3,7 @@
 matches:
   - trigger: ":pr"
     replace: |
-      Read PR via `gh` (diff + comments). Fix all issues, make one commit, push (no force-push/rebase/merge), then reply to each comment via `gh api` — fixed with context, or why not viable. Comments might be stupid or not having full context, so always challenge them before making an action.
+      Read PR unresolved comments via `gh`. Fix all issues, make one commit, push (no force-push/rebase/merge), then reply to each comment via `gh api` — fixed with context, or why not viable. Comments might be stupid or not having full context, so always challenge them before making an action. If comment is wrong or fully resolved by you, resolve it. If needs clarification and the author is @gemini-code-assist, explicetely tag him and ask. You are required to process the clarifications as well the same way. Also remove user comments with exact phrase "/gemini review". You also required to Hide comments from @gemini-code-assist with Resolved reason if they are actually resolved. The goal is to eventually have clean PR.
   - trigger: ":aigen"
     replace: |
       {{system_instructions_base}}

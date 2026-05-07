@@ -234,6 +234,10 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
+* Adopt [git-trim](https://github.com/foriequal0/git-trim)
+  * install with cargo everywhere; adopt prg alias
+  * sync <https://gist.github.com/foriequal0/55763d9177803c325904d089299f0970>
+  * webhook or something?
 * Wait for darrylmorley/whatcable
 * Test <https://github.com/atuinsh/atuin> as I need shell history
 * I need mole setup for iOS - to not clean files managed by chezmoi or install after usage
