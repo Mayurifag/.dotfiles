@@ -234,6 +234,9 @@ ejson encrypt keys.ejson # or alias - enc
 
 ## TODO
 
+* Adopt dec/enc aliases also to git-crypt. Make those commands smarter.
+  * Do I actually need it? Or just pre-commit hook everywhere?
+  * Well, then check for pre-commit hook? Documentation needed btw 
 * Adopt [git-trim](https://github.com/foriequal0/git-trim)
   * install with cargo everywhere; adopt prg alias
   * sync <https://gist.github.com/foriequal0/55763d9177803c325904d089299f0970>
