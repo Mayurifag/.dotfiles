@@ -16,12 +16,6 @@ fi
 
 CURRENT=$(git branch --show-current)
 
-# Capture default-branch SHA pre-fetch — git-trim is skipped unless it advances
-# (no merge upstream ⇒ nothing to prune locally).
-DEFAULT_REF=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null || true)
-PRE_DEFAULT_SHA=""
-[[ -n "$DEFAULT_REF" ]] && PRE_DEFAULT_SHA=$(git rev-parse --quiet --verify "$DEFAULT_REF" 2>/dev/null || true)
-
 do-ff() {
   local INPUT_REMOTE="${1}"
   local LOCAL REMOTE UPSTREAM
@@ -67,10 +61,6 @@ if [ -n "${CURRENT}" ]; then
 fi
 
 if command -v git-trim >/dev/null 2>&1; then
-  POST_DEFAULT_SHA=""
-  [[ -n "$DEFAULT_REF" ]] && POST_DEFAULT_SHA=$(git rev-parse --quiet --verify "$DEFAULT_REF" 2>/dev/null || true)
-  if [[ -z "$DEFAULT_REF" || "$PRE_DEFAULT_SHA" != "$POST_DEFAULT_SHA" ]]; then
-    echo "git trim"
-    git trim --no-update --no-confirm --delete 'merged:origin,local'
-  fi
+  echo "git trim"
+  git trim --no-update --no-confirm --delete 'merged:origin,local'
 fi
