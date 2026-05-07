@@ -48,24 +48,6 @@ webmtogif() {
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
 
-## Claude Code
-a() { claude -p --strict-mcp-config --tools "" --no-session-persistence --disable-slash-commands --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text "$*" | glow -; }
-claude-clean() {
-  local dirs=(shell-snapshots file-history paste-cache backups cache debug)
-  local total=0
-  for d in "${dirs[@]}"; do
-    local target="$HOME/.claude/$d"
-    if [ -d "$target" ]; then
-      local size
-      size=$(du -sh "$target" 2>/dev/null | cut -f1)
-      total=$((total + $(find "$target" -type f 2>/dev/null | wc -l)))
-      echo "Cleaning $d ($size)"
-      rm -rf "${target:?}/"*
-    fi
-  done
-  echo "Removed $total file(s)"
-}
-
 ## npm (complex)
 npmug() {
   local before after
@@ -180,4 +162,90 @@ EOF
     git-crypt unlock && { echo "dec: git-crypt unlocked"; did=1; }
   fi
   [ "$did" = "0" ] && echo "dec: nothing to decrypt"
+}
+
+_czsrc_ai() {
+  local tmpl="$1" dest="$2"
+  local model="${CZSRC_AI_MODEL:-opencode-go/deepseek-v4-flash}"
+  local srcdir
+  srcdir=$(chezmoi source-path 2>/dev/null) || srcdir="$HOME/.local/share/chezmoi"
+
+  opencode run --dangerously-skip-permissions --model "$model" --dir "$srcdir" \
+    "Read the chezmoi template at $tmpl and destination at $dest. Run chezmoi diff $dest to see what differs. Edit the template so its rendered output matches the destination exactly. Preserve ALL template logic: conditionals, includes, loops, OS checks. Do NOT edit the destination file."
+
+  local rc=$?
+  if [ "$rc" = "0" ]; then
+    echo " ✓ updated $tmpl"
+  else
+    echo " ✗ failed $tmpl (exit $rc)"
+  fi
+  return $rc
+}
+
+czsrc() {
+  [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ] && {
+    echo "Usage: czsrc [path ...]"
+    echo ""
+    echo "  Auto-sync destination changes back to chezmoi sources."
+    echo "  Plain files: copied directly. Templates: reverse-engineered via opencode."
+    echo ""
+    echo "  czsrc             Process all changed files (chezmoi diff)."
+    echo "  czsrc ~/.zshrc    Process specific file(s) only."
+    echo ""
+    echo "  Uses opencode-go/deepseek-v4-flash by default."
+    echo "  Set CZSRC_AI_MODEL to override (format: provider/model)."
+    return 0
+  }
+
+  local dest src dest_path changed=0 tmpl_count=0 ok_count=0
+
+  _czsrc_resolve() {
+    local p="$1"
+    src=$(chezmoi source-path "$p" 2>/dev/null)
+    if [ -z "$src" ]; then
+      chezmoi add --force "$p" 2>/dev/null || { echo "czsrc: $p not managed" >&2; return 1; }
+      src=$(chezmoi source-path "$p" 2>/dev/null)
+      [ -z "$src" ] && { echo "czsrc: $p not managed" >&2; return 1; }
+    fi
+    return 0
+  }
+
+  if [ $# -gt 0 ]; then
+    for dest_path in "$@"; do
+      changed=1
+      _czsrc_resolve "$dest_path" || continue
+      dest=$(chezmoi target-path "$src" 2>/dev/null)
+      [ -z "$dest" ] && dest="$dest_path"
+
+      if [[ "$src" == *.tmpl ]]; then
+        tmpl_count=$((tmpl_count + 1))
+        echo "$dest → $src (AI)"
+        _czsrc_ai "$src" "$dest_path" && ok_count=$((ok_count + 1))
+      else
+        echo "$dest → $src"
+        cp "$dest_path" "$src" && { echo "  ✓ copied"; ok_count=$((ok_count + 1)); } || echo "  ✗ failed"
+      fi
+    done
+  else
+    while IFS= read -r dest; do
+      [ -z "$dest" ] && continue
+      changed=1
+      dest_path="$HOME/$dest"
+      _czsrc_resolve "$dest_path" || continue
+
+      if [[ "$src" == *.tmpl ]]; then
+        tmpl_count=$((tmpl_count + 1))
+        echo "$dest → $src (AI)"
+        _czsrc_ai "$src" "$dest_path" && ok_count=$((ok_count + 1))
+      else
+        echo "$dest → $src"
+        cp "$dest_path" "$src" && { echo "  ✓ copied"; ok_count=$((ok_count + 1)); } || echo "  ✗ failed"
+      fi
+    done < <(chezmoi diff 2>/dev/null | grep '^diff --git' | sed 's|^diff --git a/||;s| b/.*||')
+  fi
+
+  [ "$changed" = "0" ] && { echo "No changes — source and destination match."; return 0; }
+
+  echo ""
+  echo "Done: $ok_count files synced (${tmpl_count} via AI)"
 }

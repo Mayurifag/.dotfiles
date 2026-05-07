@@ -149,26 +149,6 @@ function gk {
 }
 Set-Alias -Name g -Value gk
 
-## Claude Code
-function a { claude -p --strict-mcp-config --tools "" --no-session-persistence --disable-slash-commands --model claude-haiku-4-5-20251001 --append-system-prompt "Be concise." --output-format text ($args -join ' ') | glow - }
-function claude-clean {
-    $dirs = @('shell-snapshots', 'file-history', 'paste-cache', 'backups', 'cache', 'debug')
-    $total = 0
-    foreach ($d in $dirs) {
-        $target = Join-Path $env:USERPROFILE ".claude\$d"
-        if (Test-Path $target) {
-            $items = Get-ChildItem -Path $target -Recurse -File -ErrorAction SilentlyContinue
-            $count = ($items | Measure-Object).Count
-            $size = ($items | Measure-Object -Property Length -Sum).Sum
-            $sizeMB = [math]::Round($size / 1MB, 1)
-            $total += $count
-            Write-Host "Cleaning $d (${sizeMB}MB)"
-            Remove-Item "$target\*" -Recurse -Force -ErrorAction SilentlyContinue
-        }
-    }
-    Write-Host "Removed $total file(s)"
-}
-
 ## Shell utilities (complex)
 function mkcd {
     New-Item -ItemType Directory -Path $args[0] -Force | Out-Null
@@ -186,9 +166,9 @@ function webmtogif {
     ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
 }
 function c {
-    $env:IS_SANDBOX = "1"
-    claude --dangerously-skip-permissions @args
-    Remove-Item Env:\IS_SANDBOX -ErrorAction SilentlyContinue
+    $env:OPENCODE_YOLO = "1"
+    opencode --yolo
+    Remove-Item Env:\OPENCODE_YOLO -ErrorAction SilentlyContinue
 }
 function q {
     if (Get-Command yawn-debug -ErrorAction SilentlyContinue) {
@@ -269,4 +249,121 @@ function dec {
         if ($LASTEXITCODE -eq 0) { Write-Host "dec: git-crypt unlocked"; $did = $true }
     }
     if (-not $did) { Write-Host "dec: nothing to decrypt" }
+}
+
+function _czsrc_ai {
+    param($tmpl, $dest)
+
+    $model = if ($env:CZSRC_AI_MODEL) { $env:CZSRC_AI_MODEL } else { 'opencode-go/deepseek-v4-flash' }
+    $srcdir = chezmoi source-path 2>$null
+    if (-not $srcdir) { $srcdir = "$HOME/.local/share/chezmoi" }
+
+    opencode run --dangerously-skip-permissions --model $model --dir $srcdir `
+        "Read the chezmoi template at $tmpl and destination at $dest. Run chezmoi diff $dest to see what differs. Edit the template so its rendered output matches the destination exactly. Preserve ALL template logic: conditionals, includes, loops, OS checks. Do NOT edit the destination file."
+
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  updated $tmpl"
+        return $true
+    } else {
+        Write-Host "  failed $tmpl (exit $LASTEXITCODE)"
+        return $false
+    }
+}
+
+function _czsrc_resolve {
+    param($path)
+    $s = chezmoi source-path $path 2>$null
+    if (-not $s) {
+        chezmoi add --force $path 2>$null | Out-Null
+        if ($LASTEXITCODE -ne 0) { Write-Warning "czsrc: $path not managed"; return $null }
+        $s = chezmoi source-path $path 2>$null
+        if (-not $s) { Write-Warning "czsrc: $path not managed"; return $null }
+    }
+    return $s
+}
+
+function czsrc {
+    if ($Args -and ($Args[0] -eq '-h' -or $Args[0] -eq '--help')) {
+        Write-Host "Usage: czsrc [path ...]"
+        Write-Host ""
+        Write-Host "  Auto-sync destination changes back to chezmoi sources."
+        Write-Host "  Plain files: copied directly. Templates: reverse-engineered via opencode."
+        Write-Host ""
+        Write-Host "  czsrc             Process all changed files (chezmoi diff)."
+        Write-Host "  czsrc ~/.zshrc    Process specific file(s) only."
+        Write-Host ""
+        Write-Host "  Uses opencode-go/deepseek-v4-flash by default."
+        Write-Host "  Set CZSRC_AI_MODEL to override (format: provider/model)."
+        return
+    }
+
+    $changed = 0
+    $tmplCount = 0
+    $okCount = 0
+
+    if ($Args.Count -gt 0) {
+        foreach ($destPath in $Args) {
+            $changed = 1
+            $src = _czsrc_resolve $destPath
+            if (-not $src) { continue }
+            $dest = chezmoi target-path $src 2>$null
+            if (-not $dest) { $dest = $destPath }
+
+            if ($src -like '*.tmpl') {
+                $tmplCount++
+                Write-Host "$dest -> $src (AI)"
+                if (_czsrc_ai $src $destPath) { $okCount++ }
+            } else {
+                Write-Host "$dest -> $src"
+                try {
+                    Copy-Item -Path $destPath -Destination $src -Force -ErrorAction Stop
+                    Write-Host "  copied"
+                    $okCount++
+                } catch {
+                    Write-Host "  failed : $_"
+                }
+            }
+        }
+    } else {
+        $diffOutput = chezmoi diff 2>$null
+        if (-not $diffOutput) {
+            Write-Host "No changes - source and destination match."
+            return
+        }
+
+        $dests = $diffOutput |
+            Select-String '^diff --git' |
+            ForEach-Object { $_.Line -replace '^diff --git a/', '' -replace ' b/.*', '' }
+
+        foreach ($dest in $dests) {
+            if (-not $dest) { continue }
+            $changed = 1
+            $destPath = if ($dest.StartsWith('/')) { $dest } else { "$HOME/$dest" }
+            $src = _czsrc_resolve $destPath
+            if (-not $src) { continue }
+
+            if ($src -like '*.tmpl') {
+                $tmplCount++
+                Write-Host "$dest -> $src (AI)"
+                if (_czsrc_ai $src $destPath) { $okCount++ }
+            } else {
+                Write-Host "$dest -> $src"
+                try {
+                    Copy-Item -Path $destPath -Destination $src -Force -ErrorAction Stop
+                    Write-Host "  copied"
+                    $okCount++
+                } catch {
+                    Write-Host "  failed : $_"
+                }
+            }
+        }
+    }
+
+    if ($changed -eq 0) {
+        Write-Host "No changes - source and destination match."
+        return
+    }
+
+    Write-Host ""
+    Write-Host "Done: $okCount files synced ($tmplCount via AI)"
 }
