@@ -1,7 +1,8 @@
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 allow_login_shell = false
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
+model = "gpt-5.5"
 
 [features]
 apps = false
@@ -21,10 +22,16 @@ trust_level = "trusted"
 [projects."{{ .chezmoi.sourceDir }}"]
 trust_level = "trusted"
 
+[projects."{{ .chezmoi.homeDir }}/Code/mayurifag.ru"]
+trust_level = "trusted"
+
+[projects."{{ .chezmoi.homeDir }}/Code/opencloud"]
+trust_level = "trusted"
+
 {{- end }}
 
 [tui]
 theme = "dracula"
 
 [tui.model_availability_nux]
-"gpt-5.5" = 2
+"gpt-5.5" = 4
