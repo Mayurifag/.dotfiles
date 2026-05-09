@@ -78,7 +78,58 @@ knownrm() {
 }
 
 gcd() {
-  git clone --recurse-submodules "$1" && builtin cd "$(basename "$1" .git)"
+  if [ -z "$1" ]; then
+    echo "Usage: gcd <repo>" >&2
+    return 1
+  fi
+
+  local input="${1%/}"
+  local dir
+  dir="$(basename "$input" .git)"
+
+  local github_repo=""
+  case "$input" in
+  https://github.com/*/* | http://github.com/*/*)
+    github_repo="${input#*github.com/}"
+    ;;
+  git@github.com:*/*)
+    github_repo="${input#git@github.com:}"
+    ;;
+  ssh://git@github.com/*/*)
+    github_repo="${input#ssh://git@github.com/}"
+    ;;
+  */*)
+    if [[ "$input" != *://* && "$input" != *:* ]]; then
+      github_repo="$input"
+    fi
+    ;;
+  esac
+
+  github_repo="${github_repo%.git}"
+  local -a github_repo_parts
+  github_repo_parts=("${(@s:/:)github_repo}")
+  if [ ${#github_repo_parts[@]} -ne 2 ]; then
+    github_repo=""
+  fi
+
+  local large_repo_kb="${GCD_LARGE_REPO_KB:-256000}"
+  local repo_size_kb=""
+  if [ -n "$github_repo" ] && if_command_exists gh; then
+    repo_size_kb="$(gh repo view "$github_repo" --json diskUsage -q .diskUsage 2>/dev/null)"
+  fi
+
+  if [[ "$repo_size_kb" == <-> ]] && [ "$repo_size_kb" -ge "$large_repo_kb" ]; then
+    echo "Large repo detected: ${repo_size_kb} KiB. Downloading latest checkout only."
+    git clone --filter=blob:none --also-filter-submodules --depth 1 --recurse-submodules --shallow-submodules "$input" || return
+    builtin cd "$dir" || return
+    echo "Missing: full history, tags, historical blobs, and full submodule history."
+    echo "Download history and tags: git fetch --unshallow --tags"
+    echo "Download all missing blobs: git rev-list --objects --all | git cat-file --batch-check='%(objectname)' >/dev/null"
+    echo "Download full submodule history: git submodule foreach --recursive 'git fetch --unshallow --tags || git fetch --tags'"
+    return
+  fi
+
+  git clone --recurse-submodules "$input" && builtin cd "$dir"
 }
 
 grom() {
