@@ -19,12 +19,6 @@
     "plan": {
       "disable": true
     },
-    "ultrathink": {
-      "mode": "primary",
-      "model": "openai/gpt-5.5-pro",
-      "description": "Ultrathink (GPT 5.5 Pro)",
-      "variant": "xhigh"
-    },
     "kimi": {
       "mode": "primary",
       "model": "opencode-go/kimi-k2.6",
@@ -49,7 +43,7 @@
       }
     }
   },
-  "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty", "opencode-snip@latest"],
+  "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty", "opencode-snip"],
   "command": {
     "ogc-usage": {
       "template": "Call the ogc_usage tool exactly once and return its output directly.",

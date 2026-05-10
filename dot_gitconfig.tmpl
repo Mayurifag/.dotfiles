@@ -15,9 +15,11 @@
   autocrlf = false
   safecrlf = warn
   editor = vim
-  attributesfile = ~/.gitattributes
-  excludesfile = ~/.gitignore_global
-  hooksPath = ~/.config/git/hooks
+  # Here and later, paths separators dont need normalization for Windows, git works fine, yay!
+  attributesfile = {{ .chezmoi.homeDir }}/.gitattributes
+  excludesfile = {{ .chezmoi.homeDir }}/.gitignore_global
+  # Its important to have homeDir here, not the '~', because hooks wont work in GitKraken otherwise (yes!)
+  hooksPath = {{ .chezmoi.homeDir }}/.config/git/hooks
 {{- if eq .chezmoi.os "windows" }}
   sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 {{- end }}
