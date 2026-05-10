@@ -3,14 +3,6 @@ install/Brewfile.lock.json
 
 /.ruby-lsp
 
-# ── GSD baseline (auto-generated) ──
-.gsd/activity/
-.gsd/runtime/
-.gsd/worktrees/
-.gsd/auto.lock
-.gsd/metrics.json
-.gsd/completed-units.json
-.gsd/STATE.md
 .DS_Store
 Thumbs.db
 *.swp
@@ -38,10 +30,3 @@ coverage/
 tmp/
 
 .bg-shell/
-
-# ── GSD (local-only, commit_docs: false) ──
-.gsd/
-
-# ── GSD baseline (auto-generated) ──
-.gsd
-.gsd-id

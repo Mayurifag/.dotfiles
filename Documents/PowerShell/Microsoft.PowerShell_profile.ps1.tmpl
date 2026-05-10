@@ -119,13 +119,66 @@ function cd {
     }
 }
 
+function gcd {
+    param([Parameter(Position = 0)][string]$Repo)
+
+    if ([string]::IsNullOrWhiteSpace($Repo)) {
+        Write-Error "Usage: gcd <repo>"
+        return
+    }
+
+    $inputRepo = $Repo.TrimEnd('/', '\')
+    $dir = [IO.Path]::GetFileName($inputRepo)
+    if ($dir.EndsWith('.git')) { $dir = $dir.Substring(0, $dir.Length - 4) }
+
+    $githubRepo = ''
+    if ($inputRepo -match '^https?://github\.com/([^/]+/[^/]+)') {
+        $githubRepo = $Matches[1]
+    } elseif ($inputRepo -match '^git@github\.com:([^/]+/[^/]+)') {
+        $githubRepo = $Matches[1]
+    } elseif ($inputRepo -match '^ssh://git@github\.com/([^/]+/[^/]+)') {
+        $githubRepo = $Matches[1]
+    } elseif ($inputRepo -match '^[^/:\\]+/[^/:\\]+$') {
+        $githubRepo = $inputRepo
+    }
+
+    if ($githubRepo.EndsWith('.git')) { $githubRepo = $githubRepo.Substring(0, $githubRepo.Length - 4) }
+    if (($githubRepo -split '/').Count -ne 2) { $githubRepo = '' }
+
+    $largeRepoKb = 256000
+    if ($env:GCD_LARGE_REPO_KB -match '^\d+$') { $largeRepoKb = [int]$env:GCD_LARGE_REPO_KB }
+
+    $repoSizeKb = $null
+    if ($githubRepo -and (Get-Command gh -ErrorAction SilentlyContinue)) {
+        $sizeOutput = gh repo view $githubRepo --json diskUsage -q .diskUsage 2>$null
+        if ($LASTEXITCODE -eq 0 -and $sizeOutput -match '^\d+$') {
+            $repoSizeKb = [int]$sizeOutput
+        }
+    }
+
+    if ($null -ne $repoSizeKb -and $repoSizeKb -ge $largeRepoKb) {
+        Write-Host "Large repo detected: $repoSizeKb KiB. Downloading latest checkout only."
+        git clone --filter=blob:none --also-filter-submodules --depth 1 --recurse-submodules --shallow-submodules $inputRepo
+        if ($LASTEXITCODE -ne 0) { return }
+        Set-Location $dir
+        Write-Host "Missing: full history, tags, historical blobs, and full submodule history."
+        Write-Host "Download history and tags: git fetch --unshallow --tags"
+        Write-Host "Download all missing blobs: git rev-list --objects --all | git cat-file --batch-check='%(objectname)' >`$null"
+        Write-Host "Download full submodule history: git submodule foreach --recursive 'git fetch --unshallow --tags || git fetch --tags'"
+        return
+    }
+
+    git clone --recurse-submodules $inputRepo
+    if ($LASTEXITCODE -eq 0) { Set-Location $dir }
+}
+
 # === Aliases ===
 {{ template "aliases_ps1" . }}
 # python3 → Windows App Execution Alias is a Store stub; point it at the real python
 Set-Alias python3 python
 
 # chezmoi apply — re-sources the profile automatically after apply
-function czapply { chezmoi apply -v; . $PROFILE }
+function czapply { Write-Host "edited a file directly? run: czsrc ~/.thatfile"; chezmoi apply -v; . $PROFILE }
 function czcd { Set-Location (chezmoi source-path) }
 Set-Alias -Name cdcz -Value czcd
 

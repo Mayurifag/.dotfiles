@@ -18,8 +18,6 @@ zsh/.zsh_plugins.sh
 {{ if ne .chezmoi.os "darwin" -}}
 .config/karabiner/
 Library/
-setup-swift-quit.sh
-setup-alt-tab.sh
 {{- end }}
 
 {{ if eq .chezmoi.os "darwin" -}}
@@ -31,14 +29,12 @@ setup-alt-tab.sh
 .local/share/applications/
 .local/share/konsole/
 .local/share/systemd/
-setup-kanata-linux.sh
 {{- end }}
 
 {{ if ne .chezmoi.os "windows" -}}
 {{- end }}
 
 {{ if eq .chezmoi.os "windows" -}}
-cz_apply.sh
 .config/btop/
 .config/yakuakerc
 .config/konsolerc
@@ -50,10 +46,6 @@ zsh/
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
-cz_apply.ps1
-setup-windows.ps1
-windhawk-restore.ps1
-backup.ps1
 Documents/
 .local/bin/python3
 .local/bin/python3.cmd

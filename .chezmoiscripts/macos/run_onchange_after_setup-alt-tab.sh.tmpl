@@ -1,8 +1,9 @@
+{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
-# AltTab preferences
-# Edit this file to update settings — chezmoi apply will re-run on change
 
 set -eu
+
+echo "[chezmoi] running macos/setup-alt-tab"
 
 defaults write com.lwouis.alt-tab-macos alignThumbnails -int 1
 defaults write com.lwouis.alt-tab-macos appearanceSize -int 0
@@ -39,3 +40,4 @@ defaults write com.lwouis.alt-tab-macos updatePolicy -int 2
 defaults write com.lwouis.alt-tab-macos windowDisplayDelay -int 0
 defaults write com.lwouis.alt-tab-macos windowMaxWidthInRow -int 30
 defaults write com.lwouis.alt-tab-macos windowMinWidthInRow -int 15
+{{- end }}

@@ -24,10 +24,10 @@ dn = { cmd = "cd ~/Code/mayurifag.ru && make deploy HOST=nnnnn" }
 [sharedAliases.Git]
 lzg = { cmd = "lazygit" }
 grc = { cmd = "git rebase --continue" }
-gpf = { cmd = "yawn force-push" }
+gpf = { cmd = "q force-push" }
 gri = { cmd = "git rebase --interactive" }
 qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-with-lease origin HEAD", ps_cmd = "git add .; git commit --amend --no-edit; git push --force-with-lease origin HEAD" }
-sq = { cmd = "yawn squash" }
+sq = { cmd = "q squash" }
 
 [sharedAliases.Apps]
 sher = { cmd = "sherlock --output /dev/null", ps_cmd = "sherlock --output NUL" }

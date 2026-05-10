@@ -7,6 +7,8 @@ export SUDO_EDITOR={{ .sharedEnv.SUDO_EDITOR }}
 export GEMINI_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
 export CONTEXT7_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).context7_api_key }}"
 export SEVENTEENTRACK_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).seventeentrack_api_key }}"
+export OPENCODE_GO_WORKSPACE_ID="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).opencode_go_workspace_id }}"
+export OPENCODE_GO_AUTH_COOKIE="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).opencode_go_auth_cookie }}"
 export FZF_DEFAULT_COMMAND='rg --files --hidden'
 export FZF_DEFAULT_OPTS='-m --height 50% --border=rounded'
 export DO_NOT_TRACK=1
@@ -15,4 +17,6 @@ export NEXT_TELEMETRY_DISABLED=1
 export VSCODE_TELEMETRY_LEVEL=off
 export POWERSHELL_TELEMETRY_OPTOUT=1
 export GOTELEMETRY=off
+export OMO_SEND_ANONYMOUS_TELEMETRY=0
+export OMO_DISABLE_POSTHOG=1
 export PROXIES_CFG="$HOME/Code/proxies-cfg"

@@ -1,0 +1,45 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+Write-Host '[chezmoi] running windows/30-startup-shortcuts'
+
+$startupDir = [System.Environment]::GetFolderPath('Startup')
+$ws = New-Object -ComObject WScript.Shell
+
+$ahkSource = Join-Path $env:USERPROFILE ".local\share\chezmoi\windows\ahkv2.ahk"
+$ahkShortcutPath = Join-Path $startupDir "ahkv2.ahk.lnk"
+
+if (-not (Test-Path $ahkSource)) {
+    Write-Host "[ahk] WARNING: AHK source file not found: $ahkSource" -ForegroundColor Yellow
+    Write-Host "     Shortcut not created. Ensure chezmoi source is populated." -ForegroundColor Yellow
+} else {
+    $shortcut = $ws.CreateShortcut($ahkShortcutPath)
+    $shortcut.TargetPath = $ahkSource
+    $shortcut.WorkingDirectory = Split-Path $ahkSource
+    $shortcut.Description = "AutoHotkey v2 keyboard remapper (chezmoi-managed)"
+    $shortcut.Save()
+
+    Write-Host "[ahk] Done. AHK startup shortcut created." -ForegroundColor Green
+    Write-Host "     Shortcut: $ahkShortcutPath"
+    Write-Host "     Target:   $ahkSource"
+}
+
+$sharexExe = "C:\Program Files\ShareX\ShareX.exe"
+$sharexShortcutPath = Join-Path $startupDir "ShareX.lnk"
+
+if (-not (Test-Path $sharexExe)) {
+    Write-Host "[sharex] WARNING: ShareX executable not found: $sharexExe" -ForegroundColor Yellow
+    Write-Host "     Shortcut not created. Install ShareX via winget and re-run 'chezmoi apply'." -ForegroundColor Yellow
+} else {
+    $shortcut = $ws.CreateShortcut($sharexShortcutPath)
+    $shortcut.TargetPath = $sharexExe
+    $shortcut.Arguments = "-silent"
+    $shortcut.WorkingDirectory = Split-Path $sharexExe
+    $shortcut.Description = "ShareX startup shortcut (chezmoi-managed)"
+    $shortcut.Save()
+
+    Write-Host "[sharex] Done. ShareX startup shortcut created." -ForegroundColor Green
+    Write-Host "     Shortcut: $sharexShortcutPath"
+    Write-Host "     Target:   $sharexExe"
+}
+{{- end }}

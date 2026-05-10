@@ -1,24 +1,37 @@
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 allow_login_shell = false
-model_reasoning_effort = "xhigh"
+model_reasoning_effort = "medium"
+model = "gpt-5.5"
+personality = "none"
+plan_mode_reasoning_effort = "xhigh"
+suppress_unstable_features_warning = true
+
+[analytics]
+enabled = false
 
 [features]
 apps = false
 shell_snapshot = false
+undo = true
 
 {{- if eq .chezmoi.os "windows" }}
-[projects."C:\\Users\\Administrator"]
-trust_level = "trusted"
-
 [windows]
-sandbox = "unelevated"
-
-{{- else if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
-[projects."{{ .chezmoi.homeDir }}/Code"]
-trust_level = "trusted"
-
-[projects."{{ .chezmoi.sourceDir }}"]
-trust_level = "trusted"
+sandbox = "elevated"
 
 {{- end }}
+
+[tui]
+status_line = [
+  "model-with-reasoning",
+  "project-root",
+  "git-branch",
+  "context-used",
+  "total-input-tokens",
+  "total-output-tokens",
+  "session-id",
+]
+theme = "dracula"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4

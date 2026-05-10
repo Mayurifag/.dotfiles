@@ -6,8 +6,7 @@
   },
   "fix": true,
   "globs": [
-    "**/*.{md,markdown}",
-    "!.gsd/**"
+    "**/*.{md,markdown}"
   ],
   "noBanner": true
 }

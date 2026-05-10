@@ -1,3 +1,6 @@
+{{- if eq .chezmoi.os "windows" -}}
+Write-Host '[chezmoi] running windows/ahk-and-mpv-dark-box'
+
 $ahkProcesses = Get-CimInstance Win32_Process -Filter "Name like 'AutoHotkey%'" -ErrorAction SilentlyContinue |
     Where-Object { $_.CommandLine -like "*ahkv2.ahk*" }
 
@@ -10,7 +13,6 @@ if (Test-Path $ahkScript) {
     Start-Process $ahkScript
 }
 
-# mpv-dark-box: clone repo and symlink dark-box.lua into mpv scripts dir
 $darkBoxRepo   = Join-Path $env:USERPROFILE "Code\mpv-dark-box"
 $darkBoxSource = Join-Path $darkBoxRepo "dark-box.lua"
 $darkBoxTarget = Join-Path $env:USERPROFILE ".config\mpv\scripts\dark-box.lua"
@@ -40,5 +42,6 @@ if (Test-Path $darkBoxSource) {
         }
     }
 } else {
-    Write-Host "[mpv-dark-box] WARNING: $darkBoxSource missing — clone may have failed" -ForegroundColor Yellow
+    Write-Host "[mpv-dark-box] WARNING: $darkBoxSource missing - clone may have failed" -ForegroundColor Yellow
 }
+{{- end }}
