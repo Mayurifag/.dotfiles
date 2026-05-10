@@ -58,6 +58,9 @@ grep = { cmd = "grep --color=auto", ps_cmd = "grep.exe --color=auto" }
 df = { cmd = "df -h", ps_cmd = "df.exe -h" }
 du = { cmd = "du -c -h", ps_cmd = "du.exe -c -h" }
 
+[sharedAliases.Actions]
+actions = { cmd = "npx actions-up -y" }
+
 [sharedAliases.Proxies]
 proxies-cd = { cmd = 'cd "$PROXIES_CFG"', ps_cmd = 'Set-Location $env:PROXIES_CFG' }
 proxies-setup = { cmd = 'make -C "$PROXIES_CFG" setup', ps_cmd = 'make -C $env:PROXIES_CFG setup' }
