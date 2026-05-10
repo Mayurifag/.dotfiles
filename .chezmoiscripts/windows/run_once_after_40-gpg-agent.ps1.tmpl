@@ -1,0 +1,31 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+Write-Host '[chezmoi] running windows/40-gpg-agent'
+
+$gpgconf = "C:\Program Files\GnuPG\bin\gpgconf.exe"
+
+if (-not (Test-Path $gpgconf)) {
+    Write-Host "[gpg] WARNING: gpgconf.exe not found at expected path: $gpgconf" -ForegroundColor Yellow
+    Write-Host "     Skipping scheduled task - install GnuPG and re-run 'chezmoi apply'." -ForegroundColor Yellow
+    exit 0
+}
+
+$taskName = "GpgAgentCleanupAtLogon"
+$action = New-ScheduledTaskAction -Execute $gpgconf -Argument "--kill gpg-agent"
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -StartWhenAvailable
+
+Register-ScheduledTask `
+    -TaskName $taskName `
+    -Action $action `
+    -Trigger $trigger `
+    -Settings $settings `
+    -RunLevel Limited `
+    -Force | Out-Null
+
+Write-Host "[gpg] Done. Scheduled task '$taskName' registered." -ForegroundColor Green
+Write-Host "     gpgconf --kill gpg-agent will run at every logon for $env:USERNAME."
+Write-Host "     To apply immediately without rebooting, run once now:"
+Write-Host ("     `"" + $gpgconf + "`" --kill gpg-agent") -ForegroundColor Cyan
+{{- end }}

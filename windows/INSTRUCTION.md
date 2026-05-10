@@ -40,6 +40,24 @@ New-Item -ItemType Directory -Force "$env:USERPROFILE\.ejson" | Out-Null; cmd /c
 [System.Environment]::SetEnvironmentVariable("EJSON_KEYDIR", "$env:USERPROFILE\.ejson\keys", "User")
 ~~~
 
+### git-crypt
+
+`git-crypt` comes from MSYS2. The setup script installs a small
+`~/.local/bin/git-crypt.cmd` shim so only `git-crypt.exe` is exposed to
+PowerShell and other Windows shells.
+
+Verify it with:
+
+~~~powershell
+git-crypt --version
+~~~
+
+If it is missing, install it with MSYS2:
+
+~~~powershell
+& 'C:\msys64\usr\bin\bash.exe' -lc 'pacman -S --noconfirm git-crypt'
+~~~
+
 ## Preflight & chezmoi init
 
 Open a **new terminal** (not the one init.ps1 ran in) and run:
@@ -48,8 +66,8 @@ Open a **new terminal** (not the one init.ps1 ran in) and run:
 Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/windows/preflight.ps1" | Invoke-Expression
 ~~~
 
-This checks that git, bash, chezmoi, ejson, ejson keys, and SSH key are all
-ready, then runs `chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh`.
+This checks that git, bash, git-crypt, chezmoi, ejson, ejson keys, and SSH
+key are all ready, then runs `chezmoi init git@github.com:Mayurifag/.dotfiles.git --ssh`.
 
 ## After chezmoi init
 

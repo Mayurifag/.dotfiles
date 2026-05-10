@@ -5,3 +5,5 @@ llmfit
 eza
 ripgrep
 git-trim
+dprint
+taplo-cli

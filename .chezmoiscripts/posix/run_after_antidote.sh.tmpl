@@ -1,0 +1,15 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/bin/sh
+
+set -eu
+
+echo "[chezmoi] running posix/antidote"
+
+PLUGINS_FILE="$HOME/zsh/plugins.txt"
+BUNDLE_FILE="$HOME/zsh/.zsh_plugins.sh"
+
+if command -v antidote >/dev/null 2>&1 && [ -f "$PLUGINS_FILE" ]; then
+  mkdir -p "$(dirname "$BUNDLE_FILE")"
+  antidote bundle <"$PLUGINS_FILE" >"$BUNDLE_FILE"
+fi
+{{- end }}

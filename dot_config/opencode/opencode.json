@@ -1,0 +1,79 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openai/gpt-5.5",
+  "small_model": "opencode-go/minimax-m2.7",
+  "default_agent": "build",
+  "enabled_providers": ["openai", "opencode-go"],
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "openai/gpt-5.5",
+      "variant": "medium",
+      "description": "Build (GPT 5.5)"
+    },
+    "fast": {
+      "mode": "primary",
+      "model": "opencode-go/minimax-m2.7",
+      "description": "Fast (MiniMax M2.7)"
+    },
+    "plan": {
+      "disable": true
+    },
+    "ultrathink": {
+      "mode": "primary",
+      "model": "openai/gpt-5.5-pro",
+      "description": "Ultrathink (GPT 5.5 Pro)",
+      "variant": "xhigh"
+    },
+    "kimi": {
+      "mode": "primary",
+      "model": "opencode-go/kimi-k2.6",
+      "description": "Kimi K2.6 (OpenCode Go)"
+    },
+    "glm": {
+      "mode": "primary",
+      "model": "opencode-go/glm-5.1",
+      "description": "GLM-5.1 (OpenCode Go)"
+    }
+  },
+  "provider": {
+    "openai": {
+      "models": {
+        "gpt-5.5": {
+          "variants": {
+            "medium": {
+              "reasoningEffort": "medium"
+            }
+          }
+        }
+      }
+    }
+  },
+  "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty", "opencode-go-usage"],
+  "command": {
+    "ogc-usage": {
+      "template": "Call the ogc_usage tool exactly once and return its output directly.",
+      "description": "Show OpenCode Go usage"
+    }
+  },
+  "lsp": false,
+  "permission": "allow",
+  "formatter": {
+    "prettier": {
+      "command": ["prettier", "--write", "$FILE"],
+      "extensions": [".js", ".ts", ".jsx", ".tsx", ".css", ".html"]
+    },
+    "shfmt": {
+      "command": ["shfmt", "-w", "$FILE"],
+      "extensions": [".sh", ".bash", ".zsh"]
+    },
+    "dprint": {
+      "command": ["dprint", "fmt", "--config", "$HOME/.dprint.json", "$FILE"],
+      "extensions": [".json", ".jsonc", ".md", ".yaml", ".yml"]
+    },
+    "taplo": {
+      "command": ["taplo", "format", "$FILE"],
+      "extensions": [".toml"]
+    }
+  }
+}

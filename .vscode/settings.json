@@ -17,7 +17,6 @@
     "**/Thumbs.db": true,
     "**/CVS": true,
     "**/.ruby-lsp": true,
-    "**/.gsd/**": true,
     "**/.bg-shell/**": true
   },
   "search.exclude": {
@@ -25,10 +24,9 @@
     "**/bower_components": true,
     "**/*.code-search": true,
     "**/.ruby-lsp": true,
-    "**/.gsd/**": true,
     "**/.bg-shell/**": true
   },
   "codeWebChat.ignorePatterns": [
-    "/.gsd/**", "**/.git/**"
+    "**/.git/**"
   ]
 }

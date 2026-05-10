@@ -1,5 +1,6 @@
 # Preflight check for dotfiles setup — verifies all prerequisites before chezmoi init
 # Run this in a NEW terminal after init.ps1 completes and manual steps (SSH + ejson) are done.
+# Checks git, bash, git-crypt, chezmoi, ejson, ejson keys, EJSON_KEYDIR, and SSH.
 #
 # Usage:
 #   Invoke-RestMethod -Uri "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/windows/preflight.ps1" | Invoke-Expression
@@ -37,7 +38,17 @@ if (Get-Command bash -ErrorAction SilentlyContinue) {
   $failed += "bash: not found. Git for Windows should provide it. Ensure 'C:\Program Files\Git\bin' is on PATH."
 }
 
-# Check 3: chezmoi
+# Check 3: git-crypt
+Write-Host -NoNewline "  git-crypt ....... "
+if (Get-Command git-crypt -ErrorAction SilentlyContinue) {
+  $gitCryptVer = git-crypt --version 2>&1 | Select-Object -First 1
+  Write-Host "PASS ($gitCryptVer)" -ForegroundColor Green
+} else {
+  Write-Host "FAIL" -ForegroundColor Red
+  $failed += "git-crypt: not found. Install it with MSYS2 (pacman -S git-crypt) and rerun init.ps1 so the local shim is created."
+}
+
+# Check 4: chezmoi
 Write-Host -NoNewline "  chezmoi ......... "
 $chezmoiCmd = Get-Command chezmoi -ErrorAction SilentlyContinue
 if (!$chezmoiCmd) {
@@ -53,7 +64,7 @@ if ($chezmoiCmd) {
   $failed += "chezmoi: not found. Run init.ps1 first (installs via mise). Ensure mise shims are on PATH."
 }
 
-# Check 4: ejson
+# Check 5: ejson
 Write-Host -NoNewline "  ejson ........... "
 if (Get-Command ejson -ErrorAction SilentlyContinue) {
   Write-Host "PASS" -ForegroundColor Green
@@ -68,7 +79,7 @@ if (Get-Command ejson -ErrorAction SilentlyContinue) {
   }
 }
 
-# Check 5: ejson keys directory
+# Check 6: ejson keys directory
 Write-Host -NoNewline "  ejson keys ...... "
 $ejsonKeysDir = Join-Path $HOME ".ejson\keys"
 if (Test-Path $ejsonKeysDir) {
@@ -84,7 +95,7 @@ if (Test-Path $ejsonKeysDir) {
   $failed += 'ejson keys: directory not found. Run: New-Item -ItemType Directory -Force "$env:USERPROFILE\.ejson" | Out-Null; cmd /c mklink /D "%USERPROFILE%\.ejson\keys" "D:\OpenCloud\Personal\Software\dotfiles\ejson\keys"'
 }
 
-# Check 6: EJSON_KEYDIR environment variable
+# Check 7: EJSON_KEYDIR environment variable
 Write-Host -NoNewline "  EJSON_KEYDIR ..... "
 $ejsonKeyDirEnv = [System.Environment]::GetEnvironmentVariable("EJSON_KEYDIR", "User")
 if ($ejsonKeyDirEnv) {
@@ -94,7 +105,7 @@ if ($ejsonKeyDirEnv) {
   $failed += "EJSON_KEYDIR: not set. ejson defaults to /opt/ejson/keys which does not exist on Windows. Run init.ps1 or set manually: [System.Environment]::SetEnvironmentVariable('EJSON_KEYDIR', `"`$env:USERPROFILE\.ejson\keys`", 'User')"
 }
 
-# Check 7: SSH key loaded
+# Check 8: SSH key loaded
 Write-Host -NoNewline "  ssh key ......... "
 $sshOutput = ssh-add -l 2>&1
 if ($LASTEXITCODE -eq 0 -and $sshOutput -notmatch "no identities") {

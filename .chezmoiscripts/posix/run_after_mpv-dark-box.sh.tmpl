@@ -1,0 +1,17 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/bin/sh
+
+set -eu
+
+echo "[chezmoi] running posix/mpv-dark-box"
+
+SOURCE_FILE="$HOME/Code/mpv-dark-box/dark-box.lua"
+DEST_FILE="$HOME/.config/mpv/scripts/dark-box.lua"
+
+if [ -f "$SOURCE_FILE" ]; then
+  mkdir -p "$(dirname "$DEST_FILE")"
+  ln -sf "$SOURCE_FILE" "$DEST_FILE"
+elif [ -L "$DEST_FILE" ] && [ ! -e "$DEST_FILE" ]; then
+  rm -f "$DEST_FILE"
+fi
+{{- end }}

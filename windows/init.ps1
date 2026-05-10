@@ -93,10 +93,19 @@ foreach ($app in $apps) {
 Write-Host "`n[9/16] Refreshing environment PATH..."
 $env:PATH = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
+Write-Host "`n[10/16] Installing git-crypt shim..."
+$gitCryptShimDir = Join-Path $HOME ".local\bin"
+$gitCryptShim = Join-Path $gitCryptShimDir "git-crypt.cmd"
+$gitCryptShimBody = "@echo off`r`n`"C:\msys64\usr\bin\git-crypt.exe`" %*`r`n"
+if (!(Test-Path $gitCryptShimDir)) { New-Item -ItemType Directory -Path $gitCryptShimDir -Force | Out-Null }
+if (!(Test-Path $gitCryptShim) -or (Get-Content -Raw $gitCryptShim) -ne $gitCryptShimBody) {
+  Set-Content -Path $gitCryptShim -Value $gitCryptShimBody -NoNewline
+}
+
 # Configure mise in PowerShell profile
 # Always target the PS7 profile explicitly — using $PROFILE here would write to the
 # PS5.1 profile if init.ps1 is invoked via powershell.exe instead of pwsh.exe.
-Write-Host "`n[10/16] Configuring mise in PowerShell profile..."
+Write-Host "`n[11/16] Configuring mise in PowerShell profile..."
 $ps7Profile = "$env:USERPROFILE\Documents\PowerShell\Microsoft.PowerShell_profile.ps1"
 $profileDir = Split-Path -Parent $ps7Profile
 if (!(Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -Force | Out-Null }
@@ -106,7 +115,7 @@ if (!(Test-Path $ps7Profile) -or !(Select-String -Path $ps7Profile -Pattern 'mis
 }
 
 # Ensure make, Git POSIX utils, and Docker are on PATH
-Write-Host "`n[11/16] Wiring PATH for make, Git utilities, and Docker..."
+Write-Host "`n[12/16] Wiring PATH for make, Git utilities, and Docker..."
 $gnuMakeBin = "C:\Program Files (x86)\GnuWin32\bin"
 $gitUsrBin = "C:\Program Files\Git\usr\bin"
 $gitMingwBin = "C:\Program Files\Git\mingw64\bin"
@@ -128,7 +137,7 @@ else {
 }
 
 # Bootstrap mise config (chezmoi hasn't run yet — download from GitHub)
-Write-Host "`n[12/16] Bootstrapping mise config..."
+Write-Host "`n[13/16] Bootstrapping mise config..."
 $miseConfigDir = Join-Path $HOME ".config\mise"
 $miseConfigFile = Join-Path $miseConfigDir "config.toml"
 
@@ -149,7 +158,7 @@ else {
 }
 
 # Install mise runtimes
-Write-Host "`n[13/16] Installing mise runtimes (node, go, python, rust, ruby, uv, bun, chezmoi, ...)..."
+Write-Host "`n[14/16] Installing mise runtimes (node, go, python, rust, ruby, uv, bun, chezmoi, ...)..."
 Write-Host "  This may take several minutes on first run." -ForegroundColor Yellow
 mise install --yes
 
@@ -162,7 +171,7 @@ foreach ($dir in @($gnuMakeBin, $gitUsrBin, $gitMingwBin, $miseShims)) {
 }
 
 # Install language packages (npm, cargo, go, gem, uv)
-Write-Host "`n[14/16] Installing language packages..."
+Write-Host "`n[15/16] Installing language packages..."
 $baseUrl = "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/install"
 $tempDir = Join-Path $env:TEMP "dotfiles-packages"
 if (!(Test-Path $tempDir)) { New-Item -ItemType Directory -Path $tempDir -Force | Out-Null }
@@ -212,14 +221,14 @@ foreach ($pkg in $uvPkgs) {
 Write-Host "  Language packages installed." -ForegroundColor Green
 
 # Set EJSON_KEYDIR user environment variable (ejson defaults to /opt/ejson/keys on all platforms)
-Write-Host "`n[15/16] Setting EJSON_KEYDIR environment variable..."
+Write-Host "`n[16/16] Setting EJSON_KEYDIR environment variable..."
 $ejsonKeyDir = Join-Path $env:USERPROFILE ".ejson\keys"
 [System.Environment]::SetEnvironmentVariable("EJSON_KEYDIR", $ejsonKeyDir, "User")
 $env:EJSON_KEYDIR = $ejsonKeyDir
 Write-Host "  EJSON_KEYDIR set to: $ejsonKeyDir" -ForegroundColor Green
 
 # Post-install instructions
-Write-Host "`n[16/16] Setup complete! Manual steps remaining:" -ForegroundColor Cyan
+Write-Host "`nSetup complete! Manual steps remaining:" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  NEXT STEPS (do these in order):" -ForegroundColor Cyan

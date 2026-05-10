@@ -1,0 +1,13 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+Write-Host '[chezmoi] running windows/50-cleanup-stale-windows-terminal-task'
+
+$staleTask = "WindowsTerminalSetup"
+if (Get-ScheduledTask -TaskName $staleTask -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $staleTask -Confirm:$false
+    Write-Host "[wt-task] Removed stale scheduled task '$staleTask'." -ForegroundColor Green
+} else {
+    Write-Host "[wt-task] Stale task '$staleTask' not present - nothing to remove." -ForegroundColor Green
+}
+{{- end }}

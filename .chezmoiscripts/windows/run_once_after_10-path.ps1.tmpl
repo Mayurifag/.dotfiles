@@ -1,0 +1,25 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+Write-Host '[chezmoi] running windows/10-path'
+
+$dirs = @(
+    "$env:USERPROFILE\.cargo\bin",
+    "C:\Program Files\Git\usr\bin",
+    "C:\Program Files (x86)\GnuWin32\bin"
+)
+
+$current = [System.Environment]::GetEnvironmentVariable('PATH', 'User')
+$entries = $current -split ';' | Where-Object { $_ -ne '' }
+$newEntries = $entries | Where-Object { $dirs -inotcontains $_ }
+$newEntries = $dirs + $newEntries
+$newPath = $newEntries -join ';'
+$oldPath = $entries -join ';'
+
+if ($newPath -ine $oldPath) {
+    [System.Environment]::SetEnvironmentVariable('PATH', $newPath, 'User')
+    Write-Host '[path] User PATH updated.'
+} else {
+    Write-Host '[path] User PATH already up to date.'
+}
+{{- end }}
