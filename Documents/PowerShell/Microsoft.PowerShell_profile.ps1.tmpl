@@ -73,10 +73,55 @@ Remove-Item -Path Function:\_PrependToPath -ErrorAction SilentlyContinue
 
 # === OSC 9;9 — report CWD to terminal (enables new-tab-in-same-dir) ===
 if ($script:_isInteractiveShell) {
+    $script:_terminalTitleGit = (Get-Command git -ErrorAction SilentlyContinue)?.Source
+    $script:_terminalTitleLastPath = $null
+    $script:_terminalTitleLastTitle = $null
+    $script:_terminalTitleRepoNames = @{}
+
     function global:Invoke-Starship-PreCommand {
         $loc = $executionContext.SessionState.Path.CurrentLocation
         if ($loc.Provider.Name -eq 'FileSystem') {
-            [System.Console]::Write("`e]9;9;$($loc.ProviderPath)`a")
+            $path = $loc.ProviderPath
+            if ($path -eq $script:_terminalTitleLastPath) {
+                $title = $script:_terminalTitleLastTitle
+            } else {
+                $title = $path
+                if ($script:_terminalTitleGit) {
+                    $gitRoot = & $script:_terminalTitleGit -C $path rev-parse --show-toplevel 2>$null
+                    if ($LASTEXITCODE -eq 0 -and $gitRoot) {
+                        if ($script:_terminalTitleRepoNames.ContainsKey($gitRoot)) {
+                            $repoName = $script:_terminalTitleRepoNames[$gitRoot]
+                        } else {
+                            $remoteOutput = & $script:_terminalTitleGit -C $gitRoot remote 2>$null
+                            $remoteExitCode = $LASTEXITCODE
+                            $remotes = @($remoteOutput | Where-Object { $_ })
+                            $repoName = ''
+                            if ($remoteExitCode -eq 0 -and $remotes.Count -eq 1 -and $remotes[0] -eq 'origin') {
+                                $remoteUrl = & $script:_terminalTitleGit -C $gitRoot remote get-url origin 2>$null
+                                if ($LASTEXITCODE -eq 0 -and $remoteUrl) {
+                                    $repoName = [IO.Path]::GetFileName($remoteUrl.TrimEnd('/', '\'))
+                                    if ($repoName.EndsWith('.git', [System.StringComparison]::OrdinalIgnoreCase)) {
+                                        $repoName = $repoName.Substring(0, $repoName.Length - 4)
+                                    }
+                                }
+                            }
+                            $script:_terminalTitleRepoNames[$gitRoot] = $repoName
+                        }
+                        if (-not [string]::IsNullOrWhiteSpace($repoName)) {
+                            $title = $repoName
+                        }
+                    }
+                }
+                if ($title -eq $path -and $title -eq $HOME) {
+                    $title = '~'
+                } elseif ($title -eq $path -and $title.StartsWith("$HOME\", [System.StringComparison]::OrdinalIgnoreCase)) {
+                    $title = "~$($title.Substring($HOME.Length))"
+                }
+                $script:_terminalTitleLastPath = $path
+                $script:_terminalTitleLastTitle = $title
+            }
+            [System.Console]::Write("`e]0;$title`a`e]1;$title`a`e]2;$title`a")
+            [System.Console]::Write("`e]9;9;$path`a")
         }
     }
 }
