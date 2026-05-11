@@ -71,7 +71,7 @@
     },
     "taskbar-icon-size": {
       "latestVersion": "1.3.7",
-      "version": "1.3.6"
+      "version": "1.3.7"
     },
     "taskbar-labels": {
       "latestVersion": "1.4.2",
@@ -82,8 +82,8 @@
       "version": "1.3"
     },
     "windows-11-notification-center-styler": {
-      "latestVersion": "1.4",
-      "version": "1.4"
+      "latestVersion": "1.5",
+      "version": "1.5"
     }
   },
   "os": "10.0.26100"

@@ -266,12 +266,12 @@ Windows Registry Editor Version 5.00
 "MediaPlayer.NoMediaText"="No media"
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\taskbar-icon-size]
-"LibraryFileName"="taskbar-icon-size_1.3.6_676268.dll"
+"LibraryFileName"="taskbar-icon-size_1.3.7_185550.dll"
 "Disabled"=dword:00000000
 "Include"="explorer.exe"
 "Exclude"=""
 "Architecture"="x86-64"
-"Version"="1.3.6"
+"Version"="1.3.7"
 "SettingsChangeTime"=dword:69bf7b16
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\taskbar-icon-size\Settings]
@@ -334,12 +334,12 @@ Windows Registry Editor Version 5.00
 "fullScreenScrolling"="disabled"
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\windows-11-notification-center-styler]
-"LibraryFileName"="windows-11-notification-center-styler_1.4_139033.dll"
+"LibraryFileName"="windows-11-notification-center-styler_1.5_665455.dll"
 "Disabled"=dword:00000000
 "Include"="ShellExperienceHost.exe|ShellHost.exe"
 "Exclude"=""
 "Architecture"="x86-64"
-"Version"="1.4"
+"Version"="1.5"
 "SettingsChangeTime"=dword:69bf7db3
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\windows-11-notification-center-styler\Settings]
