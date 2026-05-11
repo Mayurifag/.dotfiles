@@ -19,3 +19,6 @@ $env:GOTELEMETRY = "off"
 $env:OMO_SEND_ANONYMOUS_TELEMETRY = "0"
 $env:OMO_DISABLE_POSTHOG = "1"
 $env:PROXIES_CFG = "$HOME\Code\proxies-cfg"
+{{- if eq .chezmoi.os "darwin" }}
+$env:COPYFILE_DISABLE = "1"
+{{- end }}

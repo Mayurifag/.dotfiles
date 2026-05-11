@@ -43,7 +43,7 @@
       }
     }
   },
-  "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty", "opencode-snip"],
+  "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty"],
   "command": {
     "ogc-usage": {
       "template": "Call the ogc_usage tool exactly once and return its output directly.",

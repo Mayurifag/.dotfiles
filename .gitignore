@@ -4,6 +4,7 @@ install/Brewfile.lock.json
 /.ruby-lsp
 
 .DS_Store
+._*
 Thumbs.db
 *.swp
 *.swo
