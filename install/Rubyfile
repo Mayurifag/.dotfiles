@@ -1,2 +1,8 @@
 bundler
+debug
+irb
+pry
+rake
+rdoc
+reline
 standard

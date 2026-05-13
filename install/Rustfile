@@ -1,9 +1,11 @@
 cargo-update
+du-dust
 zoxide
 tlrc
 llmfit
 eza
 ripgrep
+sd
 git-trim
 dprint
 taplo-cli
