@@ -14,5 +14,11 @@ jobs:
           node-version: lts/*
       - name: Install npm tools
         run: npm install -g markdownlint-cli2 @prantlf/jsonlint
+      - name: Install ShellCheck
+        run: |
+          curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz -o shellcheck.tar.xz
+          tar -xJf shellcheck.tar.xz
+          sudo install shellcheck-v0.11.0/shellcheck /usr/local/bin/shellcheck
+          shellcheck --version
       - name: Run CI checks
         run: make ci

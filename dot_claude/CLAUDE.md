@@ -8,6 +8,7 @@ Proactively suggest refactoring any file that has grown large. Follow DRY; elimi
 **Don’t assume. Surface confusion and tradeoffs.**
 
 Before writing code:
+
 - State assumptions clearly. If uncertain, ask.
 - Present multiple interpretations instead of silently choosing one.
 - Flag any simpler approach and push back when warranted.
@@ -28,6 +29,7 @@ Ask: “Would a senior engineer call this over-engineered?” If yes, simplify.
 **Change only what you must. Clean only your own mess.**
 
 When editing:
+
 - Never “improve” unrelated code, comments, or formatting.
 - Never refactor working code.
 - Match existing style exactly.
@@ -41,6 +43,7 @@ Every changed line must trace directly to the user request.
 **Define success. Verify before stopping.**
 
 Turn every task into clear, testable criteria:
+
 - “Add validation” → “Tests for invalid inputs pass”
 - “Fix bug” → “Reproduction test now passes”
 

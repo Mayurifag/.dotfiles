@@ -1,4 +1,10 @@
 {{- /* chezmoi:template:left-delimiter=[% right-delimiter=%] */ -}}
+[settings]
+auto_install = true
+not_found_auto_install = true
+trusted_config_paths = ["/"]
+hook_env.cache_ttl = "10m"
+
 [tools]
 node = "26.1.0"
 go = "1.26.3"

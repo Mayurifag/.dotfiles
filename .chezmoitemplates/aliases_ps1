@@ -26,6 +26,19 @@ function {{ $aliasName }} { {{ $body }} @args }
 {{- end }}
 {{- end }}
 
+{{- $privateAliases := ((joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).private_aliases | fromJson) }}
+{{- if $privateAliases }}
+
+## Private
+{{- $privateAliasNames := keys $privateAliases | sortAlpha }}
+{{- range $aliasName := $privateAliasNames }}
+{{- $data := index $privateAliases $aliasName }}
+{{- $body := $data.cmd }}
+{{- if hasKey $data "ps_cmd" }}{{- $body = $data.ps_cmd }}{{- end }}
+function {{ $aliasName }} { {{ $body }} @args }
+{{- end }}
+{{- end }}
+
 function gp {
     $branch = git symbolic-ref --short HEAD
     if (git config "branch.$branch.merge") { git push @args } else { git push -u origin $branch @args }

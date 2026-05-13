@@ -18,6 +18,17 @@ alias {{ $aliasName }}='{{ $data.cmd }}'
 {{- end }}
 {{- end }}
 
+{{- $privateAliases := ((joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).private_aliases | fromJson) }}
+{{- if $privateAliases }}
+
+## Private
+{{- $privateAliasNames := keys $privateAliases | sortAlpha }}
+{{- range $aliasName := $privateAliasNames }}
+{{- $data := index $privateAliases $aliasName }}
+{{ $aliasName }}() { {{ $data.cmd }} "$@"; }
+{{- end }}
+{{- end }}
+
 gp() {
   local branch
   branch=$(git symbolic-ref --short HEAD)
@@ -48,7 +59,7 @@ webmtogif() {
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
 c() {
-  opencode "$@"
+  {{ if eq .chezmoi.os "darwin" }}caffeinate -is {{ end }}opencode "$@"
 }
 
 ## npm (complex)

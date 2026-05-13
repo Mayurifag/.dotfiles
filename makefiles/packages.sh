@@ -109,7 +109,9 @@ clean_ruby_packages() {
   ruby_protected_gems | sort -u >"$tmp/protected"
   gem list | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
   comm -23 "$tmp/have" "$tmp/want" | comm -23 - "$tmp/protected" | sort -r | while IFS= read -r gem; do
-    [ -n "$gem" ] && gem uninstall -a -x "$gem" 2>/dev/null || true
+    if [ -n "$gem" ]; then
+      gem uninstall -a -x "$gem" 2>/dev/null || true
+    fi
   done
   gem cleanup
 }
