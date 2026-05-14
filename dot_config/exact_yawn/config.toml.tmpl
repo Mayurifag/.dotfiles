@@ -1,5 +1,13 @@
+main_provider = "opencode_cli"
+fallback_provider = "gemini"
 auto_push = true
 auto_stage = true
 squash_auto_push = true
-gemini_api_key = "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
 wait_for_ssh_keys = true
+
+[providers.opencode_cli]
+model = "openai/gpt-5.3-codex-spark"
+
+[providers.gemini]
+api_key = "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
+model = "gemini-flash-latest"
