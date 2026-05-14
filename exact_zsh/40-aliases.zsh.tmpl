@@ -33,9 +33,15 @@ brewfile() {
 }
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 
-## macOS-specific (conditional)
-if ! if_command_exists gitkraken; then
-  alias gitkraken='/Applications/GitKraken.app/Contents/MacOS/GitKraken'
-fi
-alias gk='(eval "gitkraken --new-window -p \"$(git rev-parse --show-toplevel)\" -l /dev/null >/dev/null 2>&1 &")'
+## GitKraken
+unalias gk 2>/dev/null
+gk() {
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || { echo "gk: not in a git repo" >&2; return 1; }
+{{- if eq .chezmoi.os "darwin" }}
+  open -n -b com.axosoft.gitkraken --args --new-window -p "$root" -l /dev/null >/dev/null 2>&1
+{{- else }}
+  gitkraken --new-window -p "$root" -l /dev/null >/dev/null 2>&1 &
+{{- end }}
+}
 alias g='gk'
