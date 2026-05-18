@@ -2,6 +2,7 @@ github.com/jesseduffield/lazydocker
 github.com/Shopify/ejson/cmd/ejson
 github.com/editorconfig-checker/editorconfig-checker/v3/cmd/editorconfig-checker
 github.com/charmbracelet/glow/v2
+github.com/humanlogio/humanlog/cmd/humanlog
 github.com/golangci/golangci-lint/cmd/golangci-lint
 mvdan.cc/sh/v3/cmd/shfmt
 github.com/rhysd/actionlint/cmd/actionlint

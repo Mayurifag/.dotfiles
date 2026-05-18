@@ -5,26 +5,32 @@ set -euo pipefail
 
 zero_sha=0000000000000000000000000000000000000000
 
+worktree_is_clean() {
+  git diff --quiet && git diff --cached --quiet
+}
+
+git_sync_path() {
+  local git_sync
+
+  git_sync=$(command -v git-sync 2>/dev/null || true)
+  [[ -z "$git_sync" && -x "$HOME/.local/bin/git-sync" ]] && git_sync="$HOME/.local/bin/git-sync"
+  [[ -n "$git_sync" ]] || return 1
+
+  printf '%s\n' "$git_sync"
+}
+
 run_worker() {
-  local repo_dir="${1:-}" git_sync new_branch remote_head default
+  local repo_dir="${1:-}" git_sync
 
   exec </dev/null >/dev/null 2>&1
 
   [[ -n "$repo_dir" ]] || return 0
   cd "$repo_dir" || return 0
 
-  git_sync=$(command -v git-sync 2>/dev/null || true)
-  [[ -z "$git_sync" && -x "$HOME/.local/bin/git-sync" ]] && git_sync="$HOME/.local/bin/git-sync"
-  [[ -n "$git_sync" ]] || return 0
+  git_sync=$(git_sync_path) || return 0
+  worktree_is_clean || return 0
 
-  new_branch=$(git symbolic-ref --quiet --short HEAD) || return 0
-  remote_head=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || return 0
-  default="${remote_head#refs/remotes/origin/}"
-  [[ -n "$default" && "$new_branch" == "$default" ]] || return 0
-
-  git diff --quiet && git diff --cached --quiet || return 0
-
-  "$git_sync"
+  "$git_sync" --auto
 }
 
 if [[ "${1:-}" == "--worker" ]]; then
@@ -66,9 +72,13 @@ start_worker() {
   )
 }
 
-trap 'cleanup "$@"' EXIT
+main() {
+  trap 'cleanup "$@"' EXIT
 
-[[ "${3:-0}" == "1" ]] || exit 0
-[[ "${1:-}" != "$zero_sha" ]] || exit 0
+  [[ "${3:-0}" == "1" ]] || exit 0
+  [[ "${1:-}" != "$zero_sha" ]] || exit 0
 
-start_worker
+  start_worker
+}
+
+main "$@"

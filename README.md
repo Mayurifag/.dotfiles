@@ -229,8 +229,9 @@ sudo ln /usr/lib/libffi.so /usr/lib/libffi.so.7
   aborts with a hint to unlock.
 - **pre-push** — walks the commits in the push range, inspects only blobs matched by a provider, and refuses the push if
   any blob is still plaintext. Belt-and-suspenders for `--no-verify` commits or rebase mistakes.
-- **post-checkout** — auto-runs `git-sync` (fetch/prune/ff/trim) when arriving on the repo's default branch with a clean
-  working tree.
+- **post-checkout** — auto-runs `git-sync --auto` (fetch/prune/ff/trim) on inferred cleanup branches with a clean working
+  tree. Cleanup branches are remote HEAD targets, or tracking branches that already have other local branches merged in.
+  Remote-backed local branches are protected while their upstream refs still exist.
 
 All three chain to a repo-local `.githooks/<hook>` or `.git/hooks/<hook>` if present, so per-repo hook frameworks (e.g.
 `pre-commit`, lefthook) keep working.
