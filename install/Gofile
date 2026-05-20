@@ -6,3 +6,4 @@ github.com/golangci/golangci-lint/cmd/golangci-lint
 mvdan.cc/sh/v3/cmd/shfmt
 github.com/rhysd/actionlint/cmd/actionlint
 github.com/mikefarah/yq/v4
+golang.org/x/tools/gopls

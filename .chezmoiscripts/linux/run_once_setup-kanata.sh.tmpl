@@ -10,8 +10,8 @@ echo "[chezmoi] running linux/setup-kanata"
 echo "[kanata] Adding user to 'input' group..."
 sudo usermod -aG input "$USER"
 
-echo "[kanata] Adding user to 'uinput' group..."
-sudo usermod -aG uinput "$USER"
+#echo "[kanata] Adding user to 'uinput' group..."
+#sudo usermod -aG uinput "$USER"
 
 echo "[kanata] Ensuring uinput module loads on boot..."
 echo 'uinput' | sudo tee /etc/modules-load.d/uinput.conf >/dev/null

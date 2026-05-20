@@ -14,7 +14,11 @@ wanted_packages() {
 }
 
 ruby_protected_gems() {
-  ruby -rrubygems -e 'puts Gem::Specification.select(&:default_gem?).map(&:name)'
+  ruby -rrubygems -e 'names = Gem::Specification.select(&:default_gem?).map(&:name); begin; require "bundled_gems"; names += Gem::BUNDLED_GEMS::SINCE.keys + Gem::BUNDLED_GEMS::EXACT.values + Gem::BUNDLED_GEMS::PREFIXED.keys; rescue LoadError, NameError; end; names += %w[minitest power_assert rbs repl_type_completor rexml rss rubygems-update test-unit typeprof]; puts names.uniq'
+}
+
+ruby_wanted_gems() {
+  ruby -rrubygems -e 'wanted = ARGV; specs = Gem::Specification.to_a; names = wanted.dup; queue = wanted.dup; until queue.empty?; name = queue.shift; spec = specs.select { |s| s.name == name }.max_by(&:version); next unless spec; spec.runtime_dependencies.each { |dep| next if names.include?(dep.name); names << dep.name; queue << dep.name }; end; puts names' "$@"
 }
 
 pin_mise_tools() (
@@ -83,12 +87,13 @@ mise_packages() {
 }
 
 clean_node_packages() (
+  npm_cmd=$(command -v npm)
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
   awk 'NF && $1 !~ /^#/ { pkg=$1; if (pkg ~ /^@/) { n=split(pkg,a,"@"); if (n > 2) sub(/@[^@]*$/, "", pkg) } else sub(/@[^@]*$/, "", pkg); print pkg }' "$DOTFILES_DIR/install/npmfile" | sort -u >"$tmp/want"
-  npm list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.keys(j.dependencies || {}).sort().forEach(p => console.log(p)); });' >"$tmp/have"
+  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.keys(j.dependencies || {}).forEach(p => console.log(p)); });' | sort -u >"$tmp/have"
   comm -23 "$tmp/have" "$tmp/want" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && npm uninstall -g "$pkg"
+    [ -n "$pkg" ] && "$npm_cmd" uninstall -g "$pkg"
   done
 )
 
@@ -105,7 +110,7 @@ clean_rust_packages() (
 clean_ruby_packages() {
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
-  wanted_packages "$DOTFILES_DIR/install/Rubyfile" | sort -u >"$tmp/want"
+  ruby_wanted_gems $(wanted_packages "$DOTFILES_DIR/install/Rubyfile") | sort -u >"$tmp/want"
   ruby_protected_gems | sort -u >"$tmp/protected"
   gem list | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
   comm -23 "$tmp/have" "$tmp/want" | comm -23 - "$tmp/protected" | sort -r | while IFS= read -r gem; do
@@ -113,7 +118,6 @@ clean_ruby_packages() {
       gem uninstall -a -x "$gem" 2>/dev/null || true
     fi
   done
-  gem cleanup
 }
 
 clean_go_packages() (
@@ -144,34 +148,62 @@ clean_uv_packages() (
 )
 
 node_packages() {
+  npm_cmd=$(command -v npm)
   clean_node_packages
-  wanted_packages "$DOTFILES_DIR/install/npmfile" | xargs npm install -g
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT INT TERM
+  awk 'NF && $1 !~ /^#/ { spec=$1; pkg=spec; if (pkg ~ /^@/) { n=split(pkg,a,"@"); if (n > 2) sub(/@[^@]*$/, "", pkg) } else sub(/@[^@]*$/, "", pkg); print pkg " " spec }' "$DOTFILES_DIR/install/npmfile" | sort -u >"$tmp/want"
+  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.keys(j.dependencies || {}).forEach(p => console.log(p)); });' | sort -u >"$tmp/have"
+  while read -r pkg spec; do
+    grep -qxF "$pkg" "$tmp/have" || "$npm_cmd" install -g "$spec"
+  done <"$tmp/want"
   mise reshim
 }
 
 rust_packages() {
   clean_rust_packages
-  wanted_packages "$DOTFILES_DIR/install/Rustfile" | xargs cargo install --force
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT INT TERM
+  wanted_packages "$DOTFILES_DIR/install/Rustfile" | sort -u >"$tmp/want"
+  cargo install --list | awk '/^[^[:space:]].*:$/ { sub(/:.*/, "", $1); print $1 }' | sort -u >"$tmp/have"
+  comm -23 "$tmp/want" "$tmp/have" | while IFS= read -r pkg; do
+    [ -n "$pkg" ] && cargo install "$pkg"
+  done
   mise reshim
 }
 
 ruby_packages() {
   clean_ruby_packages
-  wanted_packages "$DOTFILES_DIR/install/Rubyfile" | xargs gem install
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT INT TERM
+  wanted_packages "$DOTFILES_DIR/install/Rubyfile" | sort -u >"$tmp/want"
+  gem list | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
+  comm -23 "$tmp/want" "$tmp/have" | while IFS= read -r gem; do
+    [ -n "$gem" ] && gem install "$gem"
+  done
   mise reshim
 }
 
 go_packages() {
   clean_go_packages
+  bin=$(go env GOBIN)
+  [ -n "$bin" ] || bin="$(go env GOPATH)/bin"
   wanted_packages "$DOTFILES_DIR/install/Gofile" | while IFS= read -r pkg; do
-    go install "$pkg@latest"
+    name=$(printf '%s\n' "$pkg" | awk '{ n=split($1,a,"/"); if (a[n] ~ /^v[0-9]+$/ && n > 1) print a[n-1]; else print a[n] }')
+    [ -x "$bin/$name" ] || go install "$pkg@latest"
   done
   mise reshim
 }
 
 uv_packages() {
   clean_uv_packages
-  wanted_packages "$DOTFILES_DIR/install/uv-file" | xargs -I {} uv tool install --reinstall {}
+  tmp=$(mktemp -d)
+  trap 'rm -rf "$tmp"' EXIT INT TERM
+  wanted_packages "$DOTFILES_DIR/install/uv-file" | sort -u >"$tmp/want"
+  uv tool list 2>/dev/null | awk '/^[[:alnum:]_][[:alnum:]_.-]* / { print $1 }' | sort -u >"$tmp/have"
+  comm -23 "$tmp/want" "$tmp/have" | while IFS= read -r pkg; do
+    [ -n "$pkg" ] && uv tool install --force "$pkg"
+  done
   mise reshim
 }
 
