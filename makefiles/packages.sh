@@ -21,13 +21,33 @@ ruby_wanted_gems() {
   ruby -rrubygems -e 'wanted = ARGV; specs = Gem::Specification.to_a; names = wanted.dup; queue = wanted.dup; until queue.empty?; name = queue.shift; spec = specs.select { |s| s.name == name }.max_by(&:version); next unless spec; spec.runtime_dependencies.each { |dep| next if names.include?(dep.name); names << dep.name; queue << dep.name }; end; puts names' "$@"
 }
 
+update_rubygems() {
+  ruby -e 'exit(RUBY_ENGINE == "truffleruby" ? 0 : 1)' || gem update --system
+}
+
+confirm_update_mise_tools() {
+  printf '%s' 'Update mise tool versions to latest? [y/N] '
+  read -r answer
+  case "$answer" in
+  y | Y | yes | YES) return 0 ;;
+  *) return 1 ;;
+  esac
+}
+
 pin_mise_tools() (
   tools=$(mktemp)
   trap 'rm -f "$tools"' EXIT INT TERM
 
-  perl -ne 'next if /^\s*#/; print "$1\n" if /^\s*"?([^"=]+?)"?\s*=\s*"/' "$MISE_CONFIG" >"$tools"
-  while IFS= read -r tool; do
-    version=$(mise latest "$tool")
+  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*"([^"]+)"/' "$MISE_CONFIG" >"$tools"
+  while read -r tool current; do
+    latest_tool=$tool
+    if [ "$tool" = ruby ]; then
+      case "$current" in
+      truffleruby-[0-9]*.*) latest_tool="ruby@$(printf '%s\n' "$current" | awk -F. '{ print $1 }')" ;;
+      truffleruby+graalvm-[0-9]*.*) latest_tool="ruby@$(printf '%s\n' "$current" | awk -F. '{ print $1 }')" ;;
+      esac
+    fi
+    version=$(mise latest "$latest_tool")
     MISE_TOOL="$tool" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*")[^"]+(")/$1$version$2/mg' "$MISE_CONFIG"
   done <"$tools"
 
@@ -48,9 +68,13 @@ mise_sync() {
   }
   trap restore_mise_config EXIT INT TERM
 
-  pin_mise_tools
+  if confirm_update_mise_tools; then
+    pin_mise_tools
+  else
+    mise exec -- chezmoi apply "$MISE_TARGET"
+  fi
   mise_install
-  mise exec -- gem update --system
+  mise exec -- sh "$0" update-rubygems
   mise exec -- sh "$0" install-language-packages
   prune_mise_installs
 
@@ -213,6 +237,7 @@ clean-mise-installs) prune_mise_installs ;;
 mise-packages) mise_packages ;;
 mise-install) mise_install ;;
 install-language-packages) install_language_packages ;;
+update-rubygems) update_rubygems ;;
 node-packages) node_packages ;;
 rust-packages) rust_packages ;;
 ruby-packages) ruby_packages ;;
