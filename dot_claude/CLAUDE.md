@@ -34,6 +34,7 @@ When editing:
 - Never refactor working code.
 - Match existing style exactly.
 - If you create unused imports/variables/functions, remove them immediately.
+- Remove failed attempt code and any leftovers before trying another approach.
 - Never delete pre-existing dead code (mention it if relevant).
 
 Every changed line must trace directly to the user request.

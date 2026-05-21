@@ -134,7 +134,9 @@ clean_rust_packages() (
 clean_ruby_packages() {
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
-  ruby_wanted_gems $(wanted_packages "$DOTFILES_DIR/install/Rubyfile") | sort -u >"$tmp/want"
+  wanted_packages "$DOTFILES_DIR/install/Rubyfile" | while IFS= read -r gem; do
+    ruby_wanted_gems "$gem"
+  done | sort -u >"$tmp/want"
   ruby_protected_gems | sort -u >"$tmp/protected"
   gem list | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
   comm -23 "$tmp/have" "$tmp/want" | comm -23 - "$tmp/protected" | sort -r | while IFS= read -r gem; do

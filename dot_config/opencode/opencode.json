@@ -26,20 +26,11 @@
       "disable": true
     }
   },
-  "provider": {
-    "openai": {
-      "models": {
-        "gpt-5.5": {
-          "variants": {
-            "medium": {
-              "reasoningEffort": "medium"
-            },
-            "xhigh": {
-              "reasoningEffort": "high"
-            }
-          }
-        }
-      }
+  "mcp": {
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest"],
+      "enabled": true
     }
   },
   "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty"],
@@ -49,7 +40,12 @@
       "description": "Show OpenCode Go usage"
     }
   },
-  "lsp": false,
+  "lsp": {
+    "toml": {
+      "command": ["taplo", "lsp", "stdio"],
+      "extensions": [".toml"]
+    }
+  },
   "permission": "allow",
   "formatter": {
     "prettier": {

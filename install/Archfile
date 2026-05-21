@@ -12,7 +12,6 @@ git-crypt
 github-cli
 gitkraken
 htop
-jujutsu
 kanata
 keepassxc
 less
@@ -31,7 +30,7 @@ refind
 refind-theme-dracula
 scrcpy
 shellcheck
-tssh
+tssh-bin
 ttf-firacode-nerd
 ttf-jetbrains-mono-nerd
 vi
