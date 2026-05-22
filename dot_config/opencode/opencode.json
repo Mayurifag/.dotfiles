@@ -8,14 +8,8 @@
     "build": {
       "mode": "primary",
       "model": "openai/gpt-5.5",
-      "variant": "medium",
-      "description": "Build (GPT 5.5 Medium)"
-    },
-    "ultrathink": {
-      "mode": "primary",
-      "model": "openai/gpt-5.5",
       "variant": "xhigh",
-      "description": "Ultrathink (GPT 5.5 XHigh)"
+      "description": "Build (GPT 5.5 XHigh)"
     },
     "fast": {
       "mode": "primary",

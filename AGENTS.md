@@ -46,3 +46,7 @@ timeout 3 chezmoi apply -v
 
 - Put agent reasoning profiles in agent `variant`, not direct provider option fields.
 - User does not use LSP; keep OpenCode LSP disabled/hidden unless asked otherwise.
+
+## SCRIPTS
+
+- Python is available on every target system; prefer it for nontrivial cross-platform alias utilities when compilation is not desired.

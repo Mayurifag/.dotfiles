@@ -49,7 +49,6 @@ reset_file() {
   fi
   git checkout "origin/$branch" -- "$@"
 }
-
 ## Apps (complex)
 f() { if [ $# -eq 0 ]; then code .; else code "$@"; fi }
 webmtogif() {
@@ -59,7 +58,10 @@ webmtogif() {
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
 c() {
-  opencode "$@"
+  command c "$@"
+}
+a() {
+  opencode --agent fast --prompt "$*"
 }
 coder() {
   local prompt_file prompt
@@ -69,214 +71,10 @@ coder() {
   [ -n "$prompt_file" ] || prompt_file="$HOME/.config/espanso/match/ai.yml"
   prompt=$(yq e '.matches[] | select(.trigger == ":coder") | .replace' "$prompt_file") || return
   if [ -z "$prompt" ]; then echo "coder: :coder prompt not found in $prompt_file" >&2; return 1; fi
-  opencode --agent ultrathink --prompt "$prompt" "$@"
-}
-
-## npm (complex)
-npmug() {
-  local before after
-  before=$(npm list -g --depth=0 --json 2>/dev/null)
-  npm update -g "$@"
-  after=$(npm list -g --depth=0 --json 2>/dev/null)
-  node -e "
-    const b = JSON.parse(process.argv[1]).dependencies || {};
-    const a = JSON.parse(process.argv[2]).dependencies || {};
-    const changed = Object.keys(a).filter(k => b[k]?.version !== a[k]?.version);
-    if (!changed.length) { console.log('Nothing updated.'); process.exit(0); }
-    changed.forEach(k => {
-      const from = b[k] ? b[k].version : '(new)';
-      console.log(k + ': ' + from + ' \u2192 ' + a[k].version);
-    });
-  " "$before" "$after"
-}
-
-## System utilities (complex)
-alias myip="timeout 3 dig +short myip.opendns.com @resolver1.opendns.com || timeout 3 curl -s http://ipecho.net/plain"
-
-## Shipping
-ship() {
-  if [ $# -eq 0 ]; then echo "Usage: ship <tracking_number>" >&2; return 1; fi
-  if [ -z "$SEVENTEENTRACK_API_KEY" ]; then echo "ship: SEVENTEENTRACK_API_KEY not set" >&2; return 1; fi
-  local num="$1" base="https://api.17track.net/track/v2.2"
-  local body resp http json code accepted
-  body=$(printf '[{"number":"%s","lang":"en"}]' "$num")
-  resp=$(curl -sS -m 15 -w '\n%{http_code}' -X POST "$base/gettrackinfo" \
-    -H "17token: $SEVENTEENTRACK_API_KEY" -H "Content-Type: application/json" -d "$body") || {
-    echo "ship: curl failed" >&2; return 1
-  }
-  http=${resp##*$'\n'}; json=${resp%$'\n'*}
-  if [ "$http" != "200" ]; then echo "ship: HTTP $http" >&2; echo "$json" >&2; return 1; fi
-  code=$(printf '%s' "$json" | jq -r '.code // empty')
-  if [ "$code" != "0" ]; then printf '%s' "$json" | jq . >&2; return 1; fi
-  accepted=$(printf '%s' "$json" | jq -r '.data.accepted | length')
-  if [ "$accepted" = "0" ] || [ "$(printf '%s' "$json" | jq -r '.data.accepted[0].track_info // empty')" = "" ]; then
-    curl -sS -m 15 -X POST "$base/register" \
-      -H "17token: $SEVENTEENTRACK_API_KEY" -H "Content-Type: application/json" -d "$body" >/dev/null
-    echo "ship: registered $num — retry in a moment for events" >&2
-    return 0
-  fi
-  printf '%s' "$json" | jq -r '
-    .data.accepted[0] as $t |
-    "Number:    " + ($t.number // "N/A"),
-    "Status:    " + ($t.track_info.latest_status.status // "N/A") + " / " + ($t.track_info.latest_status.sub_status // "N/A"),
-    "Last:      " + ($t.track_info.latest_event.description // "N/A"),
-    "Location:  " + ($t.track_info.latest_event.location // "N/A"),
-    "Time:      " + ($t.track_info.latest_event.time_iso // "N/A")
-  '
+  opencode --agent build --prompt "$prompt" "$@"
 }
 
 ## Proxies (complex)
 proxies-add() { make -C "$PROXIES_CFG" add-domain domain="$1" proxy="${2:-proxy_it}"; }
 proxies-rm() { make -C "$PROXIES_CFG" remove-domain domain="$1"; }
 proxies-remove() { proxies-rm "$@"; }
-
-## Crypto: smart enc/dec for ejson + git-crypt
-_ejson_is_decrypted() {
-  grep -E '^[[:space:]]*"[^_][^"]*"[[:space:]]*:[[:space:]]*"' "$1" 2>/dev/null | grep -qvE ':[[:space:]]*"EJ\[1:'
-}
-_git_crypt_unlocked() {
-  git config --get filter.git-crypt.smudge >/dev/null 2>&1
-}
-_git_crypt_repo() {
-  [ -d .git-crypt ] || { [ -f .gitattributes ] && grep -q 'filter=git-crypt' .gitattributes; }
-}
-_list_ejson() {
-  if git rev-parse --git-dir >/dev/null 2>&1; then
-    git ls-files --cached --others --exclude-standard '*.ejson'
-  else
-    find . -type f -name '*.ejson' -not -path '*/.git/*' 2>/dev/null
-  fi
-}
-enc() {
-  local did=0 f
-  if command -v ejson >/dev/null 2>&1; then
-    while IFS= read -r f; do
-      [ -z "$f" ] && continue
-      if _ejson_is_decrypted "$f"; then
-        ejson encrypt "$f" >/dev/null && { echo "enc: encrypted $f"; did=1; }
-      fi
-    done <<EOF
-$(_list_ejson)
-EOF
-  fi
-  if command -v git-crypt >/dev/null 2>&1 && git rev-parse --git-dir >/dev/null 2>&1 && _git_crypt_repo && _git_crypt_unlocked; then
-    git-crypt lock && { echo "enc: git-crypt locked"; did=1; }
-  fi
-  [ "$did" = "0" ] && echo "enc: nothing to encrypt"
-}
-dec() {
-  local did=0 f tmp
-  if command -v ejson >/dev/null 2>&1; then
-    while IFS= read -r f; do
-      [ -z "$f" ] && continue
-      if ! _ejson_is_decrypted "$f"; then
-        tmp=$(mktemp) || continue
-        if ejson decrypt "$f" >"$tmp" 2>/dev/null; then
-          mv "$tmp" "$f" && { echo "dec: decrypted $f"; did=1; }
-        else
-          rm -f "$tmp"
-          echo "dec: failed $f" >&2
-        fi
-      fi
-    done <<EOF
-$(_list_ejson)
-EOF
-  fi
-  if command -v git-crypt >/dev/null 2>&1 && git rev-parse --git-dir >/dev/null 2>&1 && _git_crypt_repo && ! _git_crypt_unlocked; then
-    git-crypt unlock && { echo "dec: git-crypt unlocked"; did=1; }
-  fi
-  [ "$did" = "0" ] && echo "dec: nothing to decrypt"
-}
-
-_czsrc_ai() {
-  local tmpl="$1" dest="$2"
-  local model="${CZSRC_AI_MODEL:-opencode-go/minimax-m2.7}"
-  local srcdir
-  srcdir=$(chezmoi source-path 2>/dev/null) || srcdir="$HOME/.local/share/chezmoi"
-
-  opencode run --model "$model" --dir "$srcdir" \
-    "Read the chezmoi template at $tmpl and destination at $dest. Run chezmoi diff $dest to see what differs. Edit the template so its rendered output matches the destination exactly. Preserve ALL template logic: conditionals, includes, loops, OS checks. Do NOT edit the destination file."
-
-  local rc=$?
-  if [ "$rc" = "0" ]; then
-    echo " ✓ updated $tmpl"
-  else
-    echo " ✗ failed $tmpl (exit $rc)"
-  fi
-  return $rc
-}
-
-_czsrc_resolve() {
-  local path="$1" src
-  src=$(chezmoi source-path "$path" 2>/dev/null)
-  if [ -z "$src" ]; then
-    chezmoi add --force "$path" 2>/dev/null || { echo "czsrc: $path not managed" >&2; return 1; }
-    src=$(chezmoi source-path "$path" 2>/dev/null)
-  fi
-  [ -n "$src" ] || { echo "czsrc: $path not managed" >&2; return 1; }
-  printf '%s\n' "$src"
-}
-
-_czsrc_sync() {
-  local dest_path="$1" label="${2:-$1}" src dest
-  src=$(_czsrc_resolve "$dest_path") || return 1
-  dest=$(chezmoi target-path "$src" 2>/dev/null)
-  [ -n "$dest" ] || dest="$dest_path"
-
-  if [[ "$src" == *.tmpl ]]; then
-    echo "$label → $src (AI)"
-    _czsrc_ai "$src" "$dest_path" && return 2
-    return 1
-  fi
-
-  echo "$label → $src"
-  cp "$dest" "$src" && { echo "  ✓ copied"; return 0; }
-  echo "  ✗ failed"
-  return 1
-}
-
-czsrc() {
-  [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ] && {
-    echo "Usage: czsrc [path ...]"
-    echo ""
-    echo "  Auto-sync destination changes back to chezmoi sources."
-    echo "  Plain files: copied directly. Templates: reverse-engineered via opencode."
-    echo ""
-    echo "  czsrc             Process all changed files (chezmoi status)."
-    echo "  czsrc ~/.zshrc    Process specific file(s) only."
-    echo ""
-    echo "  Uses opencode-go/minimax-m2.7 by default."
-    echo "  Set CZSRC_AI_MODEL to override (format: provider/model)."
-    return 0
-  }
-
-  local dest_path dest changed=0 tmpl_count=0 ok_count=0 rc
-
-  if [ $# -gt 0 ]; then
-    for dest_path in "$@"; do
-      changed=1
-      _czsrc_sync "$dest_path" "$dest_path"
-      rc=$?
-      [ "$rc" -eq 0 ] && ok_count=$((ok_count + 1))
-      [ "$rc" -eq 2 ] && { ok_count=$((ok_count + 1)); tmpl_count=$((tmpl_count + 1)); }
-    done
-  else
-    while IFS= read -r dest; do
-      [ -z "$dest" ] && continue
-      changed=1
-      dest_path="$HOME/$dest"
-      if ! chezmoi source-path "$dest_path" >/dev/null 2>&1; then
-        chezmoi source-path "$dest" >/dev/null 2>&1 && dest_path="$dest"
-      fi
-      _czsrc_sync "$dest_path" "$dest"
-      rc=$?
-      [ "$rc" -eq 0 ] && ok_count=$((ok_count + 1))
-      [ "$rc" -eq 2 ] && { ok_count=$((ok_count + 1)); tmpl_count=$((tmpl_count + 1)); }
-    done < <(chezmoi status --include=changed --externals=false | sed 's/^.. //')
-  fi
-
-  [ "$changed" = "0" ] && { echo "No changes — source and destination match."; return 0; }
-
-  echo ""
-  echo "Done: $ok_count files synced (${tmpl_count} via AI)"
-}

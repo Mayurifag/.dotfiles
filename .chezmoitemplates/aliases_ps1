@@ -72,28 +72,7 @@ function grom {
     Remove-Item Env:\LEFTHOOK -ErrorAction SilentlyContinue
     git submodule update --init --recursive
 }
-## npm (complex)
-function npmug {
-    $before = npm list -g --depth=0 --json 2>$null | ConvertFrom-Json
-    npm update -g @args
-    $after = npm list -g --depth=0 --json 2>$null | ConvertFrom-Json
-    $bDeps = if ($before.dependencies) { $before.dependencies } else { @{} }
-    $aDeps = if ($after.dependencies) { $after.dependencies } else { @{} }
-    $changed = $aDeps.PSObject.Properties | Where-Object { $bDeps.($_.Name)?.version -ne $_.Value.version }
-    if (-not $changed) { Write-Host "Nothing updated."; return }
-    $changed | ForEach-Object {
-        $from = if ($bDeps.($_.Name)) { $bDeps.($_.Name).version } else { '(new)' }
-        Write-Host "$($_.Name): $from → $($_.Value.version)"
-    }
-}
-
 ## System utilities (complex)
-function myip {
-    $ip = $null
-    try { $ip = (Resolve-DnsName -Name myip.opendns.com -Server resolver1.opendns.com -Type A -ErrorAction Stop).IPAddress } catch {}
-    if (-not $ip) { try { $ip = (Invoke-WebRequest -Uri 'http://ipecho.net/plain' -UseBasicParsing -TimeoutSec 3).Content.Trim() } catch {} }
-    if ($ip) { Write-Output $ip } else { Write-Warning "myip: could not determine public IP" }
-}
 function free {
     $os = Get-CimInstance Win32_OperatingSystem
     $total = [int]($os.TotalVisibleMemorySize / 1024)
@@ -121,37 +100,6 @@ function ip {
     param([Parameter(Mandatory)][string]$Name)
     Resolve-DnsName -Name $Name -Type A_AAAA -ErrorAction Stop |
         Where-Object IPAddress | Select-Object Name, Type, IPAddress
-}
-
-## Shipping
-function ship {
-    param([string]$Number)
-    if (-not $Number) { Write-Error "Usage: ship <tracking_number>"; return }
-    if (-not $env:SEVENTEENTRACK_API_KEY) { Write-Error "ship: SEVENTEENTRACK_API_KEY not set"; return }
-    $base = "https://api.17track.net/track/v2.2"
-    $headers = @{ '17token' = $env:SEVENTEENTRACK_API_KEY; 'Content-Type' = 'application/json' }
-    $body = ConvertTo-Json @(@{ number = $Number; lang = 'en' }) -Compress
-    try {
-        $resp = Invoke-RestMethod -Method Post -Uri "$base/gettrackinfo" -Headers $headers -Body $body -TimeoutSec 15 -ErrorAction Stop
-    } catch {
-        Write-Error "ship: $_"; return
-    }
-    if ($resp.code -ne 0) { Write-Error "ship: API code $($resp.code) — $($resp | ConvertTo-Json -Depth 5 -Compress)"; return }
-    $t = $resp.data.accepted | Select-Object -First 1
-    if (-not $t -or -not $t.track_info) {
-        try {
-            Invoke-RestMethod -Method Post -Uri "$base/register" -Headers $headers -Body $body -TimeoutSec 15 -ErrorAction Stop | Out-Null
-        } catch { Write-Error "ship: register failed: $_"; return }
-        Write-Host "ship: registered $Number — retry in a moment for events"
-        return
-    }
-    $ti = $t.track_info
-    $status = "$($ti.latest_status.status) / $($ti.latest_status.sub_status)"
-    "Number:    $($t.number)"
-    "Status:    $status"
-    "Last:      $($ti.latest_event.description)"
-    "Location:  $($ti.latest_event.location)"
-    "Time:      $($ti.latest_event.time_iso)"
 }
 
 ## GitKraken
@@ -182,7 +130,10 @@ function webmtogif {
     ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
 }
 function c {
-    opencode @args
+    c.cmd @args
+}
+function a {
+    opencode --agent fast --prompt ($args -join ' ')
 }
 function coder {
     $promptFile = $null
@@ -193,7 +144,7 @@ function coder {
     $prompt = yq e '.matches[] | select(.trigger == ":coder") | .replace' $promptFile
     if ($LASTEXITCODE -ne 0) { return }
     if (-not $prompt) { Write-Error "coder: :coder prompt not found in $promptFile"; return }
-    opencode --agent ultrathink --prompt $prompt @args
+    opencode --agent build --prompt $prompt @args
 }
 function q {
     if (Get-Command yawn-debug -ErrorAction SilentlyContinue) {
@@ -210,182 +161,3 @@ function q {
 function proxies-add($d, $p = 'proxy_it') { make -C $env:PROXIES_CFG add-domain domain=$d proxy=$p }
 function proxies-rm($d) { make -C $env:PROXIES_CFG remove-domain domain=$d }
 function proxies-remove($d) { proxies-rm $d }
-
-## Crypto: smart enc/dec for ejson + git-crypt
-function _EjsonIsDecrypted {
-    param([string]$Path)
-    $lines = Select-String -Path $Path -Pattern '^\s*"[^_][^"]*"\s*:\s*"' -ErrorAction SilentlyContinue
-    if (-not $lines) { return $false }
-    foreach ($l in $lines) {
-        if ($l.Line -notmatch ':\s*"EJ\[1:') { return $true }
-    }
-    return $false
-}
-function _GitCryptUnlocked { [bool](git config --get filter.git-crypt.smudge 2>$null) }
-function _GitCryptRepo {
-    if (Test-Path .git-crypt) { return $true }
-    if ((Test-Path .gitattributes) -and (Select-String -Path .gitattributes -Pattern 'filter=git-crypt' -Quiet)) { return $true }
-    return $false
-}
-function _ListEjson {
-    if (git rev-parse --git-dir 2>$null) {
-        git ls-files --cached --others --exclude-standard '*.ejson' | Where-Object { $_ }
-    } else {
-        Get-ChildItem -Path . -Recurse -Filter *.ejson -File -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } | ForEach-Object { $_.FullName }
-    }
-}
-function enc {
-    $did = $false
-    if (Get-Command ejson -ErrorAction SilentlyContinue) {
-        _ListEjson | ForEach-Object {
-            if (_EjsonIsDecrypted $_) {
-                ejson encrypt $_ | Out-Null
-                if ($LASTEXITCODE -eq 0) { Write-Host "enc: encrypted $_"; $did = $true }
-            }
-        }
-    }
-    if ((Get-Command git-crypt -ErrorAction SilentlyContinue) -and (git rev-parse --git-dir 2>$null) -and (_GitCryptRepo) -and (_GitCryptUnlocked)) {
-        git-crypt lock
-        if ($LASTEXITCODE -eq 0) { Write-Host "enc: git-crypt locked"; $did = $true }
-    }
-    if (-not $did) { Write-Host "enc: nothing to encrypt" }
-}
-function dec {
-    $did = $false
-    if (Get-Command ejson -ErrorAction SilentlyContinue) {
-        _ListEjson | ForEach-Object {
-            $f = $_
-            if (-not (_EjsonIsDecrypted $f)) {
-                $tmp = New-TemporaryFile
-                ejson decrypt $f 2>$null | Out-File -FilePath $tmp -Encoding utf8 -NoNewline
-                if ($LASTEXITCODE -eq 0 -and (Get-Item $tmp).Length -gt 0) {
-                    Move-Item -Path $tmp -Destination $f -Force
-                    Write-Host "dec: decrypted $f"; $did = $true
-                } else {
-                    Remove-Item $tmp -ErrorAction SilentlyContinue
-                    Write-Error "dec: failed $f"
-                }
-            }
-        }
-    }
-    if ((Get-Command git-crypt -ErrorAction SilentlyContinue) -and (git rev-parse --git-dir 2>$null) -and (_GitCryptRepo) -and (-not (_GitCryptUnlocked))) {
-        git-crypt unlock
-        if ($LASTEXITCODE -eq 0) { Write-Host "dec: git-crypt unlocked"; $did = $true }
-    }
-    if (-not $did) { Write-Host "dec: nothing to decrypt" }
-}
-
-function _czsrc_ai {
-    param($tmpl, $dest)
-
-    $model = if ($env:CZSRC_AI_MODEL) { $env:CZSRC_AI_MODEL } else { 'opencode-go/minimax-m2.7' }
-    $srcdir = chezmoi source-path 2>$null
-    if (-not $srcdir) { $srcdir = "$HOME/.local/share/chezmoi" }
-
-    opencode run --model $model --dir $srcdir `
-        "Read the chezmoi template at $tmpl and destination at $dest. Run chezmoi diff $dest to see what differs. Edit the template so its rendered output matches the destination exactly. Preserve ALL template logic: conditionals, includes, loops, OS checks. Do NOT edit the destination file."
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "  updated $tmpl"
-        return $true
-    } else {
-        Write-Host "  failed $tmpl (exit $LASTEXITCODE)"
-        return $false
-    }
-}
-
-function _czsrc_resolve {
-    param($path)
-    $s = chezmoi source-path $path 2>$null
-    if (-not $s) {
-        chezmoi add --force $path 2>$null | Out-Null
-        if ($LASTEXITCODE -ne 0) { Write-Warning "czsrc: $path not managed"; return $null }
-        $s = chezmoi source-path $path 2>$null
-        if (-not $s) { Write-Warning "czsrc: $path not managed"; return $null }
-    }
-    return $s
-}
-
-function _czsrc_sync {
-    param($destPath, $label = $destPath)
-
-    $src = _czsrc_resolve $destPath
-    if (-not $src) { return 1 }
-
-    $dest = chezmoi target-path $src 2>$null
-    if (-not $dest) { $dest = $destPath }
-
-    if ($src -like '*.tmpl') {
-        Write-Host "$label -> $src (AI)"
-        if (_czsrc_ai $src $destPath) { return 2 }
-        return 1
-    }
-
-    Write-Host "$label -> $src"
-    try {
-        Copy-Item -Path $dest -Destination $src -Force -ErrorAction Stop
-        Write-Host "  copied"
-        return 0
-    } catch {
-        Write-Host "  failed : $_"
-        return 1
-    }
-}
-
-function czsrc {
-    if ($Args -and ($Args[0] -eq '-h' -or $Args[0] -eq '--help')) {
-        Write-Host "Usage: czsrc [path ...]"
-        Write-Host ""
-        Write-Host "  Auto-sync destination changes back to chezmoi sources."
-        Write-Host "  Plain files: copied directly. Templates: reverse-engineered via opencode."
-        Write-Host ""
-        Write-Host "  czsrc             Process all changed files (chezmoi status)."
-        Write-Host "  czsrc ~/.zshrc    Process specific file(s) only."
-        Write-Host ""
-        Write-Host "  Uses opencode-go/minimax-m2.7 by default."
-        Write-Host "  Set CZSRC_AI_MODEL to override (format: provider/model)."
-        return
-    }
-
-    $changed = 0
-    $tmplCount = 0
-    $okCount = 0
-
-    if ($Args.Count -gt 0) {
-        foreach ($destPath in $Args) {
-            $changed = 1
-            $rc = _czsrc_sync $destPath $destPath
-            if ($rc -eq 0) { $okCount++ }
-            if ($rc -eq 2) { $okCount++; $tmplCount++ }
-        }
-    } else {
-        $dests = chezmoi status --include=changed --externals=false | ForEach-Object {
-            if ($_ -match '^.. (.+)$') { $matches[1] }
-        }
-        if (-not $dests) {
-            Write-Host "No changes - source and destination match."
-            return
-        }
-
-        foreach ($dest in $dests) {
-            if (-not $dest) { continue }
-            $changed = 1
-            $destPath = "$HOME/$dest"
-            if (-not (chezmoi source-path $destPath 2>$null)) {
-                if (chezmoi source-path $dest 2>$null) { $destPath = $dest }
-            }
-            $rc = _czsrc_sync $destPath $dest
-            if ($rc -eq 0) { $okCount++ }
-            if ($rc -eq 2) { $okCount++; $tmplCount++ }
-        }
-    }
-
-    if ($changed -eq 0) {
-        Write-Host "No changes - source and destination match."
-        return
-    }
-
-    Write-Host ""
-    Write-Host "Done: $okCount files synced ($tmplCount via AI)"
-}

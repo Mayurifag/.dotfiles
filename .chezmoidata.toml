@@ -58,6 +58,15 @@ grep = { cmd = "grep --color=auto", ps_cmd = "grep.exe --color=auto" }
 [sharedAliases."System utilities"]
 df = { cmd = "df -h", ps_cmd = "df.exe -h" }
 du = { cmd = "du -c -h", ps_cmd = "du.exe -c -h" }
+myip = { cmd = "command myip", ps_cmd = "myip.cmd" }
+
+[sharedAliases."Python scripts"]
+czsrc = { cmd = "command czsrc", ps_cmd = "czsrc.cmd" }
+dec = { cmd = "command dec", ps_cmd = "dec.cmd" }
+enc = { cmd = "command enc", ps_cmd = "enc.cmd" }
+gitignore = { cmd = "command gitignore", ps_cmd = "gitignore.cmd" }
+npmug = { cmd = "command npmug", ps_cmd = "npmug.cmd" }
+ship = { cmd = "command ship", ps_cmd = "ship.cmd" }
 
 [sharedAliases.Actions]
 actions = { cmd = "npx actions-up -y" }

@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+import sys
+import urllib.error
+import urllib.request
+
+for url in ("https://api.ipify.org", "http://ipecho.net/plain"):
+    try:
+        with urllib.request.urlopen(url, timeout=3) as resp:
+            ip = resp.read().decode().strip()
+        if ip:
+            print(ip)
+            raise SystemExit(0)
+    except (urllib.error.URLError, TimeoutError):
+        pass
+
+print("myip: could not determine public IP", file=sys.stderr)
+raise SystemExit(1)

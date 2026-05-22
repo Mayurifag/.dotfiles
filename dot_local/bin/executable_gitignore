@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+from pathlib import Path
+
+
+def output(*cmd):
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    return p.stdout.strip() if p.returncode == 0 else ""
+
+
+def git_ok(*args):
+    return subprocess.run(["git", *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+
+def show(label, path):
+    print(f"## {label}: {path}")
+    if not path.is_file():
+        print("(missing)")
+        return
+    found = False
+    with path.open(encoding="utf-8", errors="replace") as f:
+        for no, line in enumerate(f, 1):
+            line = line.rstrip("\n")
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            found = True
+            print(f"{path}:{no}:{line}")
+    if not found:
+        print("(no rules)")
+
+
+if not git_ok("rev-parse", "--is-inside-work-tree"):
+    print("gitignore: not in a git repo", file=sys.stderr)
+    raise SystemExit(1)
+
+if len(sys.argv) > 1:
+    raise SystemExit(subprocess.run(["git", "check-ignore", "-v", "--", *sys.argv[1:]]).returncode)
+
+excludes_file = output("git", "config", "--get", "core.excludesFile")
+if excludes_file:
+    excludes = Path(os.path.expanduser(excludes_file))
+elif os.environ.get("XDG_CONFIG_HOME"):
+    excludes = Path(os.environ["XDG_CONFIG_HOME"]) / "git" / "ignore"
+else:
+    excludes = Path.home() / ".config" / "git" / "ignore"
+
+show("global excludes", excludes)
+print()
+show("repo exclude", Path(output("git", "rev-parse", "--git-path", "info/exclude")))
