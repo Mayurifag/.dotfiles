@@ -61,6 +61,16 @@ webmtogif() {
 c() {
   opencode "$@"
 }
+coder() {
+  local prompt_file prompt
+  if command -v chezmoi >/dev/null 2>&1; then
+    prompt_file=$(chezmoi source-path dot_config/exact_espanso/exact_match/ai.yml 2>/dev/null)
+  fi
+  [ -n "$prompt_file" ] || prompt_file="$HOME/.config/espanso/match/ai.yml"
+  prompt=$(yq e '.matches[] | select(.trigger == ":coder") | .replace' "$prompt_file") || return
+  if [ -z "$prompt" ]; then echo "coder: :coder prompt not found in $prompt_file" >&2; return 1; fi
+  opencode --agent ultrathink --prompt "$prompt" "$@"
+}
 
 ## npm (complex)
 npmug() {

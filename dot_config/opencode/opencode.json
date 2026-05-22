@@ -22,6 +22,9 @@
       "model": "openai/gpt-5.5-fast",
       "description": "Fast (GPT 5.5 Fast)"
     },
+    "title": {
+      "model": "openai/gpt-5.3-codex-spark"
+    },
     "plan": {
       "disable": true
     }

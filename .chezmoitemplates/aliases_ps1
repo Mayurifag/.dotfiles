@@ -184,6 +184,17 @@ function webmtogif {
 function c {
     opencode @args
 }
+function coder {
+    $promptFile = $null
+    if (Get-Command chezmoi -ErrorAction SilentlyContinue) {
+        $promptFile = chezmoi source-path dot_config/exact_espanso/exact_match/ai.yml 2>$null
+    }
+    if (-not $promptFile) { $promptFile = Join-Path $HOME '.config/espanso/match/ai.yml' }
+    $prompt = yq e '.matches[] | select(.trigger == ":coder") | .replace' $promptFile
+    if ($LASTEXITCODE -ne 0) { return }
+    if (-not $prompt) { Write-Error "coder: :coder prompt not found in $promptFile"; return }
+    opencode --agent ultrathink --prompt $prompt @args
+}
 function q {
     if (Get-Command yawn-debug -ErrorAction SilentlyContinue) {
         Write-Host "Executing yawn-debug"
