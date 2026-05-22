@@ -7,14 +7,14 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "openai/gpt-5.5",
+      "model": "openai/gpt-5.5-fast",
       "variant": "xhigh",
-      "description": "Build (GPT 5.5 XHigh)"
+      "description": "Build (GPT 5.5 Fast XHigh)"
     },
     "fast": {
       "mode": "primary",
-      "model": "openai/gpt-5.5-fast",
-      "description": "Fast (GPT 5.5 Fast)"
+      "model": "openai/gpt-5.3-codex-spark",
+      "description": "Fast (GPT 5.3 Codex Spark)"
     },
     "title": {
       "model": "openai/gpt-5.3-codex-spark"
