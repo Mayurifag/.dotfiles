@@ -21,7 +21,7 @@ run_chain() {
       "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
     fi
   done
-  return $rc
+  return "$rc"
 }
 
 tmp_dir=""

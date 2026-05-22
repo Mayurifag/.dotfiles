@@ -23,7 +23,7 @@ run_chain() {
       printf '%s\n' "$INPUT" | "$candidate" ${ORIG_ARGS[@]+"${ORIG_ARGS[@]}"} || rc=$?
     fi
   done
-  return $rc
+  return "$rc"
 }
 
 cleanup() {

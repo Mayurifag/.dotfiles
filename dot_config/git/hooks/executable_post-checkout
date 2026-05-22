@@ -54,7 +54,7 @@ run_chain() {
     fi
   done
 
-  return $rc
+  return "$rc"
 }
 
 cleanup() {

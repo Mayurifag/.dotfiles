@@ -28,7 +28,7 @@ alias ten='trans :en'
 alias bundleantidote='antidote bundle < ~/zsh/plugins.txt > ~/zsh/.zsh_plugins.sh'
 brewfile() {
   local f; f=$(chezmoi source-path)/install/Brewfile
-  brew bundle dump --file="$f" --force --no-vscode
+  brew bundle dump --file="$f" --force --tap --brews --casks
   awk 'NF{print $1}' "$f" | awk '!x[$0]++' | while IFS= read -r t; do grep "^$t " "$f" | sort; done > "$f.tmp" && mv "$f.tmp" "$f"
 }
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
