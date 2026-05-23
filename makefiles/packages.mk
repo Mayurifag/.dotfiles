@@ -60,4 +60,11 @@ arch-packages:
 	if command -v yay >/dev/null 2>&1; then \
 			yay -S --needed --noconfirm $(shell cat install/Archfile); \
 	fi
+
+.PHONY: winget-packages
+winget-packages:
+	while IFS= read -r package; do \
+		case "$$package" in ''|'#'*) continue ;; esac; \
+		winget install --id "$$package" --exact --accept-package-agreements --accept-source-agreements || true; \
+	done < "$(DOTFILES_DIR)/install/Wingetfile"
 ################################################

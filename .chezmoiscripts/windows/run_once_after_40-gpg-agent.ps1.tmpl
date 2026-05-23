@@ -11,21 +11,27 @@ if (-not (Test-Path $gpgconf)) {
     exit 0
 }
 
-$taskName = "GpgAgentCleanupAtLogon"
-$action = New-ScheduledTaskAction -Execute $gpgconf -Argument "--kill gpg-agent"
+$oldTaskName = "GpgAgentCleanupAtLogon"
+$taskName = "GpgAgentRefreshAtLogon"
+$killAction = New-ScheduledTaskAction -Execute $gpgconf -Argument "--kill gpg-agent"
+$launchAction = New-ScheduledTaskAction -Execute $gpgconf -Argument "--launch gpg-agent"
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -StartWhenAvailable
 
+if (Get-ScheduledTask -TaskName $oldTaskName -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $oldTaskName -Confirm:$false
+}
+
 Register-ScheduledTask `
     -TaskName $taskName `
-    -Action $action `
+    -Action @($killAction, $launchAction) `
     -Trigger $trigger `
     -Settings $settings `
     -RunLevel Limited `
     -Force | Out-Null
 
+Start-Process -FilePath $gpgconf -ArgumentList '--launch', 'gpg-agent' -WindowStyle Hidden
+
 Write-Host "[gpg] Done. Scheduled task '$taskName' registered." -ForegroundColor Green
-Write-Host "     gpgconf --kill gpg-agent will run at every logon for $env:USERNAME."
-Write-Host "     To apply immediately without rebooting, run once now:"
-Write-Host ("     `"" + $gpgconf + "`" --kill gpg-agent") -ForegroundColor Cyan
+Write-Host "     gpgconf will refresh gpg-agent at every logon for $env:USERNAME."
 {{- end }}

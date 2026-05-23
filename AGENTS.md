@@ -40,6 +40,7 @@ timeout 3 chezmoi apply -v
 
 - Keep Arch/MacOS/Win11 same where possible
 - Windows: `pwsh.exe` (PS 7), never `powershell.exe` (PS 5)
+- Windows MinGW: install WinLibs with `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`; do not use MSYS2 `pacman` for MinGW.
 - Check both `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`. Same for aliases.
 
 ## OPENCODE

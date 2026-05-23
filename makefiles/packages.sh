@@ -9,16 +9,56 @@ DOTFILES_DIR=${DOTFILES_DIR:-$(
 MISE_CONFIG=${MISE_CONFIG:-$DOTFILES_DIR/dot_config/mise/config.toml.tmpl}
 MISE_TARGET=${MISE_TARGET:-$HOME/.config/mise/config.toml}
 
+is_windows() {
+  case "$(uname -s 2>/dev/null || printf unknown)" in
+  CYGWIN* | MINGW* | MSYS*) return 0 ;;
+  *) return 1 ;;
+  esac
+}
+
+if is_windows; then
+  PATH="/usr/bin:/bin:$PATH"
+fi
+
+cargo_bin=${CARGO_HOME:-$HOME/.cargo}/bin
+if [ -d "$cargo_bin" ]; then
+  case ":$PATH:" in
+  *":$cargo_bin:"*) : ;;
+  *) PATH="$cargo_bin:$PATH" ;;
+  esac
+fi
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf 'error: rust package install requires %s in PATH\n' "$1" >&2
+    return 1
+  fi
+}
+
+require_rust_package_tools() {
+  require_command cargo
+  require_command rustc
+
+  host=$(rustc -vV | awk '/^host:/ { print $2 }')
+  case "$host" in
+  *-pc-windows-gnu)
+    for command_name in gcc.exe dlltool.exe ar.exe ld.exe; do
+      require_command "$command_name"
+    done
+    ;;
+  esac
+}
+
 wanted_packages() {
   awk 'NF && $1 !~ /^#/ { print $1 }' "$1"
 }
 
 ruby_protected_gems() {
-  ruby -rrubygems -e 'names = Gem::Specification.select(&:default_gem?).map(&:name); begin; require "bundled_gems"; names += Gem::BUNDLED_GEMS::SINCE.keys + Gem::BUNDLED_GEMS::EXACT.values + Gem::BUNDLED_GEMS::PREFIXED.keys; rescue LoadError, NameError; end; names += %w[minitest power_assert rbs repl_type_completor rexml rss rubygems-update test-unit typeprof]; puts names.uniq'
+  ruby -rrubygems -e 'names = Gem::Specification.select(&:default_gem?).map(&:name); begin; require "bundled_gems"; names += Gem::BUNDLED_GEMS.const_defined?(:SINCE) ? Gem::BUNDLED_GEMS::SINCE.keys : []; names += Gem::BUNDLED_GEMS.const_defined?(:EXACT) ? Gem::BUNDLED_GEMS::EXACT.values : []; names += Gem::BUNDLED_GEMS.const_defined?(:PREFIXED) ? Gem::BUNDLED_GEMS::PREFIXED.keys : []; rescue LoadError; end; names += %w[debug rake minitest power_assert rbs repl_type_completor rexml rss rubygems-update test-unit typeprof]; puts names.uniq' | tr -d '\r'
 }
 
 ruby_wanted_gems() {
-  ruby -rrubygems -e 'wanted = ARGV; specs = Gem::Specification.to_a; names = wanted.dup; queue = wanted.dup; until queue.empty?; name = queue.shift; spec = specs.select { |s| s.name == name }.max_by(&:version); next unless spec; spec.runtime_dependencies.each { |dep| next if names.include?(dep.name); names << dep.name; queue << dep.name }; end; puts names' "$@"
+  ruby -rrubygems -e 'wanted = ARGV; specs = Gem::Specification.to_a; names = wanted.dup; queue = wanted.dup; until queue.empty?; name = queue.shift; spec = specs.select { |s| s.name == name }.max_by(&:version); next unless spec; spec.runtime_dependencies.each { |dep| next if names.include?(dep.name); names << dep.name; queue << dep.name }; end; puts names' "$@" | tr -d '\r'
 }
 
 update_rubygems() {
@@ -51,7 +91,7 @@ pin_mise_tools() (
     MISE_TOOL="$tool" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*")[^"]+(")/$1$version$2/mg' "$MISE_CONFIG"
   done <"$tools"
 
-  mise exec -- chezmoi apply "$MISE_TARGET"
+  chezmoi apply "$MISE_TARGET"
 )
 
 mise_sync() {
@@ -61,7 +101,7 @@ mise_sync() {
     status=$?
     if [ "$status" -ne 0 ]; then
       cp "$backup" "$MISE_CONFIG"
-      mise exec -- chezmoi apply "$MISE_TARGET" || true
+      chezmoi apply "$MISE_TARGET" || true
     fi
     rm -f "$backup"
     exit "$status"
@@ -83,7 +123,7 @@ mise_sync() {
 }
 
 prune_mise_installs() {
-  mise ls | awk 'NF >= 2 && $0 !~ /[[:space:]](~|\/).*mise.*toml/ { print $1 "@" $2 }' | while IFS= read -r tool; do
+  mise ls | awk 'NF >= 2 && $0 !~ /[[:space:]](~|[A-Za-z]:)?[\\\/].*mise.*toml/ { print $1 "@" $2 }' | while IFS= read -r tool; do
     [ -n "$tool" ] && mise uninstall --yes "$tool"
   done
   mise prune --yes
@@ -138,7 +178,7 @@ clean_ruby_packages() {
     ruby_wanted_gems "$gem"
   done | sort -u >"$tmp/want"
   ruby_protected_gems | sort -u >"$tmp/protected"
-  gem list | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
+  gem list | tr -d '\r' | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
   comm -23 "$tmp/have" "$tmp/want" | comm -23 - "$tmp/protected" | sort -r | while IFS= read -r gem; do
     if [ -n "$gem" ]; then
       gem uninstall -a -x "$gem" 2>/dev/null || true
@@ -154,12 +194,16 @@ clean_go_packages() (
   bin=$(go env GOBIN)
   [ -n "$bin" ] || bin="$(go env GOPATH)/bin"
   if [ -d "$bin" ]; then
-    find "$bin" -maxdepth 1 -type f -perm -111 -exec basename {} \; | awk '$0 != "go" && $0 != "gofmt"' | sort -u >"$tmp/have"
+    if is_windows; then
+      find "$bin" -maxdepth 1 -type f -name '*.exe' -exec basename {} .exe \; | awk '$0 != "go" && $0 != "gofmt"' | sort -u >"$tmp/have"
+    else
+      find "$bin" -maxdepth 1 -type f -perm -111 -exec basename {} \; | awk '$0 != "go" && $0 != "gofmt"' | sort -u >"$tmp/have"
+    fi
   else
     : >"$tmp/have"
   fi
   comm -23 "$tmp/have" "$tmp/want" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && rm -f "$bin/$pkg"
+    [ -n "$pkg" ] && rm -f "$bin/$pkg" "$bin/$pkg.exe"
   done
 )
 
@@ -187,6 +231,7 @@ node_packages() {
 }
 
 rust_packages() {
+  require_rust_package_tools
   clean_rust_packages
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
@@ -203,8 +248,9 @@ ruby_packages() {
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
   wanted_packages "$DOTFILES_DIR/install/Rubyfile" | sort -u >"$tmp/want"
-  gem list | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
-  comm -23 "$tmp/want" "$tmp/have" | while IFS= read -r gem; do
+  ruby_protected_gems | sort -u >"$tmp/protected"
+  gem list | tr -d '\r' | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
+  comm -23 "$tmp/want" "$tmp/have" | comm -23 - "$tmp/protected" | while IFS= read -r gem; do
     [ -n "$gem" ] && gem install "$gem"
   done
   mise reshim
@@ -216,7 +262,7 @@ go_packages() {
   [ -n "$bin" ] || bin="$(go env GOPATH)/bin"
   wanted_packages "$DOTFILES_DIR/install/Gofile" | while IFS= read -r pkg; do
     name=$(printf '%s\n' "$pkg" | awk '{ n=split($1,a,"/"); if (a[n] ~ /^v[0-9]+$/ && n > 1) print a[n-1]; else print a[n] }')
-    [ -x "$bin/$name" ] || go install "$pkg@latest"
+    [ -x "$bin/$name" ] || [ -x "$bin/$name.exe" ] || go install "$pkg@latest"
   done
   mise reshim
 }

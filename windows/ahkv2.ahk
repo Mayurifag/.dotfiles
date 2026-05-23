@@ -65,17 +65,17 @@ CapsLock::
 
 ; RAlt typography layer (ported from kanata; kanata dropped on Windows
 ; because its Interception driver prevents espanso from detecting keystrokes).
->!-::SendText("—")
->!2::SendText("²")
->!3::SendText("³")
->!4::SendText("¼")
->!5::SendText("½")
->!6::SendText("¾")
->!7::SendText("¿")
->!8::SendText("∞")
->!9::SendText("←")
->!0::SendText("→")
->!=::SendText("±")
+>!SC00C::SendText("—")
+>!SC003::SendText("²")
+>!SC004::SendText("³")
+>!SC005::SendText("¼")
+>!SC006::SendText("½")
+>!SC007::SendText("¾")
+>!SC008::SendText("¿")
+>!SC009::SendText("∞")
+>!SC00A::SendText("←")
+>!SC00B::SendText("→")
+>!SC00D::SendText("±")
 ; Right Alt + letter/punct — scancodes so layout (EN/RU) doesn't matter
 >!SC013::SendText("®")  ; r
 >!SC014::SendText("™")  ; t

@@ -1,9 +1,5 @@
-@openai/codex@latest
 @prantlf/jsonlint@latest
 actions-up@latest
 eslint@latest
-markdownlint-cli2@latest
 npm@latest
-opencode-ai
-prettier@latest
 typescript@latest

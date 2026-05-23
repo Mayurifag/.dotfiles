@@ -53,13 +53,6 @@ function reset_file {
 function wingetfile {
     winget export --output (Join-Path (chezmoi source-path) 'install/Wingetfile') --accept-source-agreements @args
 }
-function gcd {
-    git clone --recurse-submodules $args[0]
-    if ($LASTEXITCODE -eq 0) {
-        $dir = [System.IO.Path]::GetFileNameWithoutExtension($args[0].Split('/')[-1])
-        Set-Location $dir
-    }
-}
 function grom {
     $branch = $null
     if (git rev-parse --verify --quiet origin/main 2>$null) { $branch = "main" }

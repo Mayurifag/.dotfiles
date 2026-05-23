@@ -1,10 +1,6 @@
 ansible
 ansible-core
 ansible-lint
-yamllint
 codespell
-gallery-dl
-ruff
 shcheck
 sherlock-project
-yt-dlp

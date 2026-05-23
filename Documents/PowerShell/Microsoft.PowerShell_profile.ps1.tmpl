@@ -61,7 +61,7 @@ if ($script:_isInteractiveShell) {
     _CachedInit 'mise' 'mise' { & mise activate pwsh }
 
     # starship — cross-shell prompt
-    _CachedInit 'starship' 'starship' { starship init powershell }
+    _CachedInit 'starship' 'starship' { starship init powershell --print-full-init }
 
     # zoxide — smart cd
     _CachedInit 'zoxide' 'zoxide' { zoxide init powershell }
@@ -123,16 +123,6 @@ if ($script:_isInteractiveShell) {
             [System.Console]::Write("`e]0;$title`a`e]1;$title`a`e]2;$title`a")
             [System.Console]::Write("`e]9;9;$path`a")
         }
-    }
-}
-
-# === GPG agent warmup ===
-# Pre-start gpg-agent on shell open so it's ready before the first `git commit`.
-# Without this, the first commit after reboot races against agent startup → signing fails.
-if ($script:_isInteractiveShell) {
-    $gpgconf = "C:\Program Files\GnuPG\bin\gpgconf.exe"
-    if ((Test-Path $gpgconf) -and -not (Get-Process gpg-agent -ErrorAction SilentlyContinue)) {
-        & $gpgconf --launch gpg-agent 2>$null
     }
 }
 
