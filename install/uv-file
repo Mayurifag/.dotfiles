@@ -4,3 +4,4 @@ ansible-lint
 codespell
 shcheck
 sherlock-project
+yt-dlp --prerelease allow --upgrade

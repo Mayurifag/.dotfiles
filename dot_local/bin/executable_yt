@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import sys
+
+from ytdl_runner import COMMON_ARGS, SPONSORBLOCK_REMOVE, run_ytdlp
+
+BASE_ARGS = [
+    "-v",
+    *COMMON_ARGS,
+    "--sponsorblock-mark",
+    "all",
+    "--sponsorblock-remove",
+    SPONSORBLOCK_REMOVE,
+    "--retries",
+    "3",
+]
+
+
+def main() -> int:
+    return run_ytdlp([*BASE_ARGS, *sys.argv[1:]])
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

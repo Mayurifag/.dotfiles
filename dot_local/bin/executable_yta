@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+import sys
+
+from ytdl_runner import COMMON_ARGS, SPONSORBLOCK_REMOVE, run_ytdlp
+
+BASE_ARGS = [
+    "-f",
+    "ba",
+    "-x",
+    "--audio-format",
+    "mp3",
+    "--audio-quality",
+    "0",
+    *COMMON_ARGS,
+    "--convert-thumbnails",
+    "jpg",
+    "--parse-metadata",
+    "title:%(title)s",
+    "--parse-metadata",
+    "artist:%(artist,uploader|Unknown Artist)s",
+    "--sponsorblock-remove",
+    SPONSORBLOCK_REMOVE,
+    "--sponsorblock-chapter-title",
+    "[SponsorBlock]: %(category)s",
+    "--throttled-rate",
+    "100K",
+    "--retries",
+    "10",
+    "--no-playlist",
+]
+
+
+def main() -> int:
+    return run_ytdlp([*BASE_ARGS, *sys.argv[1:]])
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

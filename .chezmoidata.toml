@@ -48,10 +48,6 @@ lx = { cmd = "eza -lbhHigUmuSa@" }
 lt = { cmd = "eza --tree --level=2 --icons" }
 tree = { cmd = "eza --tree --level=2 --icons" }
 
-[sharedAliases."yt-dlp"]
-yt = { cmd = 'yt-dlp -v -o "%(title)s.%(ext)s" --sponsorblock-mark all --sponsorblock-remove "sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic" --embed-thumbnail --embed-chapters --embed-metadata --concurrent-fragments 3 --retries 3' }
-yta = { cmd = 'yt-dlp -f "ba" -x --audio-format mp3 --audio-quality 0 -o "%(title)s.%(ext)s" --embed-thumbnail --convert-thumbnails jpg --embed-metadata --parse-metadata "title:%(title)s" --parse-metadata "artist:%(artist,uploader|Unknown Artist)s" --sponsorblock-remove "sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic" --sponsorblock-chapter-title "[SponsorBlock]: %(category)s" --embed-chapters --concurrent-fragments 3 --throttled-rate 100K --retries 10 --no-playlist' }
-
 [sharedAliases.grep]
 grep = { cmd = "grep --color=auto", ps_cmd = "grep.exe --color=auto" }
 

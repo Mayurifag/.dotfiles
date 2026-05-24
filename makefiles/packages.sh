@@ -271,10 +271,10 @@ uv_packages() {
   clean_uv_packages
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
-  wanted_packages "$DOTFILES_DIR/install/uv-file" | sort -u >"$tmp/want"
   uv tool list 2>/dev/null | awk '/^[[:alnum:]_][[:alnum:]_.-]* / { print $1 }' | sort -u >"$tmp/have"
-  comm -23 "$tmp/want" "$tmp/have" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && uv tool install --force "$pkg"
+  awk 'NF && $1 !~ /^#/ { print }' "$DOTFILES_DIR/install/uv-file" | while IFS= read -r spec; do
+    pkg=$(printf '%s\n' "$spec" | awk '{ print $1 }')
+    grep -qxF "$pkg" "$tmp/have" || uv tool install --force $spec
   done
   mise reshim
 }
