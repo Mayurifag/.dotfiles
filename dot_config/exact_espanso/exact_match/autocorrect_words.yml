@@ -17,6 +17,10 @@ matches:
     replace: arbitrary
     propagate_case: true
     word: true
+  - trigger: assisstant
+    replace: assistant
+    propagate_case: true
+    word: true
   - trigger: bandwith
     replace: bandwidth
     propagate_case: true

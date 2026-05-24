@@ -50,7 +50,12 @@ show_icon: false
 search_shortcut: OFF
 show_notifications: false
 undo_backspace: true
-backend: Clipboard
+backend: Inject
+inject_delay: 0
+key_delay: 0
+preserve_clipboard: false
+pre_paste_delay: 10
+restore_clipboard_delay: 10
 {{ if eq .chezmoi.os "darwin" -}}
 paste_shortcut: CMD+SHIFT+V
 {{ else -}}
