@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+import re
+import subprocess
+import sys
+
+
+PERF_SCHEME = "97a2c2ba-f72a-4d81-a3be-d3b749c4cbc6"
+PERF_SCHEME_NAME = "Energy Perf"
+QUIET_SCHEME = "381b4222-f694-41f0-9685-ff5bb260df2e"
+SETTINGS = (
+    ("min-base", "893dee8e-2bef-41e0-89c6-b55d0929964c", 100, 1),
+    ("min-class1", "893dee8e-2bef-41e0-89c6-b55d0929964d", 100, 1),
+    ("min-class2", "893dee8e-2bef-41e0-89c6-b55d0929964e", 100, 1),
+    ("epp-base", "36687f9e-e3a5-4dbf-b1dc-15eb381c6863", 0, 50),
+    ("epp-class1", "36687f9e-e3a5-4dbf-b1dc-15eb381c6864", 0, 50),
+    ("epp-class2", "36687f9e-e3a5-4dbf-b1dc-15eb381c6865", 0, 50),
+    ("boost", "be337238-0d82-4146-a960-4f3749d470c7", 2, 4),
+    ("window", "cfeda3d0-7697-4566-a922-a9086cd49dfa", 30000, 250000),
+    ("cooling", "94d3a615-a899-4ac5-ae2b-e4d8f634367f", 1, 0),
+)
+
+
+def run(args):
+    return subprocess.run(args, check=True, capture_output=True, text=True)
+
+
+def read_states(scheme):
+    states = []
+    for name, guid, perf, quiet in SETTINGS:
+        out = run(["powercfg", "/qh", scheme, "SUB_PROCESSOR", guid]).stdout
+        ac = re.search(r"Current AC Power Setting Index:\s*0x([0-9a-fA-F]+)", out)
+        dc = re.search(r"Current DC Power Setting Index:\s*0x([0-9a-fA-F]+)", out)
+        if not ac or not dc:
+            raise RuntimeError(f"energy: could not read {name}")
+        states.append({"name": name, "ac": int(ac.group(1), 16), "dc": int(dc.group(1), 16), "perf": perf, "quiet": quiet})
+    return states
+
+
+def scheme_for(key):
+    return PERF_SCHEME if key == "perf" else QUIET_SCHEME
+
+
+def ensure_scheme_names():
+    run(["powercfg", "/changename", PERF_SCHEME, PERF_SCHEME_NAME])
+
+
+def set_powercfg_mode(key):
+    scheme = scheme_for(key)
+    index = 2 if key == "perf" else 3
+    for setting in SETTINGS:
+        _, guid, perf, quiet = setting
+        value = setting[index]
+        run(["powercfg", "/setacvalueindex", scheme, "SUB_PROCESSOR", guid, str(value)])
+        run(["powercfg", "/setdcvalueindex", scheme, "SUB_PROCESSOR", guid, str(value)])
+    run(["powercfg", "/setactive", scheme])
+
+
+def pwsh(script):
+    try:
+        return subprocess.run(["pwsh.exe", "-NoProfile", "-Command", script], capture_output=True, text=True)
+    except FileNotFoundError:
+        return None
+
+
+def set_oem_power_mode(value):
+    script = "$ErrorActionPreference='Stop'; $inst=Get-CimInstance -Namespace root\\wmi -ClassName PowerSwitchInterface; $r=Invoke-CimMethod -InputObject $inst -MethodName SetPowerMode -Arguments @{ PowerMode = [byte]%d }; [Console]::Out.Write($r.ResultStatus)" % value
+    result = pwsh(script)
+    if not result or result.returncode != 0:
+        return
+    status = result.stdout.strip()
+    if status and status != "0":
+        print(f"energy: OEM SetPowerMode returned {status}", file=sys.stderr)
+
+
+def get_oem_power_mode():
+    script = "$ErrorActionPreference='Stop'; $inst=Get-CimInstance -Namespace root\\wmi -ClassName PowerSwitchInterface; $r=Invoke-CimMethod -InputObject $inst -MethodName GetPowerMode; [Console]::Out.Write($r.CurrentPowerMode)"
+    result = pwsh(script)
+    if not result or result.returncode != 0:
+        return None
+    text = result.stdout.strip()
+    return int(text) if text.isdigit() else None
+
+
+def label(states, scheme):
+    scheme = scheme.lower()
+    if scheme == PERF_SCHEME and all(s["ac"] == s["perf"] and s["dc"] == s["perf"] for s in states):
+        return "perf"
+    if scheme == QUIET_SCHEME and all(s["ac"] == s["quiet"] and s["dc"] == s["quiet"] for s in states):
+        return "quiet"
+    return "custom"
+
+
+def active_scheme():
+    out = run(["powercfg", "/getactivescheme"]).stdout.strip()
+    match = re.search(r"Power Scheme GUID:\s*([0-9a-fA-F-]+)\s+\((.+)\)", out)
+    if match:
+        return match.group(1).lower(), match.group(2)
+    return PERF_SCHEME, PERF_SCHEME_NAME
+
+
+def state(states, name):
+    return next(s for s in states if s["name"] == name)
+
+
+def print_status(states, scheme, plan):
+    mins = [s for s in states if s["name"].startswith("min-")]
+    epps = [s for s in states if s["name"].startswith("epp-")]
+    boost = state(states, "boost")
+    window = state(states, "window")
+    cooling = state(states, "cooling")
+    boost_label = {0: "disabled", 1: "enabled", 2: "aggressive", 3: "efficient", 4: "efficient-aggressive"}.get(boost["ac"], boost["ac"])
+    cooling_label = {0: "passive", 1: "active"}.get(cooling["ac"], cooling["ac"])
+    oem_mode = get_oem_power_mode()
+    oem_label = {0: "balance", 1: "performance", 2: "silence"}.get(oem_mode, oem_mode)
+    oem_text = f", OEM mode {oem_label}" if oem_mode is not None else ""
+    print(
+        "energy: {label} ({plan}, min {min_ac}%/{min_dc}%, EPP {epp_ac}%/{epp_dc}%, boost {boost}, CPPC window {window}ms, cooling {cooling}{oem})".format(
+            label=label(states, scheme),
+            plan=plan,
+            min_ac=mins[0]["ac"],
+            min_dc=mins[0]["dc"],
+            epp_ac=epps[0]["ac"],
+            epp_dc=epps[0]["dc"],
+            boost=boost_label,
+            window=round(window["ac"] / 1000),
+            cooling=cooling_label,
+            oem=oem_text,
+        )
+    )
+
+
+def main():
+    if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] not in ("perf", "quiet", "status")):
+        print("usage: energy [perf|quiet|status]", file=sys.stderr)
+        return 2
+
+    ensure_scheme_names()
+    mode = sys.argv[1] if len(sys.argv) == 2 else None
+    scheme, plan = active_scheme()
+    states = read_states(scheme)
+    if mode is None:
+        mode = "perf" if label(states, scheme) == "quiet" else "quiet"
+    if mode in ("perf", "quiet"):
+        set_powercfg_mode(mode)
+        set_oem_power_mode(1 if mode == "perf" else 2)
+        scheme, plan = active_scheme()
+        states = read_states(scheme)
+    print_status(states, scheme, plan)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except subprocess.CalledProcessError as exc:
+        if exc.stderr:
+            print(exc.stderr.strip(), file=sys.stderr)
+        raise SystemExit(exc.returncode)
+    except RuntimeError as exc:
+        print(exc, file=sys.stderr)
+        raise SystemExit(1)
