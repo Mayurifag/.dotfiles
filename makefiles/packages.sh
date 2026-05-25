@@ -113,6 +113,7 @@ mise_sync() {
   else
     mise exec -- chezmoi apply "$MISE_TARGET"
   fi
+  winget_packages
   mise_install
   mise exec -- sh "$0" update-rubygems
   mise exec -- sh "$0" install-language-packages
@@ -217,6 +218,18 @@ clean_uv_packages() (
   done
 )
 
+winget_package_installed() {
+  winget list --id "$1" --exact --accept-source-agreements --disable-interactivity 2>/dev/null | tr -d '\r' | grep -F "$1" >/dev/null
+}
+
+winget_packages() {
+  is_windows || return 0
+  command -v winget >/dev/null 2>&1 || return 0
+  wanted_packages "$DOTFILES_DIR/install/Wingetfile" | while IFS= read -r package; do
+    winget_package_installed "$package" || winget install --id "$package" --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements || true
+  done
+}
+
 node_packages() {
   npm_cmd=$(command -v npm)
   clean_node_packages
@@ -284,6 +297,7 @@ mise-sync) mise_sync ;;
 clean-mise-installs) prune_mise_installs ;;
 mise-packages) mise_packages ;;
 mise-install) mise_install ;;
+winget-packages) winget_packages ;;
 install-language-packages) install_language_packages ;;
 update-rubygems) update_rubygems ;;
 node-packages) node_packages ;;

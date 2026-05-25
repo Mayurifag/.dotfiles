@@ -22,6 +22,8 @@ Host *
   ServerAliveInterval 120
   ServerAliveCountMax 2
   TCPKeepAlive yes
+{{- if ne .chezmoi.os "windows" }}
   ControlMaster auto
   ControlPersist 10m
+{{- end }}
   # Compression yes
