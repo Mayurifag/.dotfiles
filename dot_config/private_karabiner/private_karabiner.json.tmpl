@@ -1,0 +1,14 @@
+{
+    "global": {
+        "check_for_updates_on_startup": false,
+        "show_in_menu_bar": false
+    },
+    "profiles": [
+        {
+            "complex_modifications": { "rules": [{ "eval_js": {{ include "dot_config/private_karabiner/karabiner_keyboard_modifications.js" | toRawJson }} }] },
+            "name": "Default profile",
+            "selected": true,
+            "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
+        }
+    ]
+}
