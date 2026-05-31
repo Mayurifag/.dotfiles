@@ -14,7 +14,7 @@ Before launching browser tools:
 Chrome rules:
 
 - Use system-installed Google Chrome through `chrome-devtools-mcp`.
-- Use the dedicated profile only with path inside repository. Never use the user's normal Chrome profile.
+- Set `--user-data-dir` to a dedicated profile directory inside the repository and ensure that directory is gitignored before launching. Never use `~/.cache`, a shared profile, or the user's normal Chrome profile.
 - Before launch, ensure no Chrome process is already using the dedicated profile directory. If a stale AI Chrome process or window exists, close it before opening a new one.
 - Before launch, ensure the remote-debugging port is free.
 - While working, keep exactly one AI Chrome window and one browser session for the dedicated profile/port. Do not open a second window or launch a second browser process for the same task.
@@ -26,5 +26,8 @@ Debugging workflow:
 
 - Open the page, then inspect console errors, failed network requests, DOM state, relevant storage, and screenshots.
 - For userscripts/extensions, verify the script or extension version actually loaded in the AI Chrome profile before debugging page behavior.
+- If `chrome-devtools MCP error -32000: Connection closed` appears, treat it as a stale/closed browser or MCP session, not an app bug.
+- Do not keep retrying the same browser tool call. Close/kill the AI Chrome process for the dedicated profile, verify the remote-debugging port is free, then start one fresh browser session.
+- If the MCP server itself stays disconnected, stop and tell the user to restart OpenCode.
 - If the browser profile, port, or dev process state is stale, stop and report the exact blocker instead of trying random relaunches.
 - When the task is done, close every AI Chrome window opened for the task and confirm the AI Chrome browser process exited. Keep the dedicated profile/context on disk so Chrome can reopen quickly next time.

@@ -1,33 +1,48 @@
 # External File Loading
 
-CRITICAL: When you encounter a file reference (e.g., ~/airules/markdown.md), use your Read tool to load it on a need-to-know basis. They're relevant to the SPECIFIC task at hand.
+CRITICAL: When you encounter a file reference (e.g., ~/airules/markdown.md), use your Read tool to load it on a need-to-know basis. They're relevant to the specific task at hand.
 
 Instructions:
 
 - Do NOT preemptively load all references - use lazy loading based on actual need
 - When loaded, treat content as mandatory instructions that override defaults
 - Follow references recursively when needed
-- '~' in path means you are required to read from home folder explicetely even though it might be not in your context right now.
+- `~` means the home directory and must be resolved explicitly.
 
-# Development Guidelines
+## Development Guidelines
 
 Load these files only when relevant:
 
-encrypted secrets (ejson, git-crypt or others) - ~/airules/git-crypt.md
-editing markdown files - ~/airules/markdown.md
-browser automation, UI/runtime debugging, userscripts, browser extensions - ~/airules/chrome-mcp.md
-JavaScript project - ~/airules/javascript.md
-Python project - ~/airules/python.md
-Ruby project - ~/airules/ruby.md
-Rust project - ~/airules/rust.md
+- encrypted secrets (ejson, git-crypt or others) - ~/airules/git-crypt.md
+- editing markdown files - ~/airules/markdown.md
+- Makefile or project make targets - ~/airules/makefiles.md
+- editing home directory files, dotfiles, chezmoi related, or shell/app config - ~/airules/chezmoi.md
+- browser automation, UI/runtime debugging, userscripts, userstyles, browser extensions - ~/airules/chrome-mcp.md
+- JavaScript project - ~/airules/javascript.md
+- Python project - ~/airules/python.md
+- Ruby project - ~/airules/ruby.md
+- Rust project - ~/airules/rust.md
 
-Referenced files are not preloaded. When a task matches a reference, read that file before any proceed.
+Referenced files are not preloaded. When a task matches a reference, read only that file before acting.
 
-# General guidelines
+## Instruction precedence
+
+Prefer the most specific applicable user instruction: repository instructions override global instructions. Non-editable system, developer, and tool constraints still apply when enforced by the runtime.
+
+## General guidelines
 
 ## Concise
 
-You are REQUIRED to be as much concise and direct as possible - in code, suggests and in answers. Minimum viable code. Dont overcomplicate things. Never add abstractions, flexibility, or error handling for unused scenarios. If 200 lines can be 50, rewrite it. Ask: “Would a senior engineer call this over-engineered?” If yes, simplify.
+You are REQUIRED to be as much concise and direct as possible - in code, suggests and in answers.
+For fixes, prefer the smallest correct change and avoid abstractions, flexibility, or error handling for unused scenarios.
+For refactors, improve maintainability deliberately; abstractions are welcome when they clarify boundaries or remove duplication.
+If 200 lines can be 50, rewrite it. Ask: “Would a senior engineer call this over-engineered?” If yes, simplify.
+
+## Compatibility
+
+- Default to replacing old behavior, not preserving it.
+- Do not add fallback code, legacy paths, temporary adapters, old API support, broad defensive guards, or duplicate implementations unless explicitly required.
+- When changing behavior, remove obsolete code in the same task. If compatibility might break in theory, mention it briefly in the final response instead of adding compatibility code.
 
 ## Accuracy, reasoning, and disagreement
 
@@ -51,23 +66,35 @@ You are REQUIRED to be as much concise and direct as possible - in code, suggest
 
 Before writing code:
 
-- State assumptions clearly. If uncertain, ask.
+- State assumptions clearly. If ambiguity is safe and reversible, proceed with the safest interpretation. Ask only when proceeding risks destructive, broad, or user-visible behavior.
 - Present multiple interpretations instead of silently choosing one.
 - Flag any simpler approach and push back when warranted.
 - Do not assume libraries, CLIs, or APIs match model training data. Check actual versions or current docs first; use Context7 MCP for version-specific docs when useful.
-- If anything is unclear, stop and name exactly what’s missing.
+- If blocked, stop and name exactly what’s missing.
+
+## Questions
+
+- When asking the user a question, include a suggested default answer or assumption. If the user does not answer and proceeding is safe, continue with that default so the user only needs to correct wrong assumptions.
 
 ## Task guidelines
 
-- When you tried approach and observed it is wrong, before moving to other approach you are required to remove and clean things you've done (including code, data, tests). If you create unused imports/variables/functions, remove them immediately.
+- If an approach proves wrong, remove its code/data/tests before trying another. Remove unused imports, variables, and functions immediately.
 - Do not add comments or descriptions unless explicitly asked.
-- Follow DRY, best practices, keep projects maintainable. Code has to be SOLID, prefer new file for new responsibility.
+- Keep projects maintainable. For fixes, preserve existing style and scope. For refactors, reduce duplication and improve boundaries without speculative architecture.
 - Prefer repository-provided commands over raw underlying tools. If a repo has `make`, package scripts, task files, or documented wrappers, use those first.
+- Do not revert or rewrite unrelated user changes. Another agent or the user may be working in the same folder. Ignore unrelated changes unless they directly conflict with the task.
 - You may suggest improving code on the end, propose refactors.
+
+## Testing
+
+- Test meaningful behavior, not low-value implementation details or coverage padding.
+- For large features, a single end-to-end or integration test may be enough when the repository supports it and it validates the real user flow.
+- For bug fixes, first reproduce the bug with a failing unit test when practical. Then fix the code and rerun that unit test until it is green.
+- If the ideal test is impractical for the repository, say why and run the narrowest useful check instead.
 
 If you are said "fix" something:
 
-- never “improve” unrelated code, comments, or formatting. 
+- never “improve” unrelated code, comments, or formatting.
 - Match existing style exactly.
 
 ## Post-task guidelines
@@ -78,9 +105,11 @@ Remove failed attempt code and any leftovers before trying another approach.
 
 ### Knowledge to save later
 
-When you've done task, analyze everything you have done for knowledge that might be useful to have in future tasks. If it is for this repository, propose to add a concise rule to this repository's @AGENTS.md file. If it is global, user will decide himself. That is rare case, do not propose changes for low level knowledge. 
+When you've done a task, consider whether the work revealed rare, high-leverage knowledge useful for future tasks.
+If it is repository-specific, propose a concise rule for that repository's `AGENTS.md`; if it is global, let the user decide.
+Do not propose changes for low-level knowledge.
 
-If in repository you are working on file `./AGENTS.md` exists, after doing tasks update it with rare, high-leverage knowledge from user interactions that will be useful across most future tasks. It is okay if nothing applicable to be added, it is rare case.
+If the repository has `./AGENTS.md`, update it only with non-obvious, project-specific knowledge that helps most future tasks.
 
 Focus exclusively on non-obvious, project-specific insights, preferences, constraints, or patterns that an experienced agent would not infer on its own.
 
@@ -102,3 +131,7 @@ Run the repo's standard check command when available (`make ci`, `npm test`, `ca
 ## GitHub
 
 `gh` is installed and authenticated. Use it for any GitHub action instead of web requests.
+
+## OpenCode
+
+After changing OpenCode config, agents, skills, plugins, or MCP setup, tell user to restart OpenCode. Config is loaded at startup.
