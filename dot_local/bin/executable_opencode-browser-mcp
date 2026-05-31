@@ -1,0 +1,240 @@
+#!/usr/bin/env python3
+import json
+import os
+import platform
+import shutil
+import signal
+import socket
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+
+HOST = "127.0.0.1"
+DEFAULT_PORT = 9223
+START_TIMEOUT = float(os.environ.get("OPENCODE_BROWSER_MCP_START_TIMEOUT", "3"))
+
+
+def eprint(*args):
+    print(*args, file=sys.stderr)
+
+
+def cache_dir():
+    if platform.system() == "Windows":
+        root = os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local"
+        return Path(root) / "opencode"
+    return Path.home() / ".cache" / "opencode"
+
+
+def profile_dir():
+    return Path(os.environ.get("OPENCODE_BROWSER_PROFILE_DIR", cache_dir() / "chrome-devtools-profile")).expanduser().resolve()
+
+
+def port():
+    return int(os.environ.get("OPENCODE_BROWSER_MCP_PORT", str(DEFAULT_PORT)))
+
+
+def chrome_path():
+    override = os.environ.get("OPENCODE_CHROME_PATH")
+    if override:
+        path = Path(override).expanduser()
+        if path.exists():
+            return str(path)
+        raise RuntimeError(f"OPENCODE_CHROME_PATH does not exist: {path}")
+
+    system = platform.system()
+    candidates = []
+    if system == "Darwin":
+        candidates = [
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            str(Path.home() / "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
+        ]
+    elif system == "Windows":
+        for root in (os.environ.get("PROGRAMFILES"), os.environ.get("PROGRAMFILES(X86)"), os.environ.get("LOCALAPPDATA")):
+            if root:
+                candidates.append(str(Path(root) / "Google" / "Chrome" / "Application" / "chrome.exe"))
+    else:
+        for name in ("google-chrome", "google-chrome-stable"):
+            found = shutil.which(name)
+            if found:
+                candidates.append(found)
+
+    for candidate in candidates:
+        if Path(candidate).exists():
+            return candidate
+    raise RuntimeError("Google Chrome not found. Set OPENCODE_CHROME_PATH to the system Chrome executable.")
+
+
+def port_free(host, number):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            sock.bind((host, number))
+        except OSError:
+            return False
+    return True
+
+
+def process_rows():
+    system = platform.system()
+    if system == "Windows":
+        command = [
+            "pwsh.exe",
+            "-NoProfile",
+            "-Command",
+            "Get-CimInstance Win32_Process | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress",
+        ]
+        result = subprocess.run(command, capture_output=True, text=True)
+        if result.returncode != 0 or not result.stdout.strip():
+            return []
+        data = json.loads(result.stdout)
+        if isinstance(data, dict):
+            data = [data]
+        return [(int(p.get("ProcessId") or 0), p.get("Name") or "", p.get("CommandLine") or "") for p in data]
+
+    result = subprocess.run(["ps", "-axo", "pid=,comm=,args="], capture_output=True, text=True)
+    rows = []
+    for line in result.stdout.splitlines():
+        parts = line.strip().split(None, 2)
+        if len(parts) == 3 and parts[0].isdigit():
+            rows.append((int(parts[0]), parts[1], parts[2]))
+    return rows
+
+
+def profile_processes(profile):
+    needle = str(profile)
+    matches = []
+    for pid, name, command in process_rows():
+        if pid == os.getpid():
+            continue
+        if needle in command and "user-data-dir" in command:
+            matches.append((pid, name, command))
+    return matches
+
+
+def terminate_profile_processes(profile):
+    matches = profile_processes(profile)
+    if not matches:
+        return
+    if platform.system() == "Windows":
+        for pid, _, _ in matches:
+            subprocess.run(["taskkill", "/PID", str(pid), "/T"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(1)
+        for pid, _, _ in profile_processes(profile):
+            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return
+    for pid, _, _ in matches:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    deadline = time.time() + 2
+    while time.time() < deadline and profile_processes(profile):
+        time.sleep(0.1)
+    for pid, _, _ in profile_processes(profile):
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
+def wait_for_chrome(host, number):
+    url = f"http://{host}:{number}/json/version"
+    deadline = time.time() + START_TIMEOUT
+    last_error = None
+    while time.time() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=1) as response:
+                json.loads(response.read().decode("utf-8"))
+                return
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+            last_error = exc
+            time.sleep(0.2)
+    raise RuntimeError(f"Chrome did not expose DevTools at {url} within {START_TIMEOUT:g}s: {last_error}")
+
+
+def launch_chrome(chrome, profile, number):
+    args = [
+        f"--remote-debugging-address={HOST}",
+        f"--remote-debugging-port={number}",
+        f"--user-data-dir={profile}",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-session-crashed-bubble",
+        "--window-size=1280,900",
+        "--new-window",
+        "about:blank",
+    ]
+    if platform.system() == "Darwin" and not os.environ.get("OPENCODE_CHROME_PATH"):
+        return subprocess.Popen(["open", "-g", "-n", "-a", "Google Chrome", "--args", *args])
+    return subprocess.Popen([chrome, *args])
+
+
+def mcp_command(number, passthrough):
+    return [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        f"--browserUrl=http://{HOST}:{number}",
+        "--no-usage-statistics",
+        "--no-performance-crux",
+        *passthrough,
+    ]
+
+
+def preflight(chrome, profile, number):
+    profile.mkdir(parents=True, exist_ok=True)
+    matches = profile_processes(profile)
+    if matches:
+        lines = "\n".join(f"  pid {pid}: {command}" for pid, _, command in matches)
+        raise RuntimeError(f"Chrome profile already in use: {profile}\n{lines}")
+    if not port_free(HOST, number):
+        raise RuntimeError(f"Port {HOST}:{number} is already in use. Set OPENCODE_BROWSER_MCP_PORT to another free port.")
+    return {"chrome": chrome, "profile": str(profile), "port": number}
+
+
+def main():
+    passthrough = sys.argv[1:]
+    check_only = "--check" in passthrough
+    passthrough = [arg for arg in passthrough if arg != "--check"]
+
+    chrome = chrome_path()
+    profile = profile_dir()
+    number = port()
+    info = preflight(chrome, profile, number)
+    if check_only:
+        print(json.dumps(info, indent=2))
+        return 0
+
+    chrome_proc = launch_chrome(chrome, profile, number)
+    mcp_proc = None
+
+    def shutdown(signum=None, frame=None):
+        if mcp_proc and mcp_proc.poll() is None:
+            mcp_proc.terminate()
+        terminate_profile_processes(profile)
+        if signum is not None:
+            raise SystemExit(128 + signum)
+
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(signum, shutdown)
+
+    try:
+        wait_for_chrome(HOST, number)
+        mcp_proc = subprocess.Popen(mcp_command(number, passthrough))
+        return mcp_proc.wait()
+    finally:
+        if chrome_proc.poll() is None:
+            chrome_proc.terminate()
+        terminate_profile_processes(profile)
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except RuntimeError as exc:
+        eprint(f"opencode-browser-mcp: {exc}")
+        raise SystemExit(1)

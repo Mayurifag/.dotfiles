@@ -27,6 +27,22 @@
     }
   },
   "plugin": ["opencode-notify", "@franlol/opencode-md-table-formatter", "opencode-pty"],
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["opencode-browser-mcp"],
+      "enabled": true,
+      "env": {
+        "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",
+        "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1"
+      }
+    }
+  },
   "command": {
     "ogc-usage": {
       "template": "Call the ogc_usage tool exactly once and return its output directly.",

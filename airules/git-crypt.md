@@ -1,5 +1,4 @@
-
-## Encrypted Secrets (ejson / git-crypt only)
+# Encrypted Secrets (ejson / git-crypt only)
 
 Global git hooks in `~/.config/git/hooks/` automatically handle encryption for repos containing `.ejson` files or `git-crypt` patterns.
 
@@ -9,3 +8,5 @@ Global git hooks in `~/.config/git/hooks/` automatically handle encryption for r
 Edit `.ejson` files as normal plaintext — staging triggers encryption.
 For `git-crypt` repos: always use GPG mode with the user’s existing key (never symmetric).
 Clone → `git-crypt unlock`. Check status with `git-crypt status -e`.
+
+Never print secret values in responses, logs, or diagnostics. Refer only to paths, key names, JSON paths, or validation errors.
