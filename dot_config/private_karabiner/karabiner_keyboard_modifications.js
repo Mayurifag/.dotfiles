@@ -17,6 +17,8 @@ var REMOTE_APPLICATIONS = [
   "^com\\.citrix\\.XenAppViewer$",
 ];
 
+var ITERM_APPLICATIONS = ["^com\\.googlecode\\.iterm2$"];
+
 var ANY = ["any"];
 var FN = ["fn"];
 var CTRL = ["control"];
@@ -32,6 +34,13 @@ var UNLESS_REMOTE_APPLICATIONS = [
     bundle_identifiers: REMOTE_APPLICATIONS,
   },
 ];
+
+var UNLESS_REMOTE_OR_ITERM_APPLICATIONS = UNLESS_REMOTE_APPLICATIONS.concat([
+  {
+    type: "frontmost_application_unless",
+    bundle_identifiers: ITERM_APPLICATIONS,
+  },
+]);
 
 var EXTERNAL_KEYBOARD = [
   {
@@ -242,7 +251,7 @@ var RULES = [
     description: "Ctrl+C -> Command+C",
     from: trigger("c", { modifiers: CTRL, optional: ANY }),
     to: press("c", { modifiers: LEFT_COMMAND }),
-    conditions: UNLESS_REMOTE_APPLICATIONS,
+    conditions: UNLESS_REMOTE_OR_ITERM_APPLICATIONS,
   }),
   rule({
     description: "Ctrl+V -> Command+V",

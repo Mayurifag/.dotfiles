@@ -1,6 +1,6 @@
 # AGENTS.md
 
-**Never edit rendered files.** Edit repo sources.
+**Never edit files in their real paths.** Edit repo sources and apply. Examples:
 
 | Target                              | Source                                          |
 | ----------------------------------- | ----------------------------------------------- |

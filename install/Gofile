@@ -1,1 +1,2 @@
 golang.org/x/tools/gopls
+golang.org/x/tools/cmd/goimports
