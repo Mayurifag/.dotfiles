@@ -37,6 +37,10 @@ def port():
     return int(os.environ.get("OPENCODE_BROWSER_MCP_PORT", str(DEFAULT_PORT)))
 
 
+def devtools_url(host, number):
+    return f"http://{host}:{number}"
+
+
 def chrome_path():
     override = os.environ.get("OPENCODE_CHROME_PATH")
     if override:
@@ -141,8 +145,18 @@ def terminate_profile_processes(profile):
             pass
 
 
+def devtools_available(host, number):
+    url = f"{devtools_url(host, number)}/json/version"
+    try:
+        with urllib.request.urlopen(url, timeout=1) as response:
+            json.loads(response.read().decode("utf-8"))
+            return True
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return False
+
+
 def wait_for_chrome(host, number):
-    url = f"http://{host}:{number}/json/version"
+    url = f"{devtools_url(host, number)}/json/version"
     deadline = time.time() + START_TIMEOUT
     last_error = None
     while time.time() < deadline:
@@ -154,6 +168,15 @@ def wait_for_chrome(host, number):
             last_error = exc
             time.sleep(0.2)
     raise RuntimeError(f"Chrome did not expose DevTools at {url} within {START_TIMEOUT:g}s: {last_error}")
+
+
+def popen_detached(command):
+    kwargs = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+    if platform.system() == "Windows":
+        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+    else:
+        kwargs["start_new_session"] = True
+    return subprocess.Popen(command, **kwargs)
 
 
 def launch_chrome(chrome, profile, number):
@@ -169,8 +192,8 @@ def launch_chrome(chrome, profile, number):
         "about:blank",
     ]
     if platform.system() == "Darwin" and not os.environ.get("OPENCODE_CHROME_PATH"):
-        return subprocess.Popen(["open", "-g", "-n", "-a", "Google Chrome", "--args", *args])
-    return subprocess.Popen([chrome, *args])
+        return popen_detached(["open", "-g", "-n", "-a", "Google Chrome", "--args", *args])
+    return popen_detached([chrome, *args])
 
 
 def mcp_command(number, passthrough):
@@ -178,58 +201,83 @@ def mcp_command(number, passthrough):
         "npx",
         "-y",
         "chrome-devtools-mcp@latest",
-        f"--browserUrl=http://{HOST}:{number}",
+        f"--browserUrl={devtools_url(HOST, number)}",
         "--no-usage-statistics",
         "--no-performance-crux",
         *passthrough,
     ]
 
 
-def preflight(chrome, profile, number):
+def mcp_env():
+    env = os.environ.copy()
+    options = env.get("NODE_OPTIONS", "")
+    if "--no-warnings" not in options:
+        env["NODE_OPTIONS"] = f"{options} --no-warnings".strip()
+    return env
+
+
+def status(chrome, profile, number):
+    matches = profile_processes(profile)
+    return {
+        "chrome": chrome,
+        "profile": str(profile),
+        "port": number,
+        "browserUrl": devtools_url(HOST, number),
+        "profileInUse": bool(matches),
+        "profilePids": [pid for pid, _, _ in matches],
+        "devtoolsAvailable": devtools_available(HOST, number),
+        "portFree": port_free(HOST, number),
+    }
+
+
+def launch_browser(chrome, profile, number):
     profile.mkdir(parents=True, exist_ok=True)
     matches = profile_processes(profile)
+    if matches:
+        if devtools_available(HOST, number):
+            return
+        terminate_profile_processes(profile)
+        matches = profile_processes(profile)
     if matches:
         lines = "\n".join(f"  pid {pid}: {command}" for pid, _, command in matches)
         raise RuntimeError(f"Chrome profile already in use: {profile}\n{lines}")
     if not port_free(HOST, number):
         raise RuntimeError(f"Port {HOST}:{number} is already in use. Set OPENCODE_BROWSER_MCP_PORT to another free port.")
-    return {"chrome": chrome, "profile": str(profile), "port": number}
+    launch_chrome(chrome, profile, number)
+    try:
+        wait_for_chrome(HOST, number)
+    except RuntimeError:
+        terminate_profile_processes(profile)
+        raise
 
 
 def main():
     passthrough = sys.argv[1:]
-    check_only = "--check" in passthrough
-    passthrough = [arg for arg in passthrough if arg != "--check"]
+    status_only = "--status" in passthrough or "--check" in passthrough
+    launch_only = "--launch" in passthrough
+    close_only = "--close" in passthrough
+    passthrough = [arg for arg in passthrough if arg not in ("--server", "--status", "--check", "--launch", "--close")]
 
-    chrome = chrome_path()
     profile = profile_dir()
     number = port()
-    info = preflight(chrome, profile, number)
-    if check_only:
-        print(json.dumps(info, indent=2))
+
+    if close_only:
+        terminate_profile_processes(profile)
         return 0
 
-    chrome_proc = launch_chrome(chrome, profile, number)
-    mcp_proc = None
+    if status_only or launch_only:
+        chrome = chrome_path()
 
-    def shutdown(signum=None, frame=None):
-        if mcp_proc and mcp_proc.poll() is None:
-            mcp_proc.terminate()
-        terminate_profile_processes(profile)
-        if signum is not None:
-            raise SystemExit(128 + signum)
+    if status_only:
+        print(json.dumps(status(chrome, profile, number), indent=2))
+        return 0
 
-    for signum in (signal.SIGINT, signal.SIGTERM):
-        signal.signal(signum, shutdown)
+    if launch_only:
+        launch_browser(chrome, profile, number)
+        print(json.dumps(status(chrome, profile, number), indent=2))
+        return 0
 
-    try:
-        wait_for_chrome(HOST, number)
-        mcp_proc = subprocess.Popen(mcp_command(number, passthrough))
-        return mcp_proc.wait()
-    finally:
-        if chrome_proc.poll() is None:
-            chrome_proc.terminate()
-        terminate_profile_processes(profile)
+    return subprocess.call(mcp_command(number, passthrough), env=mcp_env())
 
 
 if __name__ == "__main__":

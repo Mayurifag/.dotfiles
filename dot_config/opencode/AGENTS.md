@@ -78,6 +78,7 @@ Before writing code:
 
 ## Task guidelines
 
+- Fix the root cause, not the symptom. Do not disable, remove, or bypass a feature to hide an error unless the user explicitly asks for that tradeoff.
 - If an approach proves wrong, remove its code/data/tests before trying another. Remove unused imports, variables, and functions immediately.
 - Do not add comments or descriptions unless explicitly asked.
 - Keep projects maintainable. For fixes, preserve existing style and scope. For refactors, reduce duplication and improve boundaries without speculative architecture.

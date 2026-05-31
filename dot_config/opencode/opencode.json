@@ -33,9 +33,9 @@
       "url": "https://mcp.context7.com/mcp",
       "enabled": true
     },
-    "chrome-devtools": {
+    "opencode-browser-mcp": {
       "type": "local",
-      "command": ["opencode-browser-mcp"],
+      "command": ["opencode-browser-mcp", "--server"],
       "enabled": true,
       "env": {
         "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",
