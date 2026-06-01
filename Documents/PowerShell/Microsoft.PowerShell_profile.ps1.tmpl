@@ -14,9 +14,10 @@ function _PrependToPath([string]$dir) {
 # Cold start: skip dedup work. Re-source (czapply): dedup to avoid stacking.
 if ($env:_PROFILE_LOADED) {
     _PrependToPath "$env:USERPROFILE\.cargo\bin"
+    _PrependToPath "$env:USERPROFILE\.local\espanso_managed_bins"
     _PrependToPath "$env:USERPROFILE\.local\bin"
 } else {
-    $env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.cargo\bin;$env:PATH"
+    $env:PATH = "$env:USERPROFILE\.local\bin;$env:USERPROFILE\.local\espanso_managed_bins;$env:USERPROFILE\.cargo\bin;$env:PATH"
 }
 $env:_PROFILE_LOADED = '1'
 

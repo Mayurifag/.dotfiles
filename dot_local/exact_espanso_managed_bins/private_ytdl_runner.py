@@ -44,7 +44,19 @@ def update_ytdlp():
             time.sleep(0.2)
 
     try:
-        subprocess.run(["uv", "tool", "install", "--force", "--prerelease", "allow", "--upgrade", "yt-dlp"], check=True)
+        subprocess.run(
+            [
+                "uv",
+                "tool",
+                "install",
+                "--force",
+                "--prerelease",
+                "allow",
+                "--upgrade",
+                "yt-dlp",
+            ],
+            check=True,
+        )
     finally:
         os.rmdir(LOCK_DIR)
 
@@ -53,7 +65,9 @@ def run_ytdlp(args):
     update_ytdlp()
     bin_dir = subprocess.check_output(["uv", "tool", "dir", "--bin"], text=True).strip()
     exe = "yt-dlp.exe" if os.name == "nt" else "yt-dlp"
-    return subprocess.run([os.path.join(bin_dir, exe), *helium_cookie_args(), *args]).returncode
+    return subprocess.run(
+        [os.path.join(bin_dir, exe), *helium_cookie_args(), *args]
+    ).returncode
 
 
 def run_gallery_dl(args):

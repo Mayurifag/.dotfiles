@@ -54,6 +54,7 @@ export GIT_SSH="/c/Windows/System32/OpenSSH/ssh.exe"
 {{ template "env_vars_posix" . }}
 # === PATH Additions ===
 export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/espanso_managed_bins:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # === Aliases ===

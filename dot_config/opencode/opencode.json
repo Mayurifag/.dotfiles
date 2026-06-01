@@ -7,9 +7,8 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "openai/gpt-5.5-fast",
-      "variant": "xhigh",
-      "description": "Build (GPT 5.5 Fast XHigh)"
+      "model": "openai/gpt-5.5",
+      "description": "Build (GPT 5.5 Medium)"
     },
     "fast": {
       "mode": "primary",
@@ -33,9 +32,9 @@
       "url": "https://mcp.context7.com/mcp",
       "enabled": true
     },
-    "opencode-browser-mcp": {
+    "browser-mcp": {
       "type": "local",
-      "command": ["opencode-browser-mcp", "--server"],
+      "command": ["browser-mcp", "--server"],
       "enabled": true,
       "env": {
         "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",

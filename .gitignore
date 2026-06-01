@@ -31,3 +31,4 @@ coverage/
 tmp/
 
 .bg-shell/
+.opencode/browser-mcp-profile/

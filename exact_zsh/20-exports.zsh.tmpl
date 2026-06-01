@@ -58,5 +58,6 @@ safe_append_to_path() {
 
 safe_append_to_path "$HOME/.lmstudio/bin" # LM Studio CLI
 safe_append_to_path "$HOME/.cargo/bin" # Rust/cargo
+safe_append_to_path "$HOME/.local/espanso_managed_bins" # Chezmoi-managed command shims.
 safe_append_to_path "$HOME/.local/bin" # By default, mise/uv/pipx setup puts shortcuts to ~/.local/bin.
 safe_append_to_path "$HOME/.antigravity/antigravity/bin" # Google Antigravity

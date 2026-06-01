@@ -18,6 +18,8 @@ Load these files only when relevant:
 - Makefile or project make targets - ~/airules/makefiles.md
 - editing home directory files, dotfiles, chezmoi related, or shell/app config - ~/airules/chezmoi.md
 - browser automation, UI/runtime debugging, userscripts, userstyles, browser extensions - ~/airules/chrome-mcp.md
+- CSS, styling, themes, userstyles - ~/airules/css.md
+- userscript/userstyle projects - ~/airules/userjs-usercss.md
 - JavaScript project - ~/airules/javascript.md
 - Python project - ~/airules/python.md
 - Ruby project - ~/airules/ruby.md
@@ -132,7 +134,3 @@ Run the repo's standard check command when available (`make ci`, `npm test`, `ca
 ## GitHub
 
 `gh` is installed and authenticated. Use it for any GitHub action instead of web requests.
-
-## OpenCode
-
-After changing OpenCode config, agents, skills, plugins, or MCP setup, tell user to restart OpenCode. Config is loaded at startup.

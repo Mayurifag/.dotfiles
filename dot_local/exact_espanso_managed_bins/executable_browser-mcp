@@ -9,12 +9,15 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
+import zlib
 from pathlib import Path
 
 
 HOST = "127.0.0.1"
-DEFAULT_PORT = 9223
+BASE_PORT = 9223
+PORT_SPAN = 1000
 START_TIMEOUT = float(os.environ.get("OPENCODE_BROWSER_MCP_START_TIMEOUT", "3"))
 
 
@@ -22,19 +25,22 @@ def eprint(*args):
     print(*args, file=sys.stderr)
 
 
-def cache_dir():
-    if platform.system() == "Windows":
-        root = os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local"
-        return Path(root) / "opencode"
-    return Path.home() / ".cache" / "opencode"
+def repo_root():
+    result = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, cwd=Path.cwd())
+    if result.returncode == 0 and result.stdout.strip():
+        return Path(result.stdout.strip())
+    return Path.cwd()
 
 
 def profile_dir():
-    return Path(os.environ.get("OPENCODE_BROWSER_PROFILE_DIR", cache_dir() / "chrome-devtools-profile")).expanduser().resolve()
+    return Path(os.environ.get("OPENCODE_BROWSER_PROFILE_DIR", repo_root() / ".opencode" / "browser-mcp-profile")).expanduser().resolve()
 
 
 def port():
-    return int(os.environ.get("OPENCODE_BROWSER_MCP_PORT", str(DEFAULT_PORT)))
+    override = os.environ.get("OPENCODE_BROWSER_MCP_PORT")
+    if override:
+        return int(override)
+    return BASE_PORT + zlib.crc32(str(repo_root()).encode("utf-8")) % PORT_SPAN
 
 
 def devtools_url(host, number):
@@ -119,10 +125,31 @@ def profile_processes(profile):
     return matches
 
 
-def terminate_profile_processes(profile):
+def close_devtools_targets(number):
+    try:
+        with urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/list", timeout=1) as response:
+            targets = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return
+    for target in targets:
+        if target.get("type") != "page" or not target.get("id"):
+            continue
+        try:
+            urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/close/{urllib.parse.quote(target['id'])}", timeout=1).close()
+        except (urllib.error.URLError, TimeoutError):
+            pass
+
+
+def terminate_profile_processes(profile, number=None):
     matches = profile_processes(profile)
     if not matches:
         return
+    if number is not None and platform.system() != "Darwin":
+        close_devtools_targets(number)
+        time.sleep(0.2)
+        matches = profile_processes(profile)
+        if not matches:
+            return
     if platform.system() == "Windows":
         for pid, _, _ in matches:
             subprocess.run(["taskkill", "/PID", str(pid), "/T"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -179,7 +206,7 @@ def popen_detached(command):
     return subprocess.Popen(command, **kwargs)
 
 
-def launch_chrome(chrome, profile, number):
+def launch_chrome(chrome, profile, number, url):
     args = [
         f"--remote-debugging-address={HOST}",
         f"--remote-debugging-port={number}",
@@ -189,7 +216,7 @@ def launch_chrome(chrome, profile, number):
         "--disable-session-crashed-bubble",
         "--window-size=1280,900",
         "--new-window",
-        "about:blank",
+        url,
     ]
     if platform.system() == "Darwin" and not os.environ.get("OPENCODE_CHROME_PATH"):
         return popen_detached(["open", "-g", "-n", "-a", "Google Chrome", "--args", *args])
@@ -230,25 +257,31 @@ def status(chrome, profile, number):
     }
 
 
-def launch_browser(chrome, profile, number):
+def launch_browser(chrome, profile, number, url):
     profile.mkdir(parents=True, exist_ok=True)
     matches = profile_processes(profile)
     if matches:
         if devtools_available(HOST, number):
             return
-        terminate_profile_processes(profile)
+        terminate_profile_processes(profile, number)
         matches = profile_processes(profile)
     if matches:
         lines = "\n".join(f"  pid {pid}: {command}" for pid, _, command in matches)
         raise RuntimeError(f"Chrome profile already in use: {profile}\n{lines}")
     if not port_free(HOST, number):
         raise RuntimeError(f"Port {HOST}:{number} is already in use. Set OPENCODE_BROWSER_MCP_PORT to another free port.")
-    launch_chrome(chrome, profile, number)
+    launch_chrome(chrome, profile, number, url)
     try:
         wait_for_chrome(HOST, number)
     except RuntimeError:
-        terminate_profile_processes(profile)
+        terminate_profile_processes(profile, number)
         raise
+
+
+def launch_url(passthrough):
+    if not passthrough or passthrough[0].startswith("-"):
+        raise RuntimeError("--launch requires a URL, for example: browser-mcp --launch https://example.com")
+    return passthrough[0]
 
 
 def main():
@@ -262,7 +295,7 @@ def main():
     number = port()
 
     if close_only:
-        terminate_profile_processes(profile)
+        terminate_profile_processes(profile, number)
         return 0
 
     if status_only or launch_only:
@@ -273,7 +306,7 @@ def main():
         return 0
 
     if launch_only:
-        launch_browser(chrome, profile, number)
+        launch_browser(chrome, profile, number, launch_url(passthrough))
         print(json.dumps(status(chrome, profile, number), indent=2))
         return 0
 
@@ -284,5 +317,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except RuntimeError as exc:
-        eprint(f"opencode-browser-mcp: {exc}")
+        eprint(f"browser-mcp: {exc}")
         raise SystemExit(1)
