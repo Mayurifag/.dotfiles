@@ -18,11 +18,15 @@
 
 Before debugging with browser MCP, run `browser-mcp --status`.
 Check the repo uses `.opencode/browser-mcp-profile/`.
-If the profile is missing or Tampermonkey is missing, copy `~/.local/share/chezmoi/browser-mcp-template/profile/` into the repo as `.opencode/browser-mcp-profile/`.
+If `.opencode/browser-mcp-profile/` is missing, copy `~/.local/share/chezmoi/browser-mcp-template/profile/` into the repo.
+After copying the profile, exclude `.opencode/browser-mcp-profile/` from repo linters if needed.
+Do not overwrite an existing repo profile unless explicitly asked; it may contain login/session/script settings.
+Tampermonkey is the default template userscript manager and is acceptable unless the user explicitly requires another manager.
 
 - Install the local Vite userscript URL. Do not install dist/published userscripts unless explicitly requested.
-- Before debugging userscript logic, verify the local Vite userscript actually injected by checking network for `__vite-plugin-monkey.entry.js` / `/src/main.js` and one real page effect.
-- Do not diagnose GM/Tampermonkey API behavior by importing userscript source directly into page context; verify it through Tampermonkey injection.
+- Before debugging userscript logic, verify the local Vite userscript actually injected by checking network for `__vite-plugin-monkey.entry.js` / `/src/main.js` and one relevant real page effect.
+- Do not diagnose GM/Tampermonkey API behavior by importing userscript source directly into page context; verify it through userscript-manager injection.
+- Do not conclude the userscript failed only because optional enhanced UI classes are absent; a feature may be disabled, delayed, or not relevant to the current flow.
 
 ## Install Local User.js
 
@@ -44,6 +48,7 @@ If the profile is missing or Tampermonkey is missing, copy `~/.local/share/chezm
 ## Verifying
 
 - `browser-mcp --status` shows Tampermonkey installed.
+- `browser-mcp --status` uses the repo `.opencode/browser-mcp-profile/` path.
 - `browser-mcp --status` shows `loopbackNetworkPermissions.default.label` as `allow`.
 - Only the local dev userscript is installed.
 - Network shows `http://127.0.0.1:<port>/__vite-plugin-monkey.entry.js` as `200`.

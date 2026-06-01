@@ -19,7 +19,8 @@ Chrome rules:
 - Use the repo-local dedicated profile and `browserUrl` reported by `browser-mcp --status`. Never use a shared profile, the template profile directly, or the user's normal Chrome profile.
 - If the repo lacks `.opencode/browser-mcp-profile/`, copy `~/.local/share/chezmoi/browser-mcp-template/profile/` there before launching browser-mcp.
 - If the template is missing or broken, ask the user to follow `~/.local/share/chezmoi/browser-mcp-template/GENERATE.md`. Do not rely on browser-mcp to use the template automatically.
-- If the dedicated profile is broken or missing required extensions, replace it with a fresh copy of `~/.local/share/chezmoi/browser-mcp-template/profile/`.
+- Do not overwrite an existing dedicated profile unless explicitly asked; close Chrome and inspect `browser-mcp --status` first.
+- If the dedicated profile is broken or missing required extensions, ask before replacing it with a fresh copy of `~/.local/share/chezmoi/browser-mcp-template/profile/`.
 - Before launch, ensure no Chrome process is already using the dedicated profile directory. If a stale AI Chrome process or window exists, run `browser-mcp --close` before opening a new one.
 - Before launch, ensure the remote-debugging port reported by `browser-mcp --status` is free.
 - While working, keep exactly one AI Chrome window and one browser session for the dedicated profile/port. Do not open a second window or launch a second browser process for the same task.
