@@ -2,12 +2,12 @@
 
 Use Chrome DevTools MCP for browser/runtime verification.
 
-Trigger this rule for browser UI bugs, frontend runtime behavior, userscripts, Violentmonkey/Tampermonkey, browser extensions, JS configs that affect pages, console/network/storage debugging, screenshots, or DOM verification.
+Trigger this rule for browser UI bugs, frontend runtime behavior, userscripts, Tampermonkey, browser extensions, JS configs that affect pages, console/network/storage debugging, screenshots, or DOM verification.
 
 Before launching browser tools:
 
 - Identify the target URL, dev server, userscript, extension, or local build/watch process.
-- Check whether the relevant dev process is running before opening Chrome. Examples: Vite/Next/Webpack server, static server, extension build/watch, userscript generator, Violentmonkey-served script.
+- Check whether the relevant dev process is running before opening Chrome. Examples: Vite/Next/Webpack server, static server, extension build/watch, userscript generator, Tampermonkey-served script.
 - Check the expected port or URL with very low timeouts. Fail fast if the port is closed, occupied by the wrong process, or ambiguous.
 - Do not guess runtime behavior from source when console, network, DOM, storage, or screenshots can verify it.
 
@@ -22,7 +22,7 @@ Chrome rules:
 - While working, keep exactly one AI Chrome window and one browser session for the dedicated profile/port. Do not open a second window or launch a second browser process for the same task.
 - Keep Chrome headed/visible. Do not use headless unless the user asks.
 - Do not leave Chrome visibly sitting on `about:blank`; after launch, navigate to the target page immediately.
-- Use very low timeouts and short waits. Prefer 0.5-2s checks, 3s browser-launch timeout, and fast feedback over patience. Increase only after a specific observed reason.
+- Use very low timeouts and short waits. Prefer sub 1s checks, 3s browser-launch timeout, and fast feedback over patience. Increase only after a specific observed reason.
 
 Debugging workflow:
 

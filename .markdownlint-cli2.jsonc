@@ -8,5 +8,8 @@
   "globs": [
     "**/*.{md,markdown}"
   ],
+  "ignores": [
+    "**/node_modules/**"
+  ],
   "noBanner": true
 }

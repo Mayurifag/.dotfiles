@@ -2,6 +2,7 @@
 import json
 import os
 import platform
+import re
 import shutil
 import signal
 import socket
@@ -19,6 +20,25 @@ HOST = "127.0.0.1"
 BASE_PORT = 9223
 PORT_SPAN = 1000
 START_TIMEOUT = float(os.environ.get("OPENCODE_BROWSER_MCP_START_TIMEOUT", "3"))
+USER_SCRIPT_MANAGERS = {
+    "tampermonkey": {
+        "name": "Tampermonkey",
+        "ids": ("dhdgffkkebhmkfjojejmpbldmpobfkfo", "gcalenpjmijncebpfijmoaglllgpjagf"),
+    },
+    "violentmonkey": {
+        "name": "Violentmonkey",
+        "ids": ("jinjaccalgkegednnccohejagnlnfdag",),
+    },
+}
+USER_STYLE_MANAGERS = {
+    "stylus": {
+        "name": "Stylus",
+        "ids": ("clngdbkpkpeebahjckkjfobafhncgmne",),
+    },
+}
+USER_SCRIPT_BLOCK_RE = re.compile(rb"//\s*==User(?:Script|Style)==(?P<body>.*?)//\s*==/User(?:Script|Style)==", re.DOTALL)
+USER_SCRIPT_NAME_RE = re.compile(rb"@name(?::[a-zA-Z_-]+)?[ \t]+([^\r\n<]{1,200})")
+USER_SCRIPT_VERSION_RE = re.compile(rb"@version[ \t]+([^\r\n<]{1,100})")
 
 
 def eprint(*args):
@@ -243,8 +263,127 @@ def mcp_env():
     return env
 
 
+def read_json(path):
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def extension_manifest(profile, extension_id):
+    root = profile / "Default" / "Extensions" / extension_id
+    if not root.is_dir():
+        return None
+    manifests = sorted(root.glob("*/manifest.json"), key=lambda path: path.parent.name, reverse=True)
+    if not manifests:
+        return None
+    data = read_json(manifests[0])
+    if not isinstance(data, dict):
+        return None
+    return data
+
+
+def extension_settings(profile, extension_id):
+    preferences = read_json(profile / "Default" / "Preferences")
+    if not isinstance(preferences, dict):
+        return {}
+    return preferences.get("extensions", {}).get("settings", {}).get(extension_id, {}) or {}
+
+
+def extension_enabled(settings):
+    state = settings.get("state")
+    return state == 1 if state is not None else None
+
+
+def user_script_storage_dirs(profile, extension_id):
+    default = profile / "Default"
+    candidates = [
+        default / "Local Extension Settings" / extension_id,
+        default / "IndexedDB" / f"chrome-extension_{extension_id}_0.indexeddb.leveldb",
+        default / "Extension State",
+    ]
+    return [path for path in candidates if path.exists()]
+
+
+def user_script_metadata(profile, extension_id):
+    scripts = {}
+    for storage_dir in user_script_storage_dirs(profile, extension_id):
+        files = [storage_dir] if storage_dir.is_file() else storage_dir.rglob("*")
+        for path in files:
+            if not path.is_file():
+                continue
+            try:
+                if path.stat().st_size > 20 * 1024 * 1024:
+                    continue
+                data = path.read_bytes()
+            except OSError:
+                continue
+            blocks = [match.group("body") for match in USER_SCRIPT_BLOCK_RE.finditer(data)] or [data]
+            for block in blocks:
+                name_match = USER_SCRIPT_NAME_RE.search(block)
+                if not name_match:
+                    continue
+                name = name_match.group(1).decode("utf-8", "ignore").strip().strip('"')
+                if name and not name.startswith("__MSG_"):
+                    version_match = USER_SCRIPT_VERSION_RE.search(block)
+                    version = version_match.group(1).decode("utf-8", "ignore").strip().strip('"') if version_match else None
+                    scripts[name] = {"name": name, "version": version}
+    return sorted(scripts.values(), key=lambda script: script["name"].casefold())
+
+
+def user_script_manager_status(profile):
+    managers = []
+    for key, manager in USER_SCRIPT_MANAGERS.items():
+        for extension_id in manager["ids"]:
+            manifest = extension_manifest(profile, extension_id)
+            settings = extension_settings(profile, extension_id)
+            installed = bool(manifest or settings)
+            if not installed:
+                continue
+            managers.append(
+                {
+                    "key": key,
+                    "name": manager["name"],
+                    "extensionId": extension_id,
+                    "installed": installed,
+                    "enabled": extension_enabled(settings),
+                    "version": (manifest or settings.get("manifest") or {}).get("version"),
+                    "scripts": user_script_metadata(profile, extension_id),
+                }
+            )
+    return managers
+
+
+def user_style_manager_status(profile):
+    managers = []
+    for key, manager in USER_STYLE_MANAGERS.items():
+        for extension_id in manager["ids"]:
+            manifest = extension_manifest(profile, extension_id)
+            settings = extension_settings(profile, extension_id)
+            installed = bool(manifest or settings)
+            if not installed:
+                continue
+            managers.append(
+                {
+                    "key": key,
+                    "name": manager["name"],
+                    "extensionId": extension_id,
+                    "installed": installed,
+                    "enabled": extension_enabled(settings),
+                    "version": (manifest or settings.get("manifest") or {}).get("version"),
+                    "styles": user_script_metadata(profile, extension_id),
+                }
+            )
+    return managers
+
+
 def status(chrome, profile, number):
     matches = profile_processes(profile)
+    user_script_managers = user_script_manager_status(profile)
+    user_style_managers = user_style_manager_status(profile)
+    user_script_manager_keys = {manager["key"] for manager in user_script_managers}
+    user_style_manager_keys = {manager["key"] for manager in user_style_managers}
     return {
         "chrome": chrome,
         "profile": str(profile),
@@ -254,6 +393,10 @@ def status(chrome, profile, number):
         "profilePids": [pid for pid, _, _ in matches],
         "devtoolsAvailable": devtools_available(HOST, number),
         "portFree": port_free(HOST, number),
+        "tampermonkeyInstalled": "tampermonkey" in user_script_manager_keys,
+        "stylusInstalled": "stylus" in user_style_manager_keys,
+        "userScriptManagers": user_script_managers,
+        "userStyleManagers": user_style_managers,
     }
 
 

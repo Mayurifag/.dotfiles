@@ -11,6 +11,7 @@
 - Avoid one huge stylesheet.
 - Prefer small files split by component, feature, theme, or page.
 - Remove unused rules instead of layering overrides.
+- You are required to have colors in variables.
 
 ## Quality
 

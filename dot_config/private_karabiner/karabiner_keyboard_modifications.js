@@ -134,15 +134,15 @@ var RULES = [
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({
-    description: "Ctrl+Shift+C -> Command+C",
+    description: "Ctrl+Shift+C -> Command+Shift+C",
     from: trigger("c", { modifiers: CTRL_SHIFT, optional: ANY }),
-    to: press("c", { modifiers: LEFT_COMMAND }),
+    to: press("c", { modifiers: LEFT_COMMAND_SHIFT }),
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({
-    description: "Ctrl+Shift+V -> Command+V",
+    description: "Ctrl+Shift+V -> Command+Shift+V",
     from: trigger("v", { modifiers: CTRL_SHIFT, optional: ANY }),
-    to: press("v", { modifiers: LEFT_COMMAND }),
+    to: press("v", { modifiers: LEFT_COMMAND_SHIFT }),
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({
@@ -233,12 +233,6 @@ var RULES = [
     description: "Ctrl+Shift+9 -> Command+Shift+9",
     from: trigger("9", { modifiers: CTRL_SHIFT, optional: ANY }),
     to: press("9", { modifiers: LEFT_COMMAND_SHIFT }),
-    conditions: UNLESS_REMOTE_APPLICATIONS,
-  }),
-  rule({
-    description: "Ctrl+Shift+Y -> Command+Shift+Z",
-    from: trigger("y", { modifiers: CTRL_SHIFT, optional: ANY }),
-    to: press("z", { modifiers: LEFT_COMMAND_SHIFT }),
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({
