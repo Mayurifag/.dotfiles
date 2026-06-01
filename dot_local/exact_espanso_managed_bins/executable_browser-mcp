@@ -6,6 +6,7 @@ import re
 import shutil
 import signal
 import socket
+import ssl
 import subprocess
 import sys
 import time
@@ -13,6 +14,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zlib
+import base64
+import hashlib
+import secrets
 from pathlib import Path
 
 
@@ -39,6 +43,8 @@ USER_STYLE_MANAGERS = {
 USER_SCRIPT_BLOCK_RE = re.compile(rb"//\s*==User(?:Script|Style)==(?P<body>.*?)//\s*==/User(?:Script|Style)==", re.DOTALL)
 USER_SCRIPT_NAME_RE = re.compile(rb"@name(?::[a-zA-Z_-]+)?[ \t]+([^\r\n<]{1,200})")
 USER_SCRIPT_VERSION_RE = re.compile(rb"@version[ \t]+([^\r\n<]{1,100})")
+LOCAL_VITE_USERSCRIPT_RE = re.compile(r"^http://(127\.0\.0\.1|localhost)(:\d+)?/.*(__vite-plugin-monkey|/src/main\.js|/@vite/client|vite)")
+SETTING_LABELS = {1: "allow", 2: "block", 3: "ask"}
 
 
 def eprint(*args):
@@ -53,7 +59,10 @@ def repo_root():
 
 
 def profile_dir():
-    return Path(os.environ.get("OPENCODE_BROWSER_PROFILE_DIR", repo_root() / ".opencode" / "browser-mcp-profile")).expanduser().resolve()
+    override = os.environ.get("OPENCODE_BROWSER_PROFILE_DIR")
+    if override:
+        return Path(override).expanduser().resolve()
+    return (repo_root() / ".opencode" / "browser-mcp-profile").resolve()
 
 
 def port():
@@ -146,11 +155,7 @@ def profile_processes(profile):
 
 
 def close_devtools_targets(number):
-    try:
-        with urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/list", timeout=1) as response:
-            targets = json.loads(response.read().decode("utf-8"))
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
-        return
+    targets = devtools_targets(number)
     for target in targets:
         if target.get("type") != "page" or not target.get("id"):
             continue
@@ -158,6 +163,15 @@ def close_devtools_targets(number):
             urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/close/{urllib.parse.quote(target['id'])}", timeout=1).close()
         except (urllib.error.URLError, TimeoutError):
             pass
+
+
+def devtools_targets(number):
+    try:
+        with urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/list", timeout=1) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            return data if isinstance(data, list) else []
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return []
 
 
 def terminate_profile_processes(profile, number=None):
@@ -271,6 +285,68 @@ def read_json(path):
         return None
 
 
+def write_json(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name(f"{path.name}.tmp")
+    with temp.open("w", encoding="utf-8") as handle:
+        json.dump(data, handle, separators=(",", ":"))
+    temp.replace(path)
+
+
+def preferences_path(profile):
+    return profile / "Default" / "Preferences"
+
+
+def preferences(profile):
+    data = read_json(preferences_path(profile))
+    return data if isinstance(data, dict) else {}
+
+
+def loopback_network_exceptions(profile):
+    exceptions = (
+        preferences(profile)
+        .get("profile", {})
+        .get("content_settings", {})
+        .get("exceptions", {})
+        .get("loopback_network", {})
+    )
+    return exceptions if isinstance(exceptions, dict) else {}
+
+
+def setting_label(setting):
+    return SETTING_LABELS.get(setting, str(setting))
+
+
+def loopback_network_permissions(profile):
+    data = preferences(profile)
+    profile_data = data.get("profile", {}) if isinstance(data.get("profile"), dict) else {}
+    defaults = profile_data.get("default_content_setting_values", {}) if isinstance(profile_data.get("default_content_setting_values"), dict) else {}
+    default = defaults.get("loopback_network")
+    return {
+        "default": {"setting": default, "label": setting_label(default)} if default is not None else None,
+        "exceptions": [
+            {"pattern": pattern, "setting": value.get("setting"), "label": setting_label(value.get("setting"))}
+            for pattern, value in sorted(loopback_network_exceptions(profile).items())
+            if isinstance(value, dict)
+        ],
+    }
+
+
+def ensure_loopback_network_default(profile):
+    path = preferences_path(profile)
+    data = read_json(path)
+    if data is None:
+        if path.exists():
+            raise RuntimeError(f"Chrome Preferences is not valid JSON: {path}")
+        data = {}
+    profile_data = data.setdefault("profile", {})
+    defaults = profile_data.setdefault("default_content_setting_values", {})
+    if defaults.get("loopback_network") == 1:
+        return
+    defaults["loopback_network"] = 1
+    write_json(path, data)
+
+
 def extension_manifest(profile, extension_id):
     root = profile / "Default" / "Extensions" / extension_id
     if not root.is_dir():
@@ -285,10 +361,140 @@ def extension_manifest(profile, extension_id):
 
 
 def extension_settings(profile, extension_id):
-    preferences = read_json(profile / "Default" / "Preferences")
-    if not isinstance(preferences, dict):
-        return {}
-    return preferences.get("extensions", {}).get("settings", {}).get(extension_id, {}) or {}
+    return preferences(profile).get("extensions", {}).get("settings", {}).get(extension_id, {}) or {}
+
+
+def websocket_frame(payload):
+    data = payload.encode("utf-8")
+    header = bytearray([0x81])
+    length = len(data)
+    if length < 126:
+        header.append(0x80 | length)
+    elif length < 65536:
+        header.extend([0x80 | 126, (length >> 8) & 0xFF, length & 0xFF])
+    else:
+        header.append(0x80 | 127)
+        header.extend(length.to_bytes(8, "big"))
+    mask = secrets.token_bytes(4)
+    return bytes(header) + mask + bytes(byte ^ mask[index % 4] for index, byte in enumerate(data))
+
+
+def recv_exact(sock, count):
+    data = b""
+    while len(data) < count:
+        chunk = sock.recv(count - len(data))
+        if not chunk:
+            raise RuntimeError("WebSocket closed")
+        data += chunk
+    return data
+
+
+def websocket_recv(sock):
+    first, second = recv_exact(sock, 2)
+    opcode = first & 0x0F
+    length = second & 0x7F
+    if length == 126:
+        length = int.from_bytes(recv_exact(sock, 2), "big")
+    elif length == 127:
+        length = int.from_bytes(recv_exact(sock, 8), "big")
+    if second & 0x80:
+        mask = recv_exact(sock, 4)
+        payload = bytes(byte ^ mask[index % 4] for index, byte in enumerate(recv_exact(sock, length)))
+    else:
+        payload = recv_exact(sock, length)
+    if opcode == 8:
+        raise RuntimeError("WebSocket closed")
+    return payload.decode("utf-8", "ignore")
+
+
+def cdp_call(ws_url, method, params=None):
+    parsed = urllib.parse.urlparse(ws_url)
+    host = parsed.hostname or HOST
+    number = parsed.port or (443 if parsed.scheme == "wss" else 80)
+    path = parsed.path + (f"?{parsed.query}" if parsed.query else "")
+    raw_sock = socket.create_connection((host, number), timeout=1)
+    sock = ssl.create_default_context().wrap_socket(raw_sock, server_hostname=host) if parsed.scheme == "wss" else raw_sock
+    with sock:
+        key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
+        request = (
+            f"GET {path} HTTP/1.1\r\n"
+            f"Host: {host}:{number}\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            f"Sec-WebSocket-Key: {key}\r\n"
+            "Sec-WebSocket-Version: 13\r\n\r\n"
+        )
+        sock.sendall(request.encode("ascii"))
+        response = b""
+        while b"\r\n\r\n" not in response:
+            response += sock.recv(4096)
+        accept = base64.b64encode(hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode("ascii")).digest()).decode("ascii")
+        if b" 101 " not in response.split(b"\r\n", 1)[0] or accept.encode("ascii") not in response:
+            raise RuntimeError("DevTools WebSocket handshake failed")
+        sock.sendall(websocket_frame(json.dumps({"id": 1, "method": method, "params": params or {}})))
+        deadline = time.time() + 1
+        while time.time() < deadline:
+            message = json.loads(websocket_recv(sock))
+            if message.get("id") == 1:
+                return message
+    return {}
+
+
+def evaluate_target(target, expression):
+    try:
+        response = cdp_call(target["webSocketDebuggerUrl"], "Runtime.evaluate", {"expression": expression, "returnByValue": True})
+    except (KeyError, OSError, RuntimeError, TimeoutError, json.JSONDecodeError):
+        return None
+    return response.get("result", {}).get("result", {}).get("value")
+
+
+def local_vite_userscript_diagnostics(profile, number):
+    if not devtools_available(HOST, number):
+        return []
+    expression = r"""
+(() => {
+  const localVite = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/.*(__vite-plugin-monkey|\/src\/main\.js|\/@vite\/client|vite)/;
+  const resources = performance.getEntriesByType('resource')
+    .filter((entry) => localVite.test(entry.name))
+    .map((entry) => ({
+      url: entry.name,
+      initiatorType: entry.initiatorType,
+      duration: entry.duration,
+      transferSize: entry.transferSize,
+      decodedBodySize: entry.decodedBodySize,
+      responseStatus: entry.responseStatus || 0,
+    }));
+  const domUrls = Array.from(document.querySelectorAll('[src],[href]'))
+    .map((element) => element.src || element.href)
+    .filter((url) => localVite.test(url));
+  return { resources, domUrls };
+})()
+"""
+    diagnostics = []
+    for target in devtools_targets(number):
+        url = target.get("url") or ""
+        if target.get("type") != "page" or not url.startswith("https://"):
+            continue
+        data = evaluate_target(target, expression)
+        if not isinstance(data, dict):
+            continue
+        resources = data.get("resources") if isinstance(data.get("resources"), list) else []
+        dom_urls = data.get("domUrls") if isinstance(data.get("domUrls"), list) else []
+        local_urls = sorted({entry.get("url") for entry in resources if entry.get("url")} | set(dom_urls))
+        if not local_urls:
+            continue
+        resource_urls = {entry.get("url") for entry in resources if entry.get("url")}
+        pending_or_failed = [entry for entry in resources if entry.get("responseStatus") not in (200, 304)]
+        pending_or_failed.extend({"url": candidate, "initiatorType": "dom", "responseStatus": 0} for candidate in dom_urls if candidate not in resource_urls)
+        diagnostics.append(
+            {
+                "pageUrl": url,
+                "localViteUserscriptUrls": [candidate for candidate in local_urls if LOCAL_VITE_USERSCRIPT_RE.search(candidate)],
+                "pendingOrFailedLocalViteUserscriptRequests": pending_or_failed,
+                "possibleIssue": "Chrome loopback/local-network permission may be missing for this HTTPS origin" if pending_or_failed else None,
+            }
+        )
+    return diagnostics
 
 
 def extension_enabled(settings):
@@ -397,6 +603,8 @@ def status(chrome, profile, number):
         "stylusInstalled": "stylus" in user_style_manager_keys,
         "userScriptManagers": user_script_managers,
         "userStyleManagers": user_style_managers,
+        "loopbackNetworkPermissions": loopback_network_permissions(profile),
+        "localViteUserscriptDiagnostics": local_vite_userscript_diagnostics(profile, number),
     }
 
 
@@ -411,6 +619,7 @@ def launch_browser(chrome, profile, number, url):
     if matches:
         lines = "\n".join(f"  pid {pid}: {command}" for pid, _, command in matches)
         raise RuntimeError(f"Chrome profile already in use: {profile}\n{lines}")
+    ensure_loopback_network_default(profile)
     if not port_free(HOST, number):
         raise RuntimeError(f"Port {HOST}:{number} is already in use. Set OPENCODE_BROWSER_MCP_PORT to another free port.")
     launch_chrome(chrome, profile, number, url)

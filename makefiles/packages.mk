@@ -2,12 +2,15 @@ PACKAGE_SCRIPT := $(DOTFILES_DIR)/makefiles/packages.sh
 PACKAGE := sh "$(PACKAGE_SCRIPT)"
 MISE_PACKAGE := mise exec -- $(PACKAGE)
 
-.PHONY: mise-sync clean-mise-installs mise-packages mise-install
+.PHONY: mise-sync mise-sync-only-software clean-mise-installs mise-packages mise-install
 .PHONY: node-packages rust-packages ruby-packages go-packages uv-packages
 .PHONY: clean-node-packages clean-rust-packages clean-ruby-packages clean-go-packages clean-uv-packages
 
 mise-sync:
 	$(PACKAGE) mise-sync
+
+mise-sync-only-software:
+	$(PACKAGE) mise-sync-only-software
 
 clean-mise-installs:
 	$(PACKAGE) clean-mise-installs

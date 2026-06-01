@@ -140,9 +140,9 @@ var RULES = [
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({
-    description: "Ctrl+Shift+V -> Command+Shift+V",
+    description: "Ctrl+Shift+V -> Command+V",
     from: trigger("v", { modifiers: CTRL_SHIFT, optional: ANY }),
-    to: press("v", { modifiers: LEFT_COMMAND_SHIFT }),
+    to: press("v", { modifiers: LEFT_COMMAND }),
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({

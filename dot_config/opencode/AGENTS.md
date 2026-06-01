@@ -17,9 +17,10 @@ Load these files only when relevant:
 - editing markdown files - ~/airules/markdown.md
 - Makefile or project make targets - ~/airules/makefiles.md
 - editing home directory files, dotfiles, chezmoi related, or shell/app config - ~/airules/chezmoi.md
-- browser automation, UI/runtime debugging, userscripts, userstyles, browser extensions - ~/airules/chrome-mcp.md
+- browser automation, UI/runtime debugging, userscript runtime verification, browser extensions - ~/airules/chrome-mcp.md
 - CSS, styling, themes, userstyles - ~/airules/css.md
-- userscript/userstyle projects - ~/airules/userjs-usercss.md
+- userscript/UserJS projects - ~/airules/userjs.md
+- userstyle/UserCSS projects - ~/airules/usercss.md
 - JavaScript project - ~/airules/javascript.md
 - Python project - ~/airules/python.md
 - Ruby project - ~/airules/ruby.md

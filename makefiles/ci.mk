@@ -1,6 +1,7 @@
 # Files that are JSONC (JSON with comments) — validated with --mode cjson.
 # All other *.json files are validated as strict JSON.
 JSONC_FILES := .vscode/settings.json
+JSON_EXCLUDES := -not -path "./browser-mcp-template/profile/*"
 JSONC_EXCLUDES := $(foreach f,$(JSONC_FILES),-not -path "./$(f)")
 SHELLCHECK := shellcheck -e SC2329
 
@@ -13,7 +14,7 @@ markdownlint:
 
 .PHONY: jsonlint
 jsonlint:
-	@/usr/bin/find . -name "*.json" -not -path "./.git/*" $(JSONC_EXCLUDES) -exec jsonlint --mode json --quiet {} +
+	@/usr/bin/find . -name "*.json" -not -path "./.git/*" $(JSON_EXCLUDES) $(JSONC_EXCLUDES) -exec jsonlint --mode json --quiet {} +
 	jsonlint --mode cjson --quiet $(JSONC_FILES)
 
 .PHONY: shellcheck

@@ -8,6 +8,7 @@ DOTFILES_DIR=${DOTFILES_DIR:-$(
 )}
 MISE_CONFIG=${MISE_CONFIG:-$DOTFILES_DIR/dot_config/mise/config.toml.tmpl}
 MISE_TARGET=${MISE_TARGET:-$HOME/.config/mise/config.toml}
+MISE_RUNTIME_TOOLS=${MISE_RUNTIME_TOOLS:-"node go python rust ruby"}
 
 is_windows() {
   case "$(uname -s 2>/dev/null || printf unknown)" in
@@ -53,6 +54,25 @@ wanted_packages() {
   awk 'NF && $1 !~ /^#/ { print $1 }' "$1"
 }
 
+is_mise_runtime_tool() {
+  for runtime_tool in $MISE_RUNTIME_TOOLS; do
+    [ "$1" = "$runtime_tool" ] && return 0
+  done
+  return 1
+}
+
+mise_tools_in_file() {
+  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*"([^"]+)"/' "$1"
+}
+
+mise_config_tools() {
+  mise_tools_in_file "$MISE_CONFIG"
+}
+
+mise_target_tools() {
+  mise_tools_in_file "$MISE_TARGET"
+}
+
 ruby_protected_gems() {
   ruby -rrubygems -e 'names = Gem::Specification.select(&:default_gem?).map(&:name); begin; require "bundled_gems"; names += Gem::BUNDLED_GEMS.const_defined?(:SINCE) ? Gem::BUNDLED_GEMS::SINCE.keys : []; names += Gem::BUNDLED_GEMS.const_defined?(:EXACT) ? Gem::BUNDLED_GEMS::EXACT.values : []; names += Gem::BUNDLED_GEMS.const_defined?(:PREFIXED) ? Gem::BUNDLED_GEMS::PREFIXED.keys : []; rescue LoadError; end; names += %w[debug rake minitest power_assert rbs repl_type_completor rexml rss rubygems-update test-unit typeprof]; puts names.uniq' | tr -d '\r'
 }
@@ -78,7 +98,14 @@ pin_mise_tools() (
   tools=$(mktemp)
   trap 'rm -f "$tools"' EXIT INT TERM
 
-  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*"([^"]+)"/' "$MISE_CONFIG" >"$tools"
+  mise_config_tools >"$tools"
+  pin_mise_tool_file "$tools"
+
+  chezmoi apply "$MISE_TARGET"
+)
+
+pin_mise_tool_file() {
+  tools=$1
   while read -r tool current; do
     latest_tool=$tool
     if [ "$tool" = ruby ]; then
@@ -90,9 +117,7 @@ pin_mise_tools() (
     version=$(mise latest "$latest_tool")
     MISE_TOOL="$tool" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*")[^"]+(")/$1$version$2/mg' "$MISE_CONFIG"
   done <"$tools"
-
-  chezmoi apply "$MISE_TARGET"
-)
+}
 
 mise_sync() {
   backup=$(mktemp)
@@ -120,6 +145,38 @@ mise_sync() {
   prune_mise_installs
 
   rm -f "$backup"
+  trap - EXIT INT TERM
+}
+
+mise_sync_only_software() {
+  backup=$(mktemp)
+  tools=$(mktemp)
+  cp "$MISE_CONFIG" "$backup"
+  restore_mise_config() {
+    status=$?
+    if [ "$status" -ne 0 ]; then
+      cp "$backup" "$MISE_CONFIG"
+      chezmoi apply "$MISE_TARGET" || true
+    fi
+    rm -f "$backup" "$tools"
+    exit "$status"
+  }
+  trap restore_mise_config EXIT INT TERM
+
+  chezmoi apply "$MISE_TARGET"
+  mise_target_tools | while read -r tool version; do
+    [ -n "$version" ] || continue
+    is_mise_runtime_tool "$tool" || printf '%s %s\n' "$tool" "$version"
+  done >"$tools"
+  pin_mise_tool_file "$tools"
+  chezmoi apply "$MISE_TARGET"
+  while read -r tool version; do
+    [ -n "$version" ] || continue
+    mise install --yes "$tool"
+  done <"$tools"
+  mise reshim
+
+  rm -f "$backup" "$tools"
   trap - EXIT INT TERM
 }
 
@@ -294,6 +351,7 @@ uv_packages() {
 
 case "${1:-}" in
 mise-sync) mise_sync ;;
+mise-sync-only-software) mise_sync_only_software ;;
 clean-mise-installs) prune_mise_installs ;;
 mise-packages) mise_packages ;;
 mise-install) mise_install ;;
