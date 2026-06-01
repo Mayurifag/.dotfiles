@@ -13,7 +13,8 @@ Before launching browser tools:
 
 Chrome rules:
 
-- OpenCode MCP server name is `opencode-browser-mcp`, and it starts `opencode-browser-mcp --server` only. Before using browser MCP tools, run `opencode-browser-mcp --status`; if `devtoolsAvailable` is false, run `opencode-browser-mcp --launch`.
+- OpenCode MCP server name is `opencode-browser-mcp`, and it starts `opencode-browser-mcp --server` only. Before using browser MCP tools, run `opencode-browser-mcp --status`;
+  if `devtoolsAvailable` is false, run `opencode-browser-mcp --launch`.
 - Use system-installed Google Chrome through `opencode-browser-mcp` and `chrome-devtools-mcp`; do not launch Chrome manually with a different profile or port.
 - Use the dedicated profile and `browserUrl` reported by `opencode-browser-mcp --status`. Never use a shared profile or the user's normal Chrome profile.
 - Before launch, ensure no Chrome process is already using the dedicated profile directory. If a stale AI Chrome process or window exists, run `opencode-browser-mcp --close` before opening a new one.
