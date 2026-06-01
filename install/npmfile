@@ -1,5 +1,14 @@
 @prantlf/jsonlint@latest
+@ansible/ansible-language-server@latest
 actions-up@latest
+bash-language-server@latest
+dockerfile-language-server-nodejs@latest
 eslint@latest
 npm@latest
+oxlint@latest
+pyright@latest
+svelte-language-server@latest
 typescript@latest
+typescript-language-server@latest
+vscode-langservers-extracted@latest
+yaml-language-server@latest

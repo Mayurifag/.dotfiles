@@ -36,7 +36,7 @@
       "type": "local",
       "command": ["browser-mcp", "--server"],
       "enabled": true,
-      "env": {
+      "environment": {
         "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",
         "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1"
       }
@@ -49,6 +49,42 @@
     }
   },
   "lsp": {
+    "json": {
+      "command": ["vscode-json-language-server", "--stdio"],
+      "extensions": [".json", ".jsonc"]
+    },
+    "yaml": {
+      "command": ["yaml-language-server", "--stdio"],
+      "extensions": [".yaml", ".yml"]
+    },
+    "ansible": {
+      "command": ["ansible-language-server", "--stdio"],
+      "extensions": [".yaml", ".yml"]
+    },
+    "typescript": {
+      "command": ["typescript-language-server", "--stdio"],
+      "extensions": [".js", ".jsx", ".ts", ".tsx"]
+    },
+    "oxlint": {
+      "command": ["oxlint", "--lsp"],
+      "extensions": [".js", ".jsx", ".ts", ".tsx", ".vue", ".astro", ".svelte"]
+    },
+    "css": {
+      "command": ["vscode-css-language-server", "--stdio"],
+      "extensions": [".css"]
+    },
+    "html": {
+      "command": ["vscode-html-language-server", "--stdio"],
+      "extensions": [".html"]
+    },
+    "dockerfile": {
+      "command": ["docker-langserver", "--stdio"],
+      "extensions": [".dockerfile", "Dockerfile"]
+    },
+    "lua-ls": {
+      "command": ["mise", "exec", "--", "lua-language-server"],
+      "extensions": [".lua"]
+    },
     "toml": {
       "command": ["taplo", "lsp", "stdio"],
       "extensions": [".toml"]
