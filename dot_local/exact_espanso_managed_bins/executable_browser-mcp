@@ -174,17 +174,25 @@ function processRows() {
   });
 }
 
-function profilePids(profile) {
-  return processRows().filter(([pid, command]) => pid !== process.pid && command.includes(profile) && command.includes("user-data-dir")).map(([pid]) => pid);
+function dedicatedBrowserPids(profile, number) {
+  const resolvedProfile = path.resolve(profile);
+  const portArg = number == null ? null : `--remote-debugging-port=${number}`;
+  return processRows().filter(([pid, command]) => {
+    if (pid === process.pid) return false;
+    const hasProfile = command.includes("user-data-dir") && (command.includes(profile) || command.includes(resolvedProfile));
+    const hasPort = portArg && command.includes(portArg);
+    return hasProfile || hasPort;
+  }).map(([pid]) => pid);
 }
 
-async function terminateProfile(profile) {
-  let pids = profilePids(profile);
+async function terminateProfile(profile, number) {
+  let pids = dedicatedBrowserPids(profile, number);
   if (!pids.length) return;
   if (process.platform === "win32") {
     for (const pid of pids) child.spawnSync("taskkill", ["/PID", String(pid), "/T"], { stdio: "ignore" });
     await sleep(800);
-    for (const pid of profilePids(profile)) child.spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { stdio: "ignore" });
+    for (const pid of dedicatedBrowserPids(profile, number)) child.spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { stdio: "ignore" });
+    await waitForBrowserExit(profile, number);
     return;
   }
   for (const pid of pids) {
@@ -193,12 +201,24 @@ async function terminateProfile(profile) {
     } catch {}
   }
   const deadline = Date.now() + 2000;
-  while (Date.now() < deadline && profilePids(profile).length) await sleep(100);
-  for (const pid of profilePids(profile)) {
+  while (Date.now() < deadline && (dedicatedBrowserPids(profile, number).length || (number != null && !(await portFree(number))))) await sleep(100);
+  for (const pid of dedicatedBrowserPids(profile, number)) {
     try {
       process.kill(pid, "SIGKILL");
     } catch {}
   }
+  await waitForBrowserExit(profile, number);
+}
+
+async function waitForBrowserExit(profile, number) {
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    if (!dedicatedBrowserPids(profile, number).length && (number == null || (await portFree(number)))) return;
+    await sleep(100);
+  }
+  const pids = dedicatedBrowserPids(profile, number);
+  const portBusy = number != null && !(await portFree(number));
+  throw new Error(`Chrome did not fully close${pids.length ? `; remaining pids: ${pids.join(",")}` : ""}${portBusy ? `; port still busy: ${HOST}:${number}` : ""}`);
 }
 
 function readJson(file) {
@@ -235,11 +255,11 @@ function ensureLoopback(profile) {
   writeJson(file, prefs);
 }
 
-async function resetProfile(profile) {
+async function resetProfile(profile, number) {
   const template = path.resolve(TEMPLATE_PROFILE);
   if (!fs.existsSync(template)) throw new Error(`browser profile template missing: ${template}. Regenerate it from ${path.join(path.dirname(template), "GENERATE.md")}`);
   if (path.resolve(profile) === template) throw new Error("refusing to launch with the template profile directly");
-  await terminateProfile(profile);
+  await terminateProfile(profile, number);
   fs.rmSync(profile, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(profile), { recursive: true });
   fs.cpSync(template, profile, { recursive: true, verbatimSymlinks: true });
@@ -556,13 +576,13 @@ async function status(chrome, profile, number) {
 }
 
 async function launchBrowser(chrome, profile, number, url) {
-  await terminateProfile(profile);
+  await terminateProfile(profile, number);
   if (!(await portFree(number))) throw new Error(`Port ${HOST}:${number} is already in use. Run browser-mcp --close or set OPENCODE_BROWSER_MCP_PORT to a free port.`);
   if (path.resolve(profile) === path.resolve(TEMPLATE_PROFILE) && process.env.OPENCODE_BROWSER_MCP_ALLOW_TEMPLATE_PROFILE === "1") {
     fs.mkdirSync(profile, { recursive: true });
     ensureLoopback(profile);
   } else {
-    await resetProfile(profile);
+    await resetProfile(profile, number);
   }
   const args = [
     `--remote-debugging-address=${HOST}`,
@@ -582,7 +602,7 @@ async function launchBrowser(chrome, profile, number, url) {
     if (await devtoolsAvailable(number)) return;
     await sleep(200);
   }
-  await terminateProfile(profile);
+  await terminateProfile(profile, number);
   throw new Error(`Chrome did not expose DevTools at ${browserUrl(number)} within ${START_TIMEOUT / 1000}s`);
 }
 
@@ -604,12 +624,37 @@ function stripFlags(args) {
   return out;
 }
 
+function runMcp(profile, number, args) {
+  return new Promise((resolve, reject) => {
+    const env = { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --no-warnings`.trim() };
+    const proc = child.spawn("npx", ["-y", "chrome-devtools-mcp@latest", `--browserUrl=${browserUrl(number)}`, "--no-usage-statistics", "--no-performance-crux", ...stripFlags(args)], { stdio: "inherit", env });
+    let exiting = false;
+    const finish = async (code, signal) => {
+      if (exiting) return;
+      exiting = true;
+      try {
+        await terminateProfile(profile, number);
+        resolve(code ?? (signal ? 128 : 0));
+      } catch (error) {
+        reject(error);
+      }
+    };
+    for (const signal of ["SIGINT", "SIGTERM"]) {
+      process.once(signal, () => {
+        proc.kill(signal);
+      });
+    }
+    proc.on("error", reject);
+    proc.on("exit", finish);
+  });
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const profile = profileDir();
   const number = port();
   if (args.includes("--close")) {
-    await terminateProfile(profile);
+    await terminateProfile(profile, number);
     return 0;
   }
 
@@ -626,9 +671,7 @@ async function main() {
   } else if (installUrl) console.log(JSON.stringify(await installTampermonkey(profile, number, installUrl), null, 2));
   else if (deleteName) console.log(JSON.stringify(await deleteTampermonkey(profile, number, deleteName), null, 2));
   else {
-    const env = { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --no-warnings`.trim() };
-    const result = child.spawnSync("npx", ["-y", "chrome-devtools-mcp@latest", `--browserUrl=${browserUrl(number)}`, "--no-usage-statistics", "--no-performance-crux", ...stripFlags(args)], { stdio: "inherit", env });
-    return result.status || 0;
+    return await runMcp(profile, number, args);
   }
   return 0;
 }

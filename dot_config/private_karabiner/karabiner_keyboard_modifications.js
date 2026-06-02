@@ -18,6 +18,16 @@ var REMOTE_APPLICATIONS = [
 ];
 
 var ITERM_APPLICATIONS = ["^com\\.googlecode\\.iterm2$"];
+var CHROMIUM_BROWSER_APPLICATIONS = [
+  "^com\\.google\\.Chrome$",
+  "^org\\.chromium\\.Chromium$",
+  "^com\\.brave\\.Browser$",
+  "^com\\.microsoft\\.edgemac$",
+  "^com\\.vivaldi\\.Vivaldi$",
+  "^company\\.thebrowser\\.Browser$",
+  "^com\\.operasoftware\\.Opera$",
+  "^net\\.imput\\.helium$",
+];
 
 var ANY = ["any"];
 var FN = ["fn"];
@@ -27,6 +37,7 @@ var COMMAND = ["command"];
 var COMMAND_OPTION = ["command", "option"];
 var LEFT_COMMAND = ["left_command"];
 var LEFT_COMMAND_SHIFT = ["left_command", "left_shift"];
+var LEFT_COMMAND_OPTION = ["left_command", "left_option"];
 
 var UNLESS_REMOTE_APPLICATIONS = [
   {
@@ -41,6 +52,13 @@ var UNLESS_REMOTE_OR_ITERM_APPLICATIONS = UNLESS_REMOTE_APPLICATIONS.concat([
     bundle_identifiers: ITERM_APPLICATIONS,
   },
 ]);
+
+var ONLY_CHROMIUM_BROWSER_APPLICATIONS = [
+  {
+    type: "frontmost_application_if",
+    bundle_identifiers: CHROMIUM_BROWSER_APPLICATIONS,
+  },
+];
 
 var EXTERNAL_KEYBOARD = [
   {
@@ -182,6 +200,45 @@ var RULES = [
     conditions: UNLESS_REMOTE_APPLICATIONS,
   }),
   rule({
+    description: "Chromium browsers: Ctrl+Shift+R -> Command+Shift+R",
+    from: trigger("r", { modifiers: CTRL_SHIFT, optional: ANY }),
+    to: press("r", { modifiers: LEFT_COMMAND_SHIFT }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+Shift+B -> Command+Shift+B",
+    from: trigger("b", { modifiers: CTRL_SHIFT, optional: ANY }),
+    to: press("b", { modifiers: LEFT_COMMAND_SHIFT }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+Shift+N -> Command+Shift+N",
+    from: trigger("n", { modifiers: CTRL_SHIFT, optional: ANY }),
+    to: press("n", { modifiers: LEFT_COMMAND_SHIFT }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+Shift+I -> Command+Option+I",
+    from: trigger("i", { modifiers: CTRL_SHIFT, optional: ANY }),
+    to: press("i", { modifiers: LEFT_COMMAND_OPTION }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+Shift+J -> Command+Option+J",
+    from: trigger("j", { modifiers: CTRL_SHIFT, optional: ANY }),
+    to: press("j", { modifiers: LEFT_COMMAND_OPTION }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+Shift+Delete -> Command+Shift+Delete",
+    from: trigger("delete_or_backspace", {
+      modifiers: CTRL_SHIFT,
+      optional: ANY,
+    }),
+    to: press("delete_or_backspace", { modifiers: LEFT_COMMAND_SHIFT }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
     description: "Ctrl+Shift+1 -> Command+Shift+1",
     from: trigger("1", { modifiers: CTRL_SHIFT, optional: ANY }),
     to: press("1", { modifiers: LEFT_COMMAND_SHIFT }),
@@ -288,6 +345,60 @@ var RULES = [
     from: trigger("t", { modifiers: CTRL, optional: ANY }),
     to: press("t", { modifiers: LEFT_COMMAND }),
     conditions: UNLESS_REMOTE_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+R -> Command+R",
+    from: trigger("r", { modifiers: CTRL, optional: ANY }),
+    to: press("r", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+L -> Command+L",
+    from: trigger("l", { modifiers: CTRL, optional: ANY }),
+    to: press("l", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+D -> Command+D",
+    from: trigger("d", { modifiers: CTRL, optional: ANY }),
+    to: press("d", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+N -> Command+N",
+    from: trigger("n", { modifiers: CTRL, optional: ANY }),
+    to: press("n", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+O -> Command+O",
+    from: trigger("o", { modifiers: CTRL, optional: ANY }),
+    to: press("o", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+P -> Command+P",
+    from: trigger("p", { modifiers: CTRL, optional: ANY }),
+    to: press("p", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+S -> Command+S",
+    from: trigger("s", { modifiers: CTRL, optional: ANY }),
+    to: press("s", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+H -> Command+Y",
+    from: trigger("h", { modifiers: CTRL, optional: ANY }),
+    to: press("y", { modifiers: LEFT_COMMAND }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
+  }),
+  rule({
+    description: "Chromium browsers: Ctrl+U -> Command+Option+U",
+    from: trigger("u", { modifiers: CTRL, optional: ANY }),
+    to: press("u", { modifiers: LEFT_COMMAND_OPTION }),
+    conditions: ONLY_CHROMIUM_BROWSER_APPLICATIONS,
   }),
   rule({
     description: "Ctrl+1 -> Command+1",
