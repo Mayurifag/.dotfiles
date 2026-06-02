@@ -57,9 +57,6 @@ webmtogif() {
   esac
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
-c() {
-  opencode "$@"
-}
 a() {
   opencode --agent fast --prompt "$*"
 }

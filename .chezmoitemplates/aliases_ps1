@@ -122,9 +122,6 @@ function webmtogif {
     $out = [IO.Path]::ChangeExtension($in, 'gif')
     ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
 }
-function c {
-    opencode @args
-}
 function a {
     opencode --agent fast --prompt ($args -join ' ')
 }
