@@ -1,0 +1,21 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+
+set -eu
+
+echo "[chezmoi] running macos/setup-quick-actions"
+
+source_dir="{{ .chezmoi.sourceDir }}/macos/quick-actions"
+services_dir="$HOME/Library/Services"
+
+mkdir -p "$services_dir"
+
+for workflow in "$source_dir"/*.workflow; do
+	[ -d "$workflow" ] || continue
+	dest="$services_dir/$(basename "$workflow")"
+	rm -rf "$dest"
+	ditto "$workflow" "$dest"
+done
+
+rm -rf "$services_dir/PNG to ICNS.workflow"
+{{- end }}
