@@ -2,9 +2,11 @@
 
 ## Versioning
 
-- If `.js` changes, bump the patch version inside it.
-- Bump once per branch, commit, or work item, not once per edit.
+- Before bumping, check `git diff` against `HEAD`.
+- If the userscript version is already changed in the current uncommitted diff, do not bump it again.
+- Otherwise, if `.js` changes, bump the patch version inside it exactly once for the current uncommitted diff.
 - If both `.js` and `.css` exist and `.css` changes, bump `.js` too because the CSS theme is included by the script.
+- Keep userscript versions only in userscript/style metadata; do not duplicate versioning in `package.json`, lockfiles, or other project files. Exception: Vite Monkey may use `package.json` version to generate `dist`.
 - Do not bump for unrelated changes like documentation-only edits.
 
 ## README
@@ -16,42 +18,22 @@
 
 ## Local Development
 
-Before debugging with browser MCP, run `browser-mcp --status`.
-Check the repo uses `.opencode/browser-mcp-profile/`.
-If `.opencode/browser-mcp-profile/` is missing, copy `~/.local/share/chezmoi/browser-mcp-template/profile/` into the repo.
-After copying the profile, exclude `.opencode/browser-mcp-profile/` from repo linters if needed.
-Do not overwrite an existing repo profile unless explicitly asked; it may contain login/session/script settings.
-Tampermonkey is the default template userscript manager and is acceptable unless the user explicitly requires another manager.
-
-- Install the local Vite userscript URL. Do not install dist/published userscripts unless explicitly requested.
-- Before debugging userscript logic, verify the local Vite userscript actually injected by checking network for `__vite-plugin-monkey.entry.js` / `/src/main.js` and one relevant real page effect.
+- Before debugging with browser MCP, run `browser-mcp --status`.
+- If `devtoolsAvailable` is false, run `browser-mcp --launch <target-url>`.
+- `browser-mcp --launch` always replaces `.opencode/browser-mcp-profile/` from the template, so do not keep manual Tampermonkey edits there.
+- Tampermonkey is the default userscript manager unless the user explicitly requires another manager.
+- Install the local Vite userscript URL with `browser-mcp --tampermonkey-install http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`.
+- After install, `browser-mcp` reloads already-open tabs matching the userscript `@match`/`@include` metadata.
+- Delete a script with `browser-mcp --tampermonkey-delete <exact script name>`.
+- Do not install dist/published userscripts unless explicitly requested.
+- Before debugging userscript logic, verify local userscript-manager injection once: expected script in `browser-mcp --status`, local entry in network, and one real page effect.
 - Do not diagnose GM/Tampermonkey API behavior by importing userscript source directly into page context; verify it through userscript-manager injection.
-- Do not conclude the userscript failed only because optional enhanced UI classes are absent; a feature may be disabled, delayed, or not relevant to the current flow.
-
-## Install Local User.js
-
-- Go to `http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`. Tampermonkey redirects to its install flow and opens a hidden/extension page like `chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/ask.html?aid=...`.
-- Browser MCP page tools do not show extension pages. Query DevTools targets directly: `curl -fsS http://127.0.0.1:10143/json/list`.
-- Find the target whose URL starts with `chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/ask.html`.
-- Connect to its `webSocketDebuggerUrl` with CDP and click the Install button via JS. Example:
-
-```js
-(() => {
-  const button = Array.from(document.querySelectorAll('input[type=button],button'))
-    .find((el) => (el.value || el.innerText).trim() === 'Install');
-  if (!button) return { clicked: false, text: document.body.innerText.slice(0, 500) };
-  button.click();
-  return { clicked: true };
-})()
-```
+- Do not conclude the userscript failed only because optional enhanced UI classes are absent; a feature may be disabled, delayed, or irrelevant to the current flow.
+- Prefer event, DOM, network, or app-state checks over sleeps. Use short waits only when a specific async delay was observed.
+- Verify the changed user-visible behavior; do not checklist unrelated setup details after injection is proven.
 
 ## Verifying
 
-- `browser-mcp --status` shows Tampermonkey installed.
-- `browser-mcp --status` uses the repo `.opencode/browser-mcp-profile/` path.
-- `browser-mcp --status` shows `loopbackNetworkPermissions.default.label` as `allow`.
-- Only the local dev userscript is installed.
-- Network shows `http://127.0.0.1:<port>/__vite-plugin-monkey.entry.js` as `200`.
-- Network shows `/src/main.js` from local Vite.
-- Console shows Vite connected.
-- Page effects prove real userscript injection.
+- Default checks: expected local script installed, local entry request loaded, and page effect proves injection.
+- Failure-only checks: Tampermonkey install state, repo profile path, loopback permission, script list shape, duplicate scripts, Vite console status.
+- Optional signals like Vite console status are diagnostic only; do not block on them when network load and page effect pass.

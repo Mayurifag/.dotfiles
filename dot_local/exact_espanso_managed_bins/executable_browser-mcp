@@ -1,673 +1,639 @@
-#!/usr/bin/env python3
-import json
-import os
-import platform
-import re
-import shutil
-import signal
-import socket
-import ssl
-import subprocess
-import sys
-import time
-import urllib.error
-import urllib.parse
-import urllib.request
-import zlib
-import base64
-import hashlib
-import secrets
-from pathlib import Path
+#!/usr/bin/env node
+const child = require("child_process");
+const fs = require("fs");
+const http = require("http");
+const https = require("https");
+const os = require("os");
+const path = require("path");
+const zlib = require("zlib");
 
+const HOST = "127.0.0.1";
+const BASE_PORT = 9223;
+const PORT_SPAN = 1000;
+const START_TIMEOUT = Number(process.env.OPENCODE_BROWSER_MCP_START_TIMEOUT || 3) * 1000;
+const TEMPLATE_PROFILE = expandHome(process.env.OPENCODE_BROWSER_MCP_TEMPLATE_PROFILE || "~/.local/share/chezmoi/browser-mcp-template/profile");
+const TM_IDS = ["dhdgffkkebhmkfjojejmpbldmpobfkfo", "gcalenpjmijncebpfijmoaglllgpjagf"];
+const STYLUS_IDS = ["clngdbkpkpeebahjckkjfobafhncgmne"];
+const SETTING_LABELS = { 1: "allow", 2: "block", 3: "ask" };
+const USER_BLOCK_RE = /\/\/\s*==User(?:Script|Style)==(?<body>[\s\S]*?)\/\/\s*==\/User(?:Script|Style)==/g;
+const NAME_RE = /@name(?::[a-zA-Z_-]+)?[ \t]+([^\r\n<\\]{1,200})/;
+const VERSION_RE = /@version[ \t]+([^\r\n<\\]{1,100})/;
+const LOCAL_VITE_RE = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/.*(__vite-plugin-monkey|\/src\/main\.js|\/@vite\/client|vite)/;
 
-HOST = "127.0.0.1"
-BASE_PORT = 9223
-PORT_SPAN = 1000
-START_TIMEOUT = float(os.environ.get("OPENCODE_BROWSER_MCP_START_TIMEOUT", "3"))
-USER_SCRIPT_MANAGERS = {
-    "tampermonkey": {
-        "name": "Tampermonkey",
-        "ids": ("dhdgffkkebhmkfjojejmpbldmpobfkfo", "gcalenpjmijncebpfijmoaglllgpjagf"),
-    },
-    "violentmonkey": {
-        "name": "Violentmonkey",
-        "ids": ("jinjaccalgkegednnccohejagnlnfdag",),
-    },
+function expandHome(value) {
+  return value.startsWith("~/") ? path.join(os.homedir(), value.slice(2)) : value;
 }
-USER_STYLE_MANAGERS = {
-    "stylus": {
-        "name": "Stylus",
-        "ids": ("clngdbkpkpeebahjckkjfobafhncgmne",),
-    },
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
-USER_SCRIPT_BLOCK_RE = re.compile(rb"//\s*==User(?:Script|Style)==(?P<body>.*?)//\s*==/User(?:Script|Style)==", re.DOTALL)
-USER_SCRIPT_NAME_RE = re.compile(rb"@name(?::[a-zA-Z_-]+)?[ \t]+([^\r\n<]{1,200})")
-USER_SCRIPT_VERSION_RE = re.compile(rb"@version[ \t]+([^\r\n<]{1,100})")
-LOCAL_VITE_USERSCRIPT_RE = re.compile(r"^http://(127\.0\.0\.1|localhost)(:\d+)?/.*(__vite-plugin-monkey|/src/main\.js|/@vite/client|vite)")
-SETTING_LABELS = {1: "allow", 2: "block", 3: "ask"}
 
+function repoRoot() {
+  try {
+    return child.execFileSync("git", ["rev-parse", "--show-toplevel"], { cwd: process.cwd(), encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim() || process.cwd();
+  } catch {
+    return process.cwd();
+  }
+}
 
-def eprint(*args):
-    print(*args, file=sys.stderr)
+function profileDir() {
+  return path.resolve(expandHome(process.env.OPENCODE_BROWSER_PROFILE_DIR || path.join(repoRoot(), ".opencode", "browser-mcp-profile")));
+}
 
+function port() {
+  return process.env.OPENCODE_BROWSER_MCP_PORT ? Number(process.env.OPENCODE_BROWSER_MCP_PORT) : BASE_PORT + (zlib.crc32(Buffer.from(repoRoot())) % PORT_SPAN);
+}
 
-def repo_root():
-    result = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, cwd=Path.cwd())
-    if result.returncode == 0 and result.stdout.strip():
-        return Path(result.stdout.strip())
-    return Path.cwd()
+function browserUrl(number) {
+  return `http://${HOST}:${number}`;
+}
 
+function chromePath() {
+  if (process.env.OPENCODE_CHROME_PATH) {
+    const candidate = expandHome(process.env.OPENCODE_CHROME_PATH);
+    if (fs.existsSync(candidate)) return candidate;
+    throw new Error(`OPENCODE_CHROME_PATH does not exist: ${candidate}`);
+  }
 
-def profile_dir():
-    override = os.environ.get("OPENCODE_BROWSER_PROFILE_DIR")
-    if override:
-        return Path(override).expanduser().resolve()
-    return (repo_root() / ".opencode" / "browser-mcp-profile").resolve()
-
-
-def port():
-    override = os.environ.get("OPENCODE_BROWSER_MCP_PORT")
-    if override:
-        return int(override)
-    return BASE_PORT + zlib.crc32(str(repo_root()).encode("utf-8")) % PORT_SPAN
-
-
-def devtools_url(host, number):
-    return f"http://{host}:{number}"
-
-
-def chrome_path():
-    override = os.environ.get("OPENCODE_CHROME_PATH")
-    if override:
-        path = Path(override).expanduser()
-        if path.exists():
-            return str(path)
-        raise RuntimeError(f"OPENCODE_CHROME_PATH does not exist: {path}")
-
-    system = platform.system()
-    candidates = []
-    if system == "Darwin":
-        candidates = [
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            str(Path.home() / "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
-        ]
-    elif system == "Windows":
-        for root in (os.environ.get("PROGRAMFILES"), os.environ.get("PROGRAMFILES(X86)"), os.environ.get("LOCALAPPDATA")):
-            if root:
-                candidates.append(str(Path(root) / "Google" / "Chrome" / "Application" / "chrome.exe"))
-    else:
-        for name in ("google-chrome", "google-chrome-stable"):
-            found = shutil.which(name)
-            if found:
-                candidates.append(found)
-
-    for candidate in candidates:
-        if Path(candidate).exists():
-            return candidate
-    raise RuntimeError("Google Chrome not found. Set OPENCODE_CHROME_PATH to the system Chrome executable.")
-
-
-def port_free(host, number):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        try:
-            sock.bind((host, number))
-        except OSError:
-            return False
-    return True
-
-
-def process_rows():
-    system = platform.system()
-    if system == "Windows":
-        command = [
-            "pwsh.exe",
-            "-NoProfile",
-            "-Command",
-            "Get-CimInstance Win32_Process | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress",
-        ]
-        result = subprocess.run(command, capture_output=True, text=True)
-        if result.returncode != 0 or not result.stdout.strip():
-            return []
-        data = json.loads(result.stdout)
-        if isinstance(data, dict):
-            data = [data]
-        return [(int(p.get("ProcessId") or 0), p.get("Name") or "", p.get("CommandLine") or "") for p in data]
-
-    result = subprocess.run(["ps", "-axo", "pid=,comm=,args="], capture_output=True, text=True)
-    rows = []
-    for line in result.stdout.splitlines():
-        parts = line.strip().split(None, 2)
-        if len(parts) == 3 and parts[0].isdigit():
-            rows.append((int(parts[0]), parts[1], parts[2]))
-    return rows
-
-
-def profile_processes(profile):
-    needle = str(profile)
-    matches = []
-    for pid, name, command in process_rows():
-        if pid == os.getpid():
-            continue
-        if needle in command and "user-data-dir" in command:
-            matches.append((pid, name, command))
-    return matches
-
-
-def close_devtools_targets(number):
-    targets = devtools_targets(number)
-    for target in targets:
-        if target.get("type") != "page" or not target.get("id"):
-            continue
-        try:
-            urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/close/{urllib.parse.quote(target['id'])}", timeout=1).close()
-        except (urllib.error.URLError, TimeoutError):
-            pass
-
-
-def devtools_targets(number):
-    try:
-        with urllib.request.urlopen(f"{devtools_url(HOST, number)}/json/list", timeout=1) as response:
-            data = json.loads(response.read().decode("utf-8"))
-            return data if isinstance(data, list) else []
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
-        return []
-
-
-def terminate_profile_processes(profile, number=None):
-    matches = profile_processes(profile)
-    if not matches:
-        return
-    if number is not None and platform.system() != "Darwin":
-        close_devtools_targets(number)
-        time.sleep(0.2)
-        matches = profile_processes(profile)
-        if not matches:
-            return
-    if platform.system() == "Windows":
-        for pid, _, _ in matches:
-            subprocess.run(["taskkill", "/PID", str(pid), "/T"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(1)
-        for pid, _, _ in profile_processes(profile):
-            subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return
-    for pid, _, _ in matches:
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-    deadline = time.time() + 2
-    while time.time() < deadline and profile_processes(profile):
-        time.sleep(0.1)
-    for pid, _, _ in profile_processes(profile):
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-
-
-def devtools_available(host, number):
-    url = f"{devtools_url(host, number)}/json/version"
-    try:
-        with urllib.request.urlopen(url, timeout=1) as response:
-            json.loads(response.read().decode("utf-8"))
-            return True
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
-        return False
-
-
-def wait_for_chrome(host, number):
-    url = f"{devtools_url(host, number)}/json/version"
-    deadline = time.time() + START_TIMEOUT
-    last_error = None
-    while time.time() < deadline:
-        try:
-            with urllib.request.urlopen(url, timeout=1) as response:
-                json.loads(response.read().decode("utf-8"))
-                return
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-            last_error = exc
-            time.sleep(0.2)
-    raise RuntimeError(f"Chrome did not expose DevTools at {url} within {START_TIMEOUT:g}s: {last_error}")
-
-
-def popen_detached(command):
-    kwargs = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
-    if platform.system() == "Windows":
-        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
-    else:
-        kwargs["start_new_session"] = True
-    return subprocess.Popen(command, **kwargs)
-
-
-def launch_chrome(chrome, profile, number, url):
-    args = [
-        f"--remote-debugging-address={HOST}",
-        f"--remote-debugging-port={number}",
-        f"--user-data-dir={profile}",
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--disable-session-crashed-bubble",
-        "--window-size=1280,900",
-        "--new-window",
-        url,
-    ]
-    if platform.system() == "Darwin" and not os.environ.get("OPENCODE_CHROME_PATH"):
-        return popen_detached(["open", "-g", "-n", "-a", "Google Chrome", "--args", *args])
-    return popen_detached([chrome, *args])
-
-
-def mcp_command(number, passthrough):
-    return [
-        "npx",
-        "-y",
-        "chrome-devtools-mcp@latest",
-        f"--browserUrl={devtools_url(HOST, number)}",
-        "--no-usage-statistics",
-        "--no-performance-crux",
-        *passthrough,
-    ]
-
-
-def mcp_env():
-    env = os.environ.copy()
-    options = env.get("NODE_OPTIONS", "")
-    if "--no-warnings" not in options:
-        env["NODE_OPTIONS"] = f"{options} --no-warnings".strip()
-    return env
-
-
-def read_json(path):
-    try:
-        with path.open("r", encoding="utf-8") as handle:
-            return json.load(handle)
-    except (OSError, json.JSONDecodeError):
-        return None
-
-
-def write_json(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_name(f"{path.name}.tmp")
-    with temp.open("w", encoding="utf-8") as handle:
-        json.dump(data, handle, separators=(",", ":"))
-    temp.replace(path)
-
-
-def preferences_path(profile):
-    return profile / "Default" / "Preferences"
-
-
-def preferences(profile):
-    data = read_json(preferences_path(profile))
-    return data if isinstance(data, dict) else {}
-
-
-def loopback_network_exceptions(profile):
-    exceptions = (
-        preferences(profile)
-        .get("profile", {})
-        .get("content_settings", {})
-        .get("exceptions", {})
-        .get("loopback_network", {})
-    )
-    return exceptions if isinstance(exceptions, dict) else {}
-
-
-def setting_label(setting):
-    return SETTING_LABELS.get(setting, str(setting))
-
-
-def loopback_network_permissions(profile):
-    data = preferences(profile)
-    profile_data = data.get("profile", {}) if isinstance(data.get("profile"), dict) else {}
-    defaults = profile_data.get("default_content_setting_values", {}) if isinstance(profile_data.get("default_content_setting_values"), dict) else {}
-    default = defaults.get("loopback_network")
-    return {
-        "default": {"setting": default, "label": setting_label(default)} if default is not None else None,
-        "exceptions": [
-            {"pattern": pattern, "setting": value.get("setting"), "label": setting_label(value.get("setting"))}
-            for pattern, value in sorted(loopback_network_exceptions(profile).items())
-            if isinstance(value, dict)
-        ],
+  const candidates = [];
+  if (process.platform === "darwin") {
+    candidates.push("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
+    candidates.push(path.join(os.homedir(), "Applications/Google Chrome.app/Contents/MacOS/Google Chrome"));
+  } else if (process.platform === "win32") {
+    for (const root of [process.env.PROGRAMFILES, process.env["PROGRAMFILES(X86)"], process.env.LOCALAPPDATA]) {
+      if (root) candidates.push(path.join(root, "Google", "Chrome", "Application", "chrome.exe"));
     }
-
-
-def ensure_loopback_network_default(profile):
-    path = preferences_path(profile)
-    data = read_json(path)
-    if data is None:
-        if path.exists():
-            raise RuntimeError(f"Chrome Preferences is not valid JSON: {path}")
-        data = {}
-    profile_data = data.setdefault("profile", {})
-    defaults = profile_data.setdefault("default_content_setting_values", {})
-    if defaults.get("loopback_network") == 1:
-        return
-    defaults["loopback_network"] = 1
-    write_json(path, data)
-
-
-def extension_manifest(profile, extension_id):
-    root = profile / "Default" / "Extensions" / extension_id
-    if not root.is_dir():
-        return None
-    manifests = sorted(root.glob("*/manifest.json"), key=lambda path: path.parent.name, reverse=True)
-    if not manifests:
-        return None
-    data = read_json(manifests[0])
-    if not isinstance(data, dict):
-        return None
-    return data
-
-
-def extension_settings(profile, extension_id):
-    return preferences(profile).get("extensions", {}).get("settings", {}).get(extension_id, {}) or {}
-
-
-def websocket_frame(payload):
-    data = payload.encode("utf-8")
-    header = bytearray([0x81])
-    length = len(data)
-    if length < 126:
-        header.append(0x80 | length)
-    elif length < 65536:
-        header.extend([0x80 | 126, (length >> 8) & 0xFF, length & 0xFF])
-    else:
-        header.append(0x80 | 127)
-        header.extend(length.to_bytes(8, "big"))
-    mask = secrets.token_bytes(4)
-    return bytes(header) + mask + bytes(byte ^ mask[index % 4] for index, byte in enumerate(data))
-
-
-def recv_exact(sock, count):
-    data = b""
-    while len(data) < count:
-        chunk = sock.recv(count - len(data))
-        if not chunk:
-            raise RuntimeError("WebSocket closed")
-        data += chunk
-    return data
-
-
-def websocket_recv(sock):
-    first, second = recv_exact(sock, 2)
-    opcode = first & 0x0F
-    length = second & 0x7F
-    if length == 126:
-        length = int.from_bytes(recv_exact(sock, 2), "big")
-    elif length == 127:
-        length = int.from_bytes(recv_exact(sock, 8), "big")
-    if second & 0x80:
-        mask = recv_exact(sock, 4)
-        payload = bytes(byte ^ mask[index % 4] for index, byte in enumerate(recv_exact(sock, length)))
-    else:
-        payload = recv_exact(sock, length)
-    if opcode == 8:
-        raise RuntimeError("WebSocket closed")
-    return payload.decode("utf-8", "ignore")
-
-
-def cdp_call(ws_url, method, params=None):
-    parsed = urllib.parse.urlparse(ws_url)
-    host = parsed.hostname or HOST
-    number = parsed.port or (443 if parsed.scheme == "wss" else 80)
-    path = parsed.path + (f"?{parsed.query}" if parsed.query else "")
-    raw_sock = socket.create_connection((host, number), timeout=1)
-    sock = ssl.create_default_context().wrap_socket(raw_sock, server_hostname=host) if parsed.scheme == "wss" else raw_sock
-    with sock:
-        key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
-        request = (
-            f"GET {path} HTTP/1.1\r\n"
-            f"Host: {host}:{number}\r\n"
-            "Upgrade: websocket\r\n"
-            "Connection: Upgrade\r\n"
-            f"Sec-WebSocket-Key: {key}\r\n"
-            "Sec-WebSocket-Version: 13\r\n\r\n"
-        )
-        sock.sendall(request.encode("ascii"))
-        response = b""
-        while b"\r\n\r\n" not in response:
-            response += sock.recv(4096)
-        accept = base64.b64encode(hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode("ascii")).digest()).decode("ascii")
-        if b" 101 " not in response.split(b"\r\n", 1)[0] or accept.encode("ascii") not in response:
-            raise RuntimeError("DevTools WebSocket handshake failed")
-        sock.sendall(websocket_frame(json.dumps({"id": 1, "method": method, "params": params or {}})))
-        deadline = time.time() + 1
-        while time.time() < deadline:
-            message = json.loads(websocket_recv(sock))
-            if message.get("id") == 1:
-                return message
-    return {}
-
-
-def evaluate_target(target, expression):
-    try:
-        response = cdp_call(target["webSocketDebuggerUrl"], "Runtime.evaluate", {"expression": expression, "returnByValue": True})
-    except (KeyError, OSError, RuntimeError, TimeoutError, json.JSONDecodeError):
-        return None
-    return response.get("result", {}).get("result", {}).get("value")
-
-
-def local_vite_userscript_diagnostics(profile, number):
-    if not devtools_available(HOST, number):
-        return []
-    expression = r"""
-(() => {
-  const localVite = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?\/.*(__vite-plugin-monkey|\/src\/main\.js|\/@vite\/client|vite)/;
-  const resources = performance.getEntriesByType('resource')
-    .filter((entry) => localVite.test(entry.name))
-    .map((entry) => ({
-      url: entry.name,
-      initiatorType: entry.initiatorType,
-      duration: entry.duration,
-      transferSize: entry.transferSize,
-      decodedBodySize: entry.decodedBodySize,
-      responseStatus: entry.responseStatus || 0,
-    }));
-  const domUrls = Array.from(document.querySelectorAll('[src],[href]'))
-    .map((element) => element.src || element.href)
-    .filter((url) => localVite.test(url));
-  return { resources, domUrls };
-})()
-"""
-    diagnostics = []
-    for target in devtools_targets(number):
-        url = target.get("url") or ""
-        if target.get("type") != "page" or not url.startswith("https://"):
-            continue
-        data = evaluate_target(target, expression)
-        if not isinstance(data, dict):
-            continue
-        resources = data.get("resources") if isinstance(data.get("resources"), list) else []
-        dom_urls = data.get("domUrls") if isinstance(data.get("domUrls"), list) else []
-        local_urls = sorted({entry.get("url") for entry in resources if entry.get("url")} | set(dom_urls))
-        if not local_urls:
-            continue
-        resource_urls = {entry.get("url") for entry in resources if entry.get("url")}
-        pending_or_failed = [entry for entry in resources if entry.get("responseStatus") not in (200, 304)]
-        pending_or_failed.extend({"url": candidate, "initiatorType": "dom", "responseStatus": 0} for candidate in dom_urls if candidate not in resource_urls)
-        diagnostics.append(
-            {
-                "pageUrl": url,
-                "localViteUserscriptUrls": [candidate for candidate in local_urls if LOCAL_VITE_USERSCRIPT_RE.search(candidate)],
-                "pendingOrFailedLocalViteUserscriptRequests": pending_or_failed,
-                "possibleIssue": "Chrome loopback/local-network permission may be missing for this HTTPS origin" if pending_or_failed else None,
-            }
-        )
-    return diagnostics
-
-
-def extension_enabled(settings):
-    state = settings.get("state")
-    return state == 1 if state is not None else None
-
-
-def user_script_storage_dirs(profile, extension_id):
-    default = profile / "Default"
-    candidates = [
-        default / "Local Extension Settings" / extension_id,
-        default / "IndexedDB" / f"chrome-extension_{extension_id}_0.indexeddb.leveldb",
-        default / "Extension State",
-    ]
-    return [path for path in candidates if path.exists()]
-
-
-def user_script_metadata(profile, extension_id):
-    scripts = {}
-    for storage_dir in user_script_storage_dirs(profile, extension_id):
-        files = [storage_dir] if storage_dir.is_file() else storage_dir.rglob("*")
-        for path in files:
-            if not path.is_file():
-                continue
-            try:
-                if path.stat().st_size > 20 * 1024 * 1024:
-                    continue
-                data = path.read_bytes()
-            except OSError:
-                continue
-            blocks = [match.group("body") for match in USER_SCRIPT_BLOCK_RE.finditer(data)] or [data]
-            for block in blocks:
-                name_match = USER_SCRIPT_NAME_RE.search(block)
-                if not name_match:
-                    continue
-                name = name_match.group(1).decode("utf-8", "ignore").strip().strip('"')
-                if name and not name.startswith("__MSG_"):
-                    version_match = USER_SCRIPT_VERSION_RE.search(block)
-                    version = version_match.group(1).decode("utf-8", "ignore").strip().strip('"') if version_match else None
-                    scripts[name] = {"name": name, "version": version}
-    return sorted(scripts.values(), key=lambda script: script["name"].casefold())
-
-
-def user_script_manager_status(profile):
-    managers = []
-    for key, manager in USER_SCRIPT_MANAGERS.items():
-        for extension_id in manager["ids"]:
-            manifest = extension_manifest(profile, extension_id)
-            settings = extension_settings(profile, extension_id)
-            installed = bool(manifest or settings)
-            if not installed:
-                continue
-            managers.append(
-                {
-                    "key": key,
-                    "name": manager["name"],
-                    "extensionId": extension_id,
-                    "installed": installed,
-                    "enabled": extension_enabled(settings),
-                    "version": (manifest or settings.get("manifest") or {}).get("version"),
-                    "scripts": user_script_metadata(profile, extension_id),
-                }
-            )
-    return managers
-
-
-def user_style_manager_status(profile):
-    managers = []
-    for key, manager in USER_STYLE_MANAGERS.items():
-        for extension_id in manager["ids"]:
-            manifest = extension_manifest(profile, extension_id)
-            settings = extension_settings(profile, extension_id)
-            installed = bool(manifest or settings)
-            if not installed:
-                continue
-            managers.append(
-                {
-                    "key": key,
-                    "name": manager["name"],
-                    "extensionId": extension_id,
-                    "installed": installed,
-                    "enabled": extension_enabled(settings),
-                    "version": (manifest or settings.get("manifest") or {}).get("version"),
-                    "styles": user_script_metadata(profile, extension_id),
-                }
-            )
-    return managers
-
-
-def status(chrome, profile, number):
-    matches = profile_processes(profile)
-    user_script_managers = user_script_manager_status(profile)
-    user_style_managers = user_style_manager_status(profile)
-    user_script_manager_keys = {manager["key"] for manager in user_script_managers}
-    user_style_manager_keys = {manager["key"] for manager in user_style_managers}
-    return {
-        "chrome": chrome,
-        "profile": str(profile),
-        "port": number,
-        "browserUrl": devtools_url(HOST, number),
-        "profileInUse": bool(matches),
-        "profilePids": [pid for pid, _, _ in matches],
-        "devtoolsAvailable": devtools_available(HOST, number),
-        "portFree": port_free(HOST, number),
-        "tampermonkeyInstalled": "tampermonkey" in user_script_manager_keys,
-        "stylusInstalled": "stylus" in user_style_manager_keys,
-        "userScriptManagers": user_script_managers,
-        "userStyleManagers": user_style_managers,
-        "loopbackNetworkPermissions": loopback_network_permissions(profile),
-        "localViteUserscriptDiagnostics": local_vite_userscript_diagnostics(profile, number),
+  } else {
+    for (const name of ["google-chrome", "google-chrome-stable"]) {
+      const result = child.spawnSync("sh", ["-c", `command -v ${name}`], { encoding: "utf8" });
+      if (result.status === 0 && result.stdout.trim()) candidates.push(result.stdout.trim());
     }
+  }
 
+  const found = candidates.find((candidate) => fs.existsSync(candidate));
+  if (found) return found;
+  throw new Error("Google Chrome not found. Set OPENCODE_CHROME_PATH to the system Chrome executable.");
+}
 
-def launch_browser(chrome, profile, number, url):
-    profile.mkdir(parents=True, exist_ok=True)
-    matches = profile_processes(profile)
-    if matches:
-        if devtools_available(HOST, number):
-            return
-        terminate_profile_processes(profile, number)
-        matches = profile_processes(profile)
-    if matches:
-        lines = "\n".join(f"  pid {pid}: {command}" for pid, _, command in matches)
-        raise RuntimeError(f"Chrome profile already in use: {profile}\n{lines}")
-    ensure_loopback_network_default(profile)
-    if not port_free(HOST, number):
-        raise RuntimeError(f"Port {HOST}:{number} is already in use. Set OPENCODE_BROWSER_MCP_PORT to another free port.")
-    launch_chrome(chrome, profile, number, url)
-    try:
-        wait_for_chrome(HOST, number)
-    except RuntimeError:
-        terminate_profile_processes(profile, number)
-        raise
+function getJson(url, timeout = 1000) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(url, { timeout }, (res) => {
+      let body = "";
+      res.setEncoding("utf8");
+      res.on("data", (chunk) => (body += chunk));
+      res.on("end", () => {
+        try {
+          resolve(JSON.parse(body));
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    req.on("timeout", () => req.destroy(new Error(`${url} timed out`)));
+    req.on("error", reject);
+  });
+}
 
+function getText(url, timeout = 5000) {
+  return new Promise((resolve, reject) => {
+    const client = url.startsWith("https:") ? https : http;
+    const req = client.get(url, { timeout }, (res) => {
+      if (res.statusCode < 200 || res.statusCode >= 400) {
+        res.resume();
+        reject(new Error(`${url} returned HTTP ${res.statusCode}`));
+        return;
+      }
+      let body = "";
+      res.setEncoding("utf8");
+      res.on("data", (chunk) => (body += chunk));
+      res.on("end", () => resolve(body));
+    });
+    req.on("timeout", () => req.destroy(new Error(`${url} timed out`)));
+    req.on("error", reject);
+  });
+}
 
-def launch_url(passthrough):
-    if not passthrough or passthrough[0].startswith("-"):
-        raise RuntimeError("--launch requires a URL, for example: browser-mcp --launch https://example.com")
-    return passthrough[0]
+function userscriptUrlRules(text) {
+  const match = text.match(USER_BLOCK_RE)?.[0] || "";
+  const values = (key) => [...match.matchAll(new RegExp(`^//\\s*@${key}\\s+(.+)$`, "gim"))].map((item) => item[1].trim()).filter(Boolean);
+  return { include: [...values("match"), ...values("include")], exclude: [...values("exclude"), ...values("exclude-match")] };
+}
 
+function globToRegex(pattern) {
+  return new RegExp(`^${pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*")}$`);
+}
 
-def main():
-    passthrough = sys.argv[1:]
-    status_only = "--status" in passthrough or "--check" in passthrough
-    launch_only = "--launch" in passthrough
-    close_only = "--close" in passthrough
-    passthrough = [arg for arg in passthrough if arg not in ("--server", "--status", "--check", "--launch", "--close")]
+function pageMatchesRules(url, rules) {
+  if (!url || !/^https?:/.test(url) || !rules.include.length) return false;
+  if (rules.exclude.some((pattern) => globToRegex(pattern).test(url))) return false;
+  return rules.include.some((pattern) => pattern === "<all_urls>" || globToRegex(pattern).test(url));
+}
 
-    profile = profile_dir()
-    number = port()
+async function devtoolsAvailable(number) {
+  try {
+    await getJson(`${browserUrl(number)}/json/version`);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-    if close_only:
-        terminate_profile_processes(profile, number)
-        return 0
+async function targets(number) {
+  try {
+    const data = await getJson(`${browserUrl(number)}/json/list`);
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
 
-    if status_only or launch_only:
-        chrome = chrome_path()
+function portFree(number) {
+  const net = require("net");
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once("error", () => resolve(false));
+    server.once("listening", () => server.close(() => resolve(true)));
+    server.listen(number, HOST);
+  });
+}
 
-    if status_only:
-        print(json.dumps(status(chrome, profile, number), indent=2))
-        return 0
+function processRows() {
+  if (process.platform === "win32") {
+    try {
+      const out = child.execFileSync("pwsh.exe", ["-NoProfile", "-Command", "Get-CimInstance Win32_Process | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress"], { encoding: "utf8" });
+      const data = JSON.parse(out || "[]");
+      return (Array.isArray(data) ? data : [data]).map((item) => [Number(item.ProcessId || 0), item.CommandLine || ""]);
+    } catch {
+      return [];
+    }
+  }
+  const out = child.execFileSync("ps", ["-axo", "pid=,args="], { encoding: "utf8" });
+  return out.split("\n").flatMap((line) => {
+    const match = line.trim().match(/^(\d+)\s+(.+)$/);
+    return match ? [[Number(match[1]), match[2]]] : [];
+  });
+}
 
-    if launch_only:
-        launch_browser(chrome, profile, number, launch_url(passthrough))
-        print(json.dumps(status(chrome, profile, number), indent=2))
-        return 0
+function profilePids(profile) {
+  return processRows().filter(([pid, command]) => pid !== process.pid && command.includes(profile) && command.includes("user-data-dir")).map(([pid]) => pid);
+}
 
-    return subprocess.call(mcp_command(number, passthrough), env=mcp_env())
+async function terminateProfile(profile) {
+  let pids = profilePids(profile);
+  if (!pids.length) return;
+  if (process.platform === "win32") {
+    for (const pid of pids) child.spawnSync("taskkill", ["/PID", String(pid), "/T"], { stdio: "ignore" });
+    await sleep(800);
+    for (const pid of profilePids(profile)) child.spawnSync("taskkill", ["/PID", String(pid), "/T", "/F"], { stdio: "ignore" });
+    return;
+  }
+  for (const pid of pids) {
+    try {
+      process.kill(pid, "SIGTERM");
+    } catch {}
+  }
+  const deadline = Date.now() + 2000;
+  while (Date.now() < deadline && profilePids(profile).length) await sleep(100);
+  for (const pid of profilePids(profile)) {
+    try {
+      process.kill(pid, "SIGKILL");
+    } catch {}
+  }
+}
 
+function readJson(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    return null;
+  }
+}
 
-if __name__ == "__main__":
-    try:
-        raise SystemExit(main())
-    except RuntimeError as exc:
-        eprint(f"browser-mcp: {exc}")
-        raise SystemExit(1)
+function writeJson(file, data) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const tmp = `${file}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(data));
+  fs.renameSync(tmp, file);
+}
+
+function preferencesPath(profile) {
+  return path.join(profile, "Default", "Preferences");
+}
+
+function preferences(profile) {
+  return readJson(preferencesPath(profile)) || {};
+}
+
+function ensureLoopback(profile) {
+  const file = preferencesPath(profile);
+  const data = readJson(file);
+  if (data === null && fs.existsSync(file)) throw new Error(`Chrome Preferences is not valid JSON: ${file}`);
+  const prefs = data || {};
+  prefs.profile ||= {};
+  prefs.profile.default_content_setting_values ||= {};
+  prefs.profile.default_content_setting_values.loopback_network = 1;
+  writeJson(file, prefs);
+}
+
+async function resetProfile(profile) {
+  const template = path.resolve(TEMPLATE_PROFILE);
+  if (!fs.existsSync(template)) throw new Error(`browser profile template missing: ${template}. Regenerate it from ${path.join(path.dirname(template), "GENERATE.md")}`);
+  if (path.resolve(profile) === template) throw new Error("refusing to launch with the template profile directly");
+  await terminateProfile(profile);
+  fs.rmSync(profile, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(profile), { recursive: true });
+  fs.cpSync(template, profile, { recursive: true, verbatimSymlinks: true });
+  ensureLoopback(profile);
+}
+
+function extensionManifest(profile, id) {
+  const root = path.join(profile, "Default", "Extensions", id);
+  if (!fs.existsSync(root)) return null;
+  const versions = fs.readdirSync(root).sort().reverse();
+  for (const version of versions) {
+    const manifest = readJson(path.join(root, version, "manifest.json"));
+    if (manifest) return manifest;
+  }
+  return null;
+}
+
+function extensionInstalled(profile, ids) {
+  return ids.some((id) => extensionManifest(profile, id));
+}
+
+function tampermonkeyId(profile) {
+  const id = TM_IDS.find((candidate) => extensionManifest(profile, candidate));
+  if (!id) throw new Error("Tampermonkey is not installed in the browser-mcp template profile");
+  return id;
+}
+
+function storageScripts(profile, ids) {
+  const roots = ids.flatMap((id) => [
+    path.join(profile, "Default", "Local Extension Settings", id),
+    path.join(profile, "Default", "IndexedDB", `chrome-extension_${id}_0.indexeddb.leveldb`),
+    path.join(profile, "Default", "Extension State"),
+  ]);
+  const scripts = new Map();
+  for (const root of roots) scanStorage(root, scripts);
+  return [...scripts.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function scanStorage(file, scripts) {
+  if (!fs.existsSync(file)) return;
+  const stat = fs.statSync(file);
+  if (stat.isDirectory()) {
+    for (const entry of fs.readdirSync(file)) scanStorage(path.join(file, entry), scripts);
+    return;
+  }
+  if (!stat.isFile() || stat.size > 20 * 1024 * 1024) return;
+  const text = fs.readFileSync(file, "utf8");
+  const blocks = [...text.matchAll(USER_BLOCK_RE)].map((match) => match.groups.body);
+  for (const block of blocks.length ? blocks : [text]) {
+    const name = block.match(NAME_RE)?.[1]?.trim().replace(/^"|"$/g, "");
+    if (!name || name.startsWith("__MSG_")) continue;
+    const version = block.match(VERSION_RE)?.[1]?.trim().replace(/^"|"$/g, "") || null;
+    scripts.set(name, { name, version });
+  }
+}
+
+async function cdp(wsUrl) {
+  const ws = new WebSocket(wsUrl);
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`WebSocket connection timed out: ${wsUrl}`)), 3000);
+    ws.onopen = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    ws.onerror = reject;
+  });
+  let id = 0;
+  const send = (method, params = {}, timeout = 5000) => new Promise((resolve, reject) => {
+    const msg = ++id;
+    const timer = setTimeout(() => {
+      ws.removeEventListener("message", onMessage);
+      reject(new Error(`${method} timed out`));
+    }, timeout);
+    const onMessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.method === "Page.javascriptDialogOpening") {
+        ws.send(JSON.stringify({ id: ++id, method: "Page.handleJavaScriptDialog", params: { accept: true } }));
+        return;
+      }
+      if (data.id !== msg) return;
+      clearTimeout(timer);
+      ws.removeEventListener("message", onMessage);
+      if (data.error) reject(new Error(`${method}: ${JSON.stringify(data.error)}`));
+      else resolve(data.result || {});
+    };
+    ws.addEventListener("message", onMessage);
+    ws.send(JSON.stringify({ id: msg, method, params }));
+  });
+  return { ws, send };
+}
+
+async function browserWs(number) {
+  return (await getJson(`${browserUrl(number)}/json/version`)).webSocketDebuggerUrl;
+}
+
+async function createTarget(number, url) {
+  const client = await cdp(await browserWs(number));
+  try {
+    return (await client.send("Target.createTarget", { url, background: false })).targetId;
+  } finally {
+    client.ws.close();
+  }
+}
+
+async function closeTargets(number, ids) {
+  const unique = [...new Set(ids.filter(Boolean))];
+  if (!unique.length) return;
+  const client = await cdp(await browserWs(number)).catch(() => null);
+  if (!client) return;
+  try {
+    for (const targetId of unique) await client.send("Target.closeTarget", { targetId }).catch(() => {});
+  } finally {
+    client.ws.close();
+  }
+}
+
+async function targetByPrefix(number, prefix, timeout = 5000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const found = (await targets(number)).find((target) => target.type === "page" && target.url?.startsWith(prefix) && target.webSocketDebuggerUrl);
+    if (found) return found;
+    await sleep(100);
+  }
+  throw new Error(`DevTools target not found: ${prefix}`);
+}
+
+async function evaluate(target, expression, timeout = 5000) {
+  const client = await cdp(target.webSocketDebuggerUrl);
+  try {
+    await client.send("Page.enable", {}, timeout);
+    const result = await client.send("Runtime.evaluate", { expression, returnByValue: true }, timeout);
+    return Object.prototype.hasOwnProperty.call(result.result || {}, "value") ? result.result.value : result.result?.description;
+  } finally {
+    client.ws.close();
+  }
+}
+
+async function reloadUserscriptPages(number, rules) {
+  const reloaded = [];
+  for (const target of await targets(number)) {
+    if (target.type !== "page" || !target.webSocketDebuggerUrl || !pageMatchesRules(target.url, rules)) continue;
+    const client = await cdp(target.webSocketDebuggerUrl).catch(() => null);
+    if (!client) continue;
+    try {
+      await client.send("Page.reload", { ignoreCache: true }, 5000);
+      reloaded.push(target.url);
+    } finally {
+      client.ws.close();
+    }
+  }
+  return reloaded;
+}
+
+async function requireDevtools(number) {
+  if (!(await devtoolsAvailable(number))) throw new Error(`Chrome DevTools is not available at ${browserUrl(number)}. Run browser-mcp --launch <url> first.`);
+}
+
+async function installTampermonkey(profile, number, url) {
+  await requireDevtools(number);
+  const id = tampermonkeyId(profile);
+  const rules = await getText(url).then(userscriptUrlRules).catch(() => ({ include: [], exclude: [] }));
+  let target = null;
+  const deadline = Date.now() + 10000;
+  const createdTarget = await createTarget(number, url);
+  try {
+    while (Date.now() < deadline && !target) {
+      try {
+        target = await targetByPrefix(number, `chrome-extension://${id}/ask.html`, 2000);
+      } catch {
+        await sleep(500);
+      }
+    }
+    if (!target) throw new Error(`DevTools target not found: chrome-extension://${id}/ask.html`);
+    const expression = `(() => {
+      const button = Array.from(document.querySelectorAll("input[type=button],button"))
+        .find((el) => /^(Install|Update|Reinstall)$/i.test((el.value || el.innerText || "").trim()));
+      if (!button) return { installed: false, text: document.body.innerText.slice(0, 500) };
+      button.click();
+      return { installed: true };
+    })()`;
+    let result = null;
+    for (let i = 0; i < 25; i++) {
+      result = await evaluate(target, expression, 5000);
+      if (result?.installed) break;
+      await sleep(200);
+    }
+    if (result?.installed) result.reloadedPages = await reloadUserscriptPages(number, rules);
+    return result;
+  } finally {
+    await closeTargets(number, [createdTarget, target?.id]);
+  }
+}
+
+async function deleteTampermonkey(profile, number, name) {
+  await requireDevtools(number);
+  const id = tampermonkeyId(profile);
+  const createdTarget = await createTarget(number, `chrome-extension://${id}/options.html#nav=dashboard`);
+  let target = null;
+  try {
+    target = await targetByPrefix(number, `chrome-extension://${id}/options.html`, 5000);
+    const expression = `(() => {
+      const wanted = ${JSON.stringify(name)};
+      window.confirm = () => true;
+      const text = (el) => (el.innerText || el.value || el.title || el.getAttribute("aria-label") || "").trim();
+      const row = Array.from(document.querySelectorAll("tr.scripttr,tr,.script,.script-row"))
+        .find((el) => (el.querySelector("td.script_name span")?.innerText || text(el)).trim() === wanted);
+      if (!row) return { deleted: false, reason: "script not found", scripts: Array.from(document.querySelectorAll("tr.scripttr")).map(text).filter(Boolean) };
+      const control = Array.from(row.querySelectorAll("button,input,i,a,span"))
+        .find((el) => /delete|trash|remove/i.test(text(el)) || /delete|trash|remove/i.test(el.className || ""));
+      if (!control) return { deleted: false, reason: "delete control not found", text: text(row).slice(0, 500) };
+      control.click();
+      return { deleted: true, name: wanted };
+    })()`;
+    let result = null;
+    for (let i = 0; i < 25; i++) {
+      result = await evaluate(target, expression, 5000);
+      if (result?.deleted) break;
+      await sleep(200);
+    }
+    if (!result?.deleted) return result;
+    result.trash = await emptyTampermonkeyTrash(number, id);
+    return result;
+  } finally {
+    await closeTargets(number, [createdTarget, target?.id]);
+  }
+}
+
+async function emptyTampermonkeyTrash(number, id) {
+  const createdTarget = await createTarget(number, `chrome-extension://${id}/options.html#nav=trash`);
+  let target = null;
+  try {
+    target = await targetByPrefix(number, `chrome-extension://${id}/options.html`, 5000);
+    const expression = `(() => {
+      window.confirm = () => true;
+      const text = (el) => (el.innerText || el.value || el.title || el.getAttribute("aria-label") || "").trim();
+      const button = Array.from(document.querySelectorAll("button,input,i,a,span"))
+        .find((el) => /^Delete all$/i.test(text(el)) || /delete_all|delall/i.test(el.id || ""));
+      if (!button) return { emptied: false, reason: "delete all control not found", text: document.body.innerText.slice(0, 500) };
+      button.click();
+      return { emptied: true };
+    })()`;
+    let result = null;
+    for (let i = 0; i < 25; i++) {
+      result = await evaluate(target, expression, 5000);
+      if (result?.emptied) return result;
+      await sleep(200);
+    }
+    return result;
+  } finally {
+    await closeTargets(number, [createdTarget, target?.id]);
+  }
+}
+
+async function dashboardScripts(profile, number) {
+  if (!(await devtoolsAvailable(number))) return null;
+  let createdTarget = null;
+  let target = null;
+  try {
+    const id = tampermonkeyId(profile);
+    createdTarget = await createTarget(number, `chrome-extension://${id}/options.html#nav=dashboard`);
+    target = await targetByPrefix(number, `chrome-extension://${id}/options.html`, 5000);
+    for (let i = 0; i < 20; i++) {
+      const scripts = await evaluate(target, `(() => Array.from(document.querySelectorAll("tr.scripttr")).map((row) => {
+        if (!row.id || row.id.includes("filler")) return null;
+        const name = (row.querySelector("td.script_name span")?.innerText || "").trim();
+        if (!name || name === "<New userscript>") return null;
+        const cells = Array.from(row.querySelectorAll("td")).map((cell) => cell.innerText.trim()).filter(Boolean);
+        const version = cells.find((cell) => /^\\d+(?:\\.\\d+)+(?:[-+][\\w.-]+)?$/.test(cell)) || null;
+        return { name, version };
+      }).filter(Boolean))()`, 5000);
+      if (Array.isArray(scripts) && scripts.length) return scripts.sort((a, b) => a.name.localeCompare(b.name));
+      await sleep(200);
+    }
+    return [];
+  } catch {
+  } finally {
+    await closeTargets(number, [createdTarget, target?.id]);
+  }
+  return null;
+}
+
+async function localViteDiagnostics(number) {
+  if (!(await devtoolsAvailable(number))) return [];
+  const out = [];
+  for (const target of await targets(number)) {
+    if (target.type !== "page" || !target.url?.startsWith("https://") || !target.webSocketDebuggerUrl) continue;
+    const resources = await evaluate(target, `(() => performance.getEntriesByType('resource').map((entry) => ({ url: entry.name, responseStatus: entry.responseStatus || 0 })))()`, 5000).catch(() => []);
+    if (!Array.isArray(resources)) continue;
+    const urls = resources.filter((entry) => LOCAL_VITE_RE.test(entry.url)).map((entry) => entry.url);
+    if (urls.length) out.push({ pageUrl: target.url, localViteUserscriptUrls: urls, failedLocalViteUserscriptRequests: resources.filter((entry) => LOCAL_VITE_RE.test(entry.url) && ![200, 304].includes(entry.responseStatus)) });
+  }
+  return out;
+}
+
+async function status(chrome, profile, number) {
+  const prefs = preferences(profile);
+  const setting = prefs.profile?.default_content_setting_values?.loopback_network;
+  const scripts = await dashboardScripts(profile, number);
+  return {
+    chrome,
+    profile,
+    port: number,
+    browserUrl: browserUrl(number),
+    profileExists: fs.existsSync(profile),
+    devtoolsAvailable: await devtoolsAvailable(number),
+    portFree: await portFree(number),
+    tampermonkeyInstalled: extensionInstalled(profile, TM_IDS),
+    stylusInstalled: extensionInstalled(profile, STYLUS_IDS),
+    scripts: scripts ?? storageScripts(profile, TM_IDS),
+    styles: storageScripts(profile, STYLUS_IDS),
+    loopbackNetworkPermissions: { default: setting == null ? null : { setting, label: SETTING_LABELS[setting] || String(setting) } },
+    localViteUserscriptDiagnostics: await localViteDiagnostics(number),
+  };
+}
+
+async function launchBrowser(chrome, profile, number, url) {
+  await terminateProfile(profile);
+  if (!(await portFree(number))) throw new Error(`Port ${HOST}:${number} is already in use. Run browser-mcp --close or set OPENCODE_BROWSER_MCP_PORT to a free port.`);
+  if (path.resolve(profile) === path.resolve(TEMPLATE_PROFILE) && process.env.OPENCODE_BROWSER_MCP_ALLOW_TEMPLATE_PROFILE === "1") {
+    fs.mkdirSync(profile, { recursive: true });
+    ensureLoopback(profile);
+  } else {
+    await resetProfile(profile);
+  }
+  const args = [
+    `--remote-debugging-address=${HOST}`,
+    `--remote-debugging-port=${number}`,
+    `--user-data-dir=${profile}`,
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-session-crashed-bubble",
+    "--window-size=1280,900",
+    "--new-window",
+    url,
+  ];
+  if (process.platform === "darwin" && !process.env.OPENCODE_CHROME_PATH) child.spawn("open", ["-g", "-n", "-a", "Google Chrome", "--args", ...args], { detached: true, stdio: "ignore" }).unref();
+  else child.spawn(chrome, args, { detached: true, stdio: "ignore" }).unref();
+  const deadline = Date.now() + START_TIMEOUT;
+  while (Date.now() < deadline) {
+    if (await devtoolsAvailable(number)) return;
+    await sleep(200);
+  }
+  await terminateProfile(profile);
+  throw new Error(`Chrome did not expose DevTools at ${browserUrl(number)} within ${START_TIMEOUT / 1000}s`);
+}
+
+function valueAfter(args, flag) {
+  const index = args.indexOf(flag);
+  if (index === -1) return null;
+  if (!args[index + 1] || args[index + 1].startsWith("--")) throw new Error(`${flag} requires a value`);
+  return args[index + 1];
+}
+
+function stripFlags(args) {
+  const withValues = new Set(["--launch", "--tampermonkey-install", "--tampermonkey-delete"]);
+  const withoutValues = new Set(["--server", "--status", "--check", "--close"]);
+  const out = [];
+  for (let i = 0; i < args.length; i++) {
+    if (withValues.has(args[i])) i++;
+    else if (!withoutValues.has(args[i])) out.push(args[i]);
+  }
+  return out;
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+  const profile = profileDir();
+  const number = port();
+  if (args.includes("--close")) {
+    await terminateProfile(profile);
+    return 0;
+  }
+
+  const launchUrl = valueAfter(args, "--launch");
+  const installUrl = valueAfter(args, "--tampermonkey-install");
+  const deleteName = valueAfter(args, "--tampermonkey-delete");
+  const needsChrome = args.includes("--status") || args.includes("--check") || launchUrl || installUrl || deleteName;
+  const chrome = needsChrome ? chromePath() : null;
+
+  if (args.includes("--status") || args.includes("--check")) console.log(JSON.stringify(await status(chrome, profile, number), null, 2));
+  else if (launchUrl) {
+    await launchBrowser(chrome, profile, number, launchUrl);
+    console.log(JSON.stringify(await status(chrome, profile, number), null, 2));
+  } else if (installUrl) console.log(JSON.stringify(await installTampermonkey(profile, number, installUrl), null, 2));
+  else if (deleteName) console.log(JSON.stringify(await deleteTampermonkey(profile, number, deleteName), null, 2));
+  else {
+    const env = { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --no-warnings`.trim() };
+    const result = child.spawnSync("npx", ["-y", "chrome-devtools-mcp@latest", `--browserUrl=${browserUrl(number)}`, "--no-usage-statistics", "--no-performance-crux", ...stripFlags(args)], { stdio: "inherit", env });
+    return result.status || 0;
+  }
+  return 0;
+}
+
+main().then((code) => process.exit(code)).catch((error) => {
+  console.error(`browser-mcp: ${error.message}`);
+  process.exit(1);
+});

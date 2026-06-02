@@ -11,4 +11,4 @@ After editing markdown, still run project ci run because I might have markdownli
 
 ## Concise
 
-Be very specific and concise. Do not use 20 words when 5 words might be understandable and have the same information.
+Be very specific and concise when adding or editing. Do not use 20 words when 5 words might be understandable and have the same information.

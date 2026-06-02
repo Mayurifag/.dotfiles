@@ -3,8 +3,10 @@
 ## Versioning
 
 - If `.css` changes, bump the patch version inside it.
+- Before bumping, check `git diff` to see whether the version was already bumped.
 - Bump once per branch, commit, or work item, not once per edit.
 - If both `.js` and `.css` exist and `.css` changes, bump `.js` too because the CSS theme is included by the script.
+- Keep userstyle/userscript versions only in style/script metadata; do not duplicate versioning in `package.json`, lockfiles, or other project files. Exception: Vite Monkey may use `package.json` version to generate `dist`.
 - Do not bump for unrelated changes like documentation-only edits.
 
 ## README
@@ -18,6 +20,8 @@
 ## Browser Testing
 
 - Before debugging with browser MCP, run `browser-mcp --status`.
-- Check whether Stylus is installed in the repo-local `.opencode/browser-mcp-profile/`.
-- If the profile is missing or Stylus is missing, copy `~/.local/share/chezmoi/browser-mcp-template/profile/` into the repo as `.opencode/browser-mcp-profile/`.
+- If `devtoolsAvailable` is false, run `browser-mcp --launch <target-url>`.
+- `browser-mcp --launch` always replaces `.opencode/browser-mcp-profile/` from the template, so do not keep manual Stylus edits there.
+- Verify `browser-mcp --status` shows `stylusInstalled: true`.
+- Verify style status only by `name` and `version` when status can detect installed styles.
 - Verify the actual styled page state with DOM, screenshots, and computed styles. Do not rely only on source inspection.

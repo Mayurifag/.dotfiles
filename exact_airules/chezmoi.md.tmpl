@@ -37,6 +37,10 @@ Use this when editing home directory files, dotfiles, shell/app config, or any c
 ## Agent Behavior
 
 - Keep legacy code cleanup leftovers short. Assume one user/app state; if one cleanup was done once, that is enough. Mention repeat cleanup as a consideration in the summary and ask before adding it.
+- Before finishing tasks that run commands, check `git status --short` for unexpected generated files or edits.
+- Before finishing tasks that spawn background processes, check `pty_list` and kill task-owned sessions.
+- Remove task-owned temporary files, logs, caches, build outputs, and generated artifacts unless they are intended results.
+- Do not remove unrelated user files or changes.
 
 ## Packages
 
@@ -52,7 +56,6 @@ Use this when editing home directory files, dotfiles, shell/app config, or any c
 ## OpenCode
 
 - Put agent reasoning profiles in agent `variant`, not direct provider option fields.
-- User does not use LSP; keep OpenCode LSP disabled/hidden unless asked otherwise.
 
 After changing OpenCode config, agents, skills, plugins, or MCP setup, tell user to restart OpenCode. Config is loaded at startup.
 When telling the user to restart OpenCode, include a concise prompt he can paste into the new session to continue if fixed bug or feature still needs check manually.

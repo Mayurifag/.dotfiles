@@ -9,6 +9,7 @@
     "**/*.{md,markdown}"
   ],
   "ignores": [
+    ".opencode/browser-mcp-profile/**",
     "browser-mcp-template/profile/**",
     "**/node_modules/**"
   ],
