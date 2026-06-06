@@ -4,6 +4,7 @@
   "small_model": "openai/gpt-5.3-codex-spark",
   "default_agent": "build",
   "enabled_providers": ["openai"],
+  "autoupdate": false,
   "agent": {
     "build": {
       "mode": "primary",

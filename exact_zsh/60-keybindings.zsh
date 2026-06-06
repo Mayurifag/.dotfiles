@@ -1,5 +1,8 @@
-# This file contains custom keybindings and settings to normalize behavior
-# across different terminal emulators, especially for Konsole/Yakuake.
+# Keybind features: Home/End/Delete fixes; Ctrl+Left/Right word movement;
+# Ctrl+A selects the current command buffer; Backspace/Delete and typed text
+# replace active selections; Shift+Arrow selects chars/lines; Shift+Ctrl+Arrow
+# selects words; Esc clears selection; Tab accepts autosuggestions or completes;
+# Up/Down search history by typed prefix.
 
 # --- Keybinding Fixes for Konsole/Yakuake ---
 # It is NOT or just partly needed in MacOS because iTerm2 works for those usecases out of box.
@@ -25,6 +28,140 @@ bindkey '\e[1;5C' forward-word
 # This is a fallback for other terminals that might send different codes.
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
+
+if (( ${zle_highlight[(I)region:*]:-0} == 0 )); then
+  zle_highlight+=(region:standout)
+fi
+
+# Ctrl+A selects the editable command buffer, not terminal scrollback. ZLE regions
+# are separate from iTerm selections, so delete keys must explicitly consume them.
+refresh-zle-region() {
+  (( $+functions[_zsh_highlight] )) && _zsh_highlight
+  zle -R
+}
+
+region-self-insert() {
+  (( REGION_ACTIVE )) && delete-active-region
+  zle .self-insert
+}
+zle -N self-insert region-self-insert
+
+select-current-command() {
+  MARK=0
+  CURSOR=${#BUFFER}
+  REGION_ACTIVE=1
+  refresh-zle-region
+}
+zle -N select-current-command
+bindkey '^A' select-current-command
+
+delete-active-region() {
+  local start=$MARK end=$CURSOR tmp
+  (( start > end )) && { tmp=$start; start=$end; end=$tmp; }
+  BUFFER="${BUFFER[1,$start]}${BUFFER[$(( end + 1 )),-1]}"
+  CURSOR=$start
+  REGION_ACTIVE=0
+  refresh-zle-region
+}
+
+backward-delete-region-or-char() {
+  if (( REGION_ACTIVE )); then
+    delete-active-region
+  else
+    zle backward-delete-char
+  fi
+}
+zle -N backward-delete-region-or-char
+bindkey '^?' backward-delete-region-or-char
+
+delete-region-or-char() {
+  if (( REGION_ACTIVE )); then
+    delete-active-region
+  else
+    zle delete-char
+  fi
+}
+zle -N delete-region-or-char
+bindkey '\e[3~' delete-region-or-char
+bindkey '^[[3~' delete-region-or-char
+
+kill-region-or-word() {
+  if (( REGION_ACTIVE )); then
+    delete-active-region
+  else
+    zle kill-word
+  fi
+}
+zle -N kill-region-or-word
+bindkey '\e[3;5~' kill-region-or-word
+bindkey '^[[3;5~' kill-region-or-word
+
+clear-active-region() {
+  REGION_ACTIVE=0
+  refresh-zle-region
+}
+zle -N clear-active-region
+bindkey '^[' clear-active-region
+
+select-left() {
+  (( REGION_ACTIVE )) || MARK=$CURSOR
+  REGION_ACTIVE=1
+  (( CURSOR > 0 )) && (( CURSOR-- ))
+  refresh-zle-region
+}
+zle -N select-left
+bindkey '\e[1;2D' select-left
+bindkey '^[[1;2D' select-left
+
+select-right() {
+  (( REGION_ACTIVE )) || MARK=$CURSOR
+  REGION_ACTIVE=1
+  (( CURSOR < ${#BUFFER} )) && (( CURSOR++ ))
+  refresh-zle-region
+}
+zle -N select-right
+bindkey '\e[1;2C' select-right
+bindkey '^[[1;2C' select-right
+
+select-word-left() {
+  (( REGION_ACTIVE )) || MARK=$CURSOR
+  zle backward-word
+  REGION_ACTIVE=1
+  refresh-zle-region
+}
+zle -N select-word-left
+bindkey '\e[1;6D' select-word-left
+bindkey '^[[1;6D' select-word-left
+
+select-word-right() {
+  (( REGION_ACTIVE )) || MARK=$CURSOR
+  zle forward-word
+  REGION_ACTIVE=1
+  refresh-zle-region
+}
+zle -N select-word-right
+bindkey '\e[1;6C' select-word-right
+bindkey '^[[1;6C' select-word-right
+
+select-up() {
+  (( REGION_ACTIVE )) || MARK=$CURSOR
+  REGION_ACTIVE=1
+  zle up-line-or-history
+  refresh-zle-region
+}
+zle -N select-up
+bindkey '\e[1;2A' select-up
+bindkey '^[[1;2A' select-up
+
+select-down() {
+  (( REGION_ACTIVE )) || MARK=$CURSOR
+  REGION_ACTIVE=1
+  zle down-line-or-history
+  refresh-zle-region
+}
+zle -N select-down
+bindkey '\e[1;2B' select-down
+bindkey '^[[1;2B' select-down
 
 # --- Swap Tab and Right Arrow for autosuggestions and completions ---
 

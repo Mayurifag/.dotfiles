@@ -26,6 +26,25 @@ $script:_isInteractiveShell = try {
 } catch { $true }
 $script:_hasZoxide = $null -ne (Get-Command zoxide -ErrorAction SilentlyContinue)
 
+if ($script:_isInteractiveShell) {
+    # Mirror zsh editor-style selection using PSReadLine's native widgets.
+    Set-PSReadLineKeyHandler -Chord Ctrl+a -Function SelectAll
+    Set-PSReadLineKeyHandler -Chord Shift+LeftArrow -Function SelectBackwardChar
+    Set-PSReadLineKeyHandler -Chord Shift+RightArrow -Function SelectForwardChar
+    Set-PSReadLineKeyHandler -Chord Ctrl+Shift+LeftArrow -Function SelectBackwardWord
+    Set-PSReadLineKeyHandler -Chord Ctrl+Shift+RightArrow -Function SelectNextWord
+    Set-PSReadLineKeyHandler -Chord Shift+Home -Function SelectBackwardsLine
+    Set-PSReadLineKeyHandler -Chord Shift+End -Function SelectLine
+    Set-PSReadLineKeyHandler -Chord Ctrl+Backspace -Function BackwardKillWord
+    Set-PSReadLineKeyHandler -Chord Ctrl+Delete -Function KillWord
+    Set-PSReadLineKeyHandler -Chord Ctrl+c -Function CopyOrCancelLine
+    Set-PSReadLineKeyHandler -Chord Ctrl+Shift+c -Function Copy
+    Set-PSReadLineKeyHandler -Chord Ctrl+x -Function Cut
+    Set-PSReadLineKeyHandler -Chord Ctrl+v -Function Paste
+    Set-PSReadLineKeyHandler -Chord Ctrl+z -Function Undo
+    Set-PSReadLineKeyHandler -Chord Ctrl+Shift+z -Function Redo
+}
+
 # === Default directory ===
 # On a fresh tab WT starts in System32; navigate to Code instead
 if ((Get-Location).Path -eq "$env:SystemRoot\System32") { Set-Location ~\Code }

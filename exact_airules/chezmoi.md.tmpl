@@ -53,14 +53,6 @@ Use this when editing home directory files, dotfiles, shell/app config, or any c
 - Windows MinGW: install WinLibs with `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`; do not use MSYS2 `pacman` for MinGW.
 - Check both `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`. Same for aliases.
 
-## OpenCode
-
-- Put agent reasoning profiles in agent `variant`, not direct provider option fields.
-
-After changing OpenCode config, agents, skills, plugins, or MCP setup, tell user to restart OpenCode. Config is loaded at startup.
-When telling the user to restart OpenCode, include a concise prompt he can paste into the new session to continue if fixed bug or feature still needs check manually.
-You should check yourself if it is possible (inline launching new session of opencode, etc.).
-
 ## Scripts
 
 - Python is available on every target system; prefer it for nontrivial cross-platform alias utilities when compilation is not desired.

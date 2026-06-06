@@ -13,18 +13,19 @@ Instructions:
 
 Load these files only when relevant:
 
-- encrypted secrets (ejson, git-crypt or others) - ~/airules/git-crypt.md
-- editing markdown files - ~/airules/markdown.md
-- Makefile or project make targets - ~/airules/makefiles.md
-- editing home directory files, dotfiles, chezmoi related, or shell/app config - ~/airules/chezmoi.md
-- browser automation, UI/runtime debugging, userscript runtime verification, browser extensions - ~/airules/chrome-mcp.md
-- CSS, styling, themes, userstyles - ~/airules/css.md
-- userscript/UserJS projects - ~/airules/userjs.md
-- userstyle/UserCSS projects - ~/airules/usercss.md
-- JavaScript project - ~/airules/javascript.md
-- Python project - ~/airules/python.md
-- Ruby project - ~/airules/ruby.md
-- Rust project - ~/airules/rust.md
+- encrypted secrets, ejson, git-crypt -> `~/airules/git-crypt.md`
+- markdown files -> `~/airules/markdown.md`
+- Makefile or make targets -> `~/airules/makefiles.md`
+- home files, dotfiles, chezmoi, shell/app config -> `~/airules/chezmoi.md`
+- OpenCode config, agents, skills, plugins, MCP, permissions -> `~/airules/opencode.md`
+- browser automation, extensions, UI/runtime/console/network/storage/DOM debugging -> `~/airules/chrome-mcp.md`
+- CSS, styling, themes, userstyles -> `~/airules/css.md`
+- userscript/UserJS projects -> `~/airules/userjs.md`
+- userstyle/UserCSS projects -> `~/airules/usercss.md`
+- JavaScript project -> `~/airules/javascript.md`
+- Python project -> `~/airules/python.md`
+- Ruby project -> `~/airules/ruby.md`
+- Rust project -> `~/airules/rust.md`
 
 Referenced files are not preloaded. When a task matches a reference, read only that file before acting.
 
@@ -37,7 +38,7 @@ Prefer the most specific applicable user instruction: repository instructions ov
 ## Concise
 
 You are REQUIRED to be as much concise and direct as possible - in code, suggests and in answers.
-For fixes, prefer the smallest correct change and avoid abstractions, flexibility, or error handling for unused scenarios.
+For fixes, prefer the smallest correct change. Do not refactor surrounding code unless it is required for the fix; suggest optional refactors separately.
 For refactors, improve maintainability deliberately; abstractions are welcome when they clarify boundaries or remove duplication.
 If 200 lines can be 50, rewrite it. Ask: “Would a senior engineer call this over-engineered?” If yes, simplify.
 
@@ -83,8 +84,10 @@ Before writing code:
 
 - Fix the root cause, not the symptom. Do not disable, remove, or bypass a feature to hide an error unless the user explicitly asks for that tradeoff.
 - If an approach proves wrong, remove its code/data/tests before trying another. Remove unused imports, variables, and functions immediately.
+- After finding the real root cause, remove diagnostic/workaround changes that are no longer needed.
 - Do not add comments or descriptions unless explicitly asked.
-- Keep projects maintainable. For fixes, preserve existing style and scope. For refactors, reduce duplication and improve boundaries without speculative architecture.
+- Keep projects maintainable. For fixes, preserve existing style, scope, names, commands, file layout, and patterns unless a change clearly improves clarity.
+- For refactors, reduce duplication and improve boundaries without speculative architecture.
 - Prefer repository-provided commands over raw underlying tools. If a repo has `make`, package scripts, task files, or documented wrappers, use those first.
 - Do not revert or rewrite unrelated user changes. Another agent or the user may be working in the same folder. Ignore unrelated changes unless they directly conflict with the task.
 - You may suggest improving code on the end, propose refactors.

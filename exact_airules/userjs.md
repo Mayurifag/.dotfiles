@@ -18,9 +18,8 @@
 
 ## Local Development
 
-- Before debugging with browser MCP, run `browser-mcp --status`.
-- If `devtoolsAvailable` is false, run `browser-mcp --launch <target-url>`.
-- `browser-mcp --launch` always replaces `.opencode/browser-mcp-profile/` from the template, so do not keep manual Tampermonkey edits there.
+- If browser runtime verification is needed, load `~/airules/chrome-mcp.md`.
+- Do not keep manual Tampermonkey edits in `.opencode/browser-mcp-profile/`; browser launches replace it from the template.
 - Tampermonkey is the default userscript manager unless the user explicitly requires another manager.
 - Install the local Vite userscript URL with `browser-mcp --tampermonkey-install http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`.
 - After install, `browser-mcp` reloads already-open tabs matching the userscript `@match`/`@include` metadata.
