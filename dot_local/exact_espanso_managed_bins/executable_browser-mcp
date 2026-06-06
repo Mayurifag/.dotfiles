@@ -300,13 +300,29 @@ function storageScripts(profile, ids) {
 
 function scanStorage(file, scripts) {
   if (!fs.existsSync(file)) return;
-  const stat = fs.statSync(file);
+  let stat;
+  try {
+    stat = fs.statSync(file);
+  } catch {
+    return;
+  }
   if (stat.isDirectory()) {
-    for (const entry of fs.readdirSync(file)) scanStorage(path.join(file, entry), scripts);
+    let entries;
+    try {
+      entries = fs.readdirSync(file);
+    } catch {
+      return;
+    }
+    for (const entry of entries) scanStorage(path.join(file, entry), scripts);
     return;
   }
   if (!stat.isFile() || stat.size > 20 * 1024 * 1024) return;
-  const text = fs.readFileSync(file, "utf8");
+  let text;
+  try {
+    text = fs.readFileSync(file, "utf8");
+  } catch {
+    return;
+  }
   const blocks = [...text.matchAll(USER_BLOCK_RE)].map((match) => match.groups.body);
   for (const block of blocks.length ? blocks : [text]) {
     const name = block.match(NAME_RE)?.[1]?.trim().replace(/^"|"$/g, "");

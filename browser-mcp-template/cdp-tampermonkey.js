@@ -1,11 +1,30 @@
 #!/usr/bin/env node
 
 const http = require("http");
+const child = require("child_process");
+const zlib = require("zlib");
 
+const BASE_PORT = 9223;
+const PORT_SPAN = 1000;
+function repoRoot() {
+  try {
+    return (
+      child
+        .execFileSync("git", ["rev-parse", "--show-toplevel"], {
+          cwd: process.cwd(),
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "ignore"],
+        })
+        .trim() || process.cwd()
+    );
+  } catch {
+    return process.cwd();
+  }
+}
 const PORT =
   process.env.OPENCODE_BROWSER_MCP_PORT ||
   process.env.BROWSER_MCP_PORT ||
-  "10146";
+  String(BASE_PORT + (zlib.crc32(Buffer.from(repoRoot())) % PORT_SPAN));
 const BASE = `http://127.0.0.1:${PORT}`;
 const TM = "dhdgffkkebhmkfjojejmpbldmpobfkfo";
 const WEBSTORE_URLS = [
