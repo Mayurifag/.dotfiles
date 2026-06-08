@@ -64,7 +64,6 @@ enc = { cmd = "command enc", ps_cmd = "enc.cmd" }
 gitignore = { cmd = "command gitignore", ps_cmd = "gitignore.cmd" }
 npmug = { cmd = "command npmug", ps_cmd = "npmug.cmd" }
 s = { cmd = "command s", ps_cmd = "s.cmd" }
-ship = { cmd = "command ship", ps_cmd = "ship.cmd" }
 
 [sharedAliases.Actions]
 actions = { cmd = "npx actions-up -y" }
