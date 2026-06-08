@@ -1,4 +1,4 @@
-# Rules for python projects
+# Python
 
 ## Lockfiles
 

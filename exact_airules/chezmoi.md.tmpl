@@ -1,7 +1,5 @@
 # Chezmoi Managed Home
 
-Use this when editing home directory files, dotfiles, shell/app config, or any chezmoi source repo.
-
 ## Core Rule
 
 - Never edit rendered home paths directly when a chezmoi source exists.
@@ -27,6 +25,7 @@ Use this when editing home directory files, dotfiles, shell/app config, or any c
 - `.tmpl` -> Go template
 - `executable_` -> executable target
 - `run_once_` / `run_after_` -> run by `chezmoi apply`
+- Use `.tmpl` only when the rendered file needs host-specific values or secrets. Prefer app env vars plus env templates when the app can expand `${VAR}`.
 
 ## Verify Edits
 
@@ -44,14 +43,17 @@ Use this when editing home directory files, dotfiles, shell/app config, or any c
 
 ## Packages
 
-- Global package list files in `install/` are authoritative; `make mise-packages` should remove leftover globals not present in the corresponding list.
+- Managed package files: `install/*file` (`npmfile`, `Brewfile`, `wingetfile`, `uvfile`, `gofile`, etc.).
+- Managed package files are authoritative; `make mise-packages` should remove leftover globals not present in the corresponding list.
+- When removing entries from managed package files, also run the matching uninstall/prune command for the current machine.
+- Package docs do not override dotfile package management. If docs say `npm install -g`, `brew install`, `winget install`, `uv tool install`, `go install`, etc., first add the package to the matching managed package file. Avoid one-off installs unless the user explicitly asks.
 
 ## Cross-Platform
 
 - Keep Arch/MacOS/Win11 same where possible.
 - Windows: use `pwsh.exe` (PS 7), never `powershell.exe` (PS 5).
 - Windows MinGW: install WinLibs with `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`; do not use MSYS2 `pacman` for MinGW.
-- Check both `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`. Same for aliases.
+- Check both `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`. Same for aliases and env-backed app config.
 
 ## Scripts
 

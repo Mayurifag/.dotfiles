@@ -1,4 +1,4 @@
-# Rules for rust related projects
+# Rust
 
 ## Lockfiles
 

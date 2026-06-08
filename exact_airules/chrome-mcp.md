@@ -1,8 +1,6 @@
 # Browser Automation
 
-Use Chrome DevTools MCP for browser/runtime verification.
-
-Trigger this rule for browser UI bugs, frontend runtime behavior, userscripts, Tampermonkey, browser extensions, JS configs that affect pages, console/network/storage debugging, screenshots, or DOM verification.
+Use Chrome DevTools MCP for runtime verification.
 
 Before launching browser tools:
 

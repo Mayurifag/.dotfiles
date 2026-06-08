@@ -41,14 +41,17 @@
         "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",
         "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1"
       }
+    },
+    "exa": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa",
+      "headers": {
+        "x-api-key": "${EXA_API_KEY}"
+      },
+      "enabled": true
     }
   },
-  "command": {
-    "ogc-usage": {
-      "template": "Call the ogc_usage tool exactly once and return its output directly.",
-      "description": "Show OpenCode Go usage"
-    }
-  },
+  "command": {},
   "lsp": {
     "json": {
       "command": ["vscode-json-language-server", "--stdio"],

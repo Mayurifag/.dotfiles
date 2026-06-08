@@ -1,7 +1,5 @@
 # OpenCode
 
-Use this when editing OpenCode config, agents, skills, plugins, MCP setup, or permissions.
-
 - Put agent reasoning profiles in agent `variant`, not direct provider option fields.
 - After changing OpenCode config, agents, skills, plugins, or MCP setup, tell user to restart OpenCode. Config is loaded at startup.
 - When telling the user to restart OpenCode, include a concise prompt he can paste into the new session to continue if fixed bug or feature still needs check manually.

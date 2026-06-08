@@ -1,4 +1,4 @@
-# Rules for ruby projects
+# Ruby
 
 ## Lockfiles
 
