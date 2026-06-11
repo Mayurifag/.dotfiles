@@ -51,7 +51,6 @@
       "enabled": true
     }
   },
-  "command": {},
   "lsp": {
     "json": {
       "command": ["vscode-json-language-server", "--stdio"],

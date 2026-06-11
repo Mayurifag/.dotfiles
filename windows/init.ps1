@@ -86,7 +86,7 @@ Invoke-RestMethod -Uri $wingetfileUrl -OutFile $tempWingetfile
 $apps = Get-Content $tempWingetfile | Where-Object { $_ -match '\S' -and $_ -notmatch '^#' }
 foreach ($app in $apps) {
   Write-Host "Installing $app..." -ForegroundColor Yellow
-  winget install --id $app.Trim() --exact --accept-package-agreements --accept-source-agreements --silent
+  winget install --id $app.Trim() --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements
 }
 
 # Refresh Environment Variables for the current process

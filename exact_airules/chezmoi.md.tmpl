@@ -43,10 +43,12 @@
 
 ## Packages
 
-- Managed package files: `install/*file` (`npmfile`, `Brewfile`, `wingetfile`, `uvfile`, `gofile`, etc.).
+- Managed package files: `install/*file` (`npmfile`, `Brewfile`, `Wingetfile`, `uv-file`, `Gofile`, etc.).
 - Managed package files are authoritative; `make mise-packages` should remove leftover globals not present in the corresponding list.
 - When removing entries from managed package files, also run the matching uninstall/prune command for the current machine.
 - Package docs do not override dotfile package management. If docs say `npm install -g`, `brew install`, `winget install`, `uv tool install`, `go install`, etc., first add the package to the matching managed package file. Avoid one-off installs unless the user explicitly asks.
+- For winget packages, add the package ID to `install/Wingetfile` first, then run `make winget-packages`; do not hand-run `winget install` unless the repo target is unavailable or debugging it.
+- If hand-running `winget install` is necessary, use `--silent --disable-interactivity --accept-package-agreements --accept-source-agreements`.
 
 ## Cross-Platform
 
