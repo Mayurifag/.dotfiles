@@ -45,6 +45,7 @@
 
 - Managed package files: `install/*file` (`npmfile`, `Brewfile`, `Wingetfile`, `uv-file`, `Gofile`, etc.).
 - Managed package files are authoritative; `make mise-packages` should remove leftover globals not present in the corresponding list.
+- Avoid duplicate package ownership across managed package files. A tool must be managed by one source of truth only: prefer cross-platform tool/language managers when they work across targets; use OS package files only for OS-specific apps, system libraries, GUI apps, drivers, fonts, or tools unavailable/unsuitable through the cross-platform manager. If moving a package between managers, remove it from the old manager file and uninstall/prune it from the current machine.
 - When removing entries from managed package files, also run the matching uninstall/prune command for the current machine.
 - Package docs do not override dotfile package management. If docs say `npm install -g`, `brew install`, `winget install`, `uv tool install`, `go install`, etc., first add the package to the matching managed package file. Avoid one-off installs unless the user explicitly asks.
 - For winget packages, add the package ID to `install/Wingetfile` first, then run `make winget-packages`; do not hand-run `winget install` unless the repo target is unavailable or debugging it.
@@ -56,6 +57,7 @@
 - Windows: use `pwsh.exe` (PS 7), never `powershell.exe` (PS 5).
 - Windows MinGW: install WinLibs with `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`; do not use MSYS2 `pacman` for MinGW.
 - Check both `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`. Same for aliases and env-backed app config.
+- Do not hand-code simple aliases in shell templates. Add them to `.chezmoidata.toml` `[sharedAliases]` and let templates render them.
 
 ## Scripts
 
