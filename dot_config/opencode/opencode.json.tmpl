@@ -46,7 +46,7 @@
       "type": "remote",
       "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa",
       "headers": {
-        "x-api-key": "${EXA_API_KEY}"
+        "x-api-key": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).exa_api_key }}"
       },
       "enabled": true
     }
