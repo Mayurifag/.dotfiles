@@ -11,6 +11,7 @@
 - Default to replacing old behavior, not preserving it.
 - Do not add fallbacks, legacy paths, temporary adapters, old API support, broad defensive guards, or duplicate implementations unless explicitly required.
 - When changing behavior, remove obsolete code in the same task. Mention possible compatibility breaks in the final response instead of adding compatibility code.
+- Avoid adding config options for values that can be cheaply and reliably detected at runtime.
 
 ## Before Writing Code
 
