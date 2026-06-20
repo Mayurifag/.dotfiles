@@ -11,6 +11,7 @@ Load these files only when relevant:
 
 - encrypted secrets, ejson, git-crypt -> `~/airules/git-crypt.md`
 - GitHub issues, PRs, checks, release management, repository actions -> `~/airules/github.md`
+- PR descriptions, PR body writing -> `~/airules/pr-description.md`
 - web search, documentation, GitHub docs/source, current information, online research -> `~/airules/research.md`
 - markdown files -> `~/airules/markdown.md`
 - Makefile or make targets -> `~/airules/makefiles.md`
