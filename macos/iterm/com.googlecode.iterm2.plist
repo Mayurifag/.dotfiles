@@ -362,7 +362,7 @@
 			<key>AWDS Window Option</key>
 			<string>Recycle</string>
 			<key>Allow Paste Bracketing</key>
-			<false/>
+			<true/>
 			<key>Allow Title Setting</key>
 			<true/>
 			<key>Ambiguous Double Width</key>

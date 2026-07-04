@@ -241,6 +241,4 @@ Add a new provider by adding one `case` arm to each of `secrets_classify_paths`,
 
 ## TODO
 
-- Wait for darrylmorley/whatcable
 - Test <https://github.com/atuinsh/atuin> as I need shell history
-- I need mole setup for iOS - to not clean files managed by chezmoi or install after usage

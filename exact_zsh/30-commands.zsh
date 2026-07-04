@@ -377,13 +377,17 @@ make() {
 
 function cd {
   if [[ $# -eq 0 ]]; then
-    zi
+    if if_command_exists zi; then
+      zi
+    else
+      builtin cd
+    fi
     return
   fi
   if builtin cd "$@" >/dev/null 2>&1; then
     # If `cd` succeeds, do nothing else.
     :
-  else
+  elif if_command_exists zoxide; then
     # If `cd` fails, use `zoxide`.
     zoxide query -s "$@" >/dev/null 2>&1
     if [ $? -eq 0 ]; then
@@ -392,5 +396,8 @@ function cd {
       echo "cd: no such file or directory: $@"
       return 1
     fi
+  else
+    echo "cd: no such file or directory: $@"
+    return 1
   fi
 }
