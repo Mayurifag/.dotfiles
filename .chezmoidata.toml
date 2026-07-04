@@ -30,7 +30,7 @@ qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-wit
 sq = { cmd = "q squash" }
 
 [sharedAliases.Apps]
-c = { cmd = "opencode" }
+c = { cmd = "command c", ps_cmd = "c.cmd" }
 img = { cmd = "chafa" }
 sher = { cmd = "sherlock --output /dev/null", ps_cmd = "sherlock --output NUL" }
 
