@@ -7,7 +7,8 @@ $dirs = @(
     "$env:USERPROFILE\.cargo\bin",
     "$env:USERPROFILE\.local\espanso_managed_bins",
     "C:\Program Files\Git\usr\bin",
-    "C:\Program Files (x86)\GnuWin32\bin"
+    "C:\Program Files (x86)\GnuWin32\bin",
+    "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Google.PlatformTools_Microsoft.Winget.Source_8wekyb3d8bbwe\platform-tools"
 )
 
 $current = [System.Environment]::GetEnvironmentVariable('PATH', 'User')
