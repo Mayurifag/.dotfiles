@@ -24,7 +24,8 @@
 
 ## Task Guidelines
 
-- Fix the root cause, not the symptom. Do not disable, remove, bypass, deduplicate, or clean up output just to hide an error unless explicitly asked. Trace unwanted output, duplication, or generated artifacts back to their source.
+- Fix the root cause, not the symptom.
+- Do not disable, remove, bypass, deduplicate, or clean up output just to hide an error unless explicitly asked. Trace unwanted output, duplication, or generated artifacts back to their source.
 - If an approach is wrong, remove its code/data/tests before trying another. Remove unused imports, variables, and functions immediately.
 - After finding the root cause, remove diagnostic/workaround changes that are no longer needed.
 - Do not add comments or descriptions unless explicitly asked.
