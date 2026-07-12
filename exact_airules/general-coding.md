@@ -24,7 +24,7 @@
 
 ## Task Guidelines
 
-- Fix the root cause, not the symptom. Do not disable, remove, or bypass a feature to hide an error unless explicitly asked.
+- Fix the root cause, not the symptom. Do not disable, remove, bypass, deduplicate, or clean up output just to hide an error unless explicitly asked. Trace unwanted output, duplication, or generated artifacts back to their source.
 - If an approach is wrong, remove its code/data/tests before trying another. Remove unused imports, variables, and functions immediately.
 - After finding the root cause, remove diagnostic/workaround changes that are no longer needed.
 - Do not add comments or descriptions unless explicitly asked.
@@ -41,6 +41,7 @@
 - For bug fixes, first reproduce the bug with a failing unit test when practical. Then fix the code and rerun that unit test until green.
 - If the ideal test is impractical, say why and run the narrowest useful check instead.
 - Run the repo's standard check command when available (`make ci`, `npm test`, `cargo test`, etc.). If it is too slow, destructive, or needs unavailable services, say why it was skipped.
+- Do not claim work is done until the relevant check has passed. If verification was skipped or failed, say that plainly.
 
 If asked to "fix" something:
 
