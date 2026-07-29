@@ -5,6 +5,11 @@
 FileEncoding("UTF-8")
 SetCapsLockState("AlwaysOff")
 DOTA_WINDOW := "ahk_exe dota2.exe"
+NEWS_TOWER_WINDOW := "News Tower"
+
+#HotIf WinActive(NEWS_TOWER_WINDOW)
+XButton2::Right
+#HotIf
 
 ; Regular CapsLock behavior
 CapsLock::
