@@ -26,8 +26,8 @@
       "version": "1.0"
     },
     "explorer-details-better-file-sizes": {
-      "latestVersion": "1.5",
-      "version": "1.5"
+      "latestVersion": "1.5.1",
+      "version": "1.5.1"
     },
     "extension-change-no-warning": {
       "latestVersion": "1.0.1",
@@ -66,23 +66,23 @@
       "version": "1.0.9"
     },
     "taskbar-clock-customization": {
-      "latestVersion": "1.7.4",
-      "version": "1.7.4"
+      "latestVersion": "1.8",
+      "version": "1.8"
     },
     "taskbar-icon-size": {
       "latestVersion": "1.3.7",
       "version": "1.3.7"
     },
     "taskbar-labels": {
-      "latestVersion": "1.4.2",
-      "version": "1.4.2"
+      "latestVersion": "1.4.3",
+      "version": "1.4.3"
     },
     "taskbar-volume-control": {
       "latestVersion": "1.3.1",
-      "version": "1.3"
+      "version": "1.3.1"
     },
     "windows-11-notification-center-styler": {
-      "latestVersion": "1.5",
+      "latestVersion": "1.6",
       "version": "1.5"
     }
   },
