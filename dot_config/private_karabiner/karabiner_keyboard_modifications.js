@@ -314,7 +314,7 @@ var RULES = [
     description: "Ctrl+X -> Command+X",
     from: trigger("x", { modifiers: CTRL, optional: ANY }),
     to: press("x", { modifiers: LEFT_COMMAND }),
-    conditions: UNLESS_REMOTE_APPLICATIONS,
+    conditions: UNLESS_REMOTE_OR_ITERM_APPLICATIONS,
   }),
   rule({
     description: "Ctrl+Z -> Command+Z",
