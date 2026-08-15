@@ -24,5 +24,5 @@ ZSH_AUTOSUGGEST_CLEAR_WIDGETS+=(bracketed-paste)
 
 # also https://github.com/LuckyWindsck/dotfiles/blob/c2319fead419a33a6cf197ff141d61b88ebabdff/.config/antidote/hooks/zsh-autosuggestions/plugin%3A%3Apost-hook.zsh
 
-autoload -Uz bracketed-paste-magic
+autoload -Uz bracketed-paste-magic url-quote-magic
 zle -N bracketed-paste bracketed-paste-magic
