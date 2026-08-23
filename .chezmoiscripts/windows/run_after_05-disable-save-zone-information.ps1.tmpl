@@ -1,0 +1,7 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+$attachmentManager = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Attachments'
+New-Item -Path $attachmentManager -Force | Out-Null
+New-ItemProperty -Path $attachmentManager -Name 'SaveZoneInformation' -PropertyType DWord -Value 1 -Force | Out-Null
+{{- end }}

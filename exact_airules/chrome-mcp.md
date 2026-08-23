@@ -4,6 +4,7 @@ Use Chrome DevTools MCP for runtime verification.
 
 Before launching browser tools:
 
+- Do not launch `browser-mcp` for simple tasks that do not require live browser interaction or browser-only verification.
 - Identify the target URL, dev server, userscript, extension, or local build/watch process.
 - Check relevant dev servers with low timeouts before opening Chrome.
 - Do not guess runtime behavior from source when console, network, DOM, storage, or screenshots can verify it.
