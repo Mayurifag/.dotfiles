@@ -4,4 +4,27 @@ $ErrorActionPreference = 'Stop'
 $attachmentManager = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Attachments'
 New-Item -Path $attachmentManager -Force | Out-Null
 New-ItemProperty -Path $attachmentManager -Name 'SaveZoneInformation' -PropertyType DWord -Value 1 -Force | Out-Null
+
+$qBittorrentConfig = Join-Path $env:APPDATA 'qBittorrent\qBittorrent.ini'
+$qBittorrentDirectory = Split-Path -Parent $qBittorrentConfig
+New-Item -ItemType Directory -Path $qBittorrentDirectory -Force | Out-Null
+
+if (Test-Path -LiteralPath $qBittorrentConfig) {
+    $config = Get-Content -LiteralPath $qBittorrentConfig -Raw
+}
+else {
+    $config = ''
+}
+
+if ($config -match '(?m)^Advanced\\markOfTheWeb=') {
+    $config = $config -replace '(?m)^Advanced\\markOfTheWeb=.*$', 'Advanced\markOfTheWeb=false'
+}
+elseif ($config -match '(?m)^\[Preferences\]$') {
+    $config = $config -replace '(?m)^(\[Preferences\])$', "`$1`r`nAdvanced\markOfTheWeb=false"
+}
+else {
+    $config = "$config`r`n[Preferences]`r`nAdvanced\markOfTheWeb=false`r`n"
+}
+
+[System.IO.File]::WriteAllText($qBittorrentConfig, $config)
 {{- end }}
