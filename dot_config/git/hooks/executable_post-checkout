@@ -13,7 +13,7 @@ git_sync_path() {
   local git_sync
 
   git_sync=$(command -v git-sync 2>/dev/null || true)
-  [[ -z "$git_sync" && -x "$HOME/.local/bin/git-sync" ]] && git_sync="$HOME/.local/bin/git-sync"
+  [[ -z "$git_sync" && -x "$HOME/.local/espanso_managed_bins/git-sync" ]] && git_sync="$HOME/.local/espanso_managed_bins/git-sync"
   [[ -n "$git_sync" ]] || return 1
 
   printf '%s\n' "$git_sync"
