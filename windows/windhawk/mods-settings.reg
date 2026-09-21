@@ -82,6 +82,38 @@ Windows Registry Editor Version 5.00
 "disableKbOnlySizes"=dword:00000001
 "useIecTerms"=dword:00000001
 
+[HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\explorer-info-bar]
+"LibraryFileName"="explorer-info-bar_1.2.0_601188.dll"
+"Disabled"=dword:00000000
+"Include"="explorer.exe"
+"Exclude"=""
+"Architecture"=""
+"Version"="1.2.0"
+"SettingsChangeTime"=dword:6a9c8360
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\explorer-info-bar\Settings]
+"style"="simple"
+"panelFill"="solid"
+"order"="drive-content-selection"
+"fontFamily"="Segoe UI"
+"fontSize"="12"
+"leftPadding"="auto"
+"sectionGap"="auto"
+"showDrive"=dword:00000001
+"showContent"=dword:00000001
+"showSelection"=dword:00000001
+"singleFileDetails"=dword:00000001
+"photoDetails"="standard"
+"mediaDetails"="standard"
+"otherFileDetails"="basic"
+"showExplorerViewButtons"=dword:00000001
+"textColor"="auto"
+"driveColor"="auto"
+"contentColor"="auto"
+"selectionColor"="auto"
+"fileDetailsColor"="auto"
+"dividerColor"="auto"
+
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\extension-change-no-warning]
 "LibraryFileName"="extension-change-no-warning_1.0.1_935056.dll"
 "Disabled"=dword:00000000
@@ -181,6 +213,17 @@ Windows Registry Editor Version 5.00
 "IncludeCustom"=""
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\remove-fullscreen-popup-chrome\Settings]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\startup-app-delay-fix]
+"LibraryFileName"="startup-app-delay-fix_1.4.1_371943.dll"
+"Disabled"=dword:00000000
+"Include"="explorer.exe"
+"Exclude"=""
+"Architecture"=""
+"Version"="1.4.1"
+"SettingsChangeTime"=dword:6a9c83c3
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\startup-app-delay-fix\Settings]
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\taskbar-button-click]
 "LibraryFileName"="taskbar-button-click_1.0.9_351172.dll"

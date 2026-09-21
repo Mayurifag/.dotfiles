@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; Disable Narrator for current user and block it system-wide.
+
+[HKEY_CURRENT_USER\Software\Microsoft\Narrator\NoRoam]
+"RunningState"=dword:00000000
+"WinEnterLaunchEnabled"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\Narrator.exe]
+"Debugger"="%1"

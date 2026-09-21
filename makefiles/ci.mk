@@ -23,7 +23,7 @@ shellcheck:
 	trap 'rm -rf "$$tmp_dir"' EXIT INT TERM; \
 	scripts="$$tmp_dir/scripts"; \
 	templates="$$tmp_dir/templates"; \
-	{ git ls-files '*.sh' '*.bash'; git grep -I -E -l -e '^#!.*(sh|bash)' -- . ':!*.tmpl' || true; } | sort -u > "$$scripts"; \
+	{ git ls-files '*.sh' '*.bash'; git grep -I -E -l -e '^#!.*(sh|bash)' -- . ':!*.tmpl' || true; } | sort | uniq | tr -d '\r' > "$$scripts"; \
 	git ls-files '*.sh.tmpl' '*.bash.tmpl' > "$$templates"; \
 	status=0; \
 	while IFS= read -r file; do \

@@ -4,4 +4,4 @@
 - If it includes `./makefiles/*.mk` or similar, read those included files too; important targets may live there.
 - Prefer existing make targets over raw underlying commands when they express the same operation.
 - When repeated project commands are missing and the repo uses Make, consider adding a short target instead of scattering long commands.
-- Keep Makefiles concise. If a root Makefile grows large, prefer splitting related targets into `./makefiles/*.mk` and including them.
+- If a root Makefile grows large, prefer splitting related targets into `./makefiles/*.mk` and including them.
