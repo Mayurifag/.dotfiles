@@ -4,6 +4,7 @@
 
 - Prefer Context7 for library/framework/API/SDK/CLI/config-schema/MCP docs.
 - Prefer GitHub source/docs when the answer depends on actual implementation, examples, README/docs files, release notes, or repository history.
+- For version-dependent behavior, verify the installed version's observed UI or API output before relying on generic examples or documentation.
 - Prefer Exa MCP (`exa_web_search_exa`, `exa_web_fetch_exa`) for web search, current facts, broad research, comparisons, news, people, companies, unknown URLs, or docs not covered by Context7/GitHub.
 - Prefer Exa over built-in web request/search tools. Built-in tools are often blocked by website owners.
 - Use built-in web tools only when Exa fails, is unavailable, or a direct URL fetch is clearly enough.
