@@ -1,5 +1,6 @@
 @prantlf/jsonlint@latest
 @ansible/ansible-language-server@latest
+agent-browser@latest
 actions-up@latest
 bash-language-server@latest
 dockerfile-language-server-nodejs@latest
