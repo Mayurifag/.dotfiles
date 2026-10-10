@@ -16,6 +16,7 @@ Read only relevant files. List must include every file under `~/airules`:
 - `~/airules/chrome-mcp.md` -> browser automation, extensions, UI/runtime/console/network/storage/DOM debugging
 - `~/airules/css.md` -> CSS, styling, themes, userstyles
 - `~/airules/general-coding.md` -> coding tasks, code changes, software projects
+- `~/airules/git.md` -> git commits, pushes, and CI checks
 - `~/airules/git-crypt.md` -> encrypted secrets, ejson, git-crypt
 - `~/airules/github.md` -> GitHub issues, PRs, checks, release management, repository actions
 - `~/airules/javascript.md` -> JavaScript projects
