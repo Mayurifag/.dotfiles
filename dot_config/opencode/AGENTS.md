@@ -23,6 +23,7 @@ Read only relevant files. List must include every file under `~/airules`:
 - `~/airules/makefiles.md` -> Makefiles or make targets
 - `~/airules/markdown.md` -> Markdown files
 - `~/airules/opencode.md` -> OpenCode config, agents, skills, plugins, MCP, permissions
+- `~/airules/passwords.md` -> password retrieval and credential use
 - `~/airules/pr-description.md` -> PR descriptions and PR bodies
 - `~/airules/python.md` -> Python projects
 - `~/airules/research.md` -> web search, documentation, GitHub docs/source, current information, online research

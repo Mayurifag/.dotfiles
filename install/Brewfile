@@ -1,6 +1,7 @@
 tap "browsers-software/tap", trusted: true
 tap "dracula/install", trusted: true
 tap "krishkrosh/apps", trusted: true
+tap "mietzen/tap", trusted: true
 brew "antidote"
 brew "aom"
 brew "bandwhich"
@@ -32,6 +33,7 @@ brew "imagemagick"
 brew "jj"
 brew "jpeg-xl"
 brew "jq"
+brew "mietzen/tap/keepassxc-cli"
 brew "leptonica"
 brew "libass"
 brew "libffi"
@@ -77,6 +79,7 @@ cask "ayugram"
 cask "beekeeper-studio"
 cask "browsers-software/tap/browsers"
 cask "cmux"
+cask "codexbar"
 cask "dracula/install/dracula-wallpaper"
 cask "espanso"
 cask "font-fira-code-nerd-font"
