@@ -35,3 +35,9 @@ theme = "dracula"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+
+[mcp_servers.docmost]
+command = "npx"
+args = ["-y", "@wisflux/docmost-local-mcp@0.9.2", "--base-url=https://doc.nnnnn.cfd"]
+startup_timeout_sec = 60
+tool_timeout_sec = 180
