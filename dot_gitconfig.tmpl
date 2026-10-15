@@ -18,7 +18,7 @@
   # Here and later, paths separators dont need normalization for Windows, git works fine, yay!
   attributesfile = {{ .chezmoi.homeDir }}/.gitattributes
   excludesfile = {{ .chezmoi.homeDir }}/.gitignore_global
-  # Its important to have homeDir here, not the '~', because hooks wont work in GitKraken otherwise (yes!)
+  # Keep hooksPath absolute for GUI clients that may not expand '~'.
   hooksPath = {{ .chezmoi.homeDir }}/.config/git/hooks
 {{- if eq .chezmoi.os "windows" }}
   sshCommand = C:/Windows/System32/OpenSSH/ssh.exe

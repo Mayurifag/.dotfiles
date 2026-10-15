@@ -7,7 +7,7 @@ set -euo pipefail
 
 git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
-# Non-TTY (e.g. GitKraken hook) flags any stdout/stderr as a hook error popup.
+# Non-TTY GUI Git clients may treat hook stdout/stderr as an error popup.
 # Redirect to a log file when not attached to a terminal.
 if [[ ! -t 1 ]]; then
   mkdir -p "$HOME/.cache"

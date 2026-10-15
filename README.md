@@ -132,7 +132,7 @@ Do you really want to set this key to ultimate trust? (y/N) y
 gpg> quit
 ```
 
-- Install and configure gitkraken (ssh from system, etc.)
+- Install and configure GitComet (system Git and SSH configuration)
 - Setup external disks (router or else)
 - Setup Obsidian
 - Setup [Browsers.app](https://browsers.software/) as default browser
@@ -183,14 +183,6 @@ uid=1000,gid=1000,umask=000,nofail,noatime,user,exec 0 0
 ```txt
 # /etc/conf.d/wireless-regdom
 WIRELESS_REGDOM="KR"
-```
-
-- Prevent updating of gitkraken:
-
-```txt
-# /etc/pacman.conf
-...
-IgnorePkg = gitkraken
 ```
 
 - Enable native overlay diff engine to speed up building images in docker (info from ArchWiki):

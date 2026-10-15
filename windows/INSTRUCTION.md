@@ -98,8 +98,7 @@ gh auth login
 ## TODO
 
 - [ ] Setup VSCode - sync settings
-- [ ] Setup gitkraken with activation (requires full path) and configure (system
-  ssh, etc.)
+- [ ] Install GitComet, put `gitcomet.exe` on PATH, and verify system Git and SSH configuration
 - [ ] Everything with settings for powertoys (+plugin) and for windhawk
 - [ ] Setup PowerToys - only with tools I use
 - [ ] Altsnap

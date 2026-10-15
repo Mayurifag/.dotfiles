@@ -1,0 +1,179 @@
+{
+  "schema_version": 2,
+  "name": "Dracula Dimmed",
+  "themes": [
+    {
+      "key": "dracula_dimmed",
+      "name": "Dracula Dimmed",
+      "appearance": "dark",
+      "colors": {
+        "surface": {
+          "canvas": "#1a1c23ff",
+          "chrome": "#2c2e34ff",
+          "panel": "#1a1c23ff",
+          "raised": "#252831ff",
+          "input": "#2c2e34ff"
+        },
+        "foreground": {
+          "primary": "#d4d4d4ff",
+          "secondary": "#9ca3afff",
+          "disabled": "#6b7280ff",
+          "placeholder": "#9ca3afff",
+          "emphasis": "#e5e7ebff"
+        },
+        "stroke": {
+          "subtle": "#2c2e34ff",
+          "default": "#373a44ff",
+          "control": "#686d7aff"
+        },
+        "interaction": {
+          "hover_overlay": "#d4d4d40d",
+          "pressed_overlay": "#d4d4d418",
+          "hover_background": "#252831ff",
+          "pressed_background": "#373a44ff",
+          "selected_background": "#2c2e34ff",
+          "selected_foreground": "#d4d4d4ff",
+          "selected_indicator": "#c678ddff",
+          "focus_ring": "#a17bb8ff",
+          "focus_background": "#c678dd14"
+        },
+        "accent": {
+          "foreground": "#c678ddff",
+          "solid": "#a17bb8ff",
+          "on_solid": "#1a1c23ff",
+          "subtle_background": "#302737ff"
+        },
+        "status": {
+          "info": { "foreground": "#56b6c2ff", "background": "#202b31ff", "border": "#456b75ff" },
+          "success": { "foreground": "#98c379ff", "background": "#222d28ff", "border": "#566c4eff" },
+          "warning": { "foreground": "#e5c07bff", "background": "#302b25ff", "border": "#7c694aff" },
+          "danger": { "foreground": "#e06c75ff", "background": "#302429ff", "border": "#80505aff" }
+        },
+        "editor": {
+          "background": "#1a1c23ff",
+          "foreground": "#d4d4d4ff",
+          "gutter_background": "#1a1c23ff",
+          "line_number": "#9ca3afff",
+          "cursor": "#d4d4d4ff",
+          "selection_background": "#373a44ff",
+          "search_match_background": "#453b2dff",
+          "search_match_foreground": "#e5c07bff",
+          "bracket_match_background": "#3c3044ff",
+          "occurrence_highlight_background": "#302737ff",
+          "indent_guide": "#2c2e34ff"
+        },
+        "diff": {
+          "added": {
+            "foreground": "#a8c994ff",
+            "background": "#222d28ff",
+            "word_background": "#344738ff",
+            "focused_background": "#2b3b30ff"
+          },
+          "removed": {
+            "foreground": "#d99198ff",
+            "background": "#302429ff",
+            "word_background": "#503139ff",
+            "focused_background": "#402a32ff"
+          },
+          "modified": {
+            "foreground": "#e5c07bff",
+            "background": "#302b25ff",
+            "word_background": "#4c402dff",
+            "focused_background": "#3d3528ff"
+          }
+        },
+        "tooltip": { "background": "#141516ff", "foreground": "#d4d4d4ff" },
+        "scrollbar": {
+          "thumb": "#6b728080",
+          "thumb_hover": "#6b7280bf",
+          "thumb_pressed": "#9ca3afbf"
+        },
+        "notice": {
+          "background": "#252831ff",
+          "border": "#7c694aff",
+          "foreground": "#d4d4d4ff",
+          "secondary": "#9ca3afff"
+        },
+        "interstitial": {
+          "text": "#d4d4d4ff",
+          "muted": "#9ca3afff",
+          "primary": {
+            "text": "#d4d4d4ff",
+            "background": "#252831ff",
+            "background_hover": "#2c2e34ff",
+            "background_active": "#373a44ff",
+            "border": "#a17bb8ff",
+            "border_hover": "#c678ddff",
+            "border_active": "#a17bb8ff"
+          },
+          "secondary": {
+            "text": "#c8c8c8ff",
+            "background": "#252831ff",
+            "background_hover": "#2c2e34ff",
+            "background_active": "#373a44ff",
+            "border": "#686d7aff",
+            "border_hover": "#9ca3afff",
+            "border_active": "#686d7aff"
+          }
+        },
+        "shadow": "#00000000",
+        "graph_lane_palette": [
+          "#56b6c2ff", "#98c379ff", "#c678ddff", "#7f9fcbff",
+          "#e5c07bff", "#d19a66ff", "#e06c75ff", "#bb8fa8ff"
+        ]
+      },
+      "syntax": {
+        "comment": "#9299a7ff",
+        "comment_doc": "#9ca3afff",
+        "string": "#e5c07bff",
+        "string_escape": "#98c379ff",
+        "string_regex": "#d19a66ff",
+        "string_special": "#e5c07bff",
+        "keyword": "#c678ddff",
+        "keyword_control": "#c678ddff",
+        "preproc": "#bb8fa8ff",
+        "number": "#a995c9ff",
+        "boolean": "#a995c9ff",
+        "function": "#98c379ff",
+        "function_method": "#98c379ff",
+        "function_special": "#56b6c2ff",
+        "constructor": "#56b6c2ff",
+        "type": "#56b6c2ff",
+        "type_builtin": "#56b6c2ff",
+        "type_interface": "#7f9fcbff",
+        "namespace": "#7f9fcbff",
+        "variable": "#d4d4d4ff",
+        "variable_parameter": "#d19a66ff",
+        "variable_special": "#bb8fa8ff",
+        "variable_builtin": "#56b6c2ff",
+        "property": "#d4d4d4ff",
+        "label": "#bb8fa8ff",
+        "constant": "#a995c9ff",
+        "constant_builtin": "#a995c9ff",
+        "operator": "#c678ddff",
+        "punctuation": "#c8c8c8ff",
+        "punctuation_bracket": "#c8c8c8ff",
+        "punctuation_delimiter": "#c8c8c8ff",
+        "punctuation_special": "#56b6c2ff",
+        "punctuation_list_marker": "#d19a66ff",
+        "tag": "#bb8fa8ff",
+        "attribute": "#98c379ff",
+        "markup_heading": "#c678ddff",
+        "markup_link": "#56b6c2ff",
+        "text_literal": "#e5c07bff",
+        "diff_plus": "#98c379ff",
+        "diff_minus": "#e06c75ff",
+        "diff_delta": "#e5c07bff",
+        "lifetime": "#d19a66ff"
+      },
+      "radii": {
+        "panel": 4.0,
+        "pill": 4.0,
+        "row": 2.0,
+        "control": 3.0,
+        "popover": 4.0,
+        "window": 4.0
+      }
+    }
+  ]
+}

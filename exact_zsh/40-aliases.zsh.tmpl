@@ -33,15 +33,12 @@ brewfile() {
 }
 alias updatedesktopdb='update-desktop-database ~/.local/share/applications/'
 
-## GitKraken
-unalias gk 2>/dev/null
-gk() {
+## GitComet
+unalias gcomet 2>/dev/null
+gcomet() {
   local root
-  root=$(git rev-parse --show-toplevel 2>/dev/null) || { echo "gk: not in a git repo" >&2; return 1; }
-{{- if eq .chezmoi.os "darwin" }}
-  open -n -b com.axosoft.gitkraken --args --new-window -p "$root" -l /dev/null >/dev/null 2>&1
-{{- else }}
-  gitkraken --new-window -p "$root" -l /dev/null >/dev/null 2>&1 &
-{{- end }}
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || { echo "gcomet: not in a git repo" >&2; return 1; }
+  gitcomet "$root" >/dev/null 2>&1 &
 }
-alias g='gk'
+alias g='gcomet'
+alias gk='gcomet'

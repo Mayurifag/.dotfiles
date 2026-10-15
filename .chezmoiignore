@@ -37,6 +37,7 @@ Library/
 .local/share/kglobalaccel/
 .local/share/konsole/
 .local/share/systemd/
+.local/share/gitcomet/
 {{- end }}
 
 {{ if ne .chezmoi.os "windows" -}}
@@ -56,6 +57,7 @@ zsh/
 
 {{- if ne .chezmoi.os "windows" }}
 AppData/Local/vicinae/
+AppData/Local/gitcomet/
 Documents/
 .local/bin/python3
 .local/bin/python3.cmd

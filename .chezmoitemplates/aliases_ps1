@@ -95,16 +95,16 @@ function ip {
         Where-Object IPAddress | Select-Object Name, Type, IPAddress
 }
 
-## GitKraken
-function gk {
-    $gkExe = Get-Item "$env:LOCALAPPDATA\gitkraken\app-*\gitkraken.exe" -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1 -ExpandProperty FullName
-    if (-not $gkExe) { Write-Warning "GitKraken not found"; return }
+## GitComet
+function gcomet {
+    $gitcomet = Get-Command gitcomet.exe -ErrorAction SilentlyContinue
+    if (-not $gitcomet) { Write-Warning "GitComet not found on PATH"; return }
     $root = git rev-parse --show-toplevel 2>$null
     if (-not $root) { Write-Warning "Not a git repository"; return }
-    $root = (Resolve-Path $root).Path
-    Start-Process -FilePath $gkExe -ArgumentList "--new-window", "-p", $root -RedirectStandardError NUL
+    Start-Process -FilePath $gitcomet.Source -ArgumentList "`"$root`""
 }
-Set-Alias -Name g -Value gk
+Set-Alias -Name g -Value gcomet
+Set-Alias -Name gk -Value gcomet
 
 ## Shell utilities (complex)
 function mkcd {
