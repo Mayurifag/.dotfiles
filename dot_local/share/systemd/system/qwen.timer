@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Qwen after boot
+
+[Timer]
+OnBootSec=30s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

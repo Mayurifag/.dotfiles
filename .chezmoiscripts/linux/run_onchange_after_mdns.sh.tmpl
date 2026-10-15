@@ -1,0 +1,14 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Avahi: {{ include "dot_local/share/boot-config/avahi-daemon.conf" | sha256sum }}
+# NSS: {{ include "dot_local/share/boot-config/nsswitch.conf" | sha256sum }}
+# Resolved: {{ include "dot_local/share/boot-config/60-mdns.conf" | sha256sum }}
+
+sudo install -m 644 "$HOME/.local/share/boot-config/avahi-daemon.conf" /etc/avahi/avahi-daemon.conf
+sudo install -m 644 "$HOME/.local/share/boot-config/nsswitch.conf" /etc/nsswitch.conf
+sudo install -d /etc/systemd/resolved.conf.d
+sudo install -m 644 "$HOME/.local/share/boot-config/60-mdns.conf" /etc/systemd/resolved.conf.d/60-mdns.conf
+sudo systemctl try-restart systemd-resolved.service avahi-daemon.service
+{{- end }}

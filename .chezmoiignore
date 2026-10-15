@@ -33,7 +33,9 @@ Library/
 .local/bin/qwen
 .local/bin/fanctl
 .config/environment.d/
+.config/systemd/
 .local/share/applications/
+.local/share/boot-config/
 .local/share/kglobalaccel/
 .local/share/konsole/
 .local/share/systemd/

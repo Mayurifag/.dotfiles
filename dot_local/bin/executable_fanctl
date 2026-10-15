@@ -82,7 +82,9 @@ def telemetry(fd, sensors):
         ):
             break
     else:
-        raise ValueError("Unstable fan telemetry")
+        raise ValueError(
+            f"Unstable fan telemetry: first={first.hex()} second={second.hex()}"
+        )
     raw = os.pread(fd, 1, 0x70)
     if len(raw) != 1:
         raise ValueError("Incomplete controller temperature")
@@ -161,7 +163,22 @@ def main():
                 sensors.extend(path.glob("temp*_input"))
         if names != {"k10temp", "amdgpu"} or not sensors:
             parser.error("Required CPU/GPU temperature sensors unavailable")
-        temperature, rpm = telemetry(fd, sensors)
+        if args.action == "run":
+            if read_controls(fd) != (0, 0):
+                parser.error("Another manual fan override is active")
+            # Leave firmware in control while startup telemetry settles.
+            deadline = time.monotonic() + 20
+            while True:
+                try:
+                    temperature, rpm = telemetry(fd, sensors)
+                    break
+                except ValueError as error:
+                    if time.monotonic() >= deadline:
+                        raise
+                    print(f"Waiting for valid startup telemetry: {error}", flush=True)
+                    time.sleep(0.5)
+        else:
+            temperature, rpm = telemetry(fd, sensors)
         controls = read_controls(fd)
         if args.action == "status":
             mode = (

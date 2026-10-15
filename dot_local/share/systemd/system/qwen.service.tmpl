@@ -1,0 +1,16 @@
+[Unit]
+Description=Qwen Halogen and Open WebUI
+Requires=docker.service
+Wants=network-online.target netbird@main.service
+After=docker.service network-online.target netbird@main.service
+RequiresMountsFor=/mnt/Shared
+
+[Service]
+Type=oneshot
+User={{ .chezmoi.username }}
+ExecStart="{{ .chezmoi.homeDir }}/.local/bin/qwen" --no-open
+ExecStop=/usr/bin/docker stop qwen-webui halogen
+RemainAfterExit=yes
+TimeoutStartSec=8min
+Restart=on-failure
+RestartSec=15s

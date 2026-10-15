@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+open_browser=true
+if [[ ${1:-} == --no-open ]]; then
+    open_browser=false
+    shift
+fi
+if (($#)); then
+    printf '%s\n' 'Usage: qwen [--no-open]' >&2
+    exit 2
+fi
+
 model_id=halogen-v2-abliterated
 api_url=http://127.0.0.1:8731
 webui_url=https://qwen.home.mayurifag.ru
@@ -20,6 +30,15 @@ if [[ ! -f "$models/.ready" ]]; then
     printf '%s\n' "Model downloads are not verified: missing $models/.ready." >&2
     exit 1
 fi
+
+deadline=$((SECONDS + 120))
+until [[ -n "$(ip -4 -o address show to "$webui_host/32")" ]]; do
+    if ((SECONDS >= deadline)); then
+        printf '%s\n' "NetBird address $webui_host is not ready." >&2
+        exit 1
+    fi
+    sleep 2
+done
 
 if [[ "$(docker inspect -f '{{.State.Running}}' halogen 2>/dev/null || true)" != true ]]; then
     docker run -d --rm --name halogen \
@@ -76,4 +95,6 @@ until curl -fsS --connect-timeout 1 --max-time 3 "$api_url/health" >/dev/null 2>
     sleep 2
 done
 printf '%s\n' "Chat: $webui_url" 'Stop: docker stop qwen-webui halogen'
-xdg-open "$webui_url"
+if [[ $open_browser == true ]]; then
+    xdg-open "$webui_url"
+fi

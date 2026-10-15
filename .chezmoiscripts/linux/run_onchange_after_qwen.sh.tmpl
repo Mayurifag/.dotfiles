@@ -1,0 +1,16 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher: {{ include "dot_local/bin/executable_qwen" | sha256sum }}
+# Service: {{ include "dot_local/share/systemd/system/qwen.service.tmpl" | sha256sum }}
+# Timer: {{ include "dot_local/share/systemd/system/qwen.timer" | sha256sum }}
+
+[[ -r /sys/devices/virtual/dmi/id/product_name ]] || exit 0
+[[ "$(</sys/devices/virtual/dmi/id/product_name)" == "FAEX9" ]] || exit 0
+
+sudo install -m 644 "$HOME/.local/share/systemd/system/qwen.service" /etc/systemd/system/qwen.service
+sudo install -m 644 "$HOME/.local/share/systemd/system/qwen.timer" /etc/systemd/system/qwen.timer
+sudo systemctl daemon-reload
+sudo systemctl enable --now qwen.timer
+{{- end }}

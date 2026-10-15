@@ -7,6 +7,7 @@ docker-buildx
 docker-compose
 eget-bin
 espanso-wayland
+freecad
 git
 git-crypt
 github-cli
