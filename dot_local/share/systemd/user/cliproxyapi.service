@@ -1,0 +1,15 @@
+[Unit]
+Description=Local Grok subscription API bridge
+ConditionPathExists=%h/.config/cliproxyapi/config.yaml
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.config/cliproxyapi
+Environment="MANAGEMENT_PASSWORD="
+ExecStart=%h/.local/share/mise/shims/cli-proxy-api --config %h/.config/cliproxyapi/config.yaml --local-model
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=default.target

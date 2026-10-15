@@ -1,0 +1,20 @@
+[Unit]
+Description=FEVM FAEX9 quiet-idle fan control
+After=systemd-modules-load.service
+StartLimitIntervalSec=120
+StartLimitBurst=3
+
+[Service]
+Type=notify
+ExecStart=/usr/local/bin/faex9-fanctl run
+ExecStopPost=/usr/local/bin/faex9-fanctl restore
+WatchdogSec=15
+WatchdogSignal=SIGKILL
+TimeoutStartSec=30
+TimeoutStopSec=5
+Restart=on-failure
+RestartSec=10
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

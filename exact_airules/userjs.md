@@ -18,14 +18,14 @@
 
 ## Local Development
 
-- If browser runtime verification is needed, load `~/airules/chrome-mcp.md`.
+- If browser runtime verification is needed, load `~/airules/browser-testing.md`.
 - Do not keep manual Tampermonkey edits in `.opencode/browser-mcp-profile/`; browser launches replace it from the template.
 - Tampermonkey is the default userscript manager unless the user explicitly requires another manager.
-- Install the local Vite userscript URL with `browser-mcp --tampermonkey-install http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`.
-- After install, `browser-mcp` reloads already-open tabs matching the userscript `@match`/`@include` metadata.
-- Delete a script with `browser-mcp --tampermonkey-delete <exact script name>`.
+- Install the local Vite userscript URL with `browser-test --tampermonkey-install http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`.
+- After install, `browser-test` reloads already-open tabs matching the userscript `@match`/`@include` metadata.
+- Delete a script with `browser-test --tampermonkey-delete <exact script name>`.
 - Do not install dist/published userscripts unless explicitly requested.
-- Before debugging userscript logic, verify local userscript-manager injection once: expected script in `browser-mcp --status`, local entry in network, and one real page effect.
+- Before debugging userscript logic, verify local userscript-manager injection once: expected script in `browser-test --status`, local entry in network, and one real page effect.
 - Do not diagnose GM/Tampermonkey API behavior by importing userscript source directly into page context; verify it through userscript-manager injection.
 - Do not conclude the userscript failed only because optional enhanced UI classes are absent; a feature may be disabled, delayed, or irrelevant to the current flow.
 - Prefer event, DOM, network, or app-state checks over sleeps. Use short waits only when a specific async delay was observed.

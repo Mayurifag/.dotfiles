@@ -18,6 +18,7 @@ less
 mise
 nano
 nano-syntax-highlighting
+netbird-bin
 ntfs-3g
 openssh
 otf-apple-sf-pro
@@ -30,10 +31,12 @@ refind
 refind-theme-dracula
 scrcpy
 shellcheck
+steam
 streamlink
 tssh-bin
 ttf-firacode-nerd
 ttf-jetbrains-mono-nerd
+ttf-juliamono-nerd-font
 vi
 vim
 visual-studio-code-bin

@@ -22,8 +22,7 @@ function repoRoot() {
   }
 }
 const PORT =
-  process.env.OPENCODE_BROWSER_MCP_PORT ||
-  process.env.BROWSER_MCP_PORT ||
+  process.env.OPENCODE_BROWSER_TEST_PORT ||
   String(BASE_PORT + (zlib.crc32(Buffer.from(repoRoot())) % PORT_SPAN));
 const BASE = `http://127.0.0.1:${PORT}`;
 const TM = "dhdgffkkebhmkfjojejmpbldmpobfkfo";

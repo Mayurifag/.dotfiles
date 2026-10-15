@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Grok Chat
+Exec=vicinae cmd launch shortcuts:sct-54b9104c5398
+StartupNotify=false
+X-KDE-GlobalAccel-CommandShortcut=true
+X-KDE-Shortcuts=Meta+Alt+Space

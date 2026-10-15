@@ -3,8 +3,8 @@ AntiAliasFonts=true
 BoldIntense=true
 ColorScheme=klorax.dracula-transparent
 DimmValue=41
-Font=Monospace,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
-UseFontLineChararacters=true
+Font=JuliaMono Nerd Font Mono,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+UseFontLineChararacters=false
 
 [Cursor Options]
 CursorShape=1

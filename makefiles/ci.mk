@@ -6,7 +6,13 @@ JSONC_EXCLUDES := $(foreach f,$(JSONC_FILES),-not -path "./$(f)")
 SHELLCHECK := shellcheck -e SC2329
 
 .PHONY: ci
-ci: markdownlint shellcheck jsonlint
+ci: markdownlint shellcheck jsonlint browser-syntax-check
+
+.PHONY: browser-syntax-check
+browser-syntax-check:
+	set -e
+	node --check dot_local/exact_espanso_managed_bins/executable_browser-test
+	node --check browser-mcp-template/cdp-tampermonkey.js
 
 .PHONY: markdownlint
 markdownlint:

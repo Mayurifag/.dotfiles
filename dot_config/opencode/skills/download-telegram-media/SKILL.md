@@ -1,6 +1,6 @@
 ---
 name: download-telegram-media
-description: Downloads Telegram or Telegraph media. Use when the user requests media downloads, gives a Telegram chat ID, a t.me link, or a telegra.ph/graph.org URL. Prefer the local downloader; browser fallback uses agent-browser, never browser-mcp.
+description: Downloads Telegram or Telegraph media. Use when the user requests media downloads, gives a Telegram chat ID, a t.me link, or a telegra.ph/graph.org URL. Prefer the local downloader; browser fallback uses agent-browser, never browser-test.
 ---
 
 <!-- markdownlint-disable MD033 MD041 -->
@@ -8,7 +8,7 @@ description: Downloads Telegram or Telegraph media. Use when the user requests m
 <objective>
 Download requested media into the requested directory or a new folder in the current directory.
 `-100...` is a Telegram chat/channel ID, not a Telegraph article ID. Telegraph requires a full article URL.
-Never use `browser-mcp`. Use globally managed `agent-browser`, not `npx`; if missing, run `make node-packages` from chezmoi source.
+Never use `browser-test`. Use globally managed `agent-browser`, not `npx`; if missing, run `make node-packages` from chezmoi source.
 </objective>
 
 <quick_start>

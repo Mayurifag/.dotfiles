@@ -28,6 +28,7 @@ vendor/
 *.log
 coverage/
 .cache/
+.ruff_cache/
 tmp/
 
 .bg-shell/

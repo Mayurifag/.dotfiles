@@ -7,6 +7,8 @@ install/
 macos/
 Makefile
 makefiles/
+scripts/
+.ruff_cache/
 windows/
 README.md
 browser-mcp-template/
@@ -27,8 +29,12 @@ Library/
 {{- end }}
 
 {{ if ne .chezmoi.os "linux" -}}
+.config/fontconfig/
+.local/bin/qwen
+.local/bin/fanctl
 .config/environment.d/
 .local/share/applications/
+.local/share/kglobalaccel/
 .local/share/konsole/
 .local/share/systemd/
 {{- end }}
@@ -37,6 +43,7 @@ Library/
 {{- end }}
 
 {{ if eq .chezmoi.os "windows" -}}
+.config/vicinae/
 .config/btop/
 .config/yakuakerc
 .config/konsolerc
@@ -48,6 +55,7 @@ zsh/
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
+AppData/Local/vicinae/
 Documents/
 .local/bin/python3
 .local/bin/python3.cmd

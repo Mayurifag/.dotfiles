@@ -10,8 +10,8 @@ const zlib = require("zlib");
 const HOST = "127.0.0.1";
 const BASE_PORT = 9223;
 const PORT_SPAN = 1000;
-const START_TIMEOUT = Number(process.env.OPENCODE_BROWSER_MCP_START_TIMEOUT || 15) * 1000;
-const TEMPLATE_PROFILE = expandHome(process.env.OPENCODE_BROWSER_MCP_TEMPLATE_PROFILE || "~/.local/share/chezmoi/browser-mcp-template/profile");
+const START_TIMEOUT = Number(process.env.OPENCODE_BROWSER_TEST_START_TIMEOUT || 15) * 1000;
+const TEMPLATE_PROFILE = expandHome(process.env.OPENCODE_BROWSER_TEST_TEMPLATE_PROFILE || "~/.local/share/chezmoi/browser-mcp-template/profile");
 const TM_IDS = ["dhdgffkkebhmkfjojejmpbldmpobfkfo", "gcalenpjmijncebpfijmoaglllgpjagf"];
 const STYLUS_IDS = ["clngdbkpkpeebahjckkjfobafhncgmne"];
 const SETTING_LABELS = { 1: "allow", 2: "block", 3: "ask" };
@@ -40,8 +40,49 @@ function profileDir() {
   return path.resolve(expandHome(process.env.OPENCODE_BROWSER_PROFILE_DIR || path.join(repoRoot(), ".opencode", "browser-mcp-profile")));
 }
 
+function validateProfilePath(profile, allowTemplate = false) {
+  const canonical = (value) => {
+    let current = path.resolve(value);
+    const missing = [];
+    for (;;) {
+      try {
+        fs.lstatSync(current);
+      } catch (error) {
+        if (error.code !== "ENOENT" || path.dirname(current) === current) throw error;
+        missing.unshift(path.basename(current));
+        current = path.dirname(current);
+        continue;
+      }
+      // A dangling symlink is not a missing directory; realpath must fail closed.
+      return path.join(fs.realpathSync(current), ...missing);
+    }
+  };
+  const normalize = (value) => process.platform === "win32" ? value.toLowerCase() : value;
+  const contains = (parent, value) => {
+    const relative = path.relative(normalize(parent), normalize(value));
+    return relative === "" || (relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative));
+  };
+  const resolved = path.resolve(profile);
+  const target = canonical(resolved);
+  const root = path.parse(target).root;
+  const home = path.resolve(os.homedir());
+  const repo = path.resolve(repoRoot());
+  if ([root, canonical(home), canonical(repo)].some((protectedPath) => contains(target, protectedPath))) {
+    throw new Error(`Refusing unsafe browser profile path: ${resolved}`);
+  }
+  const anchor = contains(repo, resolved) ? repo : contains(home, resolved) ? home : path.parse(resolved).root;
+  if (normalize(target) !== normalize(path.resolve(canonical(anchor), path.relative(anchor, resolved)))) {
+    throw new Error(`Refusing symlinked browser profile path: ${resolved}`);
+  }
+  const template = canonical(TEMPLATE_PROFILE);
+  if ((contains(target, template) || contains(template, target)) &&
+      !(allowTemplate && normalize(target) === normalize(template))) {
+    throw new Error(`Refusing browser profile path overlapping the template: ${resolved}`);
+  }
+}
+
 function port() {
-  return process.env.OPENCODE_BROWSER_MCP_PORT ? Number(process.env.OPENCODE_BROWSER_MCP_PORT) : BASE_PORT + (zlib.crc32(Buffer.from(repoRoot())) % PORT_SPAN);
+  return process.env.OPENCODE_BROWSER_TEST_PORT ? Number(process.env.OPENCODE_BROWSER_TEST_PORT) : BASE_PORT + (zlib.crc32(Buffer.from(repoRoot())) % PORT_SPAN);
 }
 
 function browserUrl(number) {
@@ -158,36 +199,144 @@ function portFree(number) {
 }
 
 function processRows() {
+  if (process.platform === "linux") {
+    let entries;
+    try { entries = fs.readdirSync("/proc"); } catch (error) { throw new Error(`Cannot establish process ownership: ${error.message}`); }
+    return entries.filter((entry) => /^\d+$/.test(entry)).flatMap((entry) => {
+      try {
+        const command = fs.readFileSync(`/proc/${entry}/cmdline`, "utf8");
+        if (!command.endsWith("\0")) return [];
+        const executable = fs.readlinkSync(`/proc/${entry}/exe`);
+        return [[Number(entry), command.slice(0, -1).split("\0"), executable]];
+      } catch {
+        return [];
+      }
+    });
+  }
   if (process.platform === "win32") {
     try {
       const out = child.execFileSync("pwsh.exe", ["-NoProfile", "-Command", "Get-CimInstance Win32_Process | Select-Object ProcessId,CommandLine | ConvertTo-Json -Compress"], { encoding: "utf8" });
       const data = JSON.parse(out || "[]");
       return (Array.isArray(data) ? data : [data]).map((item) => [Number(item.ProcessId || 0), item.CommandLine || ""]);
-    } catch {
-      return [];
+    } catch (error) {
+      throw new Error(`Cannot establish Windows process ownership: ${error.message}`);
     }
   }
-  const out = child.execFileSync("ps", ["-axo", "pid=,args="], { encoding: "utf8" });
-  return out.split("\n").flatMap((line) => {
-    const match = line.trim().match(/^(\d+)\s+(.+)$/);
-    return match ? [[Number(match[1]), match[2]]] : [];
-  });
+  if (process.platform !== "darwin") throw new Error(`Cannot establish process ownership on ${process.platform}`);
+  try {
+    // Darwin KERN_PROCARGS2: native argc, executable path, NUL padding, then argc NUL-terminated arguments.
+    // https://github.com/apple-oss-distributions/adv_cmds/blob/main/ps/print.c
+    return JSON.parse(child.execFileSync("python3", ["-c", String.raw`
+import ctypes, json, os, re, struct, subprocess, sys
+
+sys.excepthook = lambda *_: print("Cannot establish native Chrome ownership", file=sys.stderr)
+libc = ctypes.CDLL(None, use_errno=True)
+libc.sysctl.argtypes = [ctypes.POINTER(ctypes.c_int), ctypes.c_uint, ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t), ctypes.c_void_p, ctypes.c_size_t]
+libc.sysctl.restype = ctypes.c_int
+libproc = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+libproc.proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+libproc.proc_pidpath.restype = ctypes.c_int
+custom = os.path.realpath(os.path.expanduser(os.environ["OPENCODE_CHROME_PATH"])) if os.environ.get("OPENCODE_CHROME_PATH") else None
+
+def inactive(pid):
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return True
+    state = subprocess.run(["ps", "-p", str(pid), "-o", "stat="], capture_output=True, text=True)
+    return state.returncode == 0 and state.stdout.strip().startswith("Z")
+
+rows = []
+for line in subprocess.check_output(["ps", "-axo", "pid=,uid=,stat="], text=True).splitlines():
+    pid, uid, state = line.split()
+    pid, uid = int(pid), int(uid)
+    if uid != os.geteuid() or pid == os.getpid() or state.startswith("Z"):
+        continue
+    executable_buffer = ctypes.create_string_buffer(4096)  # PROC_PIDPATHINFO_MAXSIZE
+    if libproc.proc_pidpath(pid, executable_buffer, len(executable_buffer)) <= 0:
+        if inactive(pid):
+            continue
+        raise RuntimeError("Cannot read native executable identity")
+    executable = os.fsdecode(executable_buffer.value)
+    if not re.fullmatch(r"chrome|google-chrome(?:-stable)?|Google Chrome", os.path.basename(executable)) and not (custom and os.path.realpath(executable) == custom):
+        continue
+    mib = (ctypes.c_int * 3)(1, 49, pid)  # CTL_KERN, KERN_PROCARGS2
+    buffer = ctypes.create_string_buffer(os.sysconf("SC_ARG_MAX"))
+    size = ctypes.c_size_t(len(buffer))
+    if libc.sysctl(mib, 3, buffer, ctypes.byref(size), None, 0) != 0:
+        if inactive(pid):
+            continue
+        raise RuntimeError("Cannot read candidate argv")
+    data = buffer.raw[:size.value]
+    argc = struct.unpack_from("@i", data)[0]
+    start = struct.calcsize("@i")
+    end = data.index(b"\0", start)
+    if os.path.realpath(os.fsdecode(data[start:end])) != os.path.realpath(executable):
+        raise ValueError("Executable identity changed")
+    start = end
+    while start < len(data) and data[start] == 0:
+        start += 1
+    if argc <= 0 or argc > len(data) - start or not os.path.isabs(executable):
+        raise ValueError("Invalid candidate argc")
+    profiles = []
+    previous = b""
+    for index in range(argc):
+        end = data.index(b"\0", start)
+        arg = data[start:end]
+        if index == 0:
+            if not arg or not os.path.isabs(os.fsdecode(arg)) or os.path.realpath(os.fsdecode(arg)) != os.path.realpath(executable):
+                raise ValueError("Ambiguous candidate argv0 or padding")
+        elif re.match(rb"[A-Za-z_][A-Za-z0-9_]*=", arg):
+            # Empty argv0 can shift parsing into environment entries after NUL padding.
+            raise ValueError("Ambiguous argument/environment boundary")
+        elif previous == b"--user-data-dir":
+            profiles.append(os.fsdecode(arg))
+        elif arg.startswith(b"--user-data-dir="):
+            profiles.append(os.fsdecode(arg[16:]))
+        previous = arg
+        start = end + 1
+    if previous == b"--user-data-dir" or len(profiles) > 1 or any(not os.path.isabs(value) for value in profiles):
+        raise ValueError("Ambiguous candidate profile")
+    if profiles:
+        rows.append([pid, profiles[0], executable])
+print(json.dumps(rows))
+`], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }));
+  } catch (error) {
+    throw new Error(`Cannot establish macOS process ownership; python3 on PATH and readable native process data are required (${error.code || error.status || "query failed"})`);
+  }
 }
 
-function dedicatedBrowserPids(profile, number) {
-  const resolvedProfile = path.resolve(profile);
-  const portArg = number == null ? null : `--remote-debugging-port=${number}`;
-  return processRows().filter(([pid, command]) => {
+function dedicatedBrowserPids(profile) {
+  const windows = process.platform === "win32";
+  const paths = windows ? path.win32 : path;
+  const normalize = (value) => windows ? paths.resolve(value).toLowerCase() : paths.resolve(value);
+  const resolvedProfile = normalize(profile);
+  return processRows().filter(([pid, command, actualExecutable]) => {
     if (pid === process.pid) return false;
-    const hasProfile = command.includes("user-data-dir") && (command.includes(profile) || command.includes(resolvedProfile));
-    const hasPort = portArg && command.includes(portArg);
-    return hasProfile || hasPort;
+    if (process.platform === "darwin") {
+      if (typeof command !== "string" || !actualExecutable) throw new Error("Cannot establish native profile ownership");
+      command = [actualExecutable, `--user-data-dir=${command}`];
+    }
+    const structured = Array.isArray(command);
+    if (!structured && !windows) throw new Error("Cannot establish process ownership without structured argv");
+    const executable = structured ? actualExecutable : command.match(/^("[^"]+"|'[^']+'|[^\s]+)(?=\s|$)/)?.[0];
+    if (!executable) return false;
+    const unquote = (value) => value.replace(/"([^"]*)"|'([^']*)'/g, (_, double, single) => double ?? single);
+    const identity = structured ? executable : unquote(executable);
+    const name = paths.basename(identity);
+    if (!(windows ? /^chrome\.exe$/i : /^(chrome|google-chrome(?:-stable)?|Google Chrome)$/).test(name) &&
+        !(process.env.OPENCODE_CHROME_PATH && normalize(identity) === normalize(expandHome(process.env.OPENCODE_CHROME_PATH)))) return false;
+    const remainder = structured ? null : command.slice(executable.length);
+    const args = structured ? command.slice(1) : (remainder.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) || []).map(unquote);
+    const profiles = args.flatMap((arg, index) => arg === "--user-data-dir" ? [args[index + 1] || ""] : arg.startsWith("--user-data-dir=") ? [arg.slice(16)] : []);
+    return profiles.length === 1 && paths.isAbsolute(profiles[0]) && normalize(profiles[0]) === resolvedProfile;
   }).map(([pid]) => pid);
 }
 
 async function terminateProfile(profile, number) {
+  validateProfilePath(profile, process.env.OPENCODE_BROWSER_TEST_ALLOW_TEMPLATE_PROFILE === "1");
   let pids = dedicatedBrowserPids(profile, number);
-  if (!pids.length) return;
+  if (!pids.length) return waitForBrowserExit(profile, number);
   if (process.platform === "win32") {
     for (const pid of pids) child.spawnSync("taskkill", ["/PID", String(pid), "/T"], { stdio: "ignore" });
     await sleep(800);
@@ -213,7 +362,16 @@ async function terminateProfile(profile, number) {
 async function waitForBrowserExit(profile, number) {
   const deadline = Date.now() + 5000;
   while (Date.now() < deadline) {
-    if (!dedicatedBrowserPids(profile, number).length && (number == null || (await portFree(number)))) return;
+    if (!dedicatedBrowserPids(profile, number).length && (number == null || (await portFree(number)))) {
+      const lock = path.join(profile, "SingletonLock");
+      try {
+        fs.lstatSync(lock); // existsSync misses Chrome's dangling lock symlink.
+      } catch (error) {
+        if (error.code === "ENOENT") return;
+        throw new Error(`Cannot establish profile lock state: ${error.message}`);
+      }
+      throw new Error(`Cannot confirm Chrome closed: profile lock exists: ${lock}. Verify Chrome has exited before removing a stale lock.`);
+    }
     await sleep(100);
   }
   const pids = dedicatedBrowserPids(profile, number);
@@ -256,10 +414,12 @@ function ensureLoopback(profile) {
 }
 
 async function resetProfile(profile, number) {
+  validateProfilePath(profile);
   const template = path.resolve(TEMPLATE_PROFILE);
   if (!fs.existsSync(template)) throw new Error(`browser profile template missing: ${template}. Regenerate it from ${path.join(path.dirname(template), "GENERATE.md")}`);
   if (path.resolve(profile) === template) throw new Error("refusing to launch with the template profile directly");
   await terminateProfile(profile, number);
+  validateProfilePath(profile); // Ancestors may have changed while waiting for Chrome to exit.
   fs.rmSync(profile, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(profile), { recursive: true });
   fs.cpSync(template, profile, { recursive: true, verbatimSymlinks: true });
@@ -334,37 +494,57 @@ function scanStorage(file, scripts) {
 
 async function cdp(wsUrl) {
   const ws = new WebSocket(wsUrl);
-  await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`WebSocket connection timed out: ${wsUrl}`)), 3000);
-    ws.onopen = () => {
-      clearTimeout(timer);
-      resolve();
-    };
-    ws.onerror = reject;
-  });
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => finish(new Error(`WebSocket connection timed out: ${wsUrl}`)), 3000);
+      const finish = (error) => {
+        clearTimeout(timer);
+        ws.onopen = ws.onerror = ws.onclose = null;
+        if (error) reject(error);
+        else resolve();
+      };
+      ws.onopen = () => finish();
+      ws.onerror = () => finish(new Error(`WebSocket connection failed: ${wsUrl}`));
+      ws.onclose = () => finish(new Error(`WebSocket closed: ${wsUrl}`));
+    });
+  } catch (error) {
+    ws.close();
+    throw error;
+  }
   let id = 0;
+  const pending = new Map();
+  const listeners = new Set();
+  const failPending = () => {
+    for (const request of pending.values()) request.finish(new Error("WebSocket closed"));
+  };
+  ws.addEventListener("close", failPending);
+  ws.addEventListener("error", failPending);
+  ws.addEventListener("message", (event) => {
+    let data;
+    try { data = JSON.parse(event.data); } catch { return; }
+    if (data.id) {
+      const request = pending.get(data.id);
+      if (request) request.finish(data.error ? new Error(`${request.method}: ${JSON.stringify(data.error)}`) : null, data.result || {});
+    } else {
+      if (data.method === "Page.javascriptDialogOpening") {
+        send("Page.handleJavaScriptDialog", { accept: true }).catch(() => {});
+      }
+      for (const listener of listeners) listener(data);
+    }
+  });
   const send = (method, params = {}, timeout = 5000) => new Promise((resolve, reject) => {
     const msg = ++id;
-    const timer = setTimeout(() => {
-      ws.removeEventListener("message", onMessage);
-      reject(new Error(`${method} timed out`));
-    }, timeout);
-    const onMessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.method === "Page.javascriptDialogOpening") {
-        ws.send(JSON.stringify({ id: ++id, method: "Page.handleJavaScriptDialog", params: { accept: true } }));
-        return;
-      }
-      if (data.id !== msg) return;
+    const finish = (error, result) => {
       clearTimeout(timer);
-      ws.removeEventListener("message", onMessage);
-      if (data.error) reject(new Error(`${method}: ${JSON.stringify(data.error)}`));
-      else resolve(data.result || {});
+      pending.delete(msg);
+      if (error) reject(error);
+      else resolve(result);
     };
-    ws.addEventListener("message", onMessage);
-    ws.send(JSON.stringify({ id: msg, method, params }));
+    const timer = setTimeout(() => finish(new Error(`${method} timed out`)), timeout);
+    pending.set(msg, { method, finish });
+    try { ws.send(JSON.stringify({ id: msg, method, params })); } catch (error) { finish(error); }
   });
-  return { ws, send };
+  return { ws, send, subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); } };
 }
 
 async function browserWs(number) {
@@ -405,11 +585,66 @@ async function targetByPrefix(number, prefix, timeout = 5000) {
 async function evaluate(target, expression, timeout = 5000) {
   const client = await cdp(target.webSocketDebuggerUrl);
   try {
-    await client.send("Page.enable", {}, timeout);
-    const result = await client.send("Runtime.evaluate", { expression, returnByValue: true }, timeout);
-    return Object.prototype.hasOwnProperty.call(result.result || {}, "value") ? result.result.value : result.result?.description;
+    if (target.type === "page") await client.send("Page.enable", {}, timeout);
+    return await evaluateClient(client, expression, timeout);
   } finally {
     client.ws.close();
+  }
+}
+
+async function evaluateClient(client, expression, timeout = 5000) {
+  const result = await client.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }, timeout);
+  if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text || "JavaScript evaluation failed");
+  return Object.prototype.hasOwnProperty.call(result.result || {}, "value") ? result.result.value : result.result?.description;
+}
+
+async function inspect(client, seconds, options = {}) {
+  const output = { console: [], errors: [], failedNetwork: [] };
+  const requests = new Map();
+  const unsubscribe = client.subscribe(({ method, params = {} }) => {
+    if (method === "Runtime.consoleAPICalled") {
+      output.console.push(params);
+      if (params.type === "error") output.errors.push(params);
+    }
+    else if (method === "Runtime.exceptionThrown") output.errors.push(params);
+    else if (method === "Log.entryAdded") {
+      output.console.push(params.entry);
+      if (params.entry?.level === "error") output.errors.push(params.entry);
+    } else if (method === "Network.requestWillBeSent") requests.set(params.requestId, params.request?.url);
+    else if (method === "Network.responseReceived" && params.response?.status >= 400) {
+      output.failedNetwork.push({ requestId: params.requestId, url: params.response.url, status: params.response.status });
+    } else if (method === "Network.loadingFailed") {
+      output.failedNetwork.push({ ...params, url: requests.get(params.requestId) || null });
+      requests.delete(params.requestId);
+    } else if (method === "Network.loadingFinished") requests.delete(params.requestId);
+  });
+  try {
+    await client.send("Runtime.enable");
+    await client.send("Log.enable");
+    await client.send("Network.enable");
+    if (options.navigate || options.reload) await client.send("Page.enable");
+    if (options.navigate) {
+      const result = await client.send("Page.navigate", { url: options.navigate });
+      if (result.errorText) throw new Error(result.errorText);
+    }
+    if (options.reload) await client.send("Page.reload", { ignoreCache: true });
+    await new Promise((resolve, reject) => {
+      const finish = (error) => {
+        clearTimeout(timer);
+        client.ws.removeEventListener("close", disconnected);
+        client.ws.removeEventListener("error", disconnected);
+        if (error) reject(error);
+        else resolve();
+      };
+      const disconnected = () => finish(new Error("WebSocket closed during inspection"));
+      const timer = setTimeout(() => finish(), seconds * 1000);
+      client.ws.addEventListener("close", disconnected);
+      client.ws.addEventListener("error", disconnected);
+      if (client.ws.readyState !== 1) disconnected();
+    });
+    return output;
+  } finally {
+    unsubscribe();
   }
 }
 
@@ -430,7 +665,7 @@ async function reloadUserscriptPages(number, rules) {
 }
 
 async function requireDevtools(number) {
-  if (!(await devtoolsAvailable(number))) throw new Error(`Chrome DevTools is not available at ${browserUrl(number)}. Run browser-mcp --launch <url> first.`);
+  if (!(await devtoolsAvailable(number))) throw new Error(`Chrome DevTools is not available at ${browserUrl(number)}. Run browser-test --launch <url> first.`);
 }
 
 async function installTampermonkey(profile, number, url) {
@@ -593,8 +828,9 @@ async function status(chrome, profile, number) {
 
 async function launchBrowser(chrome, profile, number, url) {
   await terminateProfile(profile, number);
-  if (!(await portFree(number))) throw new Error(`Port ${HOST}:${number} is already in use. Run browser-mcp --close or set OPENCODE_BROWSER_MCP_PORT to a free port.`);
-  if (path.resolve(profile) === path.resolve(TEMPLATE_PROFILE) && process.env.OPENCODE_BROWSER_MCP_ALLOW_TEMPLATE_PROFILE === "1") {
+  if (!(await portFree(number))) throw new Error(`Port ${HOST}:${number} is already in use. Run browser-test --close or set OPENCODE_BROWSER_TEST_PORT to a free port.`);
+  if (path.resolve(profile) === path.resolve(TEMPLATE_PROFILE) && process.env.OPENCODE_BROWSER_TEST_ALLOW_TEMPLATE_PROFILE === "1") {
+    validateProfilePath(profile, true);
     fs.mkdirSync(profile, { recursive: true });
     ensureLoopback(profile);
   } else {
@@ -622,77 +858,129 @@ async function launchBrowser(chrome, profile, number, url) {
   throw new Error(`Chrome did not expose DevTools at ${browserUrl(number)} within ${START_TIMEOUT / 1000}s`);
 }
 
-function valueAfter(args, flag) {
-  const index = args.indexOf(flag);
-  if (index === -1) return null;
-  if (!args[index + 1] || args[index + 1].startsWith("--")) throw new Error(`${flag} requires a value`);
-  return args[index + 1];
-}
+const HELP = `Usage:
+  browser-test --help
+  browser-test --launch <url>
+  browser-test --status | --check | --close | --pages
+  browser-test --tampermonkey-install <url>
+  browser-test --tampermonkey-delete <name>
+  browser-test --target <exact-id> [--navigate <url>] [--eval <JS-expression>]
+               [--screenshot <path>] [--inspect <seconds> [--reload]]
 
-function stripFlags(args) {
-  const withValues = new Set(["--launch", "--tampermonkey-install", "--tampermonkey-delete"]);
-  const withoutValues = new Set(["--server", "--status", "--check", "--close"]);
-  const out = [];
+Target actions may be combined. Inspection runs first (including navigation/reload),
+then evaluation and PNG screenshot. Navigation alone is allowed. No targets open implicitly.
+Navigation does not wait for page load; combine --navigate with --inspect for a capture window.
+--pages lists all inspectable targets, including extensions and service workers.
+--inspect accepts finite seconds > 0 and <= 3600. Captures during the window only;
+use --reload to catch startup events. Collection includes raw CDP console/error events,
+HTTP >= 400 responses and loadingFailed events. Page actions require a page target.
+CDP may replay buffered console/log entries when their domains are enabled.
+Evaluation awaits promises and fails on JavaScript exceptions. CDP commands time out after 5s.
+
+Environment: OPENCODE_BROWSER_TEST_PORT, OPENCODE_BROWSER_TEST_START_TIMEOUT (seconds),
+OPENCODE_BROWSER_TEST_TEMPLATE_PROFILE, OPENCODE_BROWSER_TEST_ALLOW_TEMPLATE_PROFILE=1,
+OPENCODE_BROWSER_PROFILE_DIR, OPENCODE_CHROME_PATH.
+Default profile: .opencode/browser-mcp-profile; template: browser-mcp-template/profile.
+--launch resets the dedicated profile from the template. Node with built-in WebSocket is required.
+macOS launch/close also require python3 on PATH (standard-library ctypes; no packages).
+`;
+
+function parseArgs(args) {
+  const withValues = new Set(["--launch", "--tampermonkey-install", "--tampermonkey-delete", "--target", "--eval", "--screenshot", "--inspect", "--navigate"]);
+  const withoutValues = new Set(["--help", "--status", "--check", "--close", "--pages", "--reload"]);
+  const out = {};
   for (let i = 0; i < args.length; i++) {
-    if (withValues.has(args[i])) i++;
-    else if (!withoutValues.has(args[i])) out.push(args[i]);
+    const flag = args[i];
+    if (!withValues.has(flag) && !withoutValues.has(flag)) throw new Error(`Unknown option: ${flag}`);
+    if (Object.hasOwn(out, flag)) throw new Error(`Duplicate option: ${flag}`);
+    if (withValues.has(flag)) {
+      const value = args[++i];
+      if (!value || value.startsWith("--")) throw new Error(`${flag} requires a value`);
+      out[flag] = value;
+    } else out[flag] = true;
+  }
+  const commands = ["--help", "--launch", "--status", "--check", "--close", "--pages", "--tampermonkey-install", "--tampermonkey-delete", "--target"].filter((flag) => Object.hasOwn(out, flag));
+  if (commands.length !== 1) throw new Error("Choose exactly one command; see --help");
+  const actions = ["--eval", "--screenshot", "--inspect", "--navigate"].filter((flag) => Object.hasOwn(out, flag));
+  if (commands[0] === "--target") {
+    if (!actions.length) throw new Error("--target requires an action");
+  } else if (actions.length || out["--reload"]) throw new Error("Inspection actions require --target <exact-id>");
+  if (out["--reload"] && !out["--inspect"]) throw new Error("--reload requires --inspect");
+  if (out["--inspect"]) {
+    const seconds = Number(out["--inspect"]);
+    if (!Number.isFinite(seconds) || seconds <= 0 || seconds > 3600) throw new Error("--inspect seconds must be > 0 and <= 3600");
+    out["--inspect"] = seconds;
+  }
+  for (const flag of ["--launch", "--tampermonkey-install", "--navigate"]) {
+    if (out[flag]) {
+      try { new URL(out[flag]); } catch { throw new Error(`${flag} requires an absolute URL`); }
+    }
   }
   return out;
 }
 
-function runMcp(profile, number, args) {
-  return new Promise((resolve, reject) => {
-    const env = { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS || ""} --no-warnings`.trim() };
-    const proc = child.spawn("npx", ["-y", "chrome-devtools-mcp@latest", `--browserUrl=${browserUrl(number)}`, "--no-usage-statistics", "--no-performance-crux", ...stripFlags(args)], { stdio: "inherit", env });
-    let exiting = false;
-    const finish = async (code, signal) => {
-      if (exiting) return;
-      exiting = true;
-      try {
-        await terminateProfile(profile, number);
-        resolve(code ?? (signal ? 128 : 0));
-      } catch (error) {
-        reject(error);
-      }
-    };
-    for (const signal of ["SIGINT", "SIGTERM"]) {
-      process.once(signal, () => {
-        proc.kill(signal);
-      });
+async function targetActions(number, options) {
+  const target = (await targets(number)).find((item) => item.id === options["--target"] && item.webSocketDebuggerUrl);
+  if (!target) throw new Error(`Inspectable target not found: ${options["--target"]}`);
+  if ((options["--navigate"] || options["--reload"] || options["--screenshot"]) && target.type !== "page") throw new Error("Navigation, reload and screenshot require a page target");
+  const client = await cdp(target.webSocketDebuggerUrl);
+  try {
+    const result = { target: target.id };
+    if (options["--inspect"]) result.inspection = await inspect(client, options["--inspect"], { reload: options["--reload"], navigate: options["--navigate"] });
+    else if (options["--navigate"]) {
+      await client.send("Page.enable");
+      const navigation = await client.send("Page.navigate", { url: options["--navigate"] });
+      if (navigation.errorText) throw new Error(navigation.errorText);
+      result.navigation = navigation;
     }
-    proc.on("error", reject);
-    proc.on("exit", finish);
-  });
+    if (Object.hasOwn(options, "--eval")) result.value = await evaluateClient(client, options["--eval"]);
+    if (options["--screenshot"]) {
+      const screenshot = await client.send("Page.captureScreenshot", { format: "png" });
+      const file = path.resolve(expandHome(options["--screenshot"]));
+      fs.writeFileSync(file, Buffer.from(screenshot.data, "base64"));
+      result.screenshot = file;
+    }
+    return result;
+  } finally {
+    client.ws.close();
+  }
 }
 
 async function main() {
-  const args = process.argv.slice(2);
+  const args = parseArgs(process.argv.slice(2));
+  if (args["--help"]) { console.log(HELP); return 0; }
   const profile = profileDir();
   const number = port();
-  if (args.includes("--close")) {
+  if (!Number.isInteger(number) || number < 1 || number > 65535) throw new Error("OPENCODE_BROWSER_TEST_PORT must be an integer from 1 to 65535");
+  if (!Number.isFinite(START_TIMEOUT) || START_TIMEOUT <= 0 || START_TIMEOUT > 3600000) throw new Error("OPENCODE_BROWSER_TEST_START_TIMEOUT must be > 0 and <= 3600 seconds");
+  if (args["--close"]) {
     await terminateProfile(profile, number);
     return 0;
   }
 
-  const launchUrl = valueAfter(args, "--launch");
-  const installUrl = valueAfter(args, "--tampermonkey-install");
-  const deleteName = valueAfter(args, "--tampermonkey-delete");
-  const needsChrome = args.includes("--status") || args.includes("--check") || launchUrl || installUrl || deleteName;
+  const launchUrl = args["--launch"];
+  const installUrl = args["--tampermonkey-install"];
+  const deleteName = args["--tampermonkey-delete"];
+  const needsChrome = args["--status"] || args["--check"] || launchUrl || installUrl || deleteName;
   const chrome = needsChrome ? chromePath() : null;
 
-  if (args.includes("--status") || args.includes("--check")) console.log(JSON.stringify(await status(chrome, profile, number), null, 2));
+  if (args["--status"] || args["--check"]) console.log(JSON.stringify(await status(chrome, profile, number), null, 2));
   else if (launchUrl) {
     await launchBrowser(chrome, profile, number, launchUrl);
     console.log(JSON.stringify(await status(chrome, profile, number), null, 2));
   } else if (installUrl) console.log(JSON.stringify(await installTampermonkey(profile, number, installUrl), null, 2));
   else if (deleteName) console.log(JSON.stringify(await deleteTampermonkey(profile, number, deleteName), null, 2));
-  else {
-    return await runMcp(profile, number, args);
+  else if (args["--pages"]) {
+    await requireDevtools(number);
+    console.log(JSON.stringify((await targets(number)).filter((target) => target.webSocketDebuggerUrl).map(({ id, type, url, title }) => ({ id, type, url, title })), null, 2));
+  } else {
+    await requireDevtools(number);
+    console.log(JSON.stringify(await targetActions(number, args), null, 2));
   }
   return 0;
 }
 
-main().then((code) => process.exit(code)).catch((error) => {
-  console.error(`browser-mcp: ${error.message}`);
-  process.exit(1);
+main().then((code) => { process.exitCode = code; }).catch((error) => {
+  console.error(`browser-test: ${error.message}`);
+  process.exitCode = 1;
 });

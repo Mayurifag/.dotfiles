@@ -59,10 +59,19 @@ brew-packages:
 	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile || true
 
 .PHONY: arch-packages
-arch-packages:
+arch-packages: vicinae-package
 	if command -v yay >/dev/null 2>&1; then \
 			yay -S --needed --noconfirm $(shell cat install/Archfile); \
 	fi
+
+.PHONY: vicinae-package
+vicinae-package:
+	set -e
+	mise exec -- node --version
+	build_dir="$${XDG_CACHE_HOME:-$$HOME/.cache}/vicinae-mise"
+	mkdir -p "$$build_dir"
+	cp "$(DOTFILES_DIR)/install/vicinae/PKGBUILD" "$$build_dir/PKGBUILD"
+	(cd "$$build_dir" && makepkg --syncdeps --install --needed --noconfirm)
 
 .PHONY: winget-packages
 winget-packages:

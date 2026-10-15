@@ -1,5 +1,6 @@
 # Passwords and Credentials
 
+- Before concluding an API key is missing, check encrypted secret field names and environment variable presence without printing values. Distinguish stored credentials from credentials passed to the service.
 - Use KeePassXC through `kpxc-cli`; this tap installs that binary, not KeePassXC's upstream `keepassxc-cli`.
 - Require KeePassXC running with Browser Integration enabled and the CLI associated through `kpxc-cli setup`. Let the user approve the association and any KeePassXC access prompt.
 - If the database is locked, notify the user and run `kpxc-cli unlock` for KeePassXC's normal biometric/authentication prompt. Never request or pass the database master password.

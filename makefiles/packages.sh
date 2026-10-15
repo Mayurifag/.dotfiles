@@ -62,7 +62,7 @@ is_mise_runtime_tool() {
 }
 
 mise_tools_in_file() {
-  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*"([^"]+)"/' "$1"
+  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*(?:\{\s*version\s*=\s*)?"([^"]+)"/' "$1"
 }
 
 mise_config_tools() {
@@ -115,7 +115,7 @@ pin_mise_tool_file() {
       esac
     fi
     version=$(mise latest "$latest_tool")
-    MISE_TOOL="$tool" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*")[^"]+(")/$1$version$2/mg' "$MISE_CONFIG"
+    MISE_TOOL="$tool" MISE_CURRENT="$current" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $current=$ENV{MISE_CURRENT}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*(?:\{\s*version\s*=\s*)?")\Q$current\E(")/$1$version$2/mg' "$MISE_CONFIG"
   done <"$tools"
 }
 
@@ -293,9 +293,13 @@ node_packages() {
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
   awk 'NF && $1 !~ /^#/ { spec=$1; pkg=spec; if (pkg ~ /^@/) { n=split(pkg,a,"@"); if (n > 2) sub(/@[^@]*$/, "", pkg) } else sub(/@[^@]*$/, "", pkg); print pkg " " spec }' "$DOTFILES_DIR/install/npmfile" | sort -u >"$tmp/want"
-  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.keys(j.dependencies || {}).forEach(p => console.log(p)); });' | sort -u >"$tmp/have"
+  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.entries(j.dependencies || {}).forEach(([p, d]) => { console.log(p); console.log(p + "@" + d.version); }); });' | sort -u >"$tmp/have"
   while read -r pkg spec; do
-    grep -qxF "$pkg" "$tmp/have" || "$npm_cmd" install -g "$spec"
+    installed=$pkg
+    if printf '%s\n' "${spec#"$pkg"@}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
+      installed=$spec
+    fi
+    grep -qxF "$installed" "$tmp/have" || "$npm_cmd" install -g "$spec"
   done <"$tmp/want"
   mise reshim
 }

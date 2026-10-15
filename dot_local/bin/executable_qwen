@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+model_id=halogen-v2-abliterated
+api_url=http://127.0.0.1:8731
+webui_url=https://qwen.home.mayurifag.ru
+webui_host=100.113.81.105
+
+read -r _ mem_total _ </proc/meminfo
+if ((mem_total < 115 * 1024 * 1024)); then
+    printf '%s\n' 'Set BIOS UMA to 512 MiB and reboot before starting Halogen.' >&2
+    exit 1
+fi
+mountpoint -q /mnt/Shared || {
+    printf '%s\n' '/mnt/Shared must be mounted.' >&2
+    exit 1
+}
+models=/mnt/Shared/LLM/halogen-r2
+if [[ ! -f "$models/.ready" ]]; then
+    printf '%s\n' "Model downloads are not verified: missing $models/.ready." >&2
+    exit 1
+fi
+
+if [[ "$(docker inspect -f '{{.State.Running}}' halogen 2>/dev/null || true)" != true ]]; then
+    docker run -d --rm --name halogen \
+        -p 127.0.0.1:8731:8731 \
+        --device /dev/kfd --device /dev/dri \
+        --group-add "$(getent group video | cut -d: -f3)" \
+        --group-add "$(getent group render | cut -d: -f3)" \
+        --ipc=host --ulimit memlock=-1:-1 \
+        -e HALOGEN_WEIGHTS_LOCK=1 \
+        -e HALOGEN_CTX=65536 \
+        -e HALOGEN_KV_POOL_POSITIONS=65536 \
+        -e HALOGEN_KV_SLOTS=1 \
+        -e HALOGEN_MAX_TOK=8192 \
+        -e HALOGEN_TEMPERATURE=1.0 \
+        -e HALOGEN_TOP_P=0.95 \
+        -e HALOGEN_TOP_K=20 \
+        -e HALOGEN_REASONING_EFFORT=medium \
+        -e HALOGEN_CHECKPOINT=/v2/qwen38-flash-next-v2-abliterated.hgn \
+        -e HALOGEN_NGRAM_TABLE=/v2/qwen38-flash-next-ngram.hgn \
+        -e HALOGEN_TOKENIZER=/models/tokenizer \
+        -e HALOGEN_MODEL_ID="$model_id" \
+        -v "$models/v2:/v2:ro" -v "$models/w4b:/models:ro" \
+        ghcr.io/peonist-ai/halogen-flash-server:0.15.0
+fi
+
+if [[ "$(docker inspect -f '{{.State.Running}}' qwen-webui 2>/dev/null || true)" != true ]]; then
+    docker run -d --rm --name qwen-webui --network host \
+        --health-cmd "curl --silent --fail http://$webui_host:3000/health | jq -ne \"input.status == true\" || exit 1" \
+        -v qwen-webui:/app/backend/data \
+        -e HOST="$webui_host" -e PORT=3000 \
+        -e WEBUI_URL="$webui_url" \
+        -e FORWARDED_ALLOW_IPS=100.113.201.147 \
+        -e WEBUI_AUTH=False \
+        -e WEBUI_SECRET_KEY_FILE=/app/backend/data/.webui_secret_key \
+        -e OPENAI_API_BASE_URL="$api_url/v1" \
+        -e OPENAI_API_KEY=local \
+        -e ENABLE_OLLAMA_API=False \
+        -e DEFAULT_MODELS="$model_id" \
+        -e ENABLE_TITLE_GENERATION=False \
+        -e ENABLE_FOLLOW_UP_GENERATION=False \
+        -e OFFLINE_MODE=True \
+        -e CORS_ALLOW_ORIGIN="$webui_url" \
+        ghcr.io/open-webui/open-webui:v0.12.0-slim@sha256:a1edc483ff9e92c974875ca8a10c76ea7c9d462835cff1f1215318873f14f0ee
+fi
+
+printf '%s\n' 'Waiting for Qwen and Open WebUI...'
+deadline=$((SECONDS + 300))
+until curl -fsS --connect-timeout 1 --max-time 3 "$api_url/health" >/dev/null 2>&1 &&
+    curl -fsS --connect-timeout 1 --max-time 3 "$webui_url/health" >/dev/null 2>&1; do
+    if ((SECONDS >= deadline)); then
+        printf '%s\n' 'Startup timed out. Check: docker logs halogen; docker logs qwen-webui' >&2
+        exit 1
+    fi
+    sleep 2
+done
+printf '%s\n' "Chat: $webui_url" 'Stop: docker stop qwen-webui halogen'
+xdg-open "$webui_url"

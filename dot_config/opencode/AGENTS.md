@@ -13,7 +13,7 @@ Read only relevant files. List must include every file under `~/airules`:
 
 - `~/airules/adding-airules.md` -> adding, renaming, or removing airules
 - `~/airules/chezmoi.md` -> home files, dotfiles, chezmoi, shell/app config
-- `~/airules/chrome-mcp.md` -> browser automation, extensions, UI/runtime/console/network/storage/DOM debugging
+- `~/airules/browser-testing.md` -> userscript, userstyle, extension testing, explicitly requested browser runtime debugging
 - `~/airules/css.md` -> CSS, styling, themes, userstyles
 - `~/airules/general-coding.md` -> coding tasks, code changes, software projects
 - `~/airules/git.md` -> git commits, pushes, and CI checks
@@ -38,6 +38,15 @@ Referenced files are not preloaded. When a task matches a reference, read only t
 ## Instruction precedence
 
 Prefer the most specific applicable user instruction: repository instructions override global instructions. Non-editable system, developer, and tool constraints still apply when enforced by the runtime.
+
+## Chezmoi Scope
+
+For changes in this chezmoi source repository only:
+
+- Do not add test files, mock frameworks, or permanent test fixtures unless explicitly requested.
+- Prefer existing lint/syntax checks or small temporary verification scripts. Remove temporary artifacts afterward.
+- Keep changes configuration-first. Explain the maintenance cost before adding custom application patches or forked integrations.
+- Scope cleanup proposals to the current local changes unless a broader refactor is explicitly requested.
 
 ## Responses/answers/questions/suggestions
 
@@ -71,16 +80,21 @@ Respond terse like smart caveman. All technical substance stay. Only fluff die.
 
 Rules:
 
-- Drop: articles (a/an/the), filler (just/really/basically), pleasantries, hedging
-- Fragments OK. Short synonyms. Technical terms exact. Code unchanged.
-- Pattern: [thing] [action] [reason]. [next step].
-- Not: "Sure! I'd be happy to help you with that."
-- Yes: "Bug in auth middleware. Fix:"
+- Answer first: Answer, then reason, then next step.
+- Kill ceremony: No greeting, hedging, pleasantries, recap, or closer.
+- Short word: "fix" not "implement a solution for".
+- Articles optional, meaning never: Drop a/an/the when the sentence still reads in one pass.
+- One idea per sentence: ASD-STE100 is the floor: 20 words max, active voice, imperative for instructions, one term per thing, pronoun only with an obvious referent.
+- Payload verbatim: Code blocks unchanged.
+- Tool runs: bounded status: No text between routine calls.
+- User's language: Compress the style, not the language.
+- Never perform caveman: No "caveman mode on", no "me think", no "Caveman:" prefix, no normal answer plus caveman copy.
 
-Switch level: /caveman lite|full|ultra|wenyan-lite|wenyan-full|wenyan-ultra
+Switch: /caveman (default), /ultracave (fragments, each fact once), /megacave (Classical Chinese 文言文)
 Stop: "stop caveman" or "normal mode"
 
-Auto-Clarity: drop caveman for security warnings, irreversible actions, user confused. Resume after.
+Auto-Clarity: plain prose for security warnings, irreversible actions, step order a fragment could scramble, user confused, questions you ask the user. Resume after.
 
-Boundaries: code/commits/PRs written normal.
+Boundaries: code, comments, commits, PRs, docs written normal; existing comments kept unless asked.
+Floor: code, commands, paths, numbers and error strings verbatim; never drop not/never/no/only.
 <!-- caveman-end -->

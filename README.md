@@ -55,6 +55,58 @@ chezmoi apply
 ```
 
 - Install packages for all languages and tools: `make mise-packages`
+- On Arch/KDE, run `make arch-packages` next, then `chezmoi apply` again.
+  The first apply skips the Vicinae hook if Vicinae is not installed. The second apply enables the Linux user services
+  and sets KDE shortcuts. Run the Make targets from this repository; `arch-packages` requires `yay` for Archfile packages.
+
+### Vicinae and Grok setup
+
+- Manually install the unmodified Vicinae extensions `@ESHAYAT102/codex` and `@tadassuksteris/prompt-deck`.
+  Preferences do not install extensions. There is no extension setup script or Make target.
+  From a directory for source checkouts, use the managed Git, Node.js, and npm tools:
+
+```bash
+git clone https://github.com/ESHAYAT102/vicinae-codex-extension.git
+git -C vicinae-codex-extension checkout --detach 2d772ab114fbbfb7f85cbde09cf4154a1265ed32
+npm --prefix vicinae-codex-extension ci
+npm --prefix vicinae-codex-extension run build
+
+git clone https://github.com/vicinaehq/extensions.git vicinae-extensions
+git -C vicinae-extensions checkout --detach 0e3953058fb787d2a96e5ac0cec462440c07cd07
+npm --prefix vicinae-extensions/extensions/prompt-deck ci
+npm --prefix vicinae-extensions/extensions/prompt-deck run build
+```
+
+- The builds install directly into `${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/extensions/codex` and `prompt-deck`.
+  They can overwrite existing local bundles. Keep these directory names: Vicinae derives provider IDs from them.
+  Store installs use different IDs and do not receive these managed preferences. Update local builds manually.
+- Codex uses an isolated home at `~/.local/share/vicinae/codex`, not the normal Codex home. Authenticate it separately:
+
+```bash
+CODEX_HOME="$HOME/.local/share/vicinae/codex" codex login
+```
+
+- On Linux, the Vicinae service sets `CODEX_HOME`. For a manual/native launch, set the same variable in its environment.
+- Authorize CLIProxyAPI only with an approved account, in a private user terminal, not through an agent or shared log:
+
+```bash
+umask 077
+cli-proxy-api --config "$HOME/.config/cliproxyapi/config.yaml" --xai-login
+```
+
+- Complete OAuth yourself. Never paste tokens into chat or capture authentication output in logs.
+  Management is disabled; keep `MANAGEMENT_PASSWORD` unset or empty. Do not enable a management endpoint for login.
+- Native PromptDeck preferences already manage endpoint `http://127.0.0.1:18645/v1`, the API key, and model `grok-4.7(low)`.
+  Optionally create a native prompt; no custom installer or harness is needed.
+- KDE binds Vicinae to `Meta+Space` and Grok to `Meta+Alt+Space`. Grok currently launches the local Quicklink
+  `shortcuts:sct-54b9104c5398`, which exists only on the current host. On a fresh host, create a native Quicklink and
+  update the single `Exec` command in `dot_local/share/kglobalaccel/executable_grok-chat.desktop`, then apply;
+  alternatively, assign a KDE shortcut directly to the desired native command.
+- Outside Linux, install a supported native Vicinae build manually; this repo provides no Linux systemd setup there.
+  Windows settings come from `AppData/Local/vicinae/config/private_settings.json.tmpl`; macOS settings come from
+  `dot_config/vicinae/private_settings.json.tmpl` and render under `~/.config/vicinae/`.
+  Start the proxy manually with `MANAGEMENT_PASSWORD` unset or empty:
+  `cli-proxy-api --config <home>/.config/cliproxyapi/config.yaml --local-model` (replace `<home>` with your home path).
 
 ## Things to do after
 
@@ -188,7 +240,7 @@ Krunner: Meta+Space
 
 ```sh
 # /boot/refind_linux.conf
-"Boot using default options" "root=PARTUUID=13bbf375-9a9a-45cf-a256-3ea4f77ca6e0 rw nowatchdog zswap.enabled=0 amd_iommu=off transparent_hugepage=always numa_balancing=disable ttm.pages_limit=29360128 ttm.page_pool_size=25165824"
+"Boot using default options" "root=PARTUUID=13bbf375-9a9a-45cf-a256-3ea4f77ca6e0 rw nowatchdog zswap.enabled=0 amd_iommu=off transparent_hugepage=always numa_balancing=disable ttm.pages_limit=29360128"
 ```
 
 - Instructions to use [waystt](https://github.com/sevos/waystt) as Speech-to-Text software:

@@ -1,0 +1,88 @@
+{
+  "telemetry": {
+    "system_info": false
+  },
+  "close_on_focus_loss": false,
+  "pop_to_root_on_close": true,
+  "escape_key_behavior": "close_window",
+  "tray": {
+    "enabled": false
+  },
+  "font": {
+    "normal": {
+      "family": "{{ if eq .chezmoi.os "linux" }}SF Pro Text{{ else }}auto{{ end }}"
+    }
+  },
+  "theme": {
+    "dark": {
+      "name": "dracula",
+      "icon_theme": "{{ if eq .chezmoi.os "linux" }}Papirus-Dark{{ else }}auto{{ end }}"
+    }
+  },
+  "launcher_window": {
+    "opacity": 0.96,
+    "layer_shell": {
+      "keyboard_interactivity": "on_demand"
+    }
+  },
+  "providers": {
+    "applications": {
+      "entrypoints": {
+        "cachyos-hello": {"enabled": false},
+        "com.ayugram": {"alias": "telegram"}
+      }
+    },
+    "core": {
+      "entrypoints": {
+        "sponsor": {"enabled": false}
+      }
+    },
+    "developer": {"enabled": false},
+    "files": {
+      "preferences": {
+        "autoIndexing": true,
+        "indexingPaths": {{ list .chezmoi.homeDir | toJson }},
+        "excludedIndexingPaths": []
+      }
+    },
+    "power": {
+      "entrypoints": {
+        "hibernate": {"enabled": false},
+        "lock": {"enabled": true},
+        "logout": {"enabled": false},
+        "sleep": {"enabled": false},
+        "soft-reboot": {"enabled": false},
+        "suspend": {"enabled": false}
+      }
+    },
+    "snippets": {
+      "preferences": {
+        "enabled": true,
+        "undo": true,
+        "layout": "",
+        "prePasteDelay": "0",
+        "keyDelay": "2"
+      }
+    },
+    "theme": {"enabled": false},
+    "wm": {"enabled": false},
+    "@ESHAYAT102/codex": {
+      "preferences": {
+        "openaiModel": "gpt-6.1-sol"
+      },
+      "entrypoints": {
+        "codex": {"alias": "gpt"}
+      }
+    },
+    "@tadassuksteris/prompt-deck": {
+      "preferences": {
+        "provider": "openai",
+        "baseURL": "http://127.0.0.1:18645/v1",
+        "openaiApiKey": {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).cliproxy_api_key | toJson }},
+        "model": "grok-4.7(low)",
+        "reasoningLevel": "",
+        "enableHistory": false
+      }
+    }
+  }
+}

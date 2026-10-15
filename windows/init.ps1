@@ -141,20 +141,33 @@ Write-Host "`n[13/16] Bootstrapping mise config..."
 $miseConfigDir = Join-Path $HOME ".config\mise"
 $miseConfigFile = Join-Path $miseConfigDir "config.toml"
 
-if (!(Test-Path $miseConfigFile)) {
+if (!(Test-Path $miseConfigFile) -or (Get-Content -Raw $miseConfigFile) -match '\[%|%\]|\{\{') {
   $miseConfigUrl = "https://raw.githubusercontent.com/Mayurifag/.dotfiles/master/dot_config/mise/config.toml.tmpl"
   $rawConfig = Invoke-RestMethod -Uri $miseConfigUrl
-  # Strip chezmoi template directives (lines containing {{ }})
-  $cleanConfig = ($rawConfig -split "`n" | Where-Object { $_ -notmatch '\{\{' }) -join "`n"
 
   if (!(Test-Path $miseConfigDir)) {
     New-Item -ItemType Directory -Path $miseConfigDir -Force | Out-Null
   }
-  Set-Content -Path $miseConfigFile -Value $cleanConfig -NoNewline
-  Write-Host "  Downloaded and cleaned mise config to $miseConfigFile" -ForegroundColor Green
+  # Render with native Windows data without loading the dotfiles config or secrets.
+  $chezmoiArgs = @("--config", "NUL", "--config-format", "toml", "--source", $miseConfigDir,
+    "execute-template", "--left-delimiter", "[%", "--right-delimiter", "%]")
+  $chezmoiPin = [regex]::Matches($rawConfig, '(?m)^chezmoi\s*=\s*"(\d+\.\d+\.\d+)"\s*$')
+  if ($chezmoiPin.Count -ne 1) { throw "Expected one exact chezmoi version in the mise template." }
+  # Do not let mise load the broken config while bootstrapping its renderer.
+  $previousIgnoredConfigs = $env:MISE_IGNORED_CONFIG_PATHS
+  try {
+    $env:MISE_IGNORED_CONFIG_PATHS = (@($previousIgnoredConfigs, $miseConfigFile) | Where-Object { $_ }) -join [IO.Path]::PathSeparator
+    $cleanConfig = $rawConfig | mise exec --yes "chezmoi@$($chezmoiPin[0].Groups[1].Value)" -- chezmoi @chezmoiArgs
+  }
+  finally {
+    $env:MISE_IGNORED_CONFIG_PATHS = $previousIgnoredConfigs
+  }
+  if ($LASTEXITCODE -ne 0) { throw "Failed to render the mise config with chezmoi." }
+  Set-Content -Path $miseConfigFile -Value ($cleanConfig -join "`n") -NoNewline -Encoding utf8
+  Write-Host "  Created or repaired Windows mise config at $miseConfigFile" -ForegroundColor Green
 }
 else {
-  Write-Host "  mise config already exists at $miseConfigFile — skipping" -ForegroundColor Green
+  Write-Host "  mise config has no unresolved template markers at $miseConfigFile — preserving" -ForegroundColor Green
 }
 
 # Install mise runtimes

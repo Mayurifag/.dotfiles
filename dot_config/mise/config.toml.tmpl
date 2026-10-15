@@ -47,6 +47,7 @@ ruff = "0.15.14"
 yamllint = "1.38.0"
 "github:pamburus/hl" = "0.36.2"
 "github:Mayurifag/yawn" = "0.1.2"
+"github:router-for-me/CLIProxyAPI" = { version = "8.0.29"[% if eq .chezmoi.os "linux" %], matching = "no-plugin"[% end %] }
 [%- if eq .chezmoi.os "linux" %]
 "github:Mayurifag/conditional-launcher" = "0.1.8"
 [%- end %]

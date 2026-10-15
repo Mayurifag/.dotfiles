@@ -6,7 +6,7 @@
 # View options: ghostty +show-config --default --docs
 
 # --- Typography ---
-font-family = JetBrainsMonoNerdFont
+font-family = {{ if eq .chezmoi.os "linux" }}JuliaMono Nerd Font Mono{{ else }}JetBrainsMonoNerdFont{{ end }}
 font-size = 14
 font-thicken = true
 adjust-cell-height = 2

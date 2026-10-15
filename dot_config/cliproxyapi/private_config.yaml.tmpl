@@ -1,0 +1,22 @@
+config-version: 8
+
+server:
+  host: "127.0.0.1"
+  port: 18645
+
+access:
+  api-keys:
+    - {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).cliproxy_api_key | toJson }}
+
+management:
+  allow-remote: false
+  secret-key: ""
+  disable-control-panel: true
+
+oauth:
+  auth-dir: {{ joinPath .chezmoi.homeDir ".local/share/cliproxyapi/auth" | toJson }}
+
+observability:
+  logs:
+    debug: false
+    request-log: false

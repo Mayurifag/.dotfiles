@@ -59,16 +59,10 @@
     "context7": {
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:CONTEXT7_API_KEY}"
+      },
       "enabled": true
-    },
-    "browser-mcp": {
-      "type": "local",
-      "command": ["browser-mcp", "--server"],
-      "enabled": true,
-      "environment": {
-        "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",
-        "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1"
-      }
     },
     "exa": {
       "type": "remote",

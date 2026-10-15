@@ -1,0 +1,56 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/bin/sh
+set -eu
+
+command -v vicinae >/dev/null 2>&1 || exit 0
+
+systemctl --user daemon-reload
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/vicinae"
+mkdir -p "$state_dir"
+refresh_service() {
+    service=$1
+    # Preserve explicit masks while enabling fresh installs as before.
+    case "$(systemctl --user is-enabled "$service" || true)" in
+        masked|masked-runtime) return 0 ;;
+    esac
+    systemctl --user enable "$service"
+    unit=$(systemctl --user cat "$service")
+    checksum=$(printf '%s\n' "$unit" | sha256sum)
+    stamp="$state_dir/$service.sha256"
+    previous=$(cat "$stamp" 2>/dev/null || true)
+    if systemctl --user is-active --quiet "$service"; then
+        if test "$checksum" != "$previous"; then
+            systemctl --user restart "$service"
+        fi
+    else
+        systemctl --user start "$service"
+    fi
+    printf '%s\n' "$checksum" > "$stamp"
+}
+refresh_service vicinae.service
+if test -f "${XDG_CONFIG_HOME:-$HOME/.config}/cliproxyapi/config.yaml"; then
+    refresh_service cliproxyapi.service
+fi
+
+# Manage only launcher shortcuts; leave other KDE settings untouched.
+krunner_shortcuts="$(printf 'Search\tAlt+Space\tAlt+F2')"
+kwriteconfig6 --file kglobalshortcutsrc --group services --group org.kde.krunner.desktop --key _launch "$krunner_shortcuts"
+kwriteconfig6 --file kglobalshortcutsrc --group services --group vicinae.desktop --key toggle 'Meta+Space'
+kwriteconfig6 --file kglobalshortcutsrc --group services --group grok-chat.desktop --key _launch 'Meta+Alt+Space'
+
+if busctl --user status org.kde.kglobalaccel >/dev/null 2>&1; then
+    busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel setForeignShortcut asai \
+        4 org.kde.krunner.desktop _launch KRunner KRunner 3 150994993 134217760 16777362
+    busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel doRegister as \
+        4 vicinae.desktop toggle Vicinae 'Toggle Vicinae Window'
+    # Qt Meta+Space; flags 6 set the shortcut and activate it without loading old keys.
+    busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel setShortcut asaiu \
+        4 vicinae.desktop toggle Vicinae 'Toggle Vicinae Window' 1 268435488 6
+    test "$(busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel action i 268435488)" = \
+        'as 4 "vicinae.desktop" "toggle" "Vicinae" "Toggle Vicinae Window"'
+    busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel doRegister as \
+        4 grok-chat.desktop _launch 'Grok Chat' 'Grok Chat'
+    busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel setShortcut asaiu \
+        4 grok-chat.desktop _launch 'Grok Chat' 'Grok Chat' 1 402653216 6
+fi
+{{- end }}

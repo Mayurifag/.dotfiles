@@ -1,0 +1,19 @@
+pkgname=vicinae-mise
+pkgver=0.29.1
+pkgrel=1
+pkgdesc='Vicinae launcher using the mise-managed Node runtime'
+arch=('x86_64')
+url='https://github.com/vicinaehq/vicinae'
+license=('GPL3')
+# Node is supplied by mise; the user service puts mise shims on PATH.
+depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'layer-shell-qt' 'libqalculate' 'qtkeychain-qt6' 'syntax-highlighting')
+provides=('vicinae')
+conflicts=('vicinae' 'vicinae-bin')
+source=("vicinae-${pkgver}.tar.gz::${url}/releases/download/v${pkgver}/vicinae-linux-x86_64-v${pkgver}.tar.gz")
+sha256sums=('9d1130a64bbaf037ca21f8c4281f07caf7f03126f3fe299ff8aef8116ebf1546')
+
+package() {
+    install -d "$pkgdir/usr"
+    cp -a "$srcdir/bin" "$srcdir/libexec" "$srcdir/share" "$pkgdir/usr/"
+    install -Dm644 "$srcdir/lib/systemd/user/vicinae.service" "$pkgdir/usr/lib/systemd/user/vicinae.service"
+}

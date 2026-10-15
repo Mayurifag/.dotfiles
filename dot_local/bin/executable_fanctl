@@ -1,0 +1,182 @@
+#!/usr/bin/python3
+"""Quiet daily fan control for FEVM FAEX9, BIOS 1.04, EC 1.6."""
+
+import argparse
+import math
+import os
+import signal
+import socket
+import subprocess
+import time
+from pathlib import Path
+
+EC = "/sys/kernel/debug/ec/ec0/io"
+UNIT = "faex9-fan-quiet"
+FAN_REGISTERS = (0x33, 0x34)
+CURVE = ((65, 15), (70, 25), (75, 55), (80, 100))
+
+
+def validate_temperature(temperature):
+    if not math.isfinite(temperature) or not 5 <= temperature <= 120:
+        raise ValueError("Invalid temperature")
+
+
+def duty_for(temperature):
+    validate_temperature(temperature)
+    if temperature <= CURVE[0][0]:
+        return CURVE[0][1]
+    for (lower, low_duty), (upper, high_duty) in zip(CURVE, CURVE[1:]):
+        if temperature <= upper:
+            return round(
+                low_duty
+                + (high_duty - low_duty) * (temperature - lower) / (upper - lower)
+            )
+    return 100
+
+
+def control_duty(temperature, held_temperature):
+    if temperature >= held_temperature or temperature <= held_temperature - 3:
+        held_temperature = temperature
+    return duty_for(held_temperature), held_temperature
+
+
+def notify(message):
+    address = os.environ["NOTIFY_SOCKET"]
+    if address.startswith("@"):
+        address = "\0" + address[1:]
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as sock:
+        sock.sendto(message.encode(), address)
+
+
+def read_controls(fd):
+    controls = tuple(os.pread(fd, 1, register) for register in FAN_REGISTERS)
+    if any(len(value) != 1 for value in controls):
+        raise ValueError("Incomplete fan control reading")
+    return tuple(value[0] for value in controls)
+
+
+def write_fans(fd, value):
+    errors = []
+    for register in FAN_REGISTERS:
+        try:
+            if os.pwrite(fd, bytes([value]), register) != 1:
+                raise OSError("Incomplete fan write")
+        except OSError as error:
+            errors.append(error)
+    if errors:
+        raise errors[0]
+
+
+def telemetry(fd, sensors):
+    # Tachometer bytes can tear while the controller updates them.
+    for _ in range(3):
+        first = os.pread(fd, 4, 0x35)
+        time.sleep(0.05)
+        second = os.pread(fd, 4, 0x35)
+        if len(first) != 4 or len(second) != 4:
+            continue
+        rpm = tuple(int.from_bytes(second[i : i + 2], "big") for i in (0, 2))
+        previous = tuple(int.from_bytes(first[i : i + 2], "big") for i in (0, 2))
+        if all(1000 <= value <= 12000 for value in rpm + previous) and all(
+            abs(a - b) <= 400 for a, b in zip(previous, rpm)
+        ):
+            break
+    else:
+        raise ValueError("Unstable fan telemetry")
+    raw = os.pread(fd, 1, 0x70)
+    if len(raw) != 1:
+        raise ValueError("Incomplete controller temperature")
+    temperatures = [raw[0]] + [int(path.read_text()) / 1000 for path in sensors]
+    for temperature in temperatures:
+        validate_temperature(temperature)
+    return max(temperatures), rpm
+
+
+def run_controller(fd, sensors, initial_temperature):
+    stopped = False
+
+    def stop(signum, frame):
+        nonlocal stopped
+        stopped = True
+
+    for signum in (signal.SIGTERM, signal.SIGINT):
+        signal.signal(signum, stop)
+    held_temperature = initial_temperature
+    logged_duty = None
+    logged_at = 0
+    try:
+        while not stopped:
+            temperature, rpm = telemetry(fd, sensors)
+            duty, held_temperature = control_duty(temperature, held_temperature)
+            write_fans(fd, 0x80 | duty)
+            message = f"temperature={temperature:.1f}C duty={duty}% fan1={rpm[0]}RPM fan2={rpm[1]}RPM"
+            notify("READY=1\nWATCHDOG=1\nSTATUS=" + message)
+            if (
+                duty != logged_duty
+                or temperature >= 85
+                or time.monotonic() - logged_at >= 30
+            ):
+                print(message, flush=True)
+                logged_duty, logged_at = duty, time.monotonic()
+            time.sleep(2)
+    finally:
+        write_fans(fd, 0)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("status", "quiet", "auto", "run", "restore"))
+    args = parser.parse_args()
+    if os.geteuid() != 0:
+        parser.error("Run with sudo; controller access requires root")
+    if args.action in ("quiet", "auto"):
+        operation = "enable" if args.action == "quiet" else "disable"
+        subprocess.run(["systemctl", operation, "--now", UNIT + ".service"], check=True)
+        return
+    if Path("/sys/devices/virtual/dmi/id/product_name").read_text().strip() != "FAEX9":
+        parser.error("This tool is calibrated only for FEVM FAEX9")
+    if Path("/sys/devices/virtual/dmi/id/bios_version").read_text().strip() != "1.04":
+        parser.error("This tool is calibrated only for BIOS 1.04")
+    if args.action == "run" and not os.environ.get("NOTIFY_SOCKET"):
+        parser.error("The fan controller requires systemd watchdog supervision")
+    subprocess.run(["modprobe", "ec_sys"], check=True)
+    writable = Path("/sys/module/ec_sys/parameters/write_support")
+    if args.action != "status" and writable.read_text().strip() != "Y":
+        subprocess.run(["modprobe", "-r", "ec_sys"], check=True)
+        subprocess.run(["modprobe", "ec_sys", "write_support=1"], check=True)
+    with open(EC, "rb" if args.action == "status" else "r+b", buffering=0) as ec:
+        fd = ec.fileno()
+        if os.pread(fd, 2, 0) != b"\x01\x06":
+            parser.error("This tool is calibrated only for EC firmware 1.6")
+        if args.action == "restore":
+            write_fans(fd, 0)
+            print("Firmware automatic fan control restored", flush=True)
+            return
+        sensors = []
+        names = set()
+        for path in Path("/sys/class/hwmon").glob("hwmon*"):
+            name = (path / "name").read_text().strip()
+            if name in ("k10temp", "amdgpu"):
+                names.add(name)
+                sensors.extend(path.glob("temp*_input"))
+        if names != {"k10temp", "amdgpu"} or not sensors:
+            parser.error("Required CPU/GPU temperature sensors unavailable")
+        temperature, rpm = telemetry(fd, sensors)
+        controls = read_controls(fd)
+        if args.action == "status":
+            mode = (
+                "firmware-auto"
+                if controls == (0, 0)
+                else f"manual-duty={tuple(value & 0x7F for value in controls)}%"
+            )
+            print(
+                f"temperature={temperature:.1f}C fan1={rpm[0]}RPM fan2={rpm[1]}RPM {mode}"
+            )
+            return
+        if controls != (0, 0):
+            parser.error("Another manual fan override is active")
+        run_controller(fd, sensors, temperature)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+case "$1" in
+    pre)
+        systemctl stop faex9-fan-quiet.service
+        ;;
+    post)
+        if systemctl is-enabled --quiet faex9-fan-quiet.service; then
+            systemctl start faex9-fan-quiet.service
+        fi
+        ;;
+esac
