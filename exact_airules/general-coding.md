@@ -1,42 +1,26 @@
 # General Coding
 
-## Refactors
+## Scope
 
-- For refactors, improve maintainability deliberately; remove duplication.
+- Read the affected code before editing. Trace callers and identify affected tests, fixtures, configuration, and exports.
+- Check for data loss, disclosure, and compatibility risks. State safe assumptions; ask before ambiguous destructive or broad changes.
+- Load `~/airules/research.md` before working against external libraries, APIs, tools, or configuration schemas.
+- Preserve unrelated user changes. Stop only when they conflict with the task.
 
-## Compatibility
+## Changes
 
-- Default to replacing old behavior, not preserving it.
-- Do not add fallbacks, legacy paths, temporary adapters, old API support, broad defensive guards, or duplicate implementations unless explicitly required.
+- Choose the smallest complete fix. Reuse project patterns before platform features, standard libraries, or installed dependencies.
+- Do not add dependencies, abstractions, wrappers, options, or speculative flexibility without a concrete need.
+- Fix the shared cause, not each symptom. Trace unwanted output or generated artifacts instead of hiding errors.
+- Preserve existing style and interfaces unless changing them serves the task. Refactor to remove duplication or separate unrelated responsibilities, not to meet line counts.
+- Replace obsolete behavior by default. Add compatibility paths only for explicit requirements or concrete existing consumers or data.
+- Preserve validation, error handling, security, accessibility, and hardware calibration when simplifying code.
+- Prefer repository commands and workflows. Never hand-edit generated lockfiles; use the owning package manager.
+- Record intentional limits only when useful: `shortcut: <limit>, <revisit trigger>`. Do not add a separate debt ledger unless requested.
 
-## Before Writing Code
+## Verification
 
-- State assumptions clearly. If ambiguity is safe and reversible, proceed with the safest interpretation.
-- Ask only when proceeding risks destructive, broad, or user-visible behavior.
-- Present multiple interpretations instead of silently choosing one.
-- For external libraries, frameworks, CLIs, SDKs, APIs, config schemas, or MCP servers, load `~/airules/research.md` first.
-- If blocked, stop and name exactly what is missing.
-
-## Task Guidelines
-
-- Do not disable, remove, bypass, deduplicate, or clean up output just to hide an error unless explicitly asked. Trace unwanted output, duplication, or generated artifacts back to their source.
-- Keep projects maintainable. For fixes, preserve existing style, scope, names, commands, file layout, and patterns unless a change clearly improves clarity.
-- For refactors, reduce duplication and improve boundaries.
-- Prefer repository-provided commands over raw underlying tools. If a repo has `make`, package scripts, task files, or documented wrappers, use those first.
-- Do not revert or rewrite unrelated user changes. Ignore unrelated changes unless they directly conflict with the task.
-
-## Testing
-
-- For large features, one end-to-end or integration test may be enough when the repository supports it and it validates the real user flow.
-- For bug fixes, first reproduce the bug with a failing unit test when practical. Then fix the code and rerun that unit test until green.
-- Run the repo's standard check command when available (`make ci`, `npm test`, `cargo test`, etc.). If it is too slow, destructive, or needs unavailable services, say why it was skipped.
-- Do not claim work is done until the relevant check has passed. If verification was skipped or failed, say that plainly.
-
-## Post-Task
-
-- Consider whether the task revealed rare, high-leverage knowledge useful for future tasks.
-- If it is repository-specific, propose a concise rule for that repository's `AGENTS.md`; if it is global, let the user decide.
-- Do not propose changes for low-level knowledge.
-- If the repository has `./AGENTS.md`, update it only with non-obvious, project-specific knowledge that helps most future tasks.
-- Early-stage projects: capture more foundational information.
-- Mature projects: add nothing routine or obvious; only truly valuable, non-trivial details.
+- Reproduce bugs before fixing them when practical. Add a focused regression test or self-check for nontrivial behavior.
+- Test the real risk, not implementation trivia. An existing integration test can suffice when it covers the changed flow.
+- Run the repository's standard checks. Report unavailable services, excessive cost, failures, and skipped coverage explicitly.
+- Do not claim success before relevant checks pass. If blocked, name the missing requirement and what remains unfinished.

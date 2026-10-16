@@ -17,12 +17,10 @@
 
 ## Exa
 
-- Search with Exa when the URL is unknown or current/broad context is needed.
 - Fetch promising result URLs with Exa when search snippets are not enough.
 - Do not over-search. Stop once the answer is well-supported by reliable sources.
 
 ## GitHub Research
 
-- Use GitHub for repository docs, source code, examples, releases, and implementation details.
 - Use `gh` when it is the fastest reliable path to GitHub content.
 - For GitHub issues, PRs, checks, release management, or repository actions, also load `~/airules/github.md`.

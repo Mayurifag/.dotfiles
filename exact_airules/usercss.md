@@ -20,7 +20,5 @@
 ## Browser Testing
 
 - If browser runtime verification is needed, load `~/airules/browser-testing.md`.
-- Do not keep manual Stylus edits in `.opencode/browser-mcp-profile/`; browser launches replace it from the template.
 - Verify `browser-test --status` shows `stylusInstalled: true`.
-- Verify style status only by `name` and `version` when status can detect installed styles.
 - Verify the actual styled page state with DOM, screenshots, and computed styles. Do not rely only on source inspection.

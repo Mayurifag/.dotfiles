@@ -1,11 +1,4 @@
 #!/usr/bin/env sh
 set -eu
 
-config_home=${XDG_CONFIG_HOME:-"$HOME/.config"}
-
-if [ ! -f "$config_home/opencode/plugins/caveman/plugin.js" ]; then
-  mise exec -- npx --yes github:JuliusBrussee/caveman -- \
-    --only opencode --minimal --non-interactive --no-color --force
-fi
-
 exec opencode "$@"

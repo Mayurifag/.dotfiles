@@ -35,6 +35,10 @@
 
 ## Agent Behavior
 
+- Keep reusable rules in `exact_airules/` and update the index in `dot_config/opencode/AGENTS.md` when adding, renaming, or removing them. Apply changed rules and all shared AGENTS.md targets.
+- In this source repository, do not add permanent tests, mocks, or fixtures unless requested. Use existing checks or temporary self-checks and remove artifacts afterward.
+- Keep changes configuration-first. Explain maintenance costs before adding application patches or forks. Scope cleanup to the task unless broader refactoring is requested.
+
 - Keep legacy code cleanup leftovers short. Assume one user/app state; if one cleanup was done once, that is enough. Mention repeat cleanup as a consideration in the summary and ask before adding it.
 - Before finishing tasks that run commands, check `git status --short` for unexpected generated files or edits.
 - Before finishing tasks that spawn background processes, check `pty_list` and kill task-owned sessions.
