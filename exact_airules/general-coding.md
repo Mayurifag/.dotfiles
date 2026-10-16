@@ -24,3 +24,8 @@
 - Test the real risk, not implementation trivia. An existing integration test can suffice when it covers the changed flow.
 - Run the repository's standard checks. Report unavailable services, excessive cost, failures, and skipped coverage explicitly.
 - Do not claim success before relevant checks pass. If blocked, name the missing requirement and what remains unfinished.
+
+## Cleanup
+
+- Before finishing, remove task-owned temporary files, research clones, and completed terminal sessions.
+- Retain preview screenshots only when explicitly requested. Keep files required by the delivered feature; never remove unrelated user files.
