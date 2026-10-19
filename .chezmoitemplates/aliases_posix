@@ -58,7 +58,7 @@ webmtogif() {
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
 a() {
-  opencode --agent build --prompt "$*"
+  opencode --prompt "$*"
 }
 coder() {
   local prompt_file prompt
@@ -68,7 +68,7 @@ coder() {
   [ -n "$prompt_file" ] || prompt_file="$HOME/.config/espanso/match/ai.yml"
   prompt=$(yq e '.matches[] | select(.trigger == ":coder") | .replace' "$prompt_file") || return
   if [ -z "$prompt" ]; then echo "coder: :coder prompt not found in $prompt_file" >&2; return 1; fi
-  opencode --agent build --prompt "$prompt" "$@"
+  opencode --prompt "$prompt" "$@"
 }
 
 ## Proxies (complex)

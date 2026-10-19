@@ -123,7 +123,7 @@ function webmtogif {
     ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
 }
 function a {
-    opencode --agent build --prompt ($args -join ' ')
+    opencode --prompt ($args -join ' ')
 }
 function coder {
     $promptFile = $null
@@ -134,7 +134,7 @@ function coder {
     $prompt = yq e '.matches[] | select(.trigger == ":coder") | .replace' $promptFile
     if ($LASTEXITCODE -ne 0) { return }
     if (-not $prompt) { Write-Error "coder: :coder prompt not found in $promptFile"; return }
-    opencode --agent build --prompt $prompt @args
+    opencode --prompt $prompt @args
 }
 function q {
     if (Get-Command yawn-debug -ErrorAction SilentlyContinue) {

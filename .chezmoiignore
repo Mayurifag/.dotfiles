@@ -21,6 +21,7 @@ zsh/.zsh_plugins.sh
 
 {{ if ne .chezmoi.os "darwin" -}}
 .config/karabiner/
+.local/share/launchd/
 Library/
 {{- end }}
 
@@ -29,6 +30,8 @@ Library/
 {{- end }}
 
 {{ if ne .chezmoi.os "linux" -}}
+.config/vicinae/
+.local/share/vicinae/
 .config/fontconfig/
 .local/bin/qwen
 .local/bin/fanctl
@@ -58,8 +61,7 @@ zsh/
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
-AppData/Local/vicinae/
-AppData/Local/gitcomet/
+AppData/
 Documents/
 .local/bin/python3
 .local/bin/python3.cmd

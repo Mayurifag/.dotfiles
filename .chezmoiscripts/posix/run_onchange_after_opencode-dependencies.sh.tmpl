@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+# Dependencies: {{ include "dot_config/opencode/package.json" | sha256sum }}
+npm install --ignore-scripts --no-audit --no-fund --prefix "$HOME/.config/opencode"

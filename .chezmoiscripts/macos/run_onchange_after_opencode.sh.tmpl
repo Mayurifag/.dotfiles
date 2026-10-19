@@ -1,0 +1,21 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+# Service: {{ include "Library/private_LaunchAgents/local.opencode.plist.tmpl" | sha256sum }}
+# Version: 2.0.32
+mise install npm:@opencode/cli@2.0.32
+opencode="$HOME/.local/share/mise/shims/opencode"
+domain="gui/$(id -u)"
+plist="$HOME/Library/LaunchAgents/local.opencode.plist"
+plutil -lint "$plist"
+launchctl bootout "$domain/local.opencode" 2>/dev/null || true
+"$opencode" service stop
+if [ "$("$opencode" service get hostname)" != "100.113.30.31" ]; then
+  "$opencode" service set hostname 100.113.30.31
+fi
+if [ "$("$opencode" service get port)" != "49374" ]; then
+  "$opencode" service set port 49374
+fi
+launchctl bootstrap "$domain" "$plist"
+{{- end }}
