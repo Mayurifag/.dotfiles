@@ -1,0 +1,4 @@
+.config/opencode/tui.json
+.config/opencode/yakuake-status.mjs
+.config/opencode/tui-plugins/codex-usage.tsx
+.config/opencode/tui-plugins/codex.mjs

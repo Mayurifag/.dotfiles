@@ -1,12 +1,13 @@
 /** @jsxImportSource @opentui/solid */
-import type { TuiPluginModule } from "@opencode-ai/plugin/tui";
+import { Plugin } from "@opencode/plugin/tui";
 import { createSignal, For } from "solid-js";
 import { readCodexUsage, usageRows } from "./codex.mjs";
 
-export default {
+export default Plugin.define({
   id: "codex-usage",
-  async tui(api) {
-    const { signal } = api.lifecycle;
+  setup(context) {
+    const controller = new AbortController();
+    const { signal } = controller;
     const [usage, setUsage] = createSignal(["Loading..."]);
     let reading = false;
 
@@ -27,25 +28,27 @@ export default {
       }
     };
 
-    const usageTimer = setInterval(refreshUsage, 30000);
-    api.lifecycle.onDispose(() => {
-      clearInterval(usageTimer);
-    });
-    void refreshUsage();
-
     const view = () => (
       <box flexDirection="column" width="100%" maxWidth={75} flexShrink={0}>
-        <text fg={api.theme.current.text}>Codex Usage</text>
+        <text fg={context.theme.text.base}>Codex Usage</text>
         <For each={usage()}>
-          {(row) => <text fg={api.theme.current.textMuted}>{row}</text>}
+          {(row) => <text fg={context.theme.text.muted}>{row}</text>}
         </For>
       </box>
     );
-    api.slots.register({
-      order: 140,
-      slots: { sidebar_content: view, home_bottom: view },
+    const stopSidebar = context.ui.slot({
+      append: "sidebar.content",
+      render: view,
     });
+    const stopHome = context.ui.slot({ before: "home.footer", render: view });
+    const usageTimer = setInterval(refreshUsage, 30000);
+    void refreshUsage();
+
+    return () => {
+      clearInterval(usageTimer);
+      controller.abort();
+      stopHome();
+      stopSidebar();
+    };
   },
-} satisfies TuiPluginModule & {
-  id: string;
-};
+});

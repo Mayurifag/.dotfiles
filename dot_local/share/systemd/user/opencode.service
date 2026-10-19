@@ -1,0 +1,18 @@
+[Unit]
+Description=OpenCode authenticated private development server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h
+Environment="PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=%h/.local/share/mise/shims/opencode serve --service
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+KillMode=mixed
+UMask=0077
+
+[Install]
+WantedBy=default.target

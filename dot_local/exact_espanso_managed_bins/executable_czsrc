@@ -25,17 +25,14 @@ def resolve(path):
 
 
 def run_ai(tmpl, dest):
-    model = os.environ.get("CZSRC_AI_MODEL", "opencode-go/minimax-m2.7")
+    model = os.environ.get("CZSRC_AI_MODEL")
     srcdir = output("chezmoi", "source-path") or str(Path.home() / ".local" / "share" / "chezmoi")
     rc = subprocess.run([
         "opencode",
         "run",
-        "--model",
-        model,
-        "--dir",
-        srcdir,
+        *(["--model", model] if model else []),
         f"Read the chezmoi template at {tmpl} and destination at {dest}. Run chezmoi diff {dest} to see what differs. Edit the template so its rendered output matches the destination exactly. Preserve ALL template logic: conditionals, includes, loops, OS checks. Do NOT edit the destination file.",
-    ]).returncode
+    ], cwd=srcdir).returncode
     if rc == 0:
         print(f"  updated {tmpl}")
         return 2
@@ -50,7 +47,7 @@ def sync(dest_path, label):
     dest = output("chezmoi", "target-path", src) or dest_path
     if src.endswith(".tmpl"):
         print(f"{label} -> {src} (AI)")
-        return run_ai(src, dest_path)
+        return run_ai(src, str(Path(dest).expanduser().resolve()))
     print(f"{label} -> {src}")
     try:
         shutil.copy2(dest, src)

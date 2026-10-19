@@ -58,7 +58,7 @@ webmtogif() {
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
 a() {
-  opencode --agent fast --prompt "$*"
+  opencode --agent build --prompt "$*"
 }
 coder() {
   local prompt_file prompt

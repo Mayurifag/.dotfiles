@@ -123,7 +123,7 @@ function webmtogif {
     ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
 }
 function a {
-    opencode --agent fast --prompt ($args -join ' ')
+    opencode --agent build --prompt ($args -join ' ')
 }
 function coder {
     $promptFile = $null

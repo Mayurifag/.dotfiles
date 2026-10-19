@@ -1,0 +1,20 @@
+{{- if eq .chezmoi.hostname "cachyos-faex9" -}}
+#!/usr/bin/env sh
+set -eu
+
+# Service: {{ include "dot_local/share/systemd/user/opencode.service" | sha256sum }}
+# Version: 2.0.32
+mise install opencode@2.0.32
+opencode="$HOME/.local/share/mise/shims/opencode"
+# Transfer any automatically started daemon to systemd supervision.
+systemctl --user daemon-reload
+systemctl --user stop opencode.service
+"$opencode" service stop
+if [ "$("$opencode" service get hostname)" != "100.113.81.105" ]; then
+  "$opencode" service set hostname 100.113.81.105
+fi
+if [ "$("$opencode" service get port)" != "49374" ]; then
+  "$opencode" service set port 49374
+fi
+systemctl --user enable --now opencode.service
+{{- end }}

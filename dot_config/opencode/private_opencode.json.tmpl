@@ -1,15 +1,16 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "openai/gpt-6-luna-fast",
-  "small_model": "openai/gpt-6-luna-fast",
-  "default_agent": "build",
-  "enabled_providers": ["openai"],
-  "autoupdate": false,
-  "agent": {
+  "model": "openai/gpt-6.1-sol",
+  "default_agent": "think",
+  "policies": [
+    { "action": "provider.use", "resource": "*", "effect": "deny" },
+    { "action": "provider.use", "resource": "openai", "effect": "allow" }
+  ],
+  "update": "disable",
+  "agents": {
     "build": {
       "mode": "primary",
-      "model": "openai/gpt-6-luna-fast",
-      "variant": "max",
+      "model": "openai/gpt-6-luna-fast#max",
       "description": "Build (GPT 6 Luna Fast Max)"
     },
     "ultrathink": {
@@ -19,87 +20,40 @@
     },
     "think": {
       "mode": "primary",
-      "model": "openai/gpt-6.1-sol",
-      "variant": "high",
+      "model": "openai/gpt-6.1-sol#high",
       "description": "Think (GPT 6.1 Sol)"
     },
     "title": {
-      "model": "openai/gpt-6-luna-fast",
-      "options": {
-        "reasoningEffort": "low"
-      }
+      "model": "openai/gpt-6-luna-fast#low"
     },
     "plan": {
-      "disable": true
+      "disabled": true
     }
   },
-  "plugin": [
-    "opencode-notify",
-    "@franlol/opencode-md-table-formatter",
-    "opencode-pty",
-    "./yakuake-status.mjs"
+  "plugins": [
+    "@makcimbx/opencode-pty@0.6.1"
   ],
   "mcp": {
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "Authorization": "Bearer {env:CONTEXT7_API_KEY}"
+    "servers": {
+      "context7": {
+        "type": "remote",
+        "url": "https://mcp.context7.com/mcp",
+        "headers": {
+          "Authorization": "Bearer {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).context7_api_key }}"
+        }
       },
-      "enabled": true
-    },
-    "exa": {
-      "type": "remote",
-      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa",
-      "headers": {
-        "x-api-key": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).exa_api_key }}"
-      },
-      "enabled": true
+      "exa": {
+        "type": "remote",
+        "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa",
+        "headers": {
+          "x-api-key": "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).exa_api_key }}"
+        }
+      }
     }
   },
-  "lsp": {
-    "json": {
-      "command": ["vscode-json-language-server", "--stdio"],
-      "extensions": [".json", ".jsonc"]
-    },
-    "yaml": {
-      "command": ["yaml-language-server", "--stdio"],
-      "extensions": [".yaml", ".yml"]
-    },
-    "ansible": {
-      "command": ["ansible-language-server", "--stdio"],
-      "extensions": [".yaml", ".yml"]
-    },
-    "typescript": {
-      "command": ["typescript-language-server", "--stdio"],
-      "extensions": [".js", ".jsx", ".ts", ".tsx"]
-    },
-    "oxlint": {
-      "command": ["oxlint", "--lsp"],
-      "extensions": [".js", ".jsx", ".ts", ".tsx", ".vue", ".astro", ".svelte"]
-    },
-    "css": {
-      "command": ["vscode-css-language-server", "--stdio"],
-      "extensions": [".css"]
-    },
-    "html": {
-      "command": ["vscode-html-language-server", "--stdio"],
-      "extensions": [".html"]
-    },
-    "dockerfile": {
-      "command": ["docker-langserver", "--stdio"],
-      "extensions": [".dockerfile", "Dockerfile"]
-    },
-    "lua-ls": {
-      "command": ["mise", "exec", "--", "lua-language-server"],
-      "extensions": [".lua"]
-    },
-    "toml": {
-      "command": ["taplo", "lsp", "stdio"],
-      "extensions": [".toml"]
-    }
-  },
-  "permission": "allow",
+  "permissions": [
+    { "action": "*", "resource": "*", "effect": "allow" }
+  ],
   "formatter": {
     "prettier": {
       "command": ["prettier", "--write", "$FILE"],
@@ -110,7 +64,7 @@
       "extensions": [".sh", ".bash", ".zsh"]
     },
     "dprint": {
-      "command": ["dprint", "fmt", "--config", "$HOME/.dprint.json", "$FILE"],
+      "command": ["dprint", "fmt", "--config", {{ joinPath .chezmoi.homeDir ".dprint.json" | toJson }}, "$FILE"],
       "extensions": [".json", ".jsonc", ".md", ".yaml", ".yml"]
     },
     "taplo": {

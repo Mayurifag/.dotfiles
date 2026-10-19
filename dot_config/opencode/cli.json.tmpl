@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": { "name": "dracula", "mode": "dark" },
+  "terminal": { "title": false },
+  "session": { "sidebar": "auto" },
+  "tabs": { "mode": "off" },
+  "attention": { "notifications": false, "sound": false },
+  "keybinds": {
+    "agent.cycle": "tab",
+    "agent.cycle.reverse": "shift+tab"
+  },
+  "plugins": [
+    "-opencode.sidebar.context",
+    "-opencode.prompt.footer",
+    "./tui-plugins/context-warning",
+    "./tui-plugins/codex-usage",
+    "./tui-plugins/yakuake-status"
+  ]
+}
