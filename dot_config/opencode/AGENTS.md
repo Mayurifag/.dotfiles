@@ -24,6 +24,7 @@ Paths below are relative to `~/airules`; keep this index complete.
 - `ruby.md` -> Ruby projects
 - `rust.md` -> Rust projects
 - `screenshots.md` -> GitHub app screenshots
+- `sing-box.md` -> system proxy routing, sing-box, Docker/UFW connectivity
 - `userjs-usercss.md` -> shared UserJS/UserCSS versioning, README, browser testing
 - `usercss.md` -> UserCSS projects
 - `userjs.md` -> UserJS projects
