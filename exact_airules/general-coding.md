@@ -19,6 +19,8 @@
 
 ## Verification
 
-- Reproduce bugs before fixing them when practical. Add a focused regression test or self-check for nontrivial behavior.
+- Reproduce bugs before fixing them when practical. Use the existing test setup for focused regression coverage when available.
+- If a project had no tests before the task, do not add permanent tests, test frameworks, mocks, fixtures, or test-only CI wiring unless explicitly requested.
+- Still verify changes with temporary test files outside the repository; remove them and their generated artifacts before finishing.
 - Test the real risk, not implementation trivia. An existing integration test can suffice when it covers the changed flow.
 - Run the repository's standard checks. Report unavailable services, excessive cost, failures, and skipped coverage explicitly.

@@ -76,6 +76,8 @@ Paths below are relative to `~/airules`; keep this index complete.
 
 ## Cleanup
 
-- Before finishing, remove task-owned temporary files, logs, caches, build outputs, research clones, generated artifacts, and completed terminal sessions.
+- After each step, remove task-owned temporary files, logs, caches, build outputs, research clones, generated artifacts, and terminal sessions as soon as they are no longer needed.
+  Do not defer cleanup until the end of the task.
   Keep intended deliverables; never remove unrelated user files or changes.
+- Before finishing, check for any remaining task-owned leftovers and clean them up.
 - Retain preview screenshots only when explicitly requested. Mention retained artifact paths.
