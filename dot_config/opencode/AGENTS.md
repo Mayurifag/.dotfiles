@@ -5,29 +5,44 @@ Repository instructions take precedence over global preferences, subject to syst
 
 ## Airules
 
-Keep this index complete for `~/airules`:
+Paths below are relative to `~/airules`; keep this index complete.
 
-- `~/airules/chezmoi.md` -> dotfiles, shell/app config, maintaining airules
-- `~/airules/browser-testing.md` -> userscript, userstyle, extension tests, requested browser debugging
-- `~/airules/css.md` -> CSS, styling, themes
-- `~/airules/general-coding.md` -> coding, refactoring, dependencies
-- `~/airules/review.md` -> code reviews, repository audits, technical debt
-- `~/airules/git.md` -> commits, pushes, CI checks
-- `~/airules/git-crypt.md` -> encrypted secrets, ejson, git-crypt
-- `~/airules/github.md` -> issues, PRs, checks, releases, repository actions
-- `~/airules/javascript.md` -> JavaScript projects
-- `~/airules/makefiles.md` -> Makefiles, make targets
-- `~/airules/markdown.md` -> Markdown files
-- `~/airules/opencode.md` -> OpenCode config, agents, skills, plugins, MCP, permissions
-- `~/airules/passwords.md` -> password retrieval, credential use
-- `~/airules/pr-description.md` -> PR descriptions
-- `~/airules/python.md` -> Python projects
-- `~/airules/research.md` -> documentation, web research, current facts, external APIs and tools
-- `~/airules/ruby.md` -> Ruby projects
-- `~/airules/rust.md` -> Rust projects
-- `~/airules/screenshots.md` -> GitHub app screenshots
-- `~/airules/usercss.md` -> UserCSS projects
-- `~/airules/userjs.md` -> UserJS projects
+- `chezmoi.md` -> dotfiles, shell/app config, maintaining airules
+- `browser-testing.md` -> userscript, userstyle, extension tests, requested browser debugging
+- `css.md` -> CSS, styling, themes
+- `general-coding.md` -> coding, refactoring, dependencies
+- `review.md` -> code reviews, repository audits, technical debt
+- `git.md` -> commits, pushes, CI checks
+- `git-crypt.md` -> encrypted secrets, ejson, git-crypt
+- `javascript.md` -> JavaScript projects
+- `makefiles.md` -> Makefiles, make targets
+- `markdown.md` -> Markdown files
+- `opencode.md` -> OpenCode config, agents, skills, plugins, MCP, permissions
+- `passwords.md` -> password retrieval, credential use
+- `pr-description.md` -> PR descriptions
+- `python.md` -> Python projects
+- `ruby.md` -> Ruby projects
+- `rust.md` -> Rust projects
+- `screenshots.md` -> GitHub app screenshots
+- `userjs-usercss.md` -> shared UserJS/UserCSS versioning, README, browser testing
+- `usercss.md` -> UserCSS projects
+- `userjs.md` -> UserJS projects
+
+## Research
+
+- Use Context7 before coding against external libraries, frameworks, CLIs, SDKs, APIs, config schemas, or MCP servers.
+- Skip Context7 if docs are already in the repo/prompt, work is purely local, or no relevant library exists.
+- Prefer version-specific docs. Resolve the library ID first unless given an exact `/org/project` Context7 ID.
+- Prefer GitHub source/docs for implementation details, examples, README/docs files, release notes, and repository history.
+- For version-dependent behavior, verify the installed version's observed UI/API output before relying on generic examples or docs.
+- Prefer Exa MCP (`exa_web_search_exa`, `exa_web_fetch_exa`) for web search, current facts, comparisons, news, people, companies, unknown URLs, and research/docs not covered by Context7/GitHub.
+- Fetch promising URLs with Exa when snippets are insufficient. Stop once reliable sources support the answer.
+- Use built-in web tools only if Exa fails, is unavailable, or a direct URL fetch suffices; built-in tools are often blocked.
+
+## GitHub
+
+- `gh` is installed and authenticated. Use it for all GitHub operations, including repository navigation, source/docs, issues, PRs, checks, and releases.
+- Never fetch GitHub content through web tools or unauthenticated HTTP, including `raw.githubusercontent.com`. Use `gh api` for source files and repository trees.
 
 ## Communication
 
@@ -35,7 +50,7 @@ Keep this index complete for `~/airules`:
 - Omit greetings, praise, repetition, mode announcements, and narration of routine tool calls.
 - Preserve technical details, identifiers, commands, paths, errors, numbers, units, negations, and uncertainty. Never shorten text at the expense of meaning.
 - Explain consequential tradeoffs, security risks, irreversible steps, and ambiguous procedures clearly. Keep code, comments, and documentation in normal language.
-- Report actual results and meaningful verification gaps. Do not invent facts, citations, API behavior, or successful checks.
+- Report actual results, blockers, and meaningful verification gaps. Do not invent facts, citations, API behavior, or successful checks.
 - Verify important claims when practical. Distinguish facts, assumptions, and preferences; use `high`, `moderate`, `low`, or `unknown` confidence when uncertainty matters.
 - Ask only when needed, with a recommended default. Proceed on safe, reversible assumptions and state them.
 
@@ -58,4 +73,9 @@ Keep this index complete for `~/airules`:
 - After a concrete agent mistake, suggest a concise `Possible rule:` that would prevent recurrence.
 - Capture only non-obvious, reusable knowledge. Keep project facts in that project's `AGENTS.md`.
 - For global rules, propose exact wording in `~/.local/share/chezmoi/dot_config/opencode/AGENTS.md` or an existing `exact_airules/*.md`. Add a new airule only for a recurring topic.
-- Always edit chezmoi sources, not rendered rule files.
+
+## Cleanup
+
+- Before finishing, remove task-owned temporary files, logs, caches, build outputs, research clones, generated artifacts, and completed terminal sessions.
+  Keep intended deliverables; never remove unrelated user files or changes.
+- Retain preview screenshots only when explicitly requested. Mention retained artifact paths.

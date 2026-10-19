@@ -14,10 +14,8 @@ Describe exactly what changed in plain language. Mention user-visible behavior, 
 
 ## Style
 
-- Keep it concise and human-written.
 - Be specific: name changed behavior, files, flows, APIs, commands, or settings when useful.
 - Prefer direct verbs over generic PR language.
 - Do not summarize commits.
 - Do not add `Validation`, `Testing`, or test commands unless explicitly requested or required by the repo template.
-- Do not invent motivation, impact, test results, tickets, screenshots, or rollout details.
 - Avoid filler: `This PR introduces`, `enhances`, `improves`, `various fixes`, `better maintainability`.

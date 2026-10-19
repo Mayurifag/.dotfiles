@@ -4,7 +4,6 @@
 
 - Read the affected code before editing. Trace callers and identify affected tests, fixtures, configuration, and exports.
 - Check for data loss, disclosure, and compatibility risks. State safe assumptions; ask before ambiguous destructive or broad changes.
-- Load `~/airules/research.md` before working against external libraries, APIs, tools, or configuration schemas.
 - Preserve unrelated user changes. Stop only when they conflict with the task.
 
 ## Changes
@@ -23,9 +22,3 @@
 - Reproduce bugs before fixing them when practical. Add a focused regression test or self-check for nontrivial behavior.
 - Test the real risk, not implementation trivia. An existing integration test can suffice when it covers the changed flow.
 - Run the repository's standard checks. Report unavailable services, excessive cost, failures, and skipped coverage explicitly.
-- Do not claim success before relevant checks pass. If blocked, name the missing requirement and what remains unfinished.
-
-## Cleanup
-
-- Before finishing, remove task-owned temporary files, research clones, and completed terminal sessions.
-- Retain preview screenshots only when explicitly requested. Keep files required by the delivered feature; never remove unrelated user files.

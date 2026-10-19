@@ -39,4 +39,3 @@
 ## Cleanup
 
 - Run `browser-test --close` when finished.
-- Remove task-owned temporary screenshots and other artifacts unless they are intended results. Mention retained paths.

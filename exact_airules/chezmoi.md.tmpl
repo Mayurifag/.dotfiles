@@ -42,8 +42,6 @@
 - Keep legacy code cleanup leftovers short. Assume one user/app state; if one cleanup was done once, that is enough. Mention repeat cleanup as a consideration in the summary and ask before adding it.
 - Before finishing tasks that run commands, check `git status --short` for unexpected generated files or edits.
 - Before finishing tasks that spawn background processes, check `pty_list` and kill task-owned sessions.
-- Remove task-owned temporary files, logs, caches, build outputs, and generated artifacts unless they are intended results.
-- Do not remove unrelated user files or changes.
 
 ## Packages
 

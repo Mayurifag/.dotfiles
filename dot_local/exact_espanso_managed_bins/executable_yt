@@ -16,7 +16,7 @@ BASE_ARGS = [
 
 
 def main() -> int:
-    return run_ytdlp([*BASE_ARGS, *sys.argv[1:]])
+    return run_ytdlp([*BASE_ARGS, *sys.argv[1:]], use_temp_downloads=True)
 
 
 if __name__ == "__main__":
