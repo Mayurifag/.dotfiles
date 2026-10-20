@@ -50,9 +50,6 @@ function reset_file {
     else { Write-Error "reset_file: cannot determine default branch"; return }
     git checkout "origin/$branch" -- @args
 }
-function wingetfile {
-    winget export --output (Join-Path (chezmoi source-path) 'install/Wingetfile') --accept-source-agreements @args
-}
 function grom {
     $branch = $null
     if (git rev-parse --verify --quiet origin/main 2>$null) { $branch = "main" }
@@ -126,25 +123,13 @@ function a {
     opencode --prompt ($args -join ' ')
 }
 function coder {
-    $promptFile = $null
-    if (Get-Command chezmoi -ErrorAction SilentlyContinue) {
-        $promptFile = chezmoi source-path dot_config/exact_espanso/exact_match/ai.yml 2>$null
-    }
-    if (-not $promptFile) { $promptFile = Join-Path $HOME '.config/espanso/match/ai.yml' }
-    $prompt = yq e '.matches[] | select(.trigger == ":coder") | .replace' $promptFile
+    $prompt = yq e '.matches[] | select(.trigger == ":coder") | .replace' "$HOME/.config/espanso/match/ai.yml"
     if ($LASTEXITCODE -ne 0) { return }
-    if (-not $prompt) { Write-Error "coder: :coder prompt not found in $promptFile"; return }
+    if (-not $prompt) { Write-Error "coder: :coder prompt not found"; return }
     opencode --prompt $prompt @args
 }
 function q {
-    if (Get-Command yawn-debug -ErrorAction SilentlyContinue) {
-        Write-Host "Executing yawn-debug"
-        yawn-debug @args
-    } elseif (Get-Command yawn -ErrorAction SilentlyContinue) {
-        yawn @args
-    } else {
-        Write-Error "No yawn executable found."
-    }
+    yawn @args
 }
 
 ## Proxies (complex)

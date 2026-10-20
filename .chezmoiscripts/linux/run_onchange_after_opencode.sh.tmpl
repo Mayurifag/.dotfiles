@@ -3,8 +3,8 @@
 set -eu
 
 # Service: {{ include "dot_local/share/systemd/user/opencode.service" | sha256sum }}
-# Version: 2.0.32
-mise install npm:@opencode/cli@2.0.32
+# Tools: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+mise install npm:@opencode/cli
 opencode="$HOME/.local/share/mise/shims/opencode"
 # Transfer any automatically started daemon to systemd supervision.
 systemctl --user daemon-reload

@@ -31,7 +31,7 @@ fi
 
 require_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    printf 'error: rust package install requires %s in PATH\n' "$1" >&2
+    printf 'error: required command not found in PATH: %s\n' "$1" >&2
     return 1
   fi
 }
@@ -181,9 +181,6 @@ mise_sync_only_software() {
 }
 
 prune_mise_installs() {
-  mise ls | awk 'NF >= 2 && $0 !~ /[[:space:]](~|[A-Za-z]:)?[\\\/].*mise.*toml/ { print $1 "@" $2 }' | while IFS= read -r tool; do
-    [ -n "$tool" ] && mise uninstall --yes "$tool"
-  done
   mise prune --yes
   mise cache prune --yes
   mise reshim
@@ -229,7 +226,7 @@ clean_rust_packages() (
   done
 )
 
-clean_ruby_packages() {
+clean_ruby_packages() (
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
   wanted_packages "$DOTFILES_DIR/install/Rubyfile" | while IFS= read -r gem; do
@@ -242,7 +239,7 @@ clean_ruby_packages() {
       gem uninstall -a -x "$gem" 2>/dev/null || true
     fi
   done
-}
+)
 
 clean_go_packages() (
   command -v go >/dev/null
@@ -275,19 +272,28 @@ clean_uv_packages() (
   done
 )
 
-winget_package_installed() {
-  winget list --id "$1" --exact --accept-source-agreements --disable-interactivity 2>/dev/null | tr -d '\r' | grep -F "$1" >/dev/null
-}
+winget_package_installed() (
+  # This PowerToys plugin has no application registration for winget list.
+  case "$1" in
+  lin-ycv.EverythingPowerToys)
+    plugins="$(cygpath -u "$LOCALAPPDATA")/Microsoft/PowerToys/PowerToys Run/Plugins"
+    test -f "$plugins/Everything/Community.PowerToys.Run.Plugin.Everything.dll"
+    ;;
+  *)
+    winget list --id "$1" --exact --accept-source-agreements --disable-interactivity >/dev/null 2>&1
+    ;;
+  esac
+)
 
 winget_packages() {
   is_windows || return 0
-  command -v winget >/dev/null 2>&1 || return 0
+  require_command winget
   wanted_packages "$DOTFILES_DIR/install/Wingetfile" | while IFS= read -r package; do
-    winget_package_installed "$package" || winget install --id "$package" --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements || true
+    winget_package_installed "$package" || winget install --id "$package" --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements
   done
 }
 
-node_packages() {
+node_packages() (
   npm_cmd=$(command -v npm)
   clean_node_packages
   tmp=$(mktemp -d)
@@ -302,9 +308,9 @@ node_packages() {
     grep -qxF "$installed" "$tmp/have" || "$npm_cmd" install -g "$spec"
   done <"$tmp/want"
   mise reshim
-}
+)
 
-rust_packages() {
+rust_packages() (
   require_rust_package_tools
   clean_rust_packages
   tmp=$(mktemp -d)
@@ -315,9 +321,9 @@ rust_packages() {
     [ -n "$pkg" ] && cargo install "$pkg"
   done
   mise reshim
-}
+)
 
-ruby_packages() {
+ruby_packages() (
   clean_ruby_packages
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
@@ -328,7 +334,7 @@ ruby_packages() {
     [ -n "$gem" ] && gem install "$gem"
   done
   mise reshim
-}
+)
 
 go_packages() {
   clean_go_packages
@@ -341,7 +347,7 @@ go_packages() {
   mise reshim
 }
 
-uv_packages() {
+uv_packages() (
   clean_uv_packages
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
@@ -351,7 +357,7 @@ uv_packages() {
     grep -qxF "$pkg" "$tmp/have" || printf '%s\n' "$spec" | xargs uv tool install --force
   done
   mise reshim
-}
+)
 
 case "${1:-}" in
 mise-sync) mise_sync ;;

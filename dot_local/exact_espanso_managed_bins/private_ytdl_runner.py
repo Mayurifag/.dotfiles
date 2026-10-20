@@ -1,7 +1,6 @@
 import os
 import subprocess
 import tempfile
-import time
 
 OUTPUT_TEMPLATE = "%(title)s.%(ext)s"
 SPONSORBLOCK_REMOVE = "sponsor,selfpromo,interaction,intro,outro,preview,music_offtopic"
@@ -15,8 +14,6 @@ COMMON_ARGS = [
     "--concurrent-fragments",
     "3",
 ]
-
-LOCK_DIR = os.path.join(tempfile.gettempdir(), "uv-yt-dlp-update.lock")
 
 HELIUM_PROFILE_PATHS = [
     "~/AppData/Local/Helium/User Data/Default",
@@ -36,31 +33,21 @@ def helium_cookie_args():
 
 
 def update_ytdlp():
-    while True:
-        try:
-            os.mkdir(LOCK_DIR)
-            break
-        except FileExistsError:
-            time.sleep(0.2)
-
-    try:
-        subprocess.run(
-            [
-                "uv",
-                "tool",
-                "install",
-                "--force",
-                "--with",
-                "curl-cffi",
-                "--prerelease",
-                "allow",
-                "--upgrade",
-                "yt-dlp",
-            ],
-            check=True,
-        )
-    finally:
-        os.rmdir(LOCK_DIR)
+    subprocess.run(
+        [
+            "uv",
+            "tool",
+            "install",
+            "--force",
+            "--with",
+            "curl-cffi",
+            "--prerelease",
+            "allow",
+            "--upgrade",
+            "yt-dlp",
+        ],
+        check=True,
+    )
 
 
 def run_ytdlp(args, *, use_temp_downloads=False):

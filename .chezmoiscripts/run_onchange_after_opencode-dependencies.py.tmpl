@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+import shutil
+import subprocess
+from pathlib import Path
+
+# Dependencies: {{ include "dot_config/opencode/package.json" | sha256sum }}
+subprocess.run(
+    [shutil.which("npm") or "npm", "install", "--ignore-scripts", "--no-audit",
+     "--no-fund", "--prefix", str(Path.home() / ".config/opencode")],
+    check=True,
+)

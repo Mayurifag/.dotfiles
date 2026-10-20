@@ -1,5 +1,6 @@
 .config/opencode/tui.json
 .config/opencode/yakuake-status.mjs
-.config/opencode/tui-plugins/codex-usage.tsx
-.config/opencode/tui-plugins/codex.mjs
-.config/opencode/plugins/preserve-eof.ts
+.config/opencode/.caveman-active
+.config/opencode/.caveman-opencode-ownership.json
+.config/opencode/.caveman-opencode-backups
+.config/opencode/opencode.json.bak

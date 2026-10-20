@@ -1,0 +1,32 @@
+{{- if and (eq .chezmoi.os "windows") (eq .chezmoi.hostname "DESKTOP-7DQ9CMG") -}}
+#Requires -Version 7.4
+#Requires -RunAsAdministrator
+$ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $true
+
+# Tools: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+# Config: {{ include "dot_config/opencode/private_opencode.json.tmpl" | sha256sum }}
+mise install npm:@opencode/cli
+$opencode = Join-Path (& mise where npm:@opencode/cli) 'node_modules/@opencode/cli/bin/opencode.exe'
+$taskName = 'OpenCode Server'
+
+& $opencode service stop
+Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue | Stop-ScheduledTask
+& $opencode service set hostname 100.113.95.177
+& $opencode service set port 49374
+& $opencode service set remote false
+
+$ruleName = 'OpenCode-NetBird-Proxy'
+Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue | Remove-NetFirewallRule
+New-NetFirewallRule -Name $ruleName -DisplayName 'OpenCode from homelab proxy only' `
+    -Direction Inbound -Action Allow -Protocol TCP -LocalPort 49374 `
+    -LocalAddress 100.113.95.177 -RemoteAddress 100.113.201.147 -Program $opencode -Profile Any | Out-Null
+
+$action = New-ScheduledTaskAction -Execute $opencode -Argument 'serve --service' -WorkingDirectory $HOME
+$principal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType S4U -RunLevel Limited
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+    -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 99 -RestartInterval (New-TimeSpan -Minutes 1) -StartWhenAvailable
+Register-ScheduledTask -TaskName $taskName -Action $action -Principal $principal -Settings $settings `
+    -Trigger @((New-ScheduledTaskTrigger -AtStartup), (New-ScheduledTaskTrigger -AtLogOn -User $principal.UserId)) -Force | Out-Null
+Start-ScheduledTask -TaskName $taskName
+{{- end }}

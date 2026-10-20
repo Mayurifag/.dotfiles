@@ -12,7 +12,7 @@
 
 | Target                              | Source                                          |
 | ----------------------------------- | ----------------------------------------------- |
-| `~/.config/git/hooks/post-checkout` | `dot_config/git/hooks/executable_post-checkout` |
+| `~/.config/git/hooks/post-checkout` | `dot_config/git/exact_hooks/executable_post-checkout` |
 | `~/.gitconfig`                      | `dot_gitconfig.tmpl`                            |
 | `~/.zshrc`                          | `dot_zshrc.tmpl`                                |
 | `~/airules`                         | `exact_airules`                                 |
@@ -26,6 +26,7 @@
 - `executable_` -> executable target
 - `run_once_` / `run_after_` -> run by `chezmoi apply`
 - Use `.tmpl` only when the rendered file needs host-specific values or secrets. Prefer app env vars plus env templates when the app can expand `${VAR}`.
+- Use `exact_` only for fully source-owned directories. Keep app roots containing credentials, service state, or dependencies non-exact; make their managed subdirectories exact.
 
 ## Verify Edits
 

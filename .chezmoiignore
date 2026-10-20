@@ -45,11 +45,7 @@ Library/
 .local/share/gitcomet/
 {{- end }}
 
-{{ if ne .chezmoi.os "windows" -}}
-{{- end }}
-
 {{ if eq .chezmoi.os "windows" -}}
-.config/vicinae/
 .config/btop/
 .config/yakuakerc
 .config/konsolerc

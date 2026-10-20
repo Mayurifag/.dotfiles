@@ -11,7 +11,7 @@ Google.PlatformTools
 hpjansson.Chafa
 ImputNet.Helium
 jdx.mise
-KeePassXC.KeePassXC
+KeePassXCTeam.KeePassXC
 koalaman.shellcheck
 lin-ycv.EverythingPowerToys
 LocalSend.LocalSend
@@ -21,6 +21,7 @@ Microsoft.PowerShell
 Microsoft.PowerToys
 Microsoft.VisualStudioCode
 Microsoft.WindowsTerminal
+Netbird.Netbird
 qarmin.krokiet
 RadolynLabs.AyuGramDesktop
 Rclone.Rclone
@@ -31,3 +32,5 @@ shinchiro.mpv
 Streamlink.Streamlink
 trzsz.tssh
 voidtools.Everything.Alpha
+# GitComet (Microsoft Store)
+XPFD182V1H793R

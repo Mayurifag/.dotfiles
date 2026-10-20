@@ -14,7 +14,11 @@ def output(*cmd):
 def resolve(path):
     src = output("chezmoi", "source-path", path)
     if not src:
-        if subprocess.run(["chezmoi", "add", "--force", path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
+        added = subprocess.run(
+            ["chezmoi", "add", "--force", path],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        if added.returncode != 0:
             print(f"czsrc: {path} not managed", file=sys.stderr)
             return None
         src = output("chezmoi", "source-path", path)
@@ -27,30 +31,30 @@ def resolve(path):
 def run_ai(tmpl, dest):
     model = os.environ.get("CZSRC_AI_MODEL")
     srcdir = output("chezmoi", "source-path") or str(Path.home() / ".local" / "share" / "chezmoi")
-    rc = subprocess.run([
+    prompt = (
+        f"Read chezmoi template {tmpl} and destination {dest}. "
+        f"Run chezmoi diff {dest}, then edit the template to match the destination. "
+        "Preserve all conditionals, includes, loops, and OS checks. "
+        "Do not edit the destination."
+    )
+    return subprocess.run([
         "opencode",
         "run",
         *(["--model", model] if model else []),
-        f"Read the chezmoi template at {tmpl} and destination at {dest}. Run chezmoi diff {dest} to see what differs. Edit the template so its rendered output matches the destination exactly. Preserve ALL template logic: conditionals, includes, loops, OS checks. Do NOT edit the destination file.",
+        prompt,
     ], cwd=srcdir).returncode
-    if rc == 0:
-        print(f"  updated {tmpl}")
-        return 2
-    print(f"  failed {tmpl} (exit {rc})")
-    return 1
 
 
-def sync(dest_path, label):
+def sync(dest_path):
     src = resolve(dest_path)
     if not src:
         return 1
-    dest = output("chezmoi", "target-path", src) or dest_path
     if src.endswith(".tmpl"):
-        print(f"{label} -> {src} (AI)")
-        return run_ai(src, str(Path(dest).expanduser().resolve()))
-    print(f"{label} -> {src}")
+        print(f"{dest_path} -> {src} (AI)")
+        return run_ai(src, str(Path(dest_path).expanduser().resolve()))
+    print(f"{dest_path} -> {src}")
     try:
-        shutil.copy2(dest, src)
+        shutil.copy2(Path(dest_path).expanduser(), src)
     except OSError as e:
         print(f"  failed: {e}")
         return 1
@@ -62,41 +66,31 @@ if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
     raise SystemExit(0)
 
 if len(sys.argv) > 1:
-    items = [(p, p) for p in sys.argv[1:]]
+    paths = sys.argv[1:]
 else:
-    p = subprocess.run(["chezmoi", "status", "--include=changed", "--externals=false"], capture_output=True, text=True)
+    p = subprocess.run(
+        ["chezmoi", "status", "--include=files", "--path-style=absolute"],
+        capture_output=True, text=True,
+    )
     if p.returncode != 0:
         sys.stderr.write(p.stderr)
         raise SystemExit(p.returncode)
-    items = []
+    paths = []
     for line in p.stdout.splitlines():
-        dest = line[3:] if len(line) > 3 else ""
-        if not dest:
+        if len(line) < 4 or line[0] not in "AM" or line[1] == "D":
             continue
-        dest_path = str(Path.home() / dest)
-        if output("chezmoi", "source-path", dest_path):
-            items.append((dest_path, dest))
-        elif output("chezmoi", "source-path", dest):
-            items.append((dest, dest))
-        else:
-            items.append((dest_path, dest))
+        dest = line[3:]
+        if output("chezmoi", "source-path", dest):
+            paths.append(dest)
 
-if not items:
-    print("No changes - source and destination match.")
+if not paths:
+    print("No edited home files to sync.")
     raise SystemExit(0)
 
-ok = tmpl = 0
 failed = 0
-for dest_path, label in items:
-    rc = sync(dest_path, label)
-    if rc == 0:
-        ok += 1
-    elif rc == 2:
-        ok += 1
-        tmpl += 1
-    else:
+for path in paths:
+    if sync(path) != 0:
         failed += 1
 
-print()
-print(f"Done: {ok} files synced ({tmpl} via AI)")
+print(f"Done: {len(paths) - failed} files synced, {failed} failed")
 raise SystemExit(1 if failed else 0)

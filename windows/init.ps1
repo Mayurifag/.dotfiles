@@ -96,7 +96,12 @@ $env:PATH = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";
 Write-Host "`n[10/16] Installing git-crypt shim..."
 $gitCryptShimDir = Join-Path $HOME ".local\bin"
 $gitCryptShim = Join-Path $gitCryptShimDir "git-crypt.cmd"
-$gitCryptShimBody = "@echo off`r`n`"C:\msys64\usr\bin\git-crypt.exe`" %*`r`n"
+$gitCryptShimBody = @'
+@echo off
+setlocal
+if not defined GIT_CONFIG_GLOBAL set "GIT_CONFIG_GLOBAL=%USERPROFILE%\.gitconfig"
+"C:\msys64\usr\bin\git-crypt.exe" %*
+'@
 if (!(Test-Path $gitCryptShimDir)) { New-Item -ItemType Directory -Path $gitCryptShimDir -Force | Out-Null }
 if (!(Test-Path $gitCryptShim) -or (Get-Content -Raw $gitCryptShim) -ne $gitCryptShimBody) {
   Set-Content -Path $gitCryptShim -Value $gitCryptShimBody -NoNewline

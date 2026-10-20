@@ -15,7 +15,10 @@ export default Plugin.define({
   setup(context) {
     let terminal;
     try {
-      terminal = openSync("/dev/tty", "w");
+      terminal = openSync(
+        process.platform === "win32" ? "CONOUT$" : "/dev/tty",
+        "w",
+      );
     } catch {}
 
     const konsoleService = process.env.KONSOLE_DBUS_SERVICE;

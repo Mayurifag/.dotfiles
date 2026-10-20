@@ -3,8 +3,8 @@
 set -eu
 
 # Service: {{ include "Library/private_LaunchAgents/local.opencode.plist.tmpl" | sha256sum }}
-# Version: 2.0.32
-mise install npm:@opencode/cli@2.0.32
+# Tools: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+mise install npm:@opencode/cli
 opencode="$HOME/.local/share/mise/shims/opencode"
 domain="gui/$(id -u)"
 plist="$HOME/Library/LaunchAgents/local.opencode.plist"
