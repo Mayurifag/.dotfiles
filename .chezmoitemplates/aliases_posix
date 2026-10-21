@@ -57,9 +57,6 @@ webmtogif() {
   esac
   ffmpeg -i "$1" -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 "${1%.*}.gif"
 }
-a() {
-  opencode --prompt "$*"
-}
 coder() {
   local prompt
   prompt=$(yq e '.matches[] | select(.trigger == ":coder") | .replace' "$HOME/.config/espanso/match/ai.yml") || return

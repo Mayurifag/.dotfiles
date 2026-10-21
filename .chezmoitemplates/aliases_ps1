@@ -119,9 +119,6 @@ function webmtogif {
     $out = [IO.Path]::ChangeExtension($in, 'gif')
     ffmpeg -i $in -vf "fps=15,scale=480:-1:flags=lanczos" -loop 0 $out
 }
-function a {
-    opencode --prompt ($args -join ' ')
-}
 function coder {
     $prompt = yq e '.matches[] | select(.trigger == ":coder") | .replace' "$HOME/.config/espanso/match/ai.yml"
     if ($LASTEXITCODE -ne 0) { return }
