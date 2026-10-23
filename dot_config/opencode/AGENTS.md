@@ -70,11 +70,19 @@ Paths below are relative to `~/airules`; keep this index complete.
 - Parallelize independent tasks; keep dependent steps sequential. Do not repeat delegated work without a reason.
 - Request concise findings, file locations, or change receipts. Inspect relevant results; rereading files is not a runtime check.
 
-## Reusable Knowledge
+## Instruction Changes
 
-- After a concrete agent mistake, suggest a concise `Possible rule:` that would prevent recurrence.
-- Capture only non-obvious, reusable knowledge. Keep project facts in that project's `AGENTS.md`.
-- For global rules, propose exact wording in `~/.local/share/chezmoi/dot_config/opencode/AGENTS.md` or an existing `exact_airules/*.md`. Add a new airule only for a recurring topic.
+- Do not create, edit, or delete persistent agent instructions (`AGENTS.md`, airules, etc.) unless explicitly requested
+  or a specific proposed change is approved. Ordinary tasks and requests to fix mistakes are not authorization.
+- When the user corrects an agent mistake, fix it and briefly explain the cause. Distinguish mistakes from changed
+  requirements. Check existing instructions; if they already cover it, acknowledge the failure to follow them instead
+  of adding a duplicate rule.
+- If a recurring or clearly generalizable gap remains, propose one minimal `Possible rule:` with the exact target file
+  and wording or diff. Prefer revising or removing an existing rule over adding one. Proposing no change is valid;
+  wait for approval before applying a proposal.
+- Keep proposals scoped: project-only constraints belong in that project's `AGENTS.md`; shared behavior belongs in
+  global instructions or an existing airule. Do not persist task history, routine command lists, temporary state,
+  or readily discoverable facts.
 
 ## Cleanup
 
