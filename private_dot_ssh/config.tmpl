@@ -16,6 +16,10 @@ Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two }}
   Port {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two_port }}
   #!! UdpMode KCP
   #!! TsshdPort {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_two_udp_port }}
+Host {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_router }}
+  HostName {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).host_router_hostname }}
+  User root
+  Port 22
 Host *
   StrictHostKeyChecking ask
   UpdateHostKeys ask

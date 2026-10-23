@@ -1,4 +1,6 @@
 {
+  "host_router": "EJ[1:3rUFDDp7dLd26zvvMd4gf+8Q/RR3DOyq//HiXEf982M=:Vg22WP1WopBzPBT54hecj99OlAGlGxlu:k8zZ2OnhbdP1R5JT1faOTX5gCb73Sg==]",
+  "host_router_hostname": "EJ[1:3rUFDDp7dLd26zvvMd4gf+8Q/RR3DOyq//HiXEf982M=:wSxi/5PydtUBChoEXM35RjDYfMrLPi5F:lv0tAaQWxeRFFzeiW9JTjXAKsmIkwWzb5mzQGg==]",
   "_public_key": "e97b5e6139b43297338c52ab0408874ec642257af0c3aef8454bf2f9c57c8d28",
   "ssh_user": "EJ[1:vlDREKn2KvqDM36cqYQAwHIENJQYb71pqfanQwHNhhA=:dRx7AALs1GiPUFOnsxoye/0nzPL3nDVl:5Ikqf9nkIzba5Y7m2wqXqUSPOL8k0MIyFA==]",
   "gemini_api_key": "EJ[1:vlDREKn2KvqDM36cqYQAwHIENJQYb71pqfanQwHNhhA=:X4bPAQrA7mx1l5Nnm8tJkr8NWIZ3ycVF:5q5QojmI2qsjh1xVixCUj185+Okrb92Jku7hIxaodkCm+3lvNjNsdts0K6LknQqZmZVIHOciYA==]",

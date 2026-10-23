@@ -14,6 +14,7 @@ Paths below are relative to `~/airules`; keep this index complete.
 - `review.md` -> code reviews, repository audits, technical debt
 - `git.md` -> commits, pushes, CI checks
 - `git-crypt.md` -> encrypted secrets, ejson, git-crypt
+- `homelab.md` -> personal homelab, home router/LAN, Proxmox, Home Assistant, Immich, private DNS/TLS, NetBird; work in `~/Code/mayurifag.ru`
 - `javascript.md` -> JavaScript projects
 - `makefiles.md` -> Makefiles, make targets
 - `markdown.md` -> Markdown files
