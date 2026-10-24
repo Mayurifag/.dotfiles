@@ -4,11 +4,17 @@ import { createInterface } from "node:readline";
 export function readCodexUsage(signal) {
   return new Promise((resolve, reject) => {
     const child = spawn("codex", ["app-server", "--listen", "stdio://"], {
-      stdio: ["pipe", "pipe", "ignore"],
+      stdio: ["pipe", "pipe", "pipe"],
       signal,
+      windowsHide: true,
     });
     const lines = createInterface({ input: child.stdout });
     let settled = false;
+    let stderr = "";
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", (chunk) => {
+      stderr = (stderr + chunk).slice(-2000);
+    });
     const timer = setTimeout(
       () => finish(new Error("Codex usage timed out")),
       15000,
@@ -25,16 +31,26 @@ export function readCodexUsage(signal) {
     const send = (message) => child.stdin.write(`${JSON.stringify(message)}\n`);
     child.on("error", (error) => finish(error));
     child.stdin.on("error", (error) => finish(error));
-    child.on("exit", () =>
-      finish(new Error("Codex exited before returning usage")),
+    child.on("close", (code, exitSignal) =>
+      finish(
+        new Error(
+          `Codex exited (${exitSignal ?? code}) before returning usage${stderr.trim() ? `: ${stderr.trim()}` : ""}`,
+        ),
+      ),
     );
     lines.on("line", (line) => {
       if (settled) return;
       try {
         const message = JSON.parse(line);
         if (message.id !== 1 && message.id !== 2) return;
-        if (message.error)
-          throw new Error(message.error.message || "Codex RPC failed");
+        if (message.error) {
+          const detail = message.error.message || "Codex RPC failed";
+          throw new Error(
+            detail.includes("401 Unauthorized")
+              ? "Codex authentication failed; run codex login"
+              : detail,
+          );
+        }
         if (message.id === 1) {
           send({ method: "initialized", params: {} });
           send({ method: "account/rateLimits/read", id: 2 });

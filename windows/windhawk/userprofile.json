@@ -13,6 +13,10 @@
       "latestVersion": "1.0.1",
       "version": "1.0.1"
     },
+    "center-new-windows": {
+      "latestVersion": "1.0.1",
+      "version": "1.0.1"
+    },
     "chrome-wheel-scroll-tabs": {
       "latestVersion": "1.3.1",
       "version": "1.3.1"
@@ -27,7 +31,7 @@
     },
     "explorer-details-better-file-sizes": {
       "latestVersion": "1.6",
-      "version": "1.5.1"
+      "version": "1.6"
     },
     "explorer-info-bar": {
       "latestVersion": "1.2.0",
@@ -53,6 +57,10 @@
       "latestVersion": "1.0",
       "version": "1.0"
     },
+    "icon-resource-redirect": {
+      "latestVersion": "1.3",
+      "version": "1.3"
+    },
     "invisible-borders": {
       "latestVersion": "1.0.0",
       "version": "1.0.0"
@@ -75,7 +83,7 @@
     },
     "taskbar-clock-customization": {
       "latestVersion": "1.8.1",
-      "version": "1.8"
+      "version": "1.8.1"
     },
     "taskbar-icon-size": {
       "latestVersion": "1.3.10",
@@ -83,11 +91,24 @@
     },
     "taskbar-labels": {
       "latestVersion": "1.5.1",
-      "version": "1.4.5"
+      "version": "1.5.1"
     },
     "taskbar-volume-control": {
       "latestVersion": "1.3.1",
       "version": "1.3.1"
+    },
+    "win-d-per-monitor": {
+      "latestVersion": "1.5.260416",
+      "version": "1.5.260416"
+    },
+    "win11-accent-border": {
+      "disabled": true,
+      "latestVersion": "1.0.5",
+      "version": "1.0.5"
+    },
+    "windows-11-file-explorer-styler": {
+      "latestVersion": "1.7",
+      "version": "1.7"
     },
     "windows-11-notification-center-styler": {
       "latestVersion": "1.7",

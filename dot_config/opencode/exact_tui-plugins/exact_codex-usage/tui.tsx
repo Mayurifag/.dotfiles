@@ -30,7 +30,6 @@ export default Plugin.define({
 
     const view = () => (
       <box flexDirection="column" width="100%" maxWidth={75} flexShrink={0}>
-        <text fg={context.theme.text.base}>Codex Usage</text>
         <For each={usage()}>
           {(row) => <text fg={context.theme.text.muted}>{row}</text>}
         </For>
