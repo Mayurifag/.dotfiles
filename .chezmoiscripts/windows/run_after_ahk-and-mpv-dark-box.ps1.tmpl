@@ -1,17 +1,21 @@
 {{- if eq .chezmoi.os "windows" -}}
 Write-Host '[chezmoi] running windows/ahk-and-mpv-dark-box'
 
-$ahkProcesses = Get-CimInstance Win32_Process -Filter "Name like 'AutoHotkey%'" -ErrorAction SilentlyContinue |
-    Where-Object { $_.CommandLine -like "*ahkv2.ahk*" }
-
-foreach ($proc in $ahkProcesses) {
-    Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue
-}
-
 $ahkScript = Join-Path $env:USERPROFILE ".local\share\chezmoi\windows\ahkv2.ahk"
-if (Test-Path $ahkScript) {
-    Start-Process $ahkScript
+$ahkExe = Join-Path $env:ProgramFiles "AutoHotkey\v2\AutoHotkey.exe"
+foreach ($path in @($ahkScript, $ahkExe)) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "[ahk] Required file not found: $path"
+    }
 }
+
+# Let AutoHotkey replace only this script's instance; do not kill other copies.
+# Launch the interpreter directly instead of relying on the .ahk association.
+$ahkProcess = Start-Process -FilePath $ahkExe -ArgumentList "/restart `"$ahkScript`"" -PassThru -ErrorAction Stop
+if ($ahkProcess.WaitForExit(1000)) {
+    throw "[ahk] Restart failed (exit code $($ahkProcess.ExitCode)): $ahkScript"
+}
+Write-Host "[ahk] Running (PID $($ahkProcess.Id)): $ahkScript"
 
 $darkBoxRepo   = Join-Path $env:USERPROFILE "Code\mpv-dark-box"
 $darkBoxSource = Join-Path $darkBoxRepo "dark-box.lua"
