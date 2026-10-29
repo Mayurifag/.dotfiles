@@ -1,0 +1,51 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+# Launcher source: {{ include "windows/gpg-agent-launcher.cs" | sha256sum }}
+Write-Host '[chezmoi] running windows/40-gpg-agent'
+
+$gpgconf = "C:\Program Files\GnuPG\bin\gpgconf.exe"
+
+if (-not (Test-Path $gpgconf)) {
+    Write-Host "[gpg] WARNING: gpgconf.exe not found at expected path: $gpgconf" -ForegroundColor Yellow
+    Write-Host "     Skipping scheduled task - install GnuPG and re-run 'chezmoi apply'." -ForegroundColor Yellow
+    exit 0
+}
+
+$compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
+$source = Join-Path '{{ .chezmoi.sourceDir | replace "'" "''" }}' 'windows\gpg-agent-launcher.cs'
+$launcherDir = Join-Path $env:LOCALAPPDATA 'chezmoi'
+$launcher = Join-Path $launcherDir 'gpg-agent-launcher.exe'
+New-Item -ItemType Directory -Path $launcherDir -Force | Out-Null
+try {
+    & $compiler /nologo /target:winexe /optimize+ "/out:$launcher.new.exe" $source
+    if ($LASTEXITCODE -ne 0) {
+        throw "GPG launcher compilation failed (exit $LASTEXITCODE)."
+    }
+    Move-Item -LiteralPath "$launcher.new.exe" -Destination $launcher -Force
+} finally {
+    Remove-Item -LiteralPath "$launcher.new.exe" -Force -ErrorAction SilentlyContinue
+}
+
+$taskName = "GpgAgentRefreshAtLogon"
+$launchAction = New-ScheduledTaskAction -Execute $launcher -Argument "`"$gpgconf`""
+$userId = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Limited
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 1) -StartWhenAvailable `
+    -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew `
+    -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+
+Register-ScheduledTask `
+    -TaskName $taskName `
+    -Action $launchAction `
+    -Trigger $trigger `
+    -Settings $settings `
+    -Principal $principal `
+    -Force | Out-Null
+
+Start-ScheduledTask -TaskName $taskName
+
+Write-Host "[gpg] Done. Scheduled task '$taskName' registered." -ForegroundColor Green
+Write-Host "     Console-free launcher will ensure gpg-agent is running at logon for $env:USERNAME."
+{{- end }}
