@@ -1,0 +1,10 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $preferences := fromJson (.chezmoi.stdin | default "{}") -}}
+{{- if not .chezmoi.stdin -}}
+{{- /* MarkText 0.23's schema defaults differ from its first-run defaults for these keys. */ -}}
+{{ dict "theme" "dark" "followSystemTheme" false "fileSortBy" "created" "codeBlockLineNumbers" false "wrapCodeBlocks" false | toPrettyJson }}
+{{- else if and (hasKey $preferences "theme") (hasKey $preferences "followSystemTheme") (eq $preferences.theme "dark") (eq $preferences.followSystemTheme false) -}}
+{{ .chezmoi.stdin }}
+{{- else -}}
+{{ $preferences | setValueAtPath "theme" "dark" | setValueAtPath "followSystemTheme" false | toPrettyJson }}
+{{- end -}}

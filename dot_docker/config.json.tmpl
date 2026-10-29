@@ -16,4 +16,24 @@
 {{- end -}}
 ,
 	"currentContext": "{{ if eq .chezmoi.os "darwin" -}}orbstack{{- else if eq .chezmoi.os "windows" -}}desktop-linux{{- else }}default{{- end }}"
+{{- if eq .chezmoi.os "windows" -}}
+,
+	"plugins": {
+		"-x-cli-hints": {
+			"enabled": "true"
+		},
+		"ai": {
+			"hooks": "build,buildx build,run,compose"
+		},
+		"compose": {
+			"hooks": "logs,compose logs,compose attach,compose up"
+		},
+		"debug": {
+			"hooks": "exec"
+		}
+	},
+	"features": {
+		"hooks": "true"
+	}
+{{- end }}
 }

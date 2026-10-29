@@ -452,12 +452,12 @@ Windows Registry Editor Version 5.00
 "AdditionalEvents"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\windows-11-file-explorer-styler]
-"LibraryFileName"="windows-11-file-explorer-styler_1.7_743234.dll"
+"LibraryFileName"="windows-11-file-explorer-styler_1.7.1_146513.dll"
 "Disabled"=dword:00000000
 "Include"="explorer.exe"
 "Exclude"=""
 "Architecture"="x86-64"
-"Version"="1.7"
+"Version"="1.7.1"
 "SettingsChangeTime"=dword:6ad30725
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\windows-11-file-explorer-styler\Settings]
@@ -472,12 +472,12 @@ Windows Registry Editor Version 5.00
 "xamlDiagnosticsHandling"="alert"
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\windows-11-notification-center-styler]
-"LibraryFileName"="windows-11-notification-center-styler_1.7_983384.dll"
+"LibraryFileName"="windows-11-notification-center-styler_1.8_204045.dll"
 "Disabled"=dword:00000000
 "Include"="ShellExperienceHost.exe|ShellHost.exe"
 "Exclude"=""
 "Architecture"="x86-64"
-"Version"="1.7"
+"Version"="1.8"
 "SettingsChangeTime"=dword:6ad3065c
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Windhawk\Engine\Mods\windows-11-notification-center-styler\Settings]

@@ -2,6 +2,7 @@ ansible
 ansible-core
 ansible-lint
 codespell
+keepassxc-cli --with keepassxc-browser-api@git+https://github.com/Mayurifag/keepassxc-browser-api.git@2827f44cd0e81fda626cb9d2b4fce1a9ba157e9c
 shcheck
 sherlock-project
 yt-dlp --with curl-cffi --prerelease allow --upgrade
