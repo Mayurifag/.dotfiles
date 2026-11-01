@@ -155,6 +155,21 @@ gpg> quit
 - If some shit goes with Privacy in MacOS settings, try to remove entry with little buttons and launch app once again to
   go through that hell once more.
 
+### Gatekeeper
+
+`dot_config/macos/disable-gatekeeper.mobileconfig` disables Gatekeeper assessment for all apps. It does not disable SIP
+or XProtect.
+
+After `chezmoi apply`, install the profile in System Settings:
+
+```sh
+open ~/.config/macos/disable-gatekeeper.mobileconfig
+```
+
+Approve **Disable Gatekeeper**. `chezmoi apply` deploys the file but does not install the profile; macOS requires
+interactive approval. To restore Gatekeeper, remove the profile in System Settings → General → Device Management, then
+check `spctl --status` for `assessments enabled`.
+
 ### Paid macos apps I use (not in Brewfile)
 
 - BetterSnapTool

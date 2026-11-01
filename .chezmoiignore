@@ -20,6 +20,7 @@ zsh/.zsh_plugins.sh
 .config/karabiner/karabiner_keyboard_modifications.js
 
 {{ if ne .chezmoi.os "darwin" -}}
+.config/macos/
 .config/karabiner/
 .local/share/launchd/
 Library/

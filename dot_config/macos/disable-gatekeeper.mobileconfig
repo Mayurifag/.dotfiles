@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>EnableAssessment</key>
+      <false/>
+      <key>PayloadDisplayName</key>
+      <string>Disable Gatekeeper</string>
+      <key>PayloadIdentifier</key>
+      <string>com.mayurifag.systempolicy.disable-gatekeeper.1C767FF4-C25E-4C3A-AD7B-809568AA1014</string>
+      <key>PayloadType</key>
+      <string>com.apple.systempolicy.control</string>
+      <key>PayloadUUID</key>
+      <string>1C767FF4-C25E-4C3A-AD7B-809568AA1014</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+    </dict>
+  </array>
+  <key>PayloadDescription</key>
+  <string>Disables macOS Gatekeeper assessment system-wide.</string>
+  <key>PayloadDisplayName</key>
+  <string>Disable Gatekeeper</string>
+  <key>PayloadIdentifier</key>
+  <string>com.mayurifag.disable-gatekeeper.49D8C444-1D77-4E64-BEAF-BBA2672DEB71</string>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadUUID</key>
+  <string>49D8C444-1D77-4E64-BEAF-BBA2672DEB71</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+</dict>
+</plist>
