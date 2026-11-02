@@ -1,9 +1,9 @@
 # OpenCode
 
-- Select agent reasoning profiles with V2 model references `provider/model#variant`, not direct provider request fields.
-- After changing OpenCode config, agents, skills, plugins, or MCP setup, tell user to restart OpenCode. Config is loaded at startup.
-- When telling the user to restart OpenCode, include a concise prompt he can paste into the new session to continue if fixed bug or feature still needs check manually.
-- Check yourself if it is possible, such as inline launching a new OpenCode session.
-- Distinguish config discovery, plugin factory execution, and hook execution. Evidence of one does not verify the others.
-- Inspect inventories and rendered OpenCode config, auth, and service files through explicit non-secret key allowlists; never dump whole secret-bearing files or search their contents broadly.
-- Pin the live mise tool version before staging a major upgrade; installing another version can move `latest` aliases before configuration is applied.
+- Use V2 `provider/model#variant` for agent reasoning profiles, not direct provider request fields.
+- After config/agent/skill/plugin/MCP changes, tell the user to restart OpenCode (config loads at startup). Verify
+  yourself where possible; if manual checks remain, include a concise continuation prompt for the new session.
+- Verify config discovery, plugin factory execution, and hook execution separately.
+- Inspect inventories/rendered config, auth, and service files only through explicit non-secret key allowlists; never
+  dump secret-bearing files or search them broadly.
+- Pin the live mise version before staging major upgrades; installs can move `latest` aliases before config applies.

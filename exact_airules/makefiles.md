@@ -1,7 +1,6 @@
 # Makefiles
 
-- If a project has a Makefile, read it before choosing build, test, lint, install, or generation commands.
-- If it includes `./makefiles/*.mk` or similar, read those included files too; important targets may live there.
-- Prefer existing make targets over raw underlying commands when they express the same operation.
-- When repeated project commands are missing and the repo uses Make, consider adding a short target instead of scattering long commands.
-- If a root Makefile grows large, prefer splitting related targets into `./makefiles/*.mk` and including them.
+- Before build/test/lint/install/generation commands, read the Makefile and included files (e.g. `./makefiles/*.mk`).
+- Prefer equivalent make targets to raw commands; consider short targets for missing repeated operations in Make-based
+  repos.
+- Prefer splitting large root Makefiles into related `./makefiles/*.mk` includes.

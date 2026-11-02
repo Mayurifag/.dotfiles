@@ -2,67 +2,54 @@
 
 ## Core Rule
 
-- Never edit rendered home paths directly when a chezmoi source exists.
-- Edit the active chezmoi source repo and apply it. Current source: `{{ .chezmoi.sourceDir }}`.
-- If the target is not managed by chezmoi, prefer adding it to chezmoi instead of making an unmanaged home edit.
-- Use `chezmoi managed <path>` or inspect the repo source mapping when unsure.
-- `chezmoi apply` renders source to target. Target edits vanish on the next apply.
+- Edit source in `{{ .chezmoi.sourceDir }}`, then apply; never edit managed home targets directly (apply overwrites them).
+- Prefer adding unmanaged targets to chezmoi. Check ownership with `chezmoi managed <path>` or source mappings.
 
 ## Common Sources
 
-| Target                              | Source                                          |
-| ----------------------------------- | ----------------------------------------------- |
-| `~/.config/git/hooks/post-checkout` | `dot_config/git/exact_hooks/executable_post-checkout` |
-| `~/.gitconfig`                      | `dot_gitconfig.tmpl`                            |
-| `~/.zshrc`                          | `dot_zshrc.tmpl`                                |
-| `~/airules`                         | `exact_airules`                                 |
-| `run_*` scripts                     | `.chezmoiscripts/{posix,macos,linux,windows}/`  |
+- `~/.config/git/hooks/post-checkout` -> `dot_config/git/exact_hooks/executable_post-checkout`
+- `~/.gitconfig` -> `dot_gitconfig.tmpl`
+- `~/.zshrc` -> `dot_zshrc.tmpl`
+- `~/airules` -> `exact_airules`
+- `run_*` scripts -> `.chezmoiscripts/{posix,macos,linux,windows}/`
 
 ## Conventions
 
-- `dot_foo` -> `~/.foo`
-- `dot_config/` -> `~/.config/`
-- `.tmpl` -> Go template
-- `executable_` -> executable target
-- `run_once_` / `run_after_` -> run by `chezmoi apply`
-- Use `.tmpl` only when the rendered file needs host-specific values or secrets. Prefer app env vars plus env templates when the app can expand `${VAR}`.
-- Use `exact_` only for fully source-owned directories. Keep app roots containing credentials, service state, or dependencies non-exact; make their managed subdirectories exact.
+- `dot_foo` -> `~/.foo`; `dot_config/` -> `~/.config/`; `.tmpl` -> Go template; `executable_` -> executable target.
+- `run_once_` / `run_after_` -> run by `chezmoi apply`.
+- Use `.tmpl` only for host-specific values/secrets; prefer app env vars plus env templates when `${VAR}` expansion works.
+- Use `exact_` only for fully source-owned directories, not app roots with credentials/state/dependencies; make managed subdirectories exact.
 
 ## Verify Edits
 
-- Run `timeout 2 chezmoi diff` when practical.
-- Run `timeout 2 chezmoi apply -v` when practical.
-- If `timeout` fires, chezmoi is waiting for input; tell user to run `czapply` manually.
+- Run `timeout 2 chezmoi diff` and `timeout 2 chezmoi apply -v` when practical; on timeout, tell the user to run `czapply` manually for pending input.
 
 ## Agent Behavior
 
-- Keep reusable rules in `exact_airules/` and update the index in `dot_config/opencode/AGENTS.md` when adding, renaming, or removing them. Apply changed rules and all shared AGENTS.md targets.
-- In this source repository, do not add permanent tests, mocks, or fixtures unless requested. Use existing checks or temporary self-checks and remove artifacts afterward.
-- Keep changes configuration-first. Explain maintenance costs before adding application patches or forks. Scope cleanup to the task unless broader refactoring is requested.
-
-- Keep legacy code cleanup leftovers short. Assume one user/app state; if one cleanup was done once, that is enough. Mention repeat cleanup as a consideration in the summary and ask before adding it.
+- Keep reusable rules in `exact_airules/`; update `dot_config/opencode/AGENTS.md` for additions/renames/removals. Apply changed rules and all shared AGENTS.md targets.
+- In this repo, add permanent tests, mocks, or fixtures only on request; use existing checks or temporary self-checks.
+- Prefer configuration changes; explain maintenance costs before application patches/forks. Keep cleanup task-scoped unless broader refactoring is requested.
+- Keep legacy cleanup minimal: assume one user/app state and one completed cleanup is enough. Mention repeat cleanup in the summary and ask before adding it.
 - Before finishing tasks that run commands, check `git status --short` for unexpected generated files or edits.
 - Before finishing tasks that spawn background processes, check `pty_list` and kill task-owned sessions.
 
 ## Packages
 
-- Managed package files: `install/*file` (`npmfile`, `Brewfile`, `Wingetfile`, `uv-file`, `Gofile`, etc.).
-- Managed package files are authoritative; `make mise-packages` should remove leftover globals not present in the corresponding list.
-- Before installing OS dependencies, check ignored packages and mise-managed runtimes. Never override `IgnorePkg` without approval or install a second runtime already owned by mise.
-- Avoid duplicate package ownership across managed package files. A tool must be managed by one source of truth only: prefer cross-platform tool/language managers when they work across targets; use OS package files only for OS-specific apps, system libraries, GUI apps, drivers, fonts, or tools unavailable/unsuitable through the cross-platform manager. If moving a package between managers, remove it from the old manager file and uninstall/prune it from the current machine.
-- When removing entries from managed package files, also run the matching uninstall/prune command for the current machine.
-- Package docs do not override dotfile package management. If docs say `npm install -g`, `brew install`, `winget install`, `uv tool install`, `go install`, etc., first add the package to the matching managed package file. Avoid one-off installs unless the user explicitly asks.
-- For winget packages, add the package ID to `install/Wingetfile` first, then run `make winget-packages`; do not hand-run `winget install` unless the repo target is unavailable or debugging it.
-- If hand-running `winget install` is necessary, use `--silent --disable-interactivity --accept-package-agreements --accept-source-agreements`.
+- `install/*file` (`npmfile`, `Brewfile`, `Wingetfile`, `uv-file`, `Gofile`, etc.) is authoritative; `make mise-packages` should prune unlisted globals.
+- Before OS dependencies, check ignored packages and mise runtimes. Never override `IgnorePkg` without approval or duplicate a mise-owned runtime.
+- Give each package one owner. Prefer cross-platform tool/language managers; use OS managers for OS-specific apps, system libraries, GUI apps, drivers, fonts, or unsuitable/unavailable tools.
+- When moving/removing packages, update the old manager file and uninstall/prune from the current machine.
+- Add packages to the matching managed file before installation, even when upstream docs prescribe global installs; one-off installs require explicit request.
+- Winget: add ID to `install/Wingetfile`, then `make winget-packages`. Hand-run `winget install` only if that target is unavailable or being debugged, with
+  `--silent --disable-interactivity --accept-package-agreements --accept-source-agreements`.
 
 ## Cross-Platform
 
-- Keep Arch/MacOS/Win11 same where possible.
-- Windows: use `pwsh.exe` (PS 7), never `powershell.exe` (PS 5).
-- Windows MinGW: install WinLibs with `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`; do not use MSYS2 `pacman` for MinGW.
-- Check both `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`. Same for aliases and env-backed app config.
-- Do not hand-code simple aliases in shell templates. Add them to `.chezmoidata.toml` `[sharedAliases]` and let templates render them.
+- Keep Arch/macOS/Win11 consistent where possible. Windows: `pwsh.exe` (PS 7), never `powershell.exe` (PS 5).
+- Windows MinGW: use `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`, not MSYS2 `pacman`.
+- Check `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`, including aliases and env-backed app config.
+- Put simple aliases in `.chezmoidata.toml` `[sharedAliases]`, not shell templates.
 
 ## Scripts
 
-- Python is available on every target system; prefer it for nontrivial cross-platform alias utilities when compilation is not desired.
+- Prefer Python (available on every target) for nontrivial cross-platform alias utilities when compilation is unwanted.

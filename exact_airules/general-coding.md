@@ -2,36 +2,28 @@
 
 ## Scope
 
-- Read the affected code before editing. Trace callers and identify affected tests, fixtures, configuration, and
-  exports.
-- Check for data loss, disclosure, and compatibility risks. State safe assumptions; ask before ambiguous destructive or
-  broad changes.
-- Preserve unrelated user changes. Stop only when they conflict with the task.
+- Read affected code before editing; trace callers, tests, fixtures, configuration, and exports.
+- Assess data loss, disclosure, and compatibility; ask before ambiguous broad changes.
+- Stop only if existing user changes conflict with the task.
 
 ## Changes
 
-- Choose the smallest complete fix. Reuse project patterns before platform features, standard libraries, or installed
+- Make the smallest complete fix; reuse project patterns before platform features, standard libraries, or installed
   dependencies.
-- Do not add dependencies, abstractions, wrappers, options, or speculative flexibility without a concrete need.
-- Fix the shared cause, not each symptom. Trace unwanted output or generated artifacts instead of hiding errors.
-- Preserve existing style and interfaces unless changing them serves the task. Refactor to remove duplication or
-  separate unrelated responsibilities, not to meet line counts.
-- Replace obsolete behavior by default. Add compatibility paths only for explicit requirements or concrete existing
-  consumers or data.
-- Preserve validation, error handling, security, accessibility, and hardware calibration when simplifying code.
-- Prefer repository commands and workflows. Never hand-edit generated lockfiles; use the owning package manager.
-- Record intentional limits only when useful: `shortcut: <limit>, <revisit trigger>`. Do not add a separate debt ledger
-  unless requested.
+- Add dependencies, abstractions, wrappers, options, or flexibility only for concrete needs.
+- Fix shared causes; trace unwanted output/artifacts instead of hiding errors.
+- Preserve interfaces unless the task requires changes. Refactor to remove duplication or separate unrelated
+  responsibilities, not meet line counts.
+- Replace obsolete behavior; add compatibility only for explicit requirements or existing consumers/data.
+- Preserve validation, error handling, security, accessibility, and hardware calibration when simplifying.
+- Use repository workflows and package managers; never hand-edit generated lockfiles.
+- Record useful intentional limits as `shortcut: <limit>, <revisit trigger>`; no separate debt ledger unless requested.
 
 ## Verification
 
-- Reproduce bugs before fixing them when practical. Use the existing test setup for focused regression coverage when
-  available.
-- If a project had no tests before the task, do not add permanent tests, test frameworks, mocks, fixtures, or test-only
-  CI wiring unless explicitly requested.
-- Choose the smallest meaningful verification: existing checks or direct execution may suffice; do not create test files
-  by default. Add a test only when it catches a concrete plausible failure in observable behavior. Avoid assertions
-  about implementation spelling, tests that duplicate the implementation, and mocks that remove the behavior being
-  verified. Remove temporary verification artifacts afterward.
-- Run the repository's standard checks. Report unavailable services, excessive cost, failures, and skipped coverage
-  explicitly.
+- Reproduce bugs before fixing when practical; prefer existing tests for focused regression coverage.
+- In untested projects, add permanent tests, frameworks, mocks, fixtures, or test-only CI only on explicit request.
+- Use the smallest meaningful verification; existing checks or direct execution may suffice. Add test files only for
+  concrete plausible observable failures, not implementation spelling, duplicated logic, or mocks that bypass the
+  behavior.
+- Run standard repository checks; report unavailable services, excessive cost, failures, and skipped coverage.

@@ -4,24 +4,25 @@ Load `~/airules/userjs-usercss.md`.
 
 ## Versioning
 
-- Before bumping, check `git diff` against `HEAD`.
-- If the userscript version is already changed in the current uncommitted diff, do not bump it again.
-- Otherwise, if `.js` changes, bump the patch version inside it exactly once for the current uncommitted diff.
+- Check `git diff` against `HEAD`; for `.js` changes, bump its metadata patch version once per uncommitted diff, never
+  again if already changed.
 
 ## README
 
-- Include concise Tampermonkey install instructions with the raw userscript link.
+- Include concise Tampermonkey install instructions and raw userscript link.
 
 ## Local Development
 
-- Tampermonkey is the default userscript manager unless the user explicitly requires another manager.
-- Install the local Vite userscript URL with `browser-test --tampermonkey-install http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`.
-- Do not install dist/published userscripts unless explicitly requested.
-- Do not diagnose GM/Tampermonkey API behavior by importing userscript source directly into page context; verify it through userscript-manager injection.
-- Do not conclude the userscript failed only because optional enhanced UI classes are absent; a feature may be disabled, delayed, or irrelevant to the current flow.
+- Default manager: Tampermonkey unless explicitly overridden. Install local Vite with
+  `browser-test --tampermonkey-install http://127.0.0.1:<port>/__vite-plugin-monkey.install.user.js`; dist/published
+  scripts only on request.
+- Verify GM/Tampermonkey APIs through manager injection, not direct source imports into page context.
+- Missing optional UI classes alone do not prove failure; features may be disabled, delayed, or irrelevant.
 
 ## Verifying
 
-- Before debugging userscript logic, verify injection once: expected local script in `browser-test --status`, local entry request loaded, and one real page effect.
-- Failure-only checks: Tampermonkey install state, repo profile path, loopback permission, script list shape, duplicate scripts, Vite console status.
-- Optional signals like Vite console status are diagnostic only; do not block on them when network load and page effect pass.
+- Before logic debugging, verify injection once: expected local script in `browser-test --status`, loaded local entry
+  request, one real page effect.
+- On failure only: Tampermonkey install state, repo profile path, loopback permission, script-list shape, duplicates,
+  Vite console status.
+- Optional signals (e.g. Vite console status) are diagnostic; do not block when network load and page effect pass.

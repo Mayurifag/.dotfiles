@@ -1,16 +1,12 @@
 # Markdown
 
-## Instructions
-
-- For files read by AI agents, minimize tokens while staying clear. Prefer short bullets like `trigger -> file`.
-- Avoid tables, long prose, examples, and formatting unless they add real clarity.
-- Do not add trigger/use-case prose to rule files when an index already routes to them.
+- For agent-facing files, minimize tokens without losing clarity; prefer `trigger -> file` bullets. Avoid tables, long
+  prose, examples, and formatting without clear benefit; omit use-case prose already covered by an index.
 
 ## Code Blocks
 
-Use `~~~` for code blocks in responses.
-Exception: if the target file already uses ``` (backticks), preserve the same style.
+Use `~~~` in responses; preserve existing backtick fences when editing files.
 
 ## CI
 
-After editing markdown, still run project ci run because I might have markdownlint there. Fix all the problems.
+After Markdown edits, run project CI (including markdownlint if present); fix failures.
