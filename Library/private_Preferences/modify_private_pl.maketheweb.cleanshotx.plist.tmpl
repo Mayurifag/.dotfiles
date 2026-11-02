@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+import base64
+import plistlib
+import sys
+
+settings = plistlib.loads(base64.b64decode({{ include ".chezmoitemplates/cleanshot-settings.plist" | b64enc | quote }}))
+original = sys.stdin.buffer.read()
+preferences = plistlib.loads(original) if original else {}
+updated = preferences | settings
+# Keep local history and avoid rewriting an already matching preferences file.
+sys.stdout.buffer.write(
+    original if updated == preferences else plistlib.dumps(updated, fmt=plistlib.FMT_BINARY)
+)
