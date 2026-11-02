@@ -12,8 +12,9 @@ Paths are relative to `~/airules/`; keep this index complete.
 - `css.md` -> CSS, styling, themes
 - `general-coding.md` -> coding, refactoring, dependencies
 - `review.md` -> code reviews, repository audits, technical debt
-- `git.md` -> commits, pushes, CI checks
+- `git.md` -> commits, pushes, CI checks, GitHub Actions updates
 - `git-crypt.md` -> encrypted secrets, ejson, git-crypt
+- `go.md` -> Go projects
 - `homelab.md` -> homelab, home router/LAN, Proxmox, Home Assistant, Immich, private DNS/TLS, NetBird
 - `installation.md` -> software installs, deployments, upgrades; telemetry research and opt-outs
 - `javascript.md` -> JavaScript projects
@@ -44,8 +45,9 @@ Paths are relative to `~/airules/`; keep this index complete.
 
 ## GitHub
 
-- Use authenticated `gh` for all GitHub operations; `gh api` for source files and trees. Never fetch GitHub content with
-  web tools or unauthenticated HTTP, including `raw.githubusercontent.com`.
+- Use authenticated `gh` for GitHub operations, except `actions-up` for Actions updates, authenticated via `gh`. Use
+  `gh api` for source files and trees. Never fetch GitHub content with web tools or unauthenticated HTTP, including
+  `raw.githubusercontent.com`.
 
 ## Communication
 

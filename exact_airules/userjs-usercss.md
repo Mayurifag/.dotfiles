@@ -9,8 +9,9 @@
 
 ## README
 
-- Keep README features current and concise. Public install/update URLs: GitHub `/raw/refs/heads/dist/`, not cached
-  `raw.githubusercontent.com` (delays update detection).
+- Keep README features current and concise. Public install/update URLs: GitHub
+  `/raw/refs/heads/<published-branch>/<path>`, not cached `raw.githubusercontent.com` (delays update detection).
+  Determine the branch and path from the project's publishing workflow or source branch; do not assume `dist`.
 - README screenshots: web-optimized `.webp` in the repo.
 
 ## Browser Testing
