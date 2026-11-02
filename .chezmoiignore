@@ -53,6 +53,7 @@ Library/
 .config/ghostty/
 .config/waystt/
 .config/kanata/
+.local/bin/mise-auto-update
 .zshrc
 zsh/
 {{- end }}

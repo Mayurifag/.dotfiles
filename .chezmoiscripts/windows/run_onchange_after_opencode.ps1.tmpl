@@ -4,7 +4,7 @@
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
 
-# Tools: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+# OpenCode: {{ regexFind `(?m)^"npm:@opencode/cli"[^\r\n]*` (include "dot_config/mise/config.toml.tmpl") | sha256sum }}
 # Config: {{ include "dot_config/opencode/private_opencode.json.tmpl" | sha256sum }}
 mise install npm:@opencode/cli
 $opencode = Join-Path (& mise where npm:@opencode/cli) 'node_modules/@opencode/cli/bin/opencode.exe'

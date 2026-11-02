@@ -1,0 +1,429 @@
+#!/usr/bin/env python3
+import fcntl
+import json
+import os
+import platform
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+TOOL = "npm:@opencode/cli"
+PIN = re.compile(
+    r'(^[ \t]*"npm:@opencode/cli"[ \t]*=[ \t]*\{[ \t]*version[ \t]*=[ \t]*")(\d+\.\d+\.\d+)(")',
+    re.M,
+)
+VERSION = re.compile(r"\d+\.\d+\.\d+")
+HOME = Path.home()
+MISE_TARGET = HOME / ".config/mise/config.toml"
+# The final flag marks tools explicitly approved even when they have configs.
+AUTO_UPDATE_TOOLS = (
+    ("ripgrep", "rg", 1, False),
+    ("github:pamburus/hl", "hl", 2, False),
+    ("dust", "dust", 1, True),
+    ("fzf", "fzf", 1, True),
+    ("lazygit", "lazygit", 1, True),
+    ("glow", "glow", 1, True),
+    ("prettier", "prettier", 1, True),
+    ("dprint", "dprint", 1, True),
+    ("shfmt", "shfmt", 1, True),
+    ("taplo", "taplo", 1, True),
+    ("ruff", "ruff", 1, True),
+)
+
+
+def run(*args, cwd=HOME, capture=False, timeout=120, input_text=None, env=None):
+    return subprocess.run(
+        args,
+        cwd=cwd,
+        check=True,
+        text=True,
+        capture_output=capture,
+        timeout=timeout,
+        input=input_text,
+        env=env,
+    ).stdout
+
+
+def pin(text, pattern=PIN, tool="OpenCode"):
+    matches = list(pattern.finditer(text))
+    if len(matches) != 1:
+        raise RuntimeError(f"expected exactly one version pin for {tool}")
+    return matches[0].group(2)
+
+
+def replace_pin(text, version, pattern=PIN, tool="OpenCode"):
+    pin(text, pattern, tool)
+    return pattern.sub(
+        lambda match: match.group(1) + version + match.group(3), text, count=1
+    )
+
+
+def write_if_unchanged(path, before, after):
+    if path.read_text() != before:
+        raise RuntimeError(f"{path} changed during the update; leaving it alone")
+    mode = path.stat().st_mode & 0o777
+    name = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", dir=path.parent, delete=False
+        ) as file:
+            name = file.name
+            os.fchmod(file.fileno(), mode)
+            file.write(after)
+        if path.read_text() != before:
+            raise RuntimeError(f"{path} changed during the update; leaving it alone")
+        os.replace(name, path)
+    finally:
+        if name and os.path.exists(name):
+            os.unlink(name)
+
+
+def require_no_pending_changes(*targets):
+    for target in targets:
+        if run("chezmoi", "diff", "--no-pager", str(target), capture=True):
+            raise RuntimeError(
+                f"unapplied changes in {target}; apply them before updating"
+            )
+
+
+# shortcut: session.active excludes background-only jobs; revisit when OpenCode exposes a global activity API.
+def foreground_sessions_running():
+    opencode = str(HOME / ".local/share/mise/shims/opencode")
+    status = run(opencode, "service", "status", capture=True).strip()
+    if not status.startswith(("http://", "https://")):
+        raise RuntimeError(
+            "cannot verify active sessions: OpenCode service is unavailable"
+        )
+    try:
+        response = json.loads(
+            run(opencode, "api", "get", "/api/session/active", capture=True)
+        )
+        active = response["data"]
+        if not isinstance(active, dict) or any(
+            not isinstance(item, dict) or item.get("type") != "running"
+            for item in active.values()
+        ):
+            raise ValueError("invalid active session response")
+    except (KeyError, TypeError, ValueError) as error:
+        raise RuntimeError("cannot verify active OpenCode sessions") from error
+    return bool(active)
+
+
+def tool_pattern(tool):
+    name = re.escape(tool)
+    return re.compile(
+        rf'(^[ \t]*(?:{name}|"{name}")[ \t]*=[ \t]*")(\d+\.\d+\.\d+)(")',
+        re.M,
+    )
+
+
+def tool_has_config(tool):
+    config_home = Path(os.environ.get("XDG_CONFIG_HOME") or HOME / ".config")
+    if tool == "ripgrep":
+        return bool(os.environ.get("RIPGREP_CONFIG_PATH")) or any(
+            path.exists()
+            for path in (
+                HOME / ".ripgreprc",
+                HOME / ".config/ripgrep",
+                config_home / "ripgrep",
+            )
+        )
+    if tool == "github:pamburus/hl":
+        return bool(os.environ.get("HL_CONFIG")) or any(
+            path.exists()
+            for path in (
+                HOME / ".config/hl",
+                config_home / "hl",
+                Path("/etc/hl/config.yaml"),
+                Path("/etc/hl/config.toml"),
+                Path("/etc/hl/config.json"),
+            )
+        )
+    raise RuntimeError(f"no configuration check for {tool}")
+
+
+def smoke_tool(tool, command, directory):
+    prefix = ("mise", "exec", tool, "--", command)
+
+    def check(*args, input_text=None, env=None):
+        return run(
+            *prefix,
+            *args,
+            cwd=directory,
+            capture=True,
+            input_text=input_text,
+            env=env,
+        )
+
+    if tool == "ripgrep":
+        probe = directory / "probe"
+        probe.mkdir()
+        (probe / ".hidden").write_text("probe\n")
+        files = check("--files", "--hidden", "--no-ignore", "probe")
+        if "probe/.hidden" not in files.splitlines():
+            raise RuntimeError("ripgrep failed its hidden-file listing check")
+    elif tool == "dust":
+        if sys.platform == "darwin" and platform.machine() == "arm64":
+            binary = run("mise", "which", command, cwd=directory, capture=True).strip()
+            kind = run("/usr/bin/file", "-b", binary, capture=True)
+            if "arm64" not in kind:
+                raise RuntimeError("dust is not a native Apple Silicon binary")
+        probe = directory / "probe"
+        probe.mkdir()
+        if not check(str(probe)).strip():
+            raise RuntimeError("dust failed its directory listing check")
+    elif tool == "fzf":
+        if "needle" not in check(
+            "--filter", "needle", input_text="alpha\nneedle\nomega\n"
+        ):
+            raise RuntimeError("fzf failed its filtering check")
+    elif tool == "lazygit":
+        if not check("--print-config-dir").strip():
+            raise RuntimeError("lazygit failed its command-line check")
+    elif tool == "glow":
+        if "probe" not in check(
+            "--style", "notty", "--pager=false", "-", input_text="# probe\n"
+        ):
+            raise RuntimeError("glow failed its Markdown rendering check")
+    elif tool in ("prettier", "dprint"):
+        if tool == "prettier":
+            output = check("--parser", "json", input_text='{"key":1}\n')
+        else:
+            env = dict(os.environ, DPRINT_CACHE_DIR=str(directory / "dprint-cache"))
+            output = check(
+                "fmt",
+                "--config",
+                str(HOME / ".dprint.json"),
+                "--stdin",
+                "probe.json",
+                input_text='{"key":1}\n',
+                env=env,
+            )
+        try:
+            valid = json.loads(output) == {"key": 1}
+        except ValueError:
+            valid = False
+        if not valid:
+            raise RuntimeError(f"{tool} failed its JSON formatting check")
+    elif tool == "shfmt":
+        if "echo ok" not in check(input_text="if true;then echo ok;fi\n"):
+            raise RuntimeError("shfmt failed its shell formatting check")
+    elif tool == "taplo":
+        if "key" not in check("format", "-", input_text="key=1\n"):
+            raise RuntimeError("taplo failed its TOML formatting check")
+    elif tool == "ruff":
+        output = check(
+            "format",
+            "--no-cache",
+            "--stdin-filename",
+            "probe.py",
+            "-",
+            input_text="x=1\n",
+        )
+        if "x = 1" not in output:
+            raise RuntimeError("ruff failed its Python formatting check")
+    elif tool != "github:pamburus/hl":
+        raise RuntimeError(f"no smoke test for {tool}")
+
+
+def stage_install(tool, command, version, config_line):
+    with tempfile.TemporaryDirectory(prefix="mise-update-") as directory:
+        directory = Path(directory)
+        (directory / ".mise.toml").write_text(f"[tools]\n{config_line}\n")
+        run("mise", "install", "--yes", tool, cwd=directory, timeout=900)
+        output = run(
+            "mise",
+            "exec",
+            tool,
+            "--",
+            command,
+            "--version",
+            cwd=directory,
+            capture=True,
+        )
+        if tool == TOOL:
+            if output.strip() != f"opencode v{version}":
+                raise RuntimeError(
+                    f"installed OpenCode version did not match {version}"
+                )
+        else:
+            lines = output.splitlines()
+            if not lines or not re.search(
+                rf"(?<![\d.]){re.escape(version)}(?![\d.])", lines[0]
+            ):
+                raise RuntimeError(f"installed {tool} version did not match {version}")
+            smoke_tool(tool, command, directory)
+
+
+def apply_pin_update(source, original, updated, label, *extra_targets, recover=None):
+    write_if_unchanged(source, original, updated)
+    try:
+        run(
+            "chezmoi",
+            "apply",
+            "--no-tty",
+            "--source-path",
+            str(source),
+            *(str(target) for target in extra_targets),
+            timeout=600 if extra_targets else 120,
+        )
+    except Exception:
+        try:
+            write_if_unchanged(source, updated, original)
+            run("chezmoi", "apply", "--no-tty", "--source-path", str(source))
+        except Exception as error:
+            print(
+                f"{label} update rollback failed: {error}", file=sys.stderr, flush=True
+            )
+        if recover is not None:
+            try:
+                recover()
+            except Exception as error:
+                print(
+                    f"{label} service recovery failed: {error}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+        raise
+
+
+def update_tool(tool, command, precision, allow_config=False):
+    if not allow_config and tool_has_config(tool):
+        print(f"Skipping {tool}: a configuration is present", flush=True)
+        return
+
+    source = Path(run("chezmoi", "source-path", str(MISE_TARGET), capture=True).strip())
+    require_no_pending_changes(MISE_TARGET)
+    original = source.read_text()
+    target_text = MISE_TARGET.read_text()
+    pattern = tool_pattern(tool)
+    current = pin(original, pattern, tool)
+    if pin(target_text, pattern, tool) != current:
+        raise RuntimeError(f"the active mise config and source pin differ for {tool}")
+
+    prefix = ".".join(current.split(".")[:precision])
+    request = f"{tool}@{prefix}" if precision else tool
+    latest = run("mise", "latest", request, capture=True).strip()
+    if not VERSION.fullmatch(latest) or (
+        precision and latest.split(".")[:precision] != current.split(".")[:precision]
+    ):
+        raise RuntimeError(f"unexpected version for {request}: {latest!r}")
+    if tuple(map(int, latest.split("."))) <= tuple(map(int, current.split("."))):
+        print(f"{tool} {current} is up to date within {prefix or 'latest'}", flush=True)
+        return
+
+    print(f"Installing {tool} {current} -> {latest}", flush=True)
+    line = next(line for line in target_text.splitlines() if pattern.search(line))
+    stage_install(tool, command, latest, replace_pin(line, latest, pattern, tool))
+
+    require_no_pending_changes(MISE_TARGET)
+    if not allow_config and tool_has_config(tool):
+        raise RuntimeError(f"a configuration for {tool} appeared during the update")
+    updated = replace_pin(original, latest, pattern, tool)
+    apply_pin_update(source, original, updated, tool)
+    print(f"Updated {tool} to {latest}", flush=True)
+
+
+def recover_service():
+    if sys.platform == "darwin":
+        domain = f"gui/{os.getuid()}"
+        if subprocess.run(
+            ["launchctl", "print", f"{domain}/local.opencode"], capture_output=True
+        ).returncode:
+            run(
+                "launchctl",
+                "bootstrap",
+                domain,
+                str(HOME / "Library/LaunchAgents/local.opencode.plist"),
+            )
+    else:
+        run("systemctl", "--user", "start", "opencode.service")
+
+
+def update():
+    source = Path(run("chezmoi", "source-path", str(MISE_TARGET), capture=True).strip())
+    source_root = Path(run("chezmoi", "source-path", capture=True).strip())
+    if sys.platform == "darwin":
+        service = HOME / "Library/LaunchAgents/local.opencode.plist"
+        script = (
+            source_root / ".chezmoiscripts/macos/run_onchange_after_opencode.sh.tmpl"
+        )
+    elif sys.platform == "linux":
+        service = HOME / ".local/share/systemd/user/opencode.service"
+        script = (
+            source_root / ".chezmoiscripts/linux/run_onchange_after_opencode.sh.tmpl"
+        )
+    else:
+        raise RuntimeError(
+            "automatic OpenCode updates are not supported on this platform"
+        )
+
+    require_no_pending_changes(MISE_TARGET, service)
+    original = source.read_text()
+    current = pin(original)
+    target_text = MISE_TARGET.read_text()
+    if pin(target_text) != current:
+        raise RuntimeError("the active mise config and source pin do not match")
+    latest = run("mise", "latest", TOOL, capture=True).strip()
+    if not VERSION.fullmatch(latest):
+        raise RuntimeError(f"unexpected latest OpenCode version: {latest!r}")
+    if tuple(map(int, latest.split("."))) <= tuple(map(int, current.split("."))):
+        print(f"OpenCode {current} is up to date", flush=True)
+        return
+
+    if foreground_sessions_running():
+        print("Skipping OpenCode update: a session is running", flush=True)
+        return
+
+    print(f"Installing OpenCode {current} -> {latest}", flush=True)
+    tool_line = next(line for line in target_text.splitlines() if PIN.search(line))
+    stage_install(TOOL, "opencode", latest, replace_pin(tool_line, latest))
+
+    require_no_pending_changes(MISE_TARGET, service)
+    if foreground_sessions_running():
+        print(
+            "Skipping OpenCode update: a session started during installation",
+            flush=True,
+        )
+        return
+    updated = replace_pin(original, latest)
+    apply_pin_update(
+        source, original, updated, "OpenCode", script, recover=recover_service
+    )
+    print(f"Updated OpenCode to {latest}", flush=True)
+
+
+def main():
+    lock = HOME / ".local/state/mise/auto-update.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    with lock.open("w") as file:
+        try:
+            fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("mise auto-update already running", flush=True)
+            return
+        failed = False
+        for tool, command, precision, allow_config in AUTO_UPDATE_TOOLS:
+            try:
+                update_tool(tool, command, precision, allow_config)
+            except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+                print(f"{tool} update failed: {error}", file=sys.stderr, flush=True)
+                failed = True
+        try:
+            update()
+        except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+            print(f"OpenCode update failed: {error}", file=sys.stderr, flush=True)
+            failed = True
+        if failed:
+            sys.exit(1)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+        print(f"mise auto-update failed: {error}", file=sys.stderr, flush=True)
+        sys.exit(1)

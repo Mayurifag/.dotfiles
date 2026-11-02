@@ -1,0 +1,11 @@
+[Unit]
+Description=Update approved mise tools and OpenCode
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h
+Environment="PATH=%h/.local/share/mise/shims:%h/.local/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=%h/.local/share/mise/shims/python3 %h/.local/bin/mise-auto-update
+UMask=0077

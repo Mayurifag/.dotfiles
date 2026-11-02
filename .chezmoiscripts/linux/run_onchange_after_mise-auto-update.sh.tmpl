@@ -1,0 +1,9 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "cachyos-faex9") -}}
+#!/bin/sh
+set -eu
+
+# Service: {{ include "dot_local/share/systemd/user/mise-auto-update.service" | sha256sum }}
+# Timer: {{ include "dot_local/share/systemd/user/mise-auto-update.timer" | sha256sum }}
+systemctl --user daemon-reload
+systemctl --user enable --now mise-auto-update.timer
+{{- end }}

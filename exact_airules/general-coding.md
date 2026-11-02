@@ -15,7 +15,11 @@
 - Reuse project patterns before platform features, standard libraries, or installed dependencies, unless those patterns
   perpetuate the problem.
 - Add dependencies, abstractions, wrappers, options, or flexibility only for concrete needs.
+- Before adding or installing an unfamiliar package, verify its exact name and publisher against the official project
+  docs/source; a registry entry alone is not proof of provenance.
 - Fix shared causes; trace unwanted output/artifacts instead of hiding errors.
+- Before adding a workaround or override for an upstream bug, check whether an available, compatible upgrade fixes it;
+  recommend that upgrade first, and use a scoped workaround only when upgrading is blocked or explicitly declined.
 - Preserve interfaces unless the task requires changes. Refactor to remove duplication or separate unrelated
   responsibilities, not meet line counts.
 - Replace obsolete behavior; add compatibility only for explicit requirements or existing consumers/data.
@@ -25,6 +29,8 @@
 
 ## Verification
 
+- Before drawing version-dependent conclusions, verify the executable and version used by the affected process; a
+  different shell PATH or configured pin may point elsewhere.
 - Reproduce bugs before fixing when practical; prefer existing tests for focused regression coverage.
 - In untested projects, add permanent tests, frameworks, mocks, fixtures, or test-only CI only on explicit request.
 - Use the smallest meaningful verification; existing checks or direct execution may suffice. Add test files only for

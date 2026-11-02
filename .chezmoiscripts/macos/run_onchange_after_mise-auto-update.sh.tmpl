@@ -1,0 +1,11 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+# Timer: {{ include "Library/private_LaunchAgents/local.mise-auto-update.plist.tmpl" | sha256sum }}
+domain="gui/$(id -u)"
+plist="$HOME/Library/LaunchAgents/local.mise-auto-update.plist"
+plutil -lint "$plist"
+launchctl bootout "$domain/local.mise-auto-update" 2>/dev/null || true
+launchctl bootstrap "$domain" "$plist"
+{{- end }}

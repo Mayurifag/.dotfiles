@@ -1,8 +1,9 @@
 # OpenCode
 
 - Use V2 `provider/model#variant` for agent reasoning profiles, not direct provider request fields.
-- After config/agent/skill/plugin/MCP changes, tell the user to restart OpenCode (config loads at startup). Verify
-  yourself where possible; if manual checks remain, include a concise continuation prompt for the new session.
+- OpenCode V2 reloads watched config automatically; verify effective behavior and use `/reload` if needed. Suggest a
+  restart only for a diagnosed lifecycle issue or changes to unwatched dependencies; avoid interrupting active work. If
+  manual checks remain, include a concise continuation prompt.
 - Verify config discovery, plugin factory execution, and hook execution separately.
 - Inspect inventories/rendered config, auth, and service files only through explicit non-secret key allowlists; never
   dump secret-bearing files or search them broadly.

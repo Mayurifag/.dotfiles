@@ -1,0 +1,9 @@
+[Unit]
+Description=Check for approved mise tool updates daily
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
