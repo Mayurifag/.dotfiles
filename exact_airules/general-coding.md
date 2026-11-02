@@ -8,8 +8,12 @@
 
 ## Changes
 
-- Make the smallest complete fix; reuse project patterns before platform features, standard libraries, or installed
-  dependencies.
+- Within the authorized scope, optimize the end-to-end design, not the diff size. Trace affected flows across layers;
+  prefer clear responsibilities, fewer unnecessary round trips, less duplicated work, and the least code needed for
+  correct, maintainable behavior. Reconsider boundaries that cause needless complexity; do not trade clarity or safety
+  for fewer lines.
+- Reuse project patterns before platform features, standard libraries, or installed dependencies, unless those patterns
+  perpetuate the problem.
 - Add dependencies, abstractions, wrappers, options, or flexibility only for concrete needs.
 - Fix shared causes; trace unwanted output/artifacts instead of hiding errors.
 - Preserve interfaces unless the task requires changes. Refactor to remove duplication or separate unrelated
