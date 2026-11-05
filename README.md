@@ -55,15 +55,15 @@ chezmoi apply
 ```
 
 - Install packages for all languages and tools: `make mise-packages`
-- On Arch/KDE, run `make arch-packages` next, then `chezmoi apply` again.
-  The first apply skips the Vicinae hook if Vicinae is not installed. The second apply enables the Linux user services
-  and sets KDE shortcuts. Run the Make targets from this repository; `arch-packages` requires `yay` for Archfile packages.
+- On Arch/KDE, run `make arch-packages` next, then `chezmoi apply` again. The first apply skips the Vicinae hook if
+  Vicinae is not installed. The second apply enables the Linux user services and sets KDE shortcuts. Run the Make
+  targets from this repository; `arch-packages` requires `yay` for Archfile packages.
 
 ### Vicinae and Grok setup
 
-- Manually install the unmodified Vicinae extensions `@ESHAYAT102/codex` and `@tadassuksteris/prompt-deck`.
-  Preferences do not install extensions. There is no extension setup script or Make target.
-  From a directory for source checkouts, use the managed Git, Node.js, and npm tools:
+- Manually install the unmodified Vicinae extensions `@ESHAYAT102/codex` and `@tadassuksteris/prompt-deck`. Preferences
+  do not install extensions. There is no extension setup script or Make target. From a directory for source checkouts,
+  use the managed Git, Node.js, and npm tools:
 
 ```bash
 git clone https://github.com/ESHAYAT102/vicinae-codex-extension.git
@@ -78,8 +78,8 @@ npm --prefix vicinae-extensions/extensions/prompt-deck run build
 ```
 
 - The builds install directly into `${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/extensions/codex` and `prompt-deck`.
-  They can overwrite existing local bundles. Keep these directory names: Vicinae derives provider IDs from them.
-  Store installs use different IDs and do not receive these managed preferences. Update local builds manually.
+  They can overwrite existing local bundles. Keep these directory names: Vicinae derives provider IDs from them. Store
+  installs use different IDs and do not receive these managed preferences. Update local builds manually.
 - Codex uses an isolated home at `~/.local/share/vicinae/codex`, not the normal Codex home. Authenticate it separately:
 
 ```bash
@@ -94,19 +94,19 @@ umask 077
 cli-proxy-api --config "$HOME/.config/cliproxyapi/config.yaml" --xai-login
 ```
 
-- Complete OAuth yourself. Never paste tokens into chat or capture authentication output in logs.
-  Management is disabled; keep `MANAGEMENT_PASSWORD` unset or empty. Do not enable a management endpoint for login.
-- Native PromptDeck preferences already manage endpoint `http://127.0.0.1:18645/v1`, the API key, and model `grok-4.7(low)`.
-  Optionally create a native prompt; no custom installer or harness is needed.
+- Complete OAuth yourself. Never paste tokens into chat or capture authentication output in logs. Management is
+  disabled; keep `MANAGEMENT_PASSWORD` unset or empty. Do not enable a management endpoint for login.
+- Native PromptDeck preferences already manage endpoint `http://127.0.0.1:18645/v1`, the API key, and model
+  `grok-4.7(low)`. Optionally create a native prompt; no custom installer or harness is needed.
 - KDE binds Vicinae to `Meta+Space` and Grok to `Meta+Alt+Space`. Grok currently launches the local Quicklink
   `shortcuts:sct-54b9104c5398`, which exists only on the current host. On a fresh host, create a native Quicklink and
   update the single `Exec` command in `dot_local/share/kglobalaccel/executable_grok-chat.desktop`, then apply;
   alternatively, assign a KDE shortcut directly to the desired native command.
 - Outside Linux, install a supported native Vicinae build manually; this repo provides no Linux systemd setup there.
   Windows settings come from `AppData/Local/vicinae/config/private_settings.json.tmpl`; macOS settings come from
-  `dot_config/vicinae/private_settings.json.tmpl` and render under `~/.config/vicinae/`.
-  Start the proxy manually with `MANAGEMENT_PASSWORD` unset or empty:
-  `cli-proxy-api --config <home>/.config/cliproxyapi/config.yaml --local-model` (replace `<home>` with your home path).
+  `dot_config/vicinae/private_settings.json.tmpl` and render under `~/.config/vicinae/`. Start the proxy manually with
+  `MANAGEMENT_PASSWORD` unset or empty: `cli-proxy-api --config <home>/.config/cliproxyapi/config.yaml --local-model`
+  (replace `<home>` with your home path).
 
 ## Things to do after
 
@@ -136,6 +136,19 @@ gpg> quit
 - Setup external disks (router or else)
 - Setup Obsidian
 - Setup [Browsers.app](https://browsers.software/) as default browser
+
+## Home NAS
+
+Run `nas` to open the public share in the file manager. It prefers the home LAN and falls back to NetBird; use
+`nas --local` or `nas --vpn` to select one explicitly. NetBird access requires the client and an authorized device. The
+share is guest-writable: everyone on the home LAN and authorized NetBird devices can change or delete files. Windows may
+block guest SMB under its default security policy; the launcher does not change Windows security settings.
+
+On Windows, `czapply` attempts a persistent native `N:` mapping when the letter is free. Run it from a non-administrator
+PowerShell window so Explorer can see the drive. The mapping prefers NetBird, preserving access when roaming; if NetBird
+is unavailable at first setup, it uses the LAN instead. Windows retains that chosen path until the drive is manually
+disconnected. When Windows blocks guest SMB, or the NAS is unavailable, the drive cannot be created; retry with
+`nas --mount` after resolving the issue. Existing `N:` drives are never replaced.
 
 ## Sidenotes for MacOS
 
@@ -288,9 +301,9 @@ sudo ln /usr/lib/libffi.so /usr/lib/libffi.so.7
   aborts with a hint to unlock.
 - **pre-push** — walks the commits in the push range, inspects only blobs matched by a provider, and refuses the push if
   any blob is still plaintext. Belt-and-suspenders for `--no-verify` commits or rebase mistakes.
-- **post-checkout** — auto-runs `git-sync --auto` (fetch/prune/ff/trim) on inferred cleanup branches with a clean working
-  tree. Cleanup branches are remote HEAD targets, or tracking branches that already have other local branches merged in.
-  Remote-backed local branches are protected while their upstream refs still exist.
+- **post-checkout** — auto-runs `git-sync --auto` (fetch/prune/ff/trim) on inferred cleanup branches with a clean
+  working tree. Cleanup branches are remote HEAD targets, or tracking branches that already have other local branches
+  merged in. Remote-backed local branches are protected while their upstream refs still exist.
 
 All three chain to a repo-local `.githooks/<hook>` or `.git/hooks/<hook>` if present, so per-repo hook frameworks (e.g.
 `pre-commit`, lefthook) keep working.

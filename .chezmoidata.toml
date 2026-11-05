@@ -32,6 +32,7 @@ sq = { cmd = "q squash" }
 [sharedAliases.Apps]
 c = { cmd = "command c", ps_cmd = "c.cmd" }
 img = { cmd = "chafa" }
+nas = { cmd = "command nas", ps_cmd = "nas.cmd" }
 sher = { cmd = "sherlock --output /dev/null", ps_cmd = "sherlock --output NUL" }
 
 [sharedAliases.Docker]

@@ -42,6 +42,10 @@ Paths are relative to `~/airules/`; keep this index complete.
 - Prefer Exa MCP for web search, current facts, comparisons, news, people/companies, unknown URLs, and research outside
   Context7/GitHub. Fetch pages when snippets are insufficient; stop when reliable sources support the answer.
 - Use built-in web tools only if Exa fails, is unavailable, or a direct URL fetch suffices.
+- Use the simplest sufficient web-access method: direct HTTP (`curl`/fetch) or a service-specific CLI first;
+  `agent-browser` only when browser rendering or interaction is needed. Preserve the research and GitHub rules.
+- Reserve `browser-test` for userscript/userstyle/extension tests or explicitly requested browser runtime debugging
+  (`~/airules/browser-testing.md`); never use it for general browsing, downloads, or as a fallback for `agent-browser`.
 
 ## GitHub
 
@@ -59,6 +63,8 @@ Paths are relative to `~/airules/`; keep this index complete.
   successful checks. Verify important claims when practical; separate facts, assumptions, and preferences. Use `high`,
   `moderate`, `low`, or `unknown` confidence when uncertainty matters.
 - Ask only when needed, with a recommended default; otherwise state safe, reversible assumptions and proceed.
+- When presenting options for a decision, compare each option's expected effort and practical feasibility where
+  relevant. Clearly flag difficult, unrealistic, or impossible options, explain key blockers, and state uncertainty.
 
 ## Judgment
 

@@ -1,14 +1,14 @@
 # Browser Testing
 
-- Use `browser-test` only for userscript/userstyle/extension tests or requested browser runtime debugging; never for
-  general browsing, downloads, or unrelated verification. No browser MCP is registered.
+- Use `browser-test` only for userscript/userstyle/extension tests or explicitly requested browser runtime debugging;
+  never for general browsing, downloads, or unrelated verification. No browser MCP is registered.
 - Identify the URL and local build/watch process; check dev servers with short timeouts before launch.
 
 ## Chrome
 
 - From the target repo, check `browser-test --status`; use `browser-test --launch <url>` if DevTools is unavailable.
-- Use system Google Chrome only through `browser-test`, never manual profiles/debugging ports. Keep one headed window
-  (tabs allowed), not `about:blank`.
+- For these tests/debugging sessions, use system Google Chrome only through `browser-test`, never manual
+  profiles/debugging ports. Keep one headed window (tabs allowed), not `about:blank`.
 - Launch replaces disposable `.opencode/browser-mcp-profile/` from
   `~/.local/share/chezmoi/browser-mcp-template/profile/` and enables loopback permission. Preserve these names; never
   test with the template or normal Chrome profile.
