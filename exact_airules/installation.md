@@ -1,5 +1,8 @@
 # Installation and Deployment
 
+- Small temporary task tools need no approval; prefer isolated extraction. Remove task-owned tools, dependencies,
+  downloads, and caches afterward; preserve pre-existing packages and state. Ask before large downloads, substantial
+  disk use, privileged system changes, or permanent installs.
 - Before installs/deployments/upgrades, research telemetry, analytics, usage/crash reporting, diagnostics, and metrics
   in official docs/source for the selected version; self-hosted/open-source does not imply telemetry-free.
 - Disable optional vendor reporting/unnecessary collection through supported settings, preferably before first start; no

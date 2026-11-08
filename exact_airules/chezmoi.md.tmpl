@@ -41,7 +41,7 @@
 - Before OS dependencies, check ignored packages and mise runtimes. Never override `IgnorePkg` without approval or duplicate a mise-owned runtime.
 - Give each package one owner. Prefer cross-platform tool/language managers; use OS managers for OS-specific apps, system libraries, GUI apps, drivers, fonts, or unsuitable/unavailable tools.
 - When moving/removing packages, update the old manager file and uninstall/prune from the current machine.
-- Add packages to the matching managed file before installation, even when upstream docs prescribe global installs; one-off installs require explicit request.
+- Add permanent packages to the matching managed file before installing, even if upstream prescribes global installs. Temporary tools -> `installation.md`.
 - Winget: add ID to `install/Wingetfile`, then `make winget-packages`. Hand-run `winget install` only if that target is unavailable or being debugged, with
   `--silent --disable-interactivity --accept-package-agreements --accept-source-agreements`.
 

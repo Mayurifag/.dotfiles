@@ -7,7 +7,7 @@ JSONC_EXCLUDES := $(foreach f,$(JSONC_FILES),-not -path "./$(f)")
 SHELLCHECK := shellcheck -e SC2329
 
 .PHONY: ci
-ci: markdownlint shellcheck jsonlint browser-syntax-check
+ci: markdownlint shellcheck jsonlint browser-syntax-check ruff
 
 .PHONY: browser-syntax-check
 browser-syntax-check:
@@ -23,6 +23,27 @@ markdownlint:
 jsonlint:
 	@/usr/bin/find . -name "*.json" -not -path "./.git/*" $(JSON_EXCLUDES) $(JSONC_EXCLUDES) -exec jsonlint --mode json --quiet {} +
 	jsonlint --mode cjson --quiet $(JSONC_FILES)
+
+# Replace template actions with placeholders to lint the surrounding Python.
+.PHONY: ruff
+ruff:
+	@set -e; \
+	tmp_dir=$$(mktemp -d); \
+	trap 'rm -rf "$$tmp_dir"' EXIT INT TERM; \
+	git ls-files -z --cached --others --exclude-standard '*.py' '*.py.tmpl' > "$$tmp_dir/files"; \
+	git grep -z --untracked -I -E -l -e '^#!.*python' -- . >> "$$tmp_dir/files" || [ "$$?" -eq 1 ]; \
+	xargs -0 sh -c ' \
+		status=0; \
+		for file do \
+			file="./$$file"; \
+			[ -f "$$file" ] || continue; \
+			case "$$file" in \
+			*.tmpl) sed "s/{{[^}]*}}/\"template\"/g" "$$file" | ruff check --no-fix --quiet --stdin-filename "$$file" - || status=$$? ;; \
+			*) ruff check --no-fix --quiet "$$file" || status=$$? ;; \
+			esac; \
+		done; \
+		exit "$$status" \
+	' sh < "$$tmp_dir/files"
 
 .PHONY: shellcheck
 shellcheck:

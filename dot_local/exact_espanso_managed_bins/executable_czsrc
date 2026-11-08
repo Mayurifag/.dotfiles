@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def output(*cmd):
-    p = subprocess.run(cmd, capture_output=True, text=True)
+    p = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return p.stdout.strip() if p.returncode == 0 else ""
 
 
@@ -16,7 +16,9 @@ def resolve(path):
     if not src:
         added = subprocess.run(
             ["chezmoi", "add", "--force", path],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
         )
         if added.returncode != 0:
             print(f"czsrc: {path} not managed", file=sys.stderr)
@@ -30,19 +32,25 @@ def resolve(path):
 
 def run_ai(tmpl, dest):
     model = os.environ.get("CZSRC_AI_MODEL")
-    srcdir = output("chezmoi", "source-path") or str(Path.home() / ".local" / "share" / "chezmoi")
+    srcdir = output("chezmoi", "source-path") or str(
+        Path.home() / ".local" / "share" / "chezmoi"
+    )
     prompt = (
         f"Read chezmoi template {tmpl} and destination {dest}. "
         f"Run chezmoi diff {dest}, then edit the template to match the destination. "
         "Preserve all conditionals, includes, loops, and OS checks. "
         "Do not edit the destination."
     )
-    return subprocess.run([
-        "opencode",
-        "run",
-        *(["--model", model] if model else []),
-        prompt,
-    ], cwd=srcdir).returncode
+    return subprocess.run(
+        [
+            "opencode",
+            "run",
+            *(["--model", model] if model else []),
+            prompt,
+        ],
+        cwd=srcdir,
+        check=False,
+    ).returncode
 
 
 def sync(dest_path):
@@ -61,6 +69,7 @@ def sync(dest_path):
     print("  copied")
     return 0
 
+
 if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
     print("Usage: czsrc [path ...]")
     raise SystemExit(0)
@@ -70,7 +79,9 @@ if len(sys.argv) > 1:
 else:
     p = subprocess.run(
         ["chezmoi", "status", "--include=files", "--path-style=absolute"],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     if p.returncode != 0:
         sys.stderr.write(p.stderr)

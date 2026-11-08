@@ -13,12 +13,18 @@ def command_exists(name):
 
 
 def output(*cmd):
-    p = subprocess.run(cmd, capture_output=True, text=True)
+    p = subprocess.run(cmd, capture_output=True, text=True, check=False)
     return p.stdout.strip() if p.returncode == 0 else ""
 
 
 def git_ok(*args):
-    return subprocess.run(["git", *args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+    result = subprocess.run(
+        ["git", *args],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return result.returncode == 0
 
 
 def ejson_is_decrypted(path):
@@ -27,7 +33,9 @@ def ejson_is_decrypted(path):
     except OSError:
         return False
     for line in text.splitlines():
-        if re.match(r'^\s*"[^_][^"]*"\s*:\s*"', line) and not re.search(r':\s*"EJ\[1:', line):
+        if re.match(r'^\s*"[^_][^"]*"\s*:\s*"', line) and not re.search(
+            r':\s*"EJ\[1:', line
+        ):
             return True
     return False
 
@@ -36,12 +44,26 @@ def git_crypt_repo():
     if Path(".git-crypt").exists():
         return True
     attrs = Path(".gitattributes")
-    return attrs.exists() and "filter=git-crypt" in attrs.read_text(encoding="utf-8", errors="ignore")
+    return attrs.exists() and "filter=git-crypt" in attrs.read_text(
+        encoding="utf-8", errors="ignore"
+    )
 
 
 def list_ejson():
     if git_ok("rev-parse", "--git-dir"):
-        p = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "*.ejson"], capture_output=True, text=True)
+        p = subprocess.run(
+            [
+                "git",
+                "ls-files",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "*.ejson",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         return [Path(x) for x in p.stdout.splitlines() if x]
     return [p for p in Path.cwd().rglob("*.ejson") if ".git" not in p.parts]
 
@@ -53,7 +75,13 @@ if command_exists("ejson"):
             fd, tmp = tempfile.mkstemp()
             os.close(fd)
             with open(tmp, "wb") as f:
-                p = subprocess.run(["ejson", "decrypt", str(path)], stdout=f, stderr=subprocess.DEVNULL, text=False)
+                p = subprocess.run(
+                    ["ejson", "decrypt", str(path)],
+                    stdout=f,
+                    stderr=subprocess.DEVNULL,
+                    text=False,
+                    check=False,
+                )
             if p.returncode == 0 and Path(tmp).stat().st_size:
                 shutil.move(tmp, path)
                 print(f"dec: decrypted {path}")
@@ -62,10 +90,15 @@ if command_exists("ejson"):
                 Path(tmp).unlink(missing_ok=True)
                 print(f"dec: failed {path}", file=sys.stderr)
 
-if command_exists("git-crypt") and git_ok("rev-parse", "--git-dir") and git_crypt_repo() and not output("git", "config", "--get", "filter.git-crypt.smudge"):
-    if subprocess.run(["git-crypt", "unlock"]).returncode == 0:
-        print("dec: git-crypt unlocked")
-        did = True
+if (
+    command_exists("git-crypt")
+    and git_ok("rev-parse", "--git-dir")
+    and git_crypt_repo()
+    and not output("git", "config", "--get", "filter.git-crypt.smudge")
+    and subprocess.run(["git-crypt", "unlock"], check=False).returncode == 0
+):
+    print("dec: git-crypt unlocked")
+    did = True
 
 if not did:
     print("dec: nothing to decrypt")

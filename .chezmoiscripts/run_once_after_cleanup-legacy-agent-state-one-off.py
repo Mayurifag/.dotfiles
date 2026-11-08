@@ -7,7 +7,6 @@ import stat
 import sys
 from pathlib import Path
 
-
 if os.name == "nt" and sys.version_info < (3, 8):
     raise RuntimeError("Python 3.8+ is required to safely remove Windows junctions")
 

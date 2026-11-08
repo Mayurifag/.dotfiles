@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 import json
-import sys
 import subprocess
+import sys
 
 
 def npm_list_global():
-    p = subprocess.run(["npm", "list", "-g", "--depth=0", "--json"], capture_output=True, text=True)
+    p = subprocess.run(
+        ["npm", "list", "-g", "--depth=0", "--json"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     try:
         deps = json.loads(p.stdout or "{}").get("dependencies") or {}
     except json.JSONDecodeError:
@@ -14,7 +19,7 @@ def npm_list_global():
 
 
 before = npm_list_global()
-rc = subprocess.run(["npm", "update", "-g", *sys.argv[1:]]).returncode
+rc = subprocess.run(["npm", "update", "-g", *sys.argv[1:]], check=False).returncode
 after = npm_list_global()
 changed = [name for name, version in after.items() if before.get(name) != version]
 

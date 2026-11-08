@@ -1,28 +1,27 @@
 # Reviews and Audits
 
-- Reviews apply shorter equivalent implementations to reviewed code in the working tree when safe; do not stage changes
-  or alter unrelated edits. Report alternatives if the reviewed snapshot differs or equivalence is uncertain; other
-  fixes require a request. Read callers/callees/tests beyond the diff; trace inputs through state changes to output.
-- Prioritize correctness, security, data loss, races, failure handling, and risky untested behavior; judge performance
-  at stated or explicit assumed load.
-- Require concrete failure scenarios or maintenance costs; verify assumptions and separate defects, uncertainty, and
-  optional improvements.
-- Findings first, by severity: `path:line`, trigger, consequence, smallest adequate fix; explain as needed, skip
-  cosmetic nits.
-- Do not request comments or docstrings that restate the code.
-- Say if no findings; state material coverage gaps without implying proof of correctness.
+When the user says “review” (or equivalent):
+
+- Recheck coding, design, and verification rules. Remove bloat, useless tests, impossible-case error handling,
+  speculative solutions, and over-abstractions.
+- Determine scope first:
+  - Unstaged/staged changes or commits ahead of base (not in main/master) -> review the diff and related callers,
+    callees, tests, and config.
+  - Clean tree, no commits ahead of base -> review the relevant codebase: entry points, high-risk flows,
+    packages/modules.
+- Fix bloat and clear rule violations by default; report other defects without editing unless fixes are requested.
+- Prioritize correctness, security, data loss, races, failure handling, and risky untested behavior. Require concrete
+  failure scenarios or maintenance costs. Separate defects, uncertainty, and optional improvements.
+- Findings first, by severity: `path:line`, trigger, consequence, smallest adequate fix. Skip cosmetic nits. Say if no
+  findings. State material coverage gaps without implying proof of correctness.
+- Before declaring code unused, check callers, tests, config, fixtures, generated integrations, and dynamic references.
 
 ## Repository Audits
 
-- Map entry points, dependencies, build/deploy config, and tests; inspect complete high-risk flows: authentication,
-  untrusted input, money, writes, jobs, shared state. Name unread areas when full coverage is impractical.
-- Before declaring code unused, check callers, tests, config, fixtures, generated integrations, and dynamic references.
-- Require evidence for deletion/consolidation. Respect documented limits unless requirements exceed them; comments do
-  not excuse security defects.
+- Map entry points, dependencies, build/deploy config, and tests. Inspect complete high-risk flows (auth, untrusted
+  input, money, writes, jobs, shared state). Name unread areas when full coverage is impractical.
 
 ## Debt Reports
 
-- On request, find deferrals using repo conventions (`shortcut:`, legacy markers); respect ignored paths. Report
-  location, limitation, revisit trigger; flag missing context, never invent owners/thresholds. No markers does not mean
-  no debt.
-- Generate reports on demand, not a duplicate maintained ledger.
+- On request, find deferrals using repo conventions (`shortcut:`, legacy markers). Report location, limitation, revisit
+  trigger. Never invent owners or thresholds.

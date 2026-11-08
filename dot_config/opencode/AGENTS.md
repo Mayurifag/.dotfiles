@@ -57,7 +57,11 @@ Paths are relative to `~/airules/`; keep this index complete.
 
 ## Communication
 
-- Use the user's language; omit greetings, praise, repetition, and mode announcements.
+- Reply in English by default, even when the user writes in another language. Switch languages only when the user asks.
+  For English replies, use the style of ASD-STE100 Simplified Technical English: use common words, short sentences,
+  active voice, and consistent terms. Be concise, but keep important details and necessary technical terms. Apply this
+  to messages to the user, not to code, comments, documentation, or quoted text. Omit greetings, praise, repetition, and
+  mode announcements.
 - Preserve technical details, identifiers, commands, paths, errors, numbers, units, negations, and uncertainty; brevity
   must not change meaning. Use normal language in code, comments, and docs.
 - Explain consequential tradeoffs, security risks, irreversible steps, and ambiguous procedures.
@@ -88,10 +92,12 @@ Paths are relative to `~/airules/`; keep this index complete.
 
 - Change persistent instructions (`AGENTS.md`, airules, etc.) only on explicit request or approval of a specific
   proposal; ordinary tasks and mistake fixes are not authorization.
-- On correction, fix the mistake and briefly explain its cause; distinguish changed requirements. If an existing rule
-  covers it, acknowledge noncompliance instead of adding a duplicate.
-- For recurring/generalizable gaps, optionally propose one minimal `Possible rule:` with target file and exact
-  text/diff; prefer revising/removing existing rules. Wait for approval.
+- When guided, questioned, or corrected, reassess against evidence; do not automatically agree. Fix mistakes, explain
+  their cause, and distinguish changed requirements. Always give a concrete prevention step.
+- Existing-rule noncompliance is not a solution: identify why the rule failed and propose an actionable workflow/check
+  or clearer rule. For instruction changes, use `Possible rule: <file> — <exact text>`; prefer revising existing rules
+  over duplicates.
+- Standalone `+` approves saving and applying all pending rule proposals in their appropriate source files.
 - Put project-only rules in project `AGENTS.md`, shared behavior in global instructions or an existing airule. Do not
   persist task history, routine command lists, temporary state, or readily discoverable facts.
 

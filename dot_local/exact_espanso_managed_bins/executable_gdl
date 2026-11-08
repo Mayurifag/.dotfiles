@@ -3,6 +3,5 @@ import sys
 
 from ytdl_runner import run_gallery_dl
 
-
 if __name__ == "__main__":
     raise SystemExit(run_gallery_dl(sys.argv[1:]))

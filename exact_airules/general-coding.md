@@ -8,37 +8,30 @@
 
 ## Changes
 
-- Before finishing, check code within the authorized scope for equivalents with fewer meaningful symbols; use them when
-  behavior, readability, performance, safety, compatibility, and other requirements are preserved; do not minify to save
-  characters. Optimize the end-to-end design, not the diff size. Trace affected flows across layers; prefer clear
-  responsibilities, fewer unnecessary round trips, and less duplicated work. Reconsider boundaries that cause needless
-  complexity.
-- Reuse project patterns before platform features, standard libraries, or installed dependencies, unless those patterns
-  perpetuate the problem.
-- No error handling for cases that cannot happen. Three similar lines beat a helper used once.
-- Before adding or installing an unfamiliar package, verify its exact name and publisher against the official project
-  docs/source; a registry entry alone is not proof of provenance.
-- Fix shared causes; trace unwanted output/artifacts instead of hiding errors.
-- Before adding a workaround or override for an upstream bug, check whether an available, compatible upgrade fixes it;
-  recommend that upgrade first, and use a scoped workaround only when upgrading is blocked or explicitly declined.
-- Preserve interfaces unless the task requires changes. Refactor to remove duplication or separate unrelated
-  responsibilities, not meet line counts.
-- Replace obsolete behavior; add compatibility only for explicit requirements or existing consumers/data.
-- Preserve validation, error handling, security, accessibility, and hardware calibration when simplifying.
-- Use repository workflows and package managers; never hand-edit generated lockfiles.
-- Record useful intentional limits as `shortcut: <limit>, <revisit trigger>`; no separate debt ledger unless requested.
-- Comments and docstrings explain why, not what. Do not restate the next line ("increment counter"), add section
-  banners, leave commented-out code, or replace a fix with a workaround comment; agents copy those. Do not delete an
-  existing why-comment or `shortcut:` to save symbols.
+- Optimize end-to-end design within scope, not diff size. Trace affected flows; prefer clear responsibilities, less
+  duplication, and minimal correct, maintainable code. Reconsider boundaries that add needless complexity.
+- Add abstractions, wrappers, layers, options, or files only to reduce complexity or duplication, or match project
+  patterns—not for speculative needs or hypothetical cases.
+- No backward-compatibility shims, migration layers, legacy fallbacks, or old-data handling unless explicitly requested.
+  Breaking changes are acceptable by default.
+- “Perfect,” “long-term,” “generic,” or “must never break anything” do not authorize extra platforms, tiers, modes, or
+  config surfaces. Implement the stated need; keep future ideas to one-line notes.
+- Validate once at the trusted boundary, not across layers.
+- Before race-condition, security, or hypothetical edge-case code/tests, state the failure, likelihood, and complexity
+  cost in one line. No real sighting (log, bug report, commit, incident) → no guard or test. Always handle untrusted
+  external input and data-loss paths.
+- Before adding an abstraction layer, config surface, more than ~5 files, or any speculative option, present the minimal
+  version first and default to it.
+- When told something is over-designed: cut it. Do not defend it.
+- Preserve interfaces unless the task requires changes. Fix shared causes; do not hide errors.
 
 ## Verification
 
-- Before drawing version-dependent conclusions, verify the executable and version used by the affected process; a
-  different shell PATH or configured pin may point elsewhere.
-- Reproduce bugs before fixing when practical; prefer existing tests for focused regression coverage.
-- In untested projects, add permanent tests, frameworks, mocks, fixtures, or test-only CI only on explicit request.
-- Use the smallest meaningful verification; existing checks or direct execution may suffice. Add test files only for
-  concrete plausible observable failures, not implementation spelling, duplicated logic, or mocks that bypass the
-  behavior.
-- Run standard repository checks; fix all errors and warnings in touched files, including pre-existing diagnostics.
-  Report unavailable services, excessive cost, failures, and skipped coverage.
+- Before declaring verification unavailable, check WSL, containers, or remote hosts. Prefer existing suitable
+  environments; temporary tools follow `installation.md`.
+- Reproduce bugs before fixing when practical. Prefer existing tests for focused regression coverage.
+- Test concrete, plausible, observable failures—not implementation spelling, duplicated logic, behavior-bypassing mocks,
+  or “must never happen” cases with no real instance.
+- Use the smallest meaningful verification: prefer existing checks or direct execution. In projects without tests, add
+  permanent tests, frameworks, mocks, or fixtures only on explicit request.
+- Run standard repository checks; report unavailable services, excessive cost, failures, and skipped coverage honestly.

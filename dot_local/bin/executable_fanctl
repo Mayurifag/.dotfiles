@@ -8,6 +8,7 @@ import signal
 import socket
 import subprocess
 import time
+from itertools import pairwise
 from pathlib import Path
 
 EC = "/sys/kernel/debug/ec/ec0/io"
@@ -25,7 +26,7 @@ def duty_for(temperature):
     validate_temperature(temperature)
     if temperature <= CURVE[0][0]:
         return CURVE[0][1]
-    for (lower, low_duty), (upper, high_duty) in zip(CURVE, CURVE[1:]):
+    for (lower, low_duty), (upper, high_duty) in pairwise(CURVE):
         if temperature <= upper:
             return round(
                 low_duty

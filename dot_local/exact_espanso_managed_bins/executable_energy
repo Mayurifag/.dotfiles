@@ -3,7 +3,6 @@ import re
 import subprocess
 import sys
 
-
 PERF_SCHEME = "97a2c2ba-f72a-4d81-a3be-d3b749c4cbc6"
 PERF_SCHEME_NAME = "Energy Perf"
 QUIET_SCHEME = "381b4222-f694-41f0-9685-ff5bb260df2e"
@@ -32,7 +31,15 @@ def read_states(scheme):
         dc = re.search(r"Current DC Power Setting Index:\s*0x([0-9a-fA-F]+)", out)
         if not ac or not dc:
             raise RuntimeError(f"energy: could not read {name}")
-        states.append({"name": name, "ac": int(ac.group(1), 16), "dc": int(dc.group(1), 16), "perf": perf, "quiet": quiet})
+        states.append(
+            {
+                "name": name,
+                "ac": int(ac.group(1), 16),
+                "dc": int(dc.group(1), 16),
+                "perf": perf,
+                "quiet": quiet,
+            }
+        )
     return states
 
 
@@ -48,7 +55,7 @@ def set_powercfg_mode(key):
     scheme = scheme_for(key)
     index = 2 if key == "perf" else 3
     for setting in SETTINGS:
-        _, guid, perf, quiet = setting
+        guid = setting[1]
         value = setting[index]
         run(["powercfg", "/setacvalueindex", scheme, "SUB_PROCESSOR", guid, str(value)])
         run(["powercfg", "/setdcvalueindex", scheme, "SUB_PROCESSOR", guid, str(value)])
@@ -57,13 +64,22 @@ def set_powercfg_mode(key):
 
 def pwsh(script):
     try:
-        return subprocess.run(["pwsh.exe", "-NoProfile", "-Command", script], capture_output=True, text=True)
+        return subprocess.run(
+            ["pwsh.exe", "-NoProfile", "-Command", script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
     except FileNotFoundError:
         return None
 
 
 def set_oem_power_mode(value):
-    script = "$ErrorActionPreference='Stop'; $inst=Get-CimInstance -Namespace root\\wmi -ClassName PowerSwitchInterface; $r=Invoke-CimMethod -InputObject $inst -MethodName SetPowerMode -Arguments @{ PowerMode = [byte]%d }; [Console]::Out.Write($r.ResultStatus)" % value
+    script = (
+        "$ErrorActionPreference='Stop'; $inst=Get-CimInstance -Namespace root\\wmi -ClassName PowerSwitchInterface; $r=Invoke-CimMethod -InputObject $inst -MethodName SetPowerMode -Arguments @{ PowerMode = [byte]"
+        f"{value:d}"
+        " }; [Console]::Out.Write($r.ResultStatus)"
+    )
     result = pwsh(script)
     if not result or result.returncode != 0:
         return
@@ -83,9 +99,13 @@ def get_oem_power_mode():
 
 def label(states, scheme):
     scheme = scheme.lower()
-    if scheme == PERF_SCHEME and all(s["ac"] == s["perf"] and s["dc"] == s["perf"] for s in states):
+    if scheme == PERF_SCHEME and all(
+        s["ac"] == s["perf"] and s["dc"] == s["perf"] for s in states
+    ):
         return "perf"
-    if scheme == QUIET_SCHEME and all(s["ac"] == s["quiet"] and s["dc"] == s["quiet"] for s in states):
+    if scheme == QUIET_SCHEME and all(
+        s["ac"] == s["quiet"] and s["dc"] == s["quiet"] for s in states
+    ):
         return "quiet"
     return "custom"
 
@@ -108,7 +128,13 @@ def print_status(states, scheme, plan):
     boost = state(states, "boost")
     window = state(states, "window")
     cooling = state(states, "cooling")
-    boost_label = {0: "disabled", 1: "enabled", 2: "aggressive", 3: "efficient", 4: "efficient-aggressive"}.get(boost["ac"], boost["ac"])
+    boost_label = {
+        0: "disabled",
+        1: "enabled",
+        2: "aggressive",
+        3: "efficient",
+        4: "efficient-aggressive",
+    }.get(boost["ac"], boost["ac"])
     cooling_label = {0: "passive", 1: "active"}.get(cooling["ac"], cooling["ac"])
     oem_mode = get_oem_power_mode()
     oem_label = {0: "balance", 1: "performance", 2: "silence"}.get(oem_mode, oem_mode)
@@ -130,7 +156,9 @@ def print_status(states, scheme, plan):
 
 
 def main():
-    if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] not in ("perf", "quiet", "status")):
+    if len(sys.argv) > 2 or (
+        len(sys.argv) == 2 and sys.argv[1] not in ("perf", "quiet", "status")
+    ):
         print("usage: energy [perf|quiet|status]", file=sys.stderr)
         return 2
 

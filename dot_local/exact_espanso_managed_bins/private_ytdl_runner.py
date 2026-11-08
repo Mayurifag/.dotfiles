@@ -64,11 +64,13 @@ def run_ytdlp(args, *, use_temp_downloads=False):
             prefix="download-", dir=staging_parent
         ) as temp_dir:
             return subprocess.run(
-                [*command, "--paths", f"temp:{temp_dir}", *args]
+                [*command, "--paths", f"temp:{temp_dir}", *args], check=False
             ).returncode
 
-    return subprocess.run([*command, *args]).returncode
+    return subprocess.run([*command, *args], check=False).returncode
 
 
 def run_gallery_dl(args):
-    return subprocess.run(["gallery-dl", *helium_cookie_args(), *args]).returncode
+    return subprocess.run(
+        ["gallery-dl", *helium_cookie_args(), *args], check=False
+    ).returncode

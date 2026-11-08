@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+import os
+import shutil
 import subprocess
 import sys
 from urllib.parse import urlparse
-
 
 DEFAULT_MODE = "live"
 MODES = {
@@ -14,7 +15,12 @@ MODES = {
         ],
     },
     "live": {
-        "streamlink": ["--twitch-low-latency", "--hls-live-edge", "2", "--hls-segment-stream-data"],
+        "streamlink": [
+            "--twitch-low-latency",
+            "--hls-live-edge",
+            "2",
+            "--hls-segment-stream-data",
+        ],
         "mpv": ["--profile=low-latency"],
     },
     "buffer": {
@@ -43,6 +49,17 @@ BASE_MPV_ARGS = [
 USAGE = "Usage: s <url> [balanced|live|buffer]"
 
 
+def find_mpv():
+    player = shutil.which("mpv")
+    if player:
+        return player
+    if sys.platform == "win32" and (program_files := os.environ.get("ProgramFiles")):
+        player = os.path.join(program_files, "MPV Player", "mpv.exe")
+        if os.path.isfile(player):
+            return player
+    return None
+
+
 def popen_kwargs():
     kwargs = {
         "stdin": subprocess.DEVNULL,
@@ -50,7 +67,9 @@ def popen_kwargs():
         "stderr": subprocess.DEVNULL,
     }
     if sys.platform == "win32":
-        kwargs["creationflags"] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+        kwargs["creationflags"] = (
+            subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
+        )
     else:
         kwargs["start_new_session"] = True
     return kwargs
@@ -91,12 +110,22 @@ def main(argv):
         print(USAGE, file=sys.stderr)
         return 1
 
-    mpv_args = BASE_MPV_ARGS + [f"--title={title(argv[0], url)}"] + options["mpv"] + ["{filename}"]
+    player = find_mpv()
+    if not player:
+        print("s: mpv not found; install it or add it to PATH", file=sys.stderr)
+        return 1
+
+    mpv_args = [
+        *BASE_MPV_ARGS,
+        f"--title={title(argv[0], url)}",
+        *options["mpv"],
+        "{playerinput}",
+    ]
     args = [
         "streamlink",
         *BASE_STREAMLINK_ARGS,
         "--player",
-        "mpv",
+        player,
         *options["streamlink"],
         "--player-args",
         " ".join(mpv_args),
