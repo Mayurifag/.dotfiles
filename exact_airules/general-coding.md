@@ -8,13 +8,14 @@
 
 ## Changes
 
-- Within the authorized scope, optimize the end-to-end design, not the diff size. Trace affected flows across layers;
-  prefer clear responsibilities, fewer unnecessary round trips, less duplicated work, and the least code needed for
-  correct, maintainable behavior. Reconsider boundaries that cause needless complexity; do not trade clarity or safety
-  for fewer lines.
+- Before finishing, check code within the authorized scope for equivalents with fewer meaningful symbols; use them when
+  behavior, readability, performance, safety, compatibility, and other requirements are preserved; do not minify to save
+  characters. Optimize the end-to-end design, not the diff size. Trace affected flows across layers; prefer clear
+  responsibilities, fewer unnecessary round trips, and less duplicated work. Reconsider boundaries that cause needless
+  complexity.
 - Reuse project patterns before platform features, standard libraries, or installed dependencies, unless those patterns
   perpetuate the problem.
-- Add dependencies, abstractions, wrappers, options, or flexibility only for concrete needs.
+- No error handling for cases that cannot happen. Three similar lines beat a helper used once.
 - Before adding or installing an unfamiliar package, verify its exact name and publisher against the official project
   docs/source; a registry entry alone is not proof of provenance.
 - Fix shared causes; trace unwanted output/artifacts instead of hiding errors.
@@ -26,6 +27,9 @@
 - Preserve validation, error handling, security, accessibility, and hardware calibration when simplifying.
 - Use repository workflows and package managers; never hand-edit generated lockfiles.
 - Record useful intentional limits as `shortcut: <limit>, <revisit trigger>`; no separate debt ledger unless requested.
+- Comments and docstrings explain why, not what. Do not restate the next line ("increment counter"), add section
+  banners, leave commented-out code, or replace a fix with a workaround comment; agents copy those. Do not delete an
+  existing why-comment or `shortcut:` to save symbols.
 
 ## Verification
 
@@ -36,4 +40,5 @@
 - Use the smallest meaningful verification; existing checks or direct execution may suffice. Add test files only for
   concrete plausible observable failures, not implementation spelling, duplicated logic, or mocks that bypass the
   behavior.
-- Run standard repository checks; report unavailable services, excessive cost, failures, and skipped coverage.
+- Run standard repository checks; fix all errors and warnings in touched files, including pre-existing diagnostics.
+  Report unavailable services, excessive cost, failures, and skipped coverage.

@@ -1,10 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "openai/gpt-6.1-sol",
-  "default_agent": "think",
+  "model": "openai/gpt-6.1-terra-fast",
+  "default_agent": "build",
   "policies": [
     { "action": "provider.use", "resource": "*", "effect": "deny" },
-    { "action": "provider.use", "resource": "openai", "effect": "allow" }
+    { "action": "provider.use", "resource": "openai", "effect": "allow" },
+    { "action": "provider.use", "resource": "xai", "effect": "allow" }
   ],
   "update": "disable",
   "agents": {
@@ -22,6 +23,11 @@
       "mode": "primary",
       "model": "openai/gpt-6.1-sol#high",
       "description": "Think (GPT 6.1 Sol)"
+    },
+    "grok": {
+      "mode": "primary",
+      "model": "xai/grok-4.7#xhigh",
+      "description": "Grok (Grok 4.7 XHigh)"
     },
     "title": {
       "model": "openai/gpt-6-luna-fast#low"

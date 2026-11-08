@@ -54,4 +54,14 @@
 
 ## Scripts
 
+- Mark temporary scripts with `one-off:` in a source comment describing their purpose, affected hosts, and a verifiable
+  completion condition. Do not mark per-machine setup still needed on new hosts. For an already-run `run_once_` script,
+  `one-off` in its filename is an alternative if references, ordering, and rendered content remain safe.
+- When working in this repo, look for `one-off:` comments and `one-off` script filenames, including hidden scripts.
+  Verify actual results on affected hosts and whether future installs/upgrades still need the script; a successful run
+  alone is not proof. Remove completed, obsolete scripts and their temporary artifacts, preserving intended outputs. If
+  proof or host access is missing, ask before removing.
+- Changing rendered `run_once_`/`run_onchange_` content, including comments, can rerun a script. Use non-rendered template
+  comments and verify unchanged rendered bytes when marking existing scripts; do not edit already-run non-template scripts
+  just to add a marker.
 - Prefer Python (available on every target) for nontrivial cross-platform alias utilities when compilation is unwanted.

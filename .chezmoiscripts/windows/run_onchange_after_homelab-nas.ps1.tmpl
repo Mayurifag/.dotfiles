@@ -1,0 +1,31 @@
+{{- if and (eq .chezmoi.os "windows") (eq .chezmoi.hostname "DESKTOP-7DQ9CMG") -}}
+#Requires -Version 7.4
+#Requires -RunAsAdministrator
+$ErrorActionPreference = 'Stop'
+
+$path = Join-Path $env:WINDIR 'System32\drivers\etc\hosts'
+$marker = '# managed by chezmoi: homelab-nas'
+$entry = "192.168.69.139 nas nas.test $marker"
+$content = [IO.File]::ReadAllText($path)
+$lines = @($content -split '\r?\n')
+$owned = @($lines | Where-Object { $_.EndsWith($marker) })
+if ($owned.Count -gt 1) { throw 'Multiple managed NAS hosts entries require manual review.' }
+
+foreach ($line in $lines) {
+    if ($line.EndsWith($marker)) { continue }
+    $fields = @(($line -split '#', 2)[0].Trim() -split '\s+')
+    if ($fields.Count -gt 1 -and ($fields[1..($fields.Count - 1)] -match '^(?i:nas|nas\.test)$')) {
+        throw 'An existing NAS hosts entry requires manual review.'
+    }
+}
+
+if ($owned.Count -eq 1) {
+    $updated = $content.Replace($owned[0], $entry)
+} else {
+    $updated = $content.TrimEnd("`r", "`n") + "`r`n$entry`r`n"
+}
+if ($updated -cne $content) {
+    [IO.File]::WriteAllText($path, $updated, [Text.UTF8Encoding]::new($false))
+    Clear-DnsClientCache
+}
+{{- end }}

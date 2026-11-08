@@ -119,8 +119,10 @@ pin_mise_tool_file() {
   done <"$tools"
 }
 
-mise_sync() {
-  backup=$(mktemp)
+mise_sync() (
+  sync_mode=${1:-all}
+  sync_tmp=$(mktemp -d)
+  backup=$sync_tmp/config
   cp "$MISE_CONFIG" "$backup"
   restore_mise_config() {
     status=$?
@@ -128,57 +130,38 @@ mise_sync() {
       cp "$backup" "$MISE_CONFIG"
       chezmoi apply "$MISE_TARGET" || true
     fi
-    rm -f "$backup"
+    rm -rf "$sync_tmp"
     exit "$status"
   }
   trap restore_mise_config EXIT INT TERM
 
-  if confirm_update_mise_tools; then
-    pin_mise_tools
+  if [ "$sync_mode" = all ]; then
+    if confirm_update_mise_tools; then
+      pin_mise_tools
+    else
+      mise exec -- chezmoi apply "$MISE_TARGET"
+    fi
+    winget_packages
+    mise_install
+    mise exec -- sh "$0" update-rubygems
+    mise exec -- sh "$0" install-language-packages
+    prune_mise_installs
   else
-    mise exec -- chezmoi apply "$MISE_TARGET"
+    tools=$sync_tmp/tools
+    chezmoi apply "$MISE_TARGET"
+    mise_target_tools | while read -r tool version; do
+      [ -n "$version" ] || continue
+      is_mise_runtime_tool "$tool" || printf '%s %s\n' "$tool" "$version"
+    done >"$tools"
+    pin_mise_tool_file "$tools"
+    chezmoi apply "$MISE_TARGET"
+    while read -r tool version; do
+      [ -n "$version" ] || continue
+      mise install --yes "$tool"
+    done <"$tools"
+    mise reshim
   fi
-  winget_packages
-  mise_install
-  mise exec -- sh "$0" update-rubygems
-  mise exec -- sh "$0" install-language-packages
-  prune_mise_installs
-
-  rm -f "$backup"
-  trap - EXIT INT TERM
-}
-
-mise_sync_only_software() {
-  backup=$(mktemp)
-  tools=$(mktemp)
-  cp "$MISE_CONFIG" "$backup"
-  restore_mise_config() {
-    status=$?
-    if [ "$status" -ne 0 ]; then
-      cp "$backup" "$MISE_CONFIG"
-      chezmoi apply "$MISE_TARGET" || true
-    fi
-    rm -f "$backup" "$tools"
-    exit "$status"
-  }
-  trap restore_mise_config EXIT INT TERM
-
-  chezmoi apply "$MISE_TARGET"
-  mise_target_tools | while read -r tool version; do
-    [ -n "$version" ] || continue
-    is_mise_runtime_tool "$tool" || printf '%s %s\n' "$tool" "$version"
-  done >"$tools"
-  pin_mise_tool_file "$tools"
-  chezmoi apply "$MISE_TARGET"
-  while read -r tool version; do
-    [ -n "$version" ] || continue
-    mise install --yes "$tool"
-  done <"$tools"
-  mise reshim
-
-  rm -f "$backup" "$tools"
-  trap - EXIT INT TERM
-}
+)
 
 prune_mise_installs() {
   mise prune --yes
@@ -193,11 +176,9 @@ mise_install() {
 }
 
 install_language_packages() {
-  node_packages
-  rust_packages
-  ruby_packages
-  go_packages
-  uv_packages
+  for manager in node rust ruby go uv; do
+    reconcile_packages "$manager"
+  done
 }
 
 mise_packages() {
@@ -205,46 +186,33 @@ mise_packages() {
   mise exec -- sh "$0" install-language-packages
 }
 
-clean_node_packages() (
+node_inventory() {
   npm_cmd=$(command -v npm)
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
-  awk 'NF && $1 !~ /^#/ { pkg=$1; if (pkg ~ /^@/) { n=split(pkg,a,"@"); if (n > 2) sub(/@[^@]*$/, "", pkg) } else sub(/@[^@]*$/, "", pkg); print pkg }' "$DOTFILES_DIR/install/npmfile" | sort -u >"$tmp/want"
-  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.keys(j.dependencies || {}).forEach(p => console.log(p)); });' | sort -u >"$tmp/have"
-  comm -23 "$tmp/have" "$tmp/want" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && "$npm_cmd" uninstall -g "$pkg"
-  done
-)
+  awk 'NF && $1 !~ /^#/ { spec=$1; pkg=spec; if (pkg ~ /^@/) { n=split(pkg,a,"@"); if (n > 2) sub(/@[^@]*$/, "", pkg) } else sub(/@[^@]*$/, "", pkg); print pkg " " spec }' "$DOTFILES_DIR/install/npmfile" | sort -u >"$tmp/want-specs"
+  awk '{ print $1 }' "$tmp/want-specs" | sort -u >"$tmp/want"
+  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.entries(j.dependencies || {}).forEach(([p, d]) => console.log(p + " " + d.version)); });' | sort -u >"$tmp/installed"
+  awk '{ print $1 }' "$tmp/installed" >"$tmp/have"
+}
 
-clean_rust_packages() (
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
+rust_inventory() {
+  [ "$mode" = clean ] || require_rust_package_tools
   wanted_packages "$DOTFILES_DIR/install/Rustfile" | sort -u >"$tmp/want"
   cargo install --list | awk '/^[^[:space:]].*:$/ { sub(/:.*/, "", $1); print $1 }' | sort -u >"$tmp/have"
-  comm -23 "$tmp/have" "$tmp/want" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && cargo uninstall "$pkg"
-  done
-)
+}
 
-clean_ruby_packages() (
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
+ruby_inventory() {
   wanted_packages "$DOTFILES_DIR/install/Rubyfile" | while IFS= read -r gem; do
     ruby_wanted_gems "$gem"
   done | sort -u >"$tmp/want"
   ruby_protected_gems | sort -u >"$tmp/protected"
   gem list | tr -d '\r' | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
-  comm -23 "$tmp/have" "$tmp/want" | comm -23 - "$tmp/protected" | sort -r | while IFS= read -r gem; do
-    if [ -n "$gem" ]; then
-      gem uninstall -a -x "$gem" 2>/dev/null || true
-    fi
-  done
-)
+  comm -23 "$tmp/have" "$tmp/want" | comm -23 - "$tmp/protected" | sort -r >"$tmp/remove"
+  # Keep dependency closure for pruning, but only install explicitly requested gems.
+  wanted_packages "$DOTFILES_DIR/install/Rubyfile" | sort -u >"$tmp/requested"
+}
 
-clean_go_packages() (
+go_inventory() {
   command -v go >/dev/null
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
   awk 'NF && $1 !~ /^#/ { n=split($1,a,"/"); if (a[n] ~ /^v[0-9]+$/ && n > 1) print a[n-1]; else print a[n] }' "$DOTFILES_DIR/install/Gofile" | sort -u >"$tmp/want"
   bin=$(go env GOBIN)
   [ -n "$bin" ] || bin="$(go env GOPATH)/bin"
@@ -257,127 +225,102 @@ clean_go_packages() (
   else
     : >"$tmp/have"
   fi
-  comm -23 "$tmp/have" "$tmp/want" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && rm -f "$bin/$pkg" "$bin/$pkg.exe"
-  done
-)
+}
 
-clean_uv_packages() (
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
-  wanted_packages "$DOTFILES_DIR/install/uv-file" | sort -u >"$tmp/want"
-  uv tool list 2>/dev/null | awk '/^[[:alnum:]_][[:alnum:]_.-]* / { print $1 }' | sort -u >"$tmp/have"
-  comm -23 "$tmp/have" "$tmp/want" | while IFS= read -r pkg; do
-    [ -n "$pkg" ] && uv tool uninstall "$pkg"
-  done
-)
+uv_inventory() {
+  uv_package_names <"$DOTFILES_DIR/install/uv-file" | sort -u >"$tmp/want"
+  uv tool list >"$tmp/list"
+  awk '/^[[:alnum:]_][[:alnum:]_.-]* / { print $1 }' "$tmp/list" | sort -u >"$tmp/have"
+}
 
-winget_package_installed() (
-  # This PowerToys plugin has no application registration for winget list.
-  case "$1" in
-  lin-ycv.EverythingPowerToys)
-    plugins="$(cygpath -u "$LOCALAPPDATA")/Microsoft/PowerToys/PowerToys Run/Plugins"
-    test -f "$plugins/Everything/Community.PowerToys.Run.Plugin.Everything.dll"
-    ;;
-  *)
-    winget list --id "$1" --exact --accept-source-agreements --disable-interactivity >/dev/null 2>&1
-    ;;
-  esac
-)
+uv_package_names() {
+  awk 'NF && $1 !~ /^#/ { pkg=$1; sub(/\[.*/, "", pkg); sub(/[<>=!~@].*/, "", pkg); gsub(/[-_.]+/, "-", pkg); print tolower(pkg) }'
+}
 
 winget_packages() {
   is_windows || return 0
   require_command winget
   wanted_packages "$DOTFILES_DIR/install/Wingetfile" | while IFS= read -r package; do
-    winget_package_installed "$package" || winget install --id "$package" --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements
+    winget list --id "$package" --exact --accept-source-agreements --disable-interactivity >/dev/null 2>&1 || winget install --id "$package" --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements
   done
 }
 
-node_packages() (
-  npm_cmd=$(command -v npm)
-  clean_node_packages
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
-  awk 'NF && $1 !~ /^#/ { spec=$1; pkg=spec; if (pkg ~ /^@/) { n=split(pkg,a,"@"); if (n > 2) sub(/@[^@]*$/, "", pkg) } else sub(/@[^@]*$/, "", pkg); print pkg " " spec }' "$DOTFILES_DIR/install/npmfile" | sort -u >"$tmp/want"
-  "$npm_cmd" list -g --depth=0 --json 2>/dev/null | node -e 'let s=""; process.stdin.on("data", d => s += d); process.stdin.on("end", () => { const j = s ? JSON.parse(s) : {}; Object.entries(j.dependencies || {}).forEach(([p, d]) => { console.log(p); console.log(p + "@" + d.version); }); });' | sort -u >"$tmp/have"
+node_install() {
   while read -r pkg spec; do
-    installed=$pkg
     if printf '%s\n' "${spec#"$pkg"@}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$'; then
-      installed=$spec
+      grep -qxF "$pkg ${spec#"$pkg"@}" "$tmp/installed" || "$npm_cmd" install -g "$spec"
+    else
+      grep -qxF "$pkg" "$tmp/have" || "$npm_cmd" install -g "$spec"
     fi
-    grep -qxF "$installed" "$tmp/have" || "$npm_cmd" install -g "$spec"
-  done <"$tmp/want"
-  mise reshim
-)
+  done <"$tmp/want-specs"
+}
 
-rust_packages() (
-  require_rust_package_tools
-  clean_rust_packages
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
-  wanted_packages "$DOTFILES_DIR/install/Rustfile" | sort -u >"$tmp/want"
-  cargo install --list | awk '/^[^[:space:]].*:$/ { sub(/:.*/, "", $1); print $1 }' | sort -u >"$tmp/have"
+rust_install() {
   comm -23 "$tmp/want" "$tmp/have" | while IFS= read -r pkg; do
     [ -n "$pkg" ] && cargo install "$pkg"
   done
-  mise reshim
-)
+}
 
-ruby_packages() (
-  clean_ruby_packages
-  tmp=$(mktemp -d)
-  trap 'rm -rf "$tmp"' EXIT INT TERM
-  wanted_packages "$DOTFILES_DIR/install/Rubyfile" | sort -u >"$tmp/want"
-  ruby_protected_gems | sort -u >"$tmp/protected"
-  gem list | tr -d '\r' | awk '/\(/ { print $1 }' | sort -u >"$tmp/have"
-  comm -23 "$tmp/want" "$tmp/have" | comm -23 - "$tmp/protected" | while IFS= read -r gem; do
+ruby_install() {
+  comm -23 "$tmp/requested" "$tmp/have" | comm -23 - "$tmp/protected" | while IFS= read -r gem; do
     [ -n "$gem" ] && gem install "$gem"
   done
-  mise reshim
-)
+}
 
-go_packages() {
-  clean_go_packages
-  bin=$(go env GOBIN)
-  [ -n "$bin" ] || bin="$(go env GOPATH)/bin"
+go_install() {
   wanted_packages "$DOTFILES_DIR/install/Gofile" | while IFS= read -r pkg; do
     name=$(printf '%s\n' "$pkg" | awk '{ n=split($1,a,"/"); if (a[n] ~ /^v[0-9]+$/ && n > 1) print a[n-1]; else print a[n] }')
     [ -x "$bin/$name" ] || [ -x "$bin/$name.exe" ] || go install "$pkg@latest"
   done
-  mise reshim
 }
 
-uv_packages() (
-  clean_uv_packages
+uv_install() {
+  awk 'NF && $1 !~ /^#/ { print }' "$DOTFILES_DIR/install/uv-file" | while IFS= read -r spec; do
+    pkg=$(printf '%s\n' "$spec" | uv_package_names)
+    if grep -qxF "$pkg" "$tmp/have"; then
+      printf '%s\n' "$spec" | xargs uv tool install
+    else
+      printf '%s\n' "$spec" | xargs uv tool install --force
+    fi
+  done
+}
+
+node_remove() { "$npm_cmd" uninstall -g "$1"; }
+rust_remove() { cargo uninstall "$1"; }
+ruby_remove() { gem uninstall -a -x "$1" 2>/dev/null || true; }
+go_remove() { rm -f "$bin/$1" "$bin/$1.exe"; }
+uv_remove() { uv tool uninstall "$1"; }
+
+reconcile_packages() (
+  manager=$1
+  mode=${2:-install}
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT INT TERM
-  uv tool list 2>/dev/null | awk '/^[[:alnum:]_][[:alnum:]_.-]* / { print $1 }' | sort -u >"$tmp/have"
-  awk 'NF && $1 !~ /^#/ { print }' "$DOTFILES_DIR/install/uv-file" | while IFS= read -r spec; do
-    pkg=$(printf '%s\n' "$spec" | awk '{ print $1 }')
-    grep -qxF "$pkg" "$tmp/have" || printf '%s\n' "$spec" | xargs uv tool install --force
-  done
-  mise reshim
+  "${manager}_inventory"
+  [ -f "$tmp/remove" ] || comm -23 "$tmp/have" "$tmp/want" >"$tmp/remove"
+  while IFS= read -r pkg; do
+    [ -n "$pkg" ] && "${manager}_remove" "$pkg"
+  done <"$tmp/remove"
+  if [ "$mode" = install ]; then
+    "${manager}_install"
+    mise reshim
+  fi
 )
 
 case "${1:-}" in
 mise-sync) mise_sync ;;
-mise-sync-only-software) mise_sync_only_software ;;
+mise-sync-only-software) mise_sync software ;;
 clean-mise-installs) prune_mise_installs ;;
 mise-packages) mise_packages ;;
 mise-install) mise_install ;;
 winget-packages) winget_packages ;;
 install-language-packages) install_language_packages ;;
 update-rubygems) update_rubygems ;;
-node-packages) node_packages ;;
-rust-packages) rust_packages ;;
-ruby-packages) ruby_packages ;;
-go-packages) go_packages ;;
-uv-packages) uv_packages ;;
-clean-node-packages) clean_node_packages ;;
-clean-rust-packages) clean_rust_packages ;;
-clean-ruby-packages) clean_ruby_packages ;;
-clean-go-packages) clean_go_packages ;;
-clean-uv-packages) clean_uv_packages ;;
+node-packages | rust-packages | ruby-packages | go-packages | uv-packages) reconcile_packages "${1%-packages}" ;;
+clean-node-packages | clean-rust-packages | clean-ruby-packages | clean-go-packages | clean-uv-packages)
+  manager=${1#clean-}
+  reconcile_packages "${manager%-packages}" clean
+  ;;
 *)
   printf '%s\n' "usage: $0 <package command>" >&2
   exit 2

@@ -6,11 +6,18 @@ from pathlib import Path
 
 from download_telegram import build_config, new_destination, parse_chat_id
 
-
-source = {"max_messages": 3, "chats": [{
-    "chat_id": -100, "last_read_message_id": 99, "ids_to_retry": [7],
-    "max_messages": 2, "max_concurrent_downloads": 4,
-}]}
+source = {
+    "max_messages": 3,
+    "chats": [
+        {
+            "chat_id": -100,
+            "last_read_message_id": 99,
+            "ids_to_retry": [7],
+            "max_messages": 2,
+            "max_concurrent_downloads": 4,
+        }
+    ],
+}
 target = build_config(source, -100, Path("output"), None)["chats"][0]
 assert target["last_read_message_id"] == 0 and target["ids_to_retry"] == []
 assert target["max_messages"] is None and target["start_date"] is None

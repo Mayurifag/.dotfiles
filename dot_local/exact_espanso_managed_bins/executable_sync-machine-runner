@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+
+mise=$(command -v mise || true)
+if [ -z "$mise" ]; then
+  for candidate in "$HOME/.local/bin/mise" /opt/homebrew/bin/mise /usr/local/bin/mise; do
+    if [ -x "$candidate" ]; then mise=$candidate; break; fi
+  done
+fi
+[ -n "$mise" ] || { printf '%s\n' 'sync-machine: mise was not found' >&2; exit 1; }
+python=$("$mise" which --cd "$HOME" python)
+exec "$python" "$HOME/.agents/skills/sync-machine/scripts/sync_state.py" "$@"

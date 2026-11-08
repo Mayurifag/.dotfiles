@@ -1,13 +1,15 @@
 # Reviews and Audits
 
-- Reviews are read-only unless fixes are requested. Read callers/callees/tests beyond the diff; trace inputs through
-  state changes to output.
+- Reviews apply shorter equivalent implementations to reviewed code in the working tree when safe; do not stage changes
+  or alter unrelated edits. Report alternatives if the reviewed snapshot differs or equivalence is uncertain; other
+  fixes require a request. Read callers/callees/tests beyond the diff; trace inputs through state changes to output.
 - Prioritize correctness, security, data loss, races, failure handling, and risky untested behavior; judge performance
   at stated or explicit assumed load.
 - Require concrete failure scenarios or maintenance costs; verify assumptions and separate defects, uncertainty, and
   optional improvements.
 - Findings first, by severity: `path:line`, trigger, consequence, smallest adequate fix; explain as needed, skip
   cosmetic nits.
+- Do not request comments or docstrings that restate the code.
 - Say if no findings; state material coverage gaps without implying proof of correctness.
 
 ## Repository Audits

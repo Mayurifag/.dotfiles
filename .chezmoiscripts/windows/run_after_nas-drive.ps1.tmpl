@@ -1,6 +1,11 @@
 {{- if eq .chezmoi.os "windows" -}}
 #Requires -Version 7.4
 
+if (-not [Environment]::UserInteractive) {
+    Write-Warning 'NAS drive not mapped: run nas --mount from the Windows desktop session.'
+    return
+}
+
 $python = Join-Path $env:LOCALAPPDATA 'mise\shims\python.exe'
 $nas = Join-Path $env:USERPROFILE '.local\bin\nas'
 if (-not (Test-Path $python) -or -not (Test-Path $nas)) {

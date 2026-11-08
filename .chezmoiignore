@@ -65,4 +65,5 @@ Documents/
 .local/bin/python3.cmd
 .local/bin/git-sync.cmd
 .local/bin/nas.cmd
+.local/bin/clone-repo.cmd
 {{- end }}

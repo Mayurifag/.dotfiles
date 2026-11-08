@@ -102,8 +102,10 @@ cli-proxy-api --config "$HOME/.config/cliproxyapi/config.yaml" --xai-login
   `shortcuts:sct-54b9104c5398`, which exists only on the current host. On a fresh host, create a native Quicklink and
   update the single `Exec` command in `dot_local/share/kglobalaccel/executable_grok-chat.desktop`, then apply;
   alternatively, assign a KDE shortcut directly to the desired native command.
-- Outside Linux, install a supported native Vicinae build manually; this repo provides no Linux systemd setup there.
-  Windows settings come from `AppData/Local/vicinae/config/private_settings.json.tmpl`; macOS settings come from
+- On Windows, install Vicinae with `pwsh -File install/vicinae/install-windows.ps1`; the signed installer enables
+  startup and Vicinae handles its own updates. Apply the managed settings before first launch to disable telemetry. The
+  launcher shortcut is `Win+Space`. On macOS, install a supported native Vicinae build manually. Windows settings come
+  from `AppData/Local/vicinae/config/private_settings.json.tmpl`; macOS settings come from
   `dot_config/vicinae/private_settings.json.tmpl` and render under `~/.config/vicinae/`. Start the proxy manually with
   `MANAGEMENT_PASSWORD` unset or empty: `cli-proxy-api --config <home>/.config/cliproxyapi/config.yaml --local-model`
   (replace `<home>` with your home path).
@@ -139,16 +141,15 @@ gpg> quit
 
 ## Home NAS
 
-Run `nas` to open the public share in the file manager. It prefers the home LAN and falls back to NetBird; use
-`nas --local` or `nas --vpn` to select one explicitly. NetBird access requires the client and an authorized device. The
-share is guest-writable: everyone on the home LAN and authorized NetBird devices can change or delete files. Windows may
-block guest SMB under its default security policy; the launcher does not change Windows security settings.
+Run `nas` to open the public share on the home LAN. It is unavailable away from home. The share is guest-writable:
+everyone on the home LAN can change or delete files. Windows uses saved NAS credentials for signed SMB connections; the
+launcher does not change Windows security settings. LAN SMB is not encrypted.
 
-On Windows, `czapply` attempts a persistent native `N:` mapping when the letter is free. Run it from a non-administrator
-PowerShell window so Explorer can see the drive. The mapping prefers NetBird, preserving access when roaming; if NetBird
-is unavailable at first setup, it uses the LAN instead. Windows retains that chosen path until the drive is manually
-disconnected. When Windows blocks guest SMB, or the NAS is unavailable, the drive cannot be created; retry with
-`nas --mount` after resolving the issue. Existing `N:` drives are never replaced.
+On Windows, `czapply` maps the native `N:` drive to `\\nas.test\Public` when the letter is free. Windows retains that
+LAN mapping, and no background route switching is used. An existing unrelated `N:` drive is never replaced. Run
+`nas --mount` to retry manually. If UAC separates drive mappings, use the same logon and elevation as Explorer. If `N:`
+still uses the old NetBird NAS mapping, close files on the drive, run `net use N: /delete`, then run `nas --mount` in
+that same logon and elevation.
 
 ## Sidenotes for MacOS
 

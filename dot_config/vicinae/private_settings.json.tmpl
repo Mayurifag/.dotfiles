@@ -2,6 +2,11 @@
   "telemetry": {
     "system_info": false
   },
+{{- if eq .chezmoi.os "windows" }}
+  "global_shortcuts": {
+    "toggle": "super+space"
+  },
+{{- end }}
   "close_on_focus_loss": false,
   "pop_to_root_on_close": true,
   "escape_key_behavior": "close_window",

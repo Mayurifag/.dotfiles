@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import fcntl
 import json
+import logging
 import os
 import platform
 import re
@@ -9,11 +10,11 @@ import sys
 import tempfile
 from pathlib import Path
 
-
+logger = logging.getLogger(__name__)
 TOOL = "npm:@opencode/cli"
 PIN = re.compile(
     r'(^[ \t]*"npm:@opencode/cli"[ \t]*=[ \t]*\{[ \t]*version[ \t]*=[ \t]*")(\d+\.\d+\.\d+)(")',
-    re.M,
+    re.MULTILINE,
 )
 VERSION = re.compile(r"\d+\.\d+\.\d+")
 HOME = Path.home()
@@ -116,7 +117,7 @@ def tool_pattern(tool):
     name = re.escape(tool)
     return re.compile(
         rf'(^[ \t]*(?:{name}|"{name}")[ \t]*=[ \t]*")(\d+\.\d+\.\d+)(")',
-        re.M,
+        re.MULTILINE,
     )
 
 
@@ -274,36 +275,28 @@ def apply_pin_update(source, original, updated, label, *extra_targets, recover=N
         try:
             write_if_unchanged(source, updated, original)
             run("chezmoi", "apply", "--no-tty", "--source-path", str(source))
-        except Exception as error:
-            print(
-                f"{label} update rollback failed: {error}", file=sys.stderr, flush=True
-            )
+        except Exception:
+            logger.exception("%s update rollback failed", label)
         if recover is not None:
             try:
                 recover()
-            except Exception as error:
-                print(
-                    f"{label} service recovery failed: {error}",
-                    file=sys.stderr,
-                    flush=True,
-                )
+            except Exception:
+                logger.exception("%s service recovery failed", label)
         raise
 
 
-def update_tool(tool, command, precision, allow_config=False):
-    if not allow_config and tool_has_config(tool):
-        print(f"Skipping {tool}: a configuration is present", flush=True)
-        return
-
+def read_pin(pattern=PIN, tool="OpenCode", extra_targets=()):
     source = Path(run("chezmoi", "source-path", str(MISE_TARGET), capture=True).strip())
-    require_no_pending_changes(MISE_TARGET)
+    require_no_pending_changes(MISE_TARGET, *extra_targets)
     original = source.read_text()
     target_text = MISE_TARGET.read_text()
-    pattern = tool_pattern(tool)
     current = pin(original, pattern, tool)
     if pin(target_text, pattern, tool) != current:
         raise RuntimeError(f"the active mise config and source pin differ for {tool}")
+    return source, original, target_text, current
 
+
+def latest_version(tool, current, precision=0):
     prefix = ".".join(current.split(".")[:precision])
     request = f"{tool}@{prefix}" if precision else tool
     latest = run("mise", "latest", request, capture=True).strip()
@@ -312,7 +305,23 @@ def update_tool(tool, command, precision, allow_config=False):
     ):
         raise RuntimeError(f"unexpected version for {request}: {latest!r}")
     if tuple(map(int, latest.split("."))) <= tuple(map(int, current.split("."))):
-        print(f"{tool} {current} is up to date within {prefix or 'latest'}", flush=True)
+        label = "OpenCode" if tool == TOOL else tool
+        print(
+            f"{label} {current} is up to date within {prefix or 'latest'}", flush=True
+        )
+        return
+    return latest
+
+
+def update_tool(tool, command, precision, allow_config=False):
+    if not allow_config and tool_has_config(tool):
+        print(f"Skipping {tool}: a configuration is present", flush=True)
+        return
+
+    pattern = tool_pattern(tool)
+    source, original, target_text, current = read_pin(pattern, tool)
+    latest = latest_version(tool, current, precision)
+    if latest is None:
         return
 
     print(f"Installing {tool} {current} -> {latest}", flush=True)
@@ -331,7 +340,9 @@ def recover_service():
     if sys.platform == "darwin":
         domain = f"gui/{os.getuid()}"
         if subprocess.run(
-            ["launchctl", "print", f"{domain}/local.opencode"], capture_output=True
+            ["launchctl", "print", f"{domain}/local.opencode"],
+            capture_output=True,
+            check=False,
         ).returncode:
             run(
                 "launchctl",
@@ -344,7 +355,6 @@ def recover_service():
 
 
 def update():
-    source = Path(run("chezmoi", "source-path", str(MISE_TARGET), capture=True).strip())
     source_root = Path(run("chezmoi", "source-path", capture=True).strip())
     if sys.platform == "darwin":
         service = HOME / "Library/LaunchAgents/local.opencode.plist"
@@ -361,17 +371,9 @@ def update():
             "automatic OpenCode updates are not supported on this platform"
         )
 
-    require_no_pending_changes(MISE_TARGET, service)
-    original = source.read_text()
-    current = pin(original)
-    target_text = MISE_TARGET.read_text()
-    if pin(target_text) != current:
-        raise RuntimeError("the active mise config and source pin do not match")
-    latest = run("mise", "latest", TOOL, capture=True).strip()
-    if not VERSION.fullmatch(latest):
-        raise RuntimeError(f"unexpected latest OpenCode version: {latest!r}")
-    if tuple(map(int, latest.split("."))) <= tuple(map(int, current.split("."))):
-        print(f"OpenCode {current} is up to date", flush=True)
+    source, original, target_text, current = read_pin(extra_targets=(service,))
+    latest = latest_version(TOOL, current)
+    if latest is None:
         return
 
     if foreground_sessions_running():

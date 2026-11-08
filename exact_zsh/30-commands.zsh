@@ -78,58 +78,8 @@ knownrm() {
 }
 
 gcd() {
-  if [ -z "$1" ]; then
-    echo "Usage: gcd <repo>" >&2
-    return 1
-  fi
-
-  local input="${1%/}"
   local dir
-  dir="$(basename "$input" .git)"
-
-  local github_repo=""
-  case "$input" in
-  https://github.com/*/* | http://github.com/*/*)
-    github_repo="${input#*github.com/}"
-    ;;
-  git@github.com:*/*)
-    github_repo="${input#git@github.com:}"
-    ;;
-  ssh://git@github.com/*/*)
-    github_repo="${input#ssh://git@github.com/}"
-    ;;
-  */*)
-    if [[ "$input" != *://* && "$input" != *:* ]]; then
-      github_repo="$input"
-    fi
-    ;;
-  esac
-
-  github_repo="${github_repo%.git}"
-  local -a github_repo_parts
-  github_repo_parts=("${(@s:/:)github_repo}")
-  if [ ${#github_repo_parts[@]} -ne 2 ]; then
-    github_repo=""
-  fi
-
-  local large_repo_kb="${GCD_LARGE_REPO_KB:-256000}"
-  local repo_size_kb=""
-  if [ -n "$github_repo" ] && if_command_exists gh; then
-    repo_size_kb="$(gh repo view "$github_repo" --json diskUsage -q .diskUsage 2>/dev/null)"
-  fi
-
-  if [[ "$repo_size_kb" == <-> ]] && [ "$repo_size_kb" -ge "$large_repo_kb" ]; then
-    echo "Large repo detected: ${repo_size_kb} KiB. Downloading latest checkout only."
-    git clone --filter=blob:none --also-filter-submodules --depth 1 --recurse-submodules --shallow-submodules "$input" || return
-    builtin cd "$dir" || return
-    echo "Missing: full history, tags, historical blobs, and full submodule history."
-    echo "Download history and tags: git fetch --unshallow --tags"
-    echo "Download all missing blobs: git rev-list --objects --all | git cat-file --batch-check='%(objectname)' >/dev/null"
-    echo "Download full submodule history: git submodule foreach --recursive 'git fetch --unshallow --tags || git fetch --tags'"
-    return
-  fi
-
-  git clone --recurse-submodules "$input" && builtin cd "$dir"
+  dir=$(command clone-repo "${1:-}") && builtin cd -- "$dir"
 }
 
 grom() {
@@ -342,37 +292,19 @@ q() {
 
 # enhanced make command that finds Makefile in parent directories
 make() {
-  local original_dir
-  original_dir=$(pwd)
-  local current_dir
-  current_dir=$(pwd)
-  local makefile_found_dir=""
-  local search_depth=0
-  local max_depth=3 # Search current directory + 3 parents
-
-  while [[ "$current_dir" != "/" && -z "$makefile_found_dir" && "$search_depth" -le "$max_depth" ]]; do
-    if [[ -f "$current_dir/Makefile" ]] || [[ -f "$current_dir/makefile" ]]; then
-      makefile_found_dir="$current_dir"
-      break
+  local dir="$PWD" depth
+  for depth in {0..3}; do
+    [[ "$dir" == / ]] && break
+    if [[ -f "$dir/Makefile" || -f "$dir/makefile" ]]; then
+      [[ "$dir" == "$PWD" ]] || echo "Makefile found in: $dir" >&2
+      (cd "$dir" && command make "$@")
+      return $?
     fi
-    current_dir=$(dirname "$current_dir")
-    ((search_depth++))
+    dir=${dir:h}
   done
-
-  if [[ -n "$makefile_found_dir" ]]; then
-    if [[ "$makefile_found_dir" != "$original_dir" ]]; then
-      # Inform user about the change of directory, redirecting to stderr
-      echo "Makefile found in: $makefile_found_dir" >&2
-    fi
-
-    # Execute in a subshell to avoid changing the current directory
-    (cd "$makefile_found_dir" && command make "$@")
-  else
-    echo "No Makefile found in current or parent directories." >&2
-    # Fallback to default make behavior, it will show its own error
-    command make "$@"
-    return 1
-  fi
+  echo "No Makefile found in current or parent directories." >&2
+  command make "$@"
+  return 1
 }
 
 function cd {

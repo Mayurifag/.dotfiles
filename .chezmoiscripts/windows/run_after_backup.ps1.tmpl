@@ -1,23 +1,16 @@
 {{- if eq .chezmoi.os "windows" -}}
 Write-Host '[chezmoi] running windows/backup'
 
-$repo = Join-Path $env:USERPROFILE '.local\share\chezmoi'
+$script = Join-Path $env:USERPROFILE '.local\share\chezmoi\windows\windhawk\backup.ps1'
 
-$scripts = @(
-    @{ Name = 'windhawk';   Path = Join-Path $repo 'windows\windhawk\backup.ps1';          Probe = 'C:\Program Files\Windhawk\windhawk.exe' }
-    @{ Name = 'powertoys';  Path = Join-Path $repo 'windows\powertoys-backup\backup.ps1';  Probe = (Join-Path $env:LOCALAPPDATA 'Microsoft\PowerToys\settings.json') }
-)
-
-foreach ($s in $scripts) {
-    if (-not (Test-Path $s.Probe)) {
-        Write-Host "[$($s.Name)-backup] Not installed - skipping." -ForegroundColor Yellow
-        continue
-    }
-    & $s.Path -Quiet
+if (-not (Test-Path 'C:\Program Files\Windhawk\windhawk.exe')) {
+    Write-Host '[windhawk-backup] Not installed - skipping.' -ForegroundColor Yellow
+} else {
+    & $script -Quiet
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "[$($s.Name)-backup] failed (exit $LASTEXITCODE)" -ForegroundColor Yellow
+        Write-Host "[windhawk-backup] failed (exit $LASTEXITCODE)" -ForegroundColor Yellow
     } else {
-        Write-Host "[$($s.Name)-backup] OK" -ForegroundColor Green
+        Write-Host '[windhawk-backup] OK' -ForegroundColor Green
     }
 }
 {{- end }}

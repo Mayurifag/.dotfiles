@@ -13,13 +13,12 @@ ImputNet.Helium
 jdx.mise
 KeePassXCTeam.KeePassXC
 koalaman.shellcheck
-lin-ycv.EverythingPowerToys
 LocalSend.LocalSend
 LibreHardwareMonitor.LibreHardwareMonitor
 M2Team.NanaZip
+mangokingTW.ImeModePersistence
 MarkText.MarkText
 Microsoft.PowerShell
-Microsoft.PowerToys
 Microsoft.VisualStudioCode
 Microsoft.WindowsTerminal
 Netbird.Netbird
@@ -35,3 +34,4 @@ trzsz.tssh
 voidtools.Everything.Alpha
 # GitComet (Microsoft Store)
 XPFD182V1H793R
+# Vicinae is not yet on WinGet; use install/vicinae/install-windows.ps1.

@@ -2,10 +2,10 @@
 # Managed by chezmoi → deploys to ~/.config/starship.toml
 
 {{ if eq .chezmoi.os "windows" -}}
-format = "$character$directory\u001b7$fill$git_branch$git_status$git_metrics$git_state$cmd_duration\u001b8"
+format = "$character$directory\u001b7$fill$cmd_duration\u001b8"
 {{- else -}}
 format = "$character$directory"
-right_format = "$git_branch$git_status$git_metrics$git_state$cmd_duration"
+right_format = "$cmd_duration"
 {{- end }}
 add_newline = false
 
@@ -17,13 +17,6 @@ error_symbol = "[△](red)"
 home_symbol = "~"
 truncation_length = 4
 truncate_to_repo = false
-
-[git_branch]
-format = "[$symbol$branch]($style) "
-symbol = " "
-
-[git_status]
-format = "([$all_status$ahead_behind]($style) )"
 
 [cmd_duration]
 min_time = 2_000
@@ -88,12 +81,16 @@ disabled = true
 disabled = true
 [gcloud]
 disabled = true
+[git_branch]
+disabled = true
 [git_commit]
 disabled = true
 [git_metrics]
-disabled = false
+disabled = true
 [git_state]
-disabled = false
+disabled = true
+[git_status]
+disabled = true
 [gleam]
 disabled = true
 [golang]

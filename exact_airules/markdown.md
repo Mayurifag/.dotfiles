@@ -1,7 +1,8 @@
 # Markdown
 
-- For agent-facing files, minimize tokens without losing clarity; prefer `trigger -> file` bullets. Avoid tables, long
-  prose, examples, and formatting without clear benefit; omit use-case prose already covered by an index.
+- Before finishing agent-facing edits, minimize tokens: check changed text for shorter wording without losing meaning or
+  clarity. Prefer `trigger -> file` bullets. Avoid tables, long prose, examples, and formatting without clear benefit;
+  omit use-case prose already covered by an index.
 
 ## Code Blocks
 

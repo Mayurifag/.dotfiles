@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Open the public NAS using the home LAN or the authenticated NetBird tunnel."""
+"""Open the public NAS on the home LAN."""
 
 import argparse
-import json
 import os
 import socket
 import subprocess
@@ -10,78 +9,21 @@ import sys
 
 LAN_NAME = "nas.test"
 LAN_ADDRESS = "192.168.69.139"
-VPN_ADDRESS = "100.113.201.147"
 WINDOWS_DRIVE = "N:"
-
-
-def reachable(address, timeout):
-    try:
-        with socket.create_connection((address, 445), timeout=timeout):
-            return True
-    except OSError:
-        return False
+WINDOWS_SHARE = f"\\\\{LAN_NAME}\\Public"
+LEGACY_WINDOWS_SHARE = r"\\100.113.201.147\Public"
 
 
 def local_available():
-    if not reachable(LAN_ADDRESS, 1):
-        return False
     try:
-        addresses = {
+        with socket.create_connection((LAN_ADDRESS, 445), timeout=1):
+            pass
+        return {
             result[4][0]
             for result in socket.getaddrinfo(LAN_NAME, 445, type=socket.SOCK_STREAM)
-        }
+        } == {LAN_ADDRESS}
     except OSError:
         return False
-    return addresses == {LAN_ADDRESS}
-
-
-def vpn_available():
-    try:
-        result = subprocess.run(
-            ["netbird", "status", "--json"],
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=5,
-        )
-        status = json.loads(result.stdout)
-        peers = status.get("peers", {}).get("details", []) or []
-        known_peer = any(
-            peer.get("netbirdIp", "").split("/")[0] == VPN_ADDRESS for peer in peers
-        )
-        local_address = status.get("netbirdIp", "").split("/")[0]
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as route:
-            route.connect((VPN_ADDRESS, 445))
-            routed_over_netbird = route.getsockname()[0] == local_address
-    except (OSError, subprocess.SubprocessError, ValueError, AttributeError, TypeError):
-        return False
-    return (
-        bool(local_address)
-        and known_peer
-        and routed_over_netbird
-        and reachable(VPN_ADDRESS, 8)
-    )
-
-
-def choose_host(local_only, vpn_only, prefer_vpn=False):
-    if local_only:
-        choices = [(local_available, LAN_NAME, "home LAN")]
-    elif vpn_only:
-        choices = [(vpn_available, VPN_ADDRESS, "NetBird")]
-    elif prefer_vpn:
-        choices = [
-            (vpn_available, VPN_ADDRESS, "NetBird"),
-            (local_available, LAN_NAME, "home LAN"),
-        ]
-    else:
-        choices = [
-            (local_available, LAN_NAME, "home LAN"),
-            (vpn_available, VPN_ADDRESS, "NetBird"),
-        ]
-    for available, host, connection in choices:
-        if available():
-            return host, connection
-    return None
 
 
 def windows_drive_state():
@@ -89,30 +31,52 @@ def windows_drive_state():
     import winreg
     from ctypes import wintypes
 
-    if ctypes.windll.shell32.IsUserAnAdmin():
-        return "elevated"
-
     try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Network\N") as key:
-            remote = winreg.QueryValueEx(key, "RemotePath")[0]
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, rf"Network\{WINDOWS_DRIVE[0]}"
+        ) as key:
+            remembered = winreg.QueryValueEx(key, "RemotePath")[0]
     except FileNotFoundError:
-        remote = None
+        remembered = None
 
-    if remote is not None:
-        known = {f"\\\\{host}\\Public".casefold() for host in (LAN_NAME, VPN_ADDRESS)}
-        return (
-            "configured" if str(remote).rstrip("\\").casefold() in known else "occupied"
-        )
+    get_connection = ctypes.windll.mpr.WNetGetConnectionW
+    get_connection.argtypes = [
+        wintypes.LPCWSTR,
+        wintypes.LPWSTR,
+        ctypes.POINTER(wintypes.DWORD),
+    ]
+    get_connection.restype = wintypes.DWORD
+    remote = ctypes.create_unicode_buffer(2048)
+    length = wintypes.DWORD(len(remote))
+    result = get_connection(WINDOWS_DRIVE, remote, ctypes.byref(length))
+    if result not in (0, 1201, 2250):
+        raise OSError(result, ctypes.FormatError(result).strip())
+
+    if remembered is not None:
+        remembered = str(remembered).rstrip("\\").casefold()
+        if result == 0 and remote.value.rstrip("\\").casefold() != remembered:
+            return "occupied"
+        if remembered == WINDOWS_SHARE.casefold():
+            if result == 0:
+                return "configured"
+            if result == 1201:
+                return "free"
+        elif remembered == LEGACY_WINDOWS_SHARE.casefold():
+            return "legacy"
+        else:
+            return "occupied"
+    elif result in (0, 1201):
+        return "occupied"
 
     get_drives = ctypes.windll.kernel32.GetLogicalDrives
     get_drives.restype = wintypes.DWORD
     drives = get_drives()
     if not drives:
         raise OSError("Could not inspect existing Windows drives")
-    return "occupied" if drives & (1 << (ord("N") - ord("A"))) else "free"
+    return "occupied" if drives & (1 << (ord(WINDOWS_DRIVE[0]) - ord("A"))) else "free"
 
 
-def map_windows_drive(host):
+def map_windows_drive():
     import ctypes
     from ctypes import wintypes
 
@@ -131,7 +95,7 @@ def map_windows_drive(host):
     resource = NetResource()
     resource.type = 1  # RESOURCETYPE_DISK
     resource.local_name = WINDOWS_DRIVE
-    resource.remote_name = f"\\\\{host}\\Public"
+    resource.remote_name = WINDOWS_SHARE
     connect = ctypes.windll.mpr.WNetAddConnection2W
     connect.argtypes = [
         ctypes.POINTER(NetResource),
@@ -140,16 +104,13 @@ def map_windows_drive(host):
         wintypes.DWORD,
     ]
     connect.restype = wintypes.DWORD
-    result = connect(ctypes.byref(resource), "", "guest", 1)  # CONNECT_UPDATE_PROFILE
+    result = connect(ctypes.byref(resource), None, None, 1)  # CONNECT_UPDATE_PROFILE
     if result:
         raise OSError(result, ctypes.FormatError(result).strip())
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--local", action="store_true", help="use the home LAN only")
-    mode.add_argument("--vpn", action="store_true", help="use NetBird only")
     parser.add_argument(
         "--mount", action="store_true", help="map the Windows NAS drive"
     )
@@ -164,56 +125,49 @@ def main():
         except OSError as error:
             print(f"Could not check {WINDOWS_DRIVE}: {error}", file=sys.stderr)
             return 1
-        if state == "configured":
+        if state == "legacy":
             print(
-                f"NAS {WINDOWS_DRIVE} is already configured; Windows will reconnect it when available."
+                f"{WINDOWS_DRIVE} still uses the old NetBird NAS mapping; it was not changed.\n"
+                f"Close files on {WINDOWS_DRIVE}, then run `net use {WINDOWS_DRIVE} /delete` "
+                "and `nas --mount` in the same logon and elevation as Explorer.",
+                file=sys.stderr,
             )
-            return 0
+            return 1
         if state == "occupied":
             print(
                 f"{WINDOWS_DRIVE} is already in use; it was not changed.",
                 file=sys.stderr,
             )
             return 1
-        if state == "elevated":
-            print(
-                "Run czapply or nas --mount from a non-administrator PowerShell window so Explorer can see the drive.",
-                file=sys.stderr,
-            )
-            return 1
 
-    selected = choose_host(args.local, args.vpn, prefer_vpn=args.mount)
-    if selected is None:
-        print(
-            "NAS unavailable. Connect to the home LAN or start NetBird.",
-            file=sys.stderr,
-        )
+    if not local_available():
+        print("NAS unavailable. Connect to the home LAN.", file=sys.stderr)
         return 1
-    host, connection = selected
 
     if args.mount:
         try:
-            map_windows_drive(host)
+            if state != "configured":
+                map_windows_drive()
+                if windows_drive_state() != "configured":
+                    raise OSError(
+                        f"{WINDOWS_DRIVE} is not connected in this logon session"
+                    )
+            os.stat(f"{WINDOWS_DRIVE}\\")
         except OSError as error:
             print(f"Could not map {WINDOWS_DRIVE}: {error}", file=sys.stderr)
-            print(
-                "Windows may block guest SMB under its existing security policy; no settings were changed.",
-                file=sys.stderr,
-            )
+            print("Check the saved Windows credentials for the NAS.", file=sys.stderr)
             return 1
-        print(
-            f"NAS {WINDOWS_DRIVE} mapped over {connection}; Windows will reconnect it at sign-in."
-        )
+        print(f"NAS {WINDOWS_DRIVE} is connected to the home LAN.")
         return 0
 
-    print(f"Opening the public NAS over {connection}.", flush=True)
+    print("Opening the public NAS over the home LAN.", flush=True)
     try:
         if sys.platform == "win32":
-            os.startfile(f"\\\\{host}\\Public")
+            os.startfile(WINDOWS_SHARE)
         elif sys.platform == "darwin":
-            subprocess.run(["open", f"smb://{host}/Public"], check=True)
+            subprocess.run(["open", f"smb://{LAN_NAME}/Public"], check=True)
         else:
-            subprocess.run(["xdg-open", f"smb://{host}/Public"], check=True)
+            subprocess.run(["xdg-open", f"smb://{LAN_NAME}/Public"], check=True)
     except (OSError, subprocess.CalledProcessError) as error:
         print(f"Could not open the NAS: {error}", file=sys.stderr)
         return 1

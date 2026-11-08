@@ -30,6 +30,7 @@ qwe = { cmd = "git add . && git commit --amend --no-edit && git push --force-wit
 sq = { cmd = "q squash" }
 
 [sharedAliases.Apps]
+aisync = { cmd = "command sync-machine-runner launch", ps_cmd = '& "$HOME/.local/espanso_managed_bins/sync-machine-runner.ps1" launch' }
 c = { cmd = "command c", ps_cmd = "c.cmd" }
 img = { cmd = "chafa" }
 nas = { cmd = "command nas", ps_cmd = "nas.cmd" }

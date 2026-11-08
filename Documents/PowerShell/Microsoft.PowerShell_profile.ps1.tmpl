@@ -56,14 +56,19 @@ if (-not (Test-Path $_cacheDir)) { New-Item -ItemType Directory -Path $_cacheDir
 if ($script:_isInteractiveShell) {
     function _CachedInit([string]$name, [string]$exe, [scriptblock]$generator) {
         $cache = "$_cacheDir\$name.ps1"
-        $exePath = (Get-Command $exe -ErrorAction SilentlyContinue)?.Source
+        $exePath = (Get-Command $exe -CommandType Application -TotalCount 1 -ErrorAction SilentlyContinue)?.Source
         if (-not $exePath) { return }
 
-        $useCache = (Test-Path $cache) -and [IO.File]::GetLastWriteTime($cache) -ge [IO.File]::GetLastWriteTime($exePath)
+        # Winget links keep their timestamp when the underlying executable changes.
+        $exeFile = Get-Item -LiteralPath $exePath
+        $exeFile = $exeFile.ResolveLinkTarget($true) ?? $exeFile
+        $cacheKey = "# shell-cache: $($exeFile.FullName)|$($exeFile.Length)|$($exeFile.LastWriteTimeUtc.Ticks)"
+        if ($name -eq 'mise') { $cacheKey += '|clean-env-v1' }
+        $useCache = (Test-Path $cache) -and (Get-Content -LiteralPath $cache -TotalCount 1) -eq $cacheKey
         if (-not $useCache) {
             $content = & $generator 2>$null
             if (-not [string]::IsNullOrWhiteSpace($content)) {
-                $content | Set-Content -Path $cache -Force
+                @($cacheKey; $content) | Set-Content -Path $cache -Force
                 $useCache = $true
             }
         }
@@ -78,7 +83,16 @@ if ($script:_isInteractiveShell) {
     }
 
     # mise — version manager
-    _CachedInit 'mise' 'mise' { & mise activate pwsh }
+    _CachedInit 'mise' 'mise' {
+        # Do not cache deactivation commands generated from an already-active parent shell.
+        $savedMiseDiff = $env:__MISE_DIFF
+        try {
+            Remove-Item Env:\__MISE_DIFF -ErrorAction SilentlyContinue
+            & mise activate pwsh
+        } finally {
+            if ($null -ne $savedMiseDiff) { $env:__MISE_DIFF = $savedMiseDiff }
+        }
+    }
 
     # starship — cross-shell prompt
     _CachedInit 'starship' 'starship' { starship init powershell --print-full-init }
@@ -93,52 +107,15 @@ Remove-Item -Path Function:\_PrependToPath -ErrorAction SilentlyContinue
 
 # === OSC 9;9 — report CWD to terminal (enables new-tab-in-same-dir) ===
 if ($script:_isInteractiveShell) {
-    $script:_terminalTitleGit = (Get-Command git -ErrorAction SilentlyContinue)?.Source
-    $script:_terminalTitleLastPath = $null
-    $script:_terminalTitleLastTitle = $null
-    $script:_terminalTitleRepoNames = @{}
-
     function global:Invoke-Starship-PreCommand {
         $loc = $executionContext.SessionState.Path.CurrentLocation
         if ($loc.Provider.Name -eq 'FileSystem') {
             $path = $loc.ProviderPath
-            if ($path -eq $script:_terminalTitleLastPath) {
-                $title = $script:_terminalTitleLastTitle
-            } else {
-                $title = $path
-                if ($script:_terminalTitleGit) {
-                    $gitRoot = & $script:_terminalTitleGit -C $path rev-parse --show-toplevel 2>$null
-                    if ($LASTEXITCODE -eq 0 -and $gitRoot) {
-                        if ($script:_terminalTitleRepoNames.ContainsKey($gitRoot)) {
-                            $repoName = $script:_terminalTitleRepoNames[$gitRoot]
-                        } else {
-                            $remoteOutput = & $script:_terminalTitleGit -C $gitRoot remote 2>$null
-                            $remoteExitCode = $LASTEXITCODE
-                            $remotes = @($remoteOutput | Where-Object { $_ })
-                            $repoName = ''
-                            if ($remoteExitCode -eq 0 -and $remotes.Count -eq 1 -and $remotes[0] -eq 'origin') {
-                                $remoteUrl = & $script:_terminalTitleGit -C $gitRoot remote get-url origin 2>$null
-                                if ($LASTEXITCODE -eq 0 -and $remoteUrl) {
-                                    $repoName = [IO.Path]::GetFileName($remoteUrl.TrimEnd('/', '\'))
-                                    if ($repoName.EndsWith('.git', [System.StringComparison]::OrdinalIgnoreCase)) {
-                                        $repoName = $repoName.Substring(0, $repoName.Length - 4)
-                                    }
-                                }
-                            }
-                            $script:_terminalTitleRepoNames[$gitRoot] = $repoName
-                        }
-                        if (-not [string]::IsNullOrWhiteSpace($repoName)) {
-                            $title = $repoName
-                        }
-                    }
-                }
-                if ($title -eq $path -and $title -eq $HOME) {
-                    $title = '~'
-                } elseif ($title -eq $path -and $title.StartsWith("$HOME\", [System.StringComparison]::OrdinalIgnoreCase)) {
-                    $title = "~$($title.Substring($HOME.Length))"
-                }
-                $script:_terminalTitleLastPath = $path
-                $script:_terminalTitleLastTitle = $title
+            $title = $path
+            if ($path -eq $HOME) {
+                $title = '~'
+            } elseif ($path.StartsWith("$HOME\", [System.StringComparison]::OrdinalIgnoreCase)) {
+                $title = "~$($path.Substring($HOME.Length))"
             }
             [System.Console]::Write("`e]0;$title`a`e]1;$title`a`e]2;$title`a")
             [System.Console]::Write("`e]9;9;$path`a")
@@ -165,9 +142,11 @@ function cd {
 
         # Tab-completion may prepend .\  — strip it so zoxide can match
         $zArgs = @($args | ForEach-Object { if ($_ -is [string]) { $_ -replace '^\.[\\/]', '' -replace '[\\/]+$', '' } else { $_ } })
-        $null = zoxide query -s @zArgs 2>$null
+        $current = __zoxide_pwd
+        $exclude = if ($null -ne $current) { @('--exclude', $current) } else { @() }
+        $target = __zoxide_bin query @exclude -- @zArgs 2>$null
         if ($LASTEXITCODE -eq 0) {
-            z @zArgs
+            Set-Location -LiteralPath $target
         } else {
             Write-Error "cd: no such file or directory: $($args -join ' ')"
         }
@@ -176,55 +155,8 @@ function cd {
 
 function gcd {
     param([Parameter(Position = 0)][string]$Repo)
-
-    if ([string]::IsNullOrWhiteSpace($Repo)) {
-        Write-Error "Usage: gcd <repo>"
-        return
-    }
-
-    $inputRepo = $Repo.TrimEnd('/', '\')
-    $dir = [IO.Path]::GetFileName($inputRepo)
-    if ($dir.EndsWith('.git')) { $dir = $dir.Substring(0, $dir.Length - 4) }
-
-    $githubRepo = ''
-    if ($inputRepo -match '^https?://github\.com/([^/]+/[^/]+)') {
-        $githubRepo = $Matches[1]
-    } elseif ($inputRepo -match '^git@github\.com:([^/]+/[^/]+)') {
-        $githubRepo = $Matches[1]
-    } elseif ($inputRepo -match '^ssh://git@github\.com/([^/]+/[^/]+)') {
-        $githubRepo = $Matches[1]
-    } elseif ($inputRepo -match '^[^/:\\]+/[^/:\\]+$') {
-        $githubRepo = $inputRepo
-    }
-
-    if ($githubRepo.EndsWith('.git')) { $githubRepo = $githubRepo.Substring(0, $githubRepo.Length - 4) }
-    if (($githubRepo -split '/').Count -ne 2) { $githubRepo = '' }
-
-    $largeRepoKb = 256000
-    if ($env:GCD_LARGE_REPO_KB -match '^\d+$') { $largeRepoKb = [int]$env:GCD_LARGE_REPO_KB }
-
-    $repoSizeKb = $null
-    if ($githubRepo -and (Get-Command gh -ErrorAction SilentlyContinue)) {
-        $sizeOutput = gh repo view $githubRepo --json diskUsage -q .diskUsage 2>$null
-        if ($LASTEXITCODE -eq 0 -and $sizeOutput -match '^\d+$') {
-            $repoSizeKb = [int]$sizeOutput
-        }
-    }
-
-    if ($null -ne $repoSizeKb -and $repoSizeKb -ge $largeRepoKb) {
-        Write-Host "Large repo detected: $repoSizeKb KiB. Downloading latest checkout only."
-        git clone --filter=blob:none --also-filter-submodules --depth 1 --recurse-submodules --shallow-submodules $inputRepo
-        if ($LASTEXITCODE -ne 0) { return }
-        Set-Location $dir
-        Write-Host "Missing: full history, tags, historical blobs, and full submodule history."
-        Write-Host "Download history and tags: git fetch --unshallow --tags"
-        Write-Host "Download all missing blobs: git rev-list --objects --all | git cat-file --batch-check='%(objectname)' >`$null"
-        Write-Host "Download full submodule history: git submodule foreach --recursive 'git fetch --unshallow --tags || git fetch --tags'"
-        return
-    }
-
-    git clone --recurse-submodules $inputRepo
-    if ($LASTEXITCODE -eq 0) { Set-Location $dir }
+    $dir = clone-repo.cmd $Repo
+    if ($LASTEXITCODE -eq 0) { Set-Location -LiteralPath $dir }
 }
 
 # === Aliases ===

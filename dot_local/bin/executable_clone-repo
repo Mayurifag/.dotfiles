@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Clone a repository and print its directory for shell navigation."""
+
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+def main(args):
+    if len(args) != 1 or not args[0]:
+        print("Usage: gcd <repo>", file=sys.stderr)
+        return 1
+
+    repo = args[0].rstrip("/\\")
+    directory = repo.replace("\\", "/").rsplit("/", 1)[-1].removesuffix(".git")
+    github = re.fullmatch(
+        r"(?:https?://github\.com/|git@github\.com:|ssh://git@github\.com/)?([^/:\\]+/[^/:\\]+)",
+        repo,
+    )
+    threshold = os.environ.get("GCD_LARGE_REPO_KB", "256000")
+    threshold = (
+        int(threshold) if threshold.isascii() and threshold.isdigit() else 256000
+    )
+    size = ""
+    if github and shutil.which("gh"):
+        result = subprocess.run(
+            [
+                "gh",
+                "repo",
+                "view",
+                github[1].removesuffix(".git"),
+                "--json",
+                "diskUsage",
+                "-q",
+                ".diskUsage",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            size = result.stdout.strip()
+
+    shallow = size.isascii() and size.isdigit() and int(size) >= threshold
+    options = ["--recurse-submodules"]
+    if shallow:
+        print(
+            f"Large repo detected: {size} KiB. Downloading latest checkout only.",
+            file=sys.stderr,
+        )
+        options += [
+            "--filter=blob:none",
+            "--also-filter-submodules",
+            "--depth",
+            "1",
+            "--shallow-submodules",
+        ]
+    result = subprocess.run(
+        ["git", "clone", *options, repo], stdout=sys.stderr, check=False
+    )
+    if result.returncode:
+        return result.returncode
+
+    if shallow:
+        print(
+            "Missing: full history, tags, historical blobs, and full submodule history.\n"
+            "Download history and tags: git fetch --unshallow --tags\n"
+            "Download all missing blobs: git rev-list --objects --all | git cat-file --batch-check='%(objectname)'\n"
+            "Download full submodule history: git submodule foreach --recursive 'git fetch --unshallow --tags || git fetch --tags'",
+            file=sys.stderr,
+        )
+    print(Path(directory).resolve())
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except OSError as error:
+        print(f"gcd: {error}", file=sys.stderr)
+        sys.exit(1)

@@ -99,8 +99,7 @@ gh auth login
 
 - [ ] Setup VSCode - sync settings
 - [ ] Install GitComet, put `gitcomet.exe` on PATH, and verify system Git and SSH configuration
-- [ ] Everything with settings for powertoys (+plugin) and for windhawk
-- [ ] Setup PowerToys - only with tools I use
+- [ ] Everything with settings for Windhawk
 - [ ] Altsnap
 - [ ] JPEGView - setup with cfg from Opencloud / migrate here
 - [ ] LocalSend - desktop shortcut from Opencloud

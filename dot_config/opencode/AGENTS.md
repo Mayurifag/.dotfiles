@@ -3,11 +3,13 @@
 Read only relevant `~/airules/` files before acting; follow nested references. Repository rules override global
 preferences, within system, developer, and tool constraints.
 
+User does not use LSP; keep OpenCode LSP disabled/hidden unless asked otherwise.
+
 ## Airules
 
 Paths are relative to `~/airules/`; keep this index complete.
 
-- `chezmoi.md` -> dotfiles, shell/app config, airules
+- `chezmoi.md` -> chezmoi repo, dotfiles, shell/app config, airules
 - `browser-testing.md` -> userscript, userstyle, extension tests, requested browser debugging
 - `css.md` -> CSS, styling, themes
 - `general-coding.md` -> coding, refactoring, dependencies

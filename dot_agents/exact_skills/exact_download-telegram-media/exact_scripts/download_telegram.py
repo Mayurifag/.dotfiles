@@ -13,7 +13,6 @@ from typing import Any
 
 import yaml
 
-
 DEFAULT_APP_DIR = Path.home() / "Code" / "telegram_media_downloader"
 
 
@@ -40,7 +39,9 @@ def new_destination(chat_id: str) -> Path:
             suffix += 1
 
 
-def build_config(source: dict[str, Any], chat_id: int | str, destination: Path, limit: int | None) -> dict[str, Any]:
+def build_config(
+    source: dict[str, Any], chat_id: int | str, destination: Path, limit: int | None
+) -> dict[str, Any]:
     existing = next(
         (
             chat
@@ -71,7 +72,9 @@ def build_config(source: dict[str, Any], chat_id: int | str, destination: Path, 
     return config
 
 
-def run(app_dir: Path, chat_id_text: str, destination: Path | None, limit: int | None) -> None:
+def run(
+    app_dir: Path, chat_id_text: str, destination: Path | None, limit: int | None
+) -> None:
     app_dir = app_dir.expanduser().resolve()
     source_path = app_dir / "config.yaml"
     if not source_path.is_file():
@@ -81,7 +84,7 @@ def run(app_dir: Path, chat_id_text: str, destination: Path | None, limit: int |
     with source_path.open(encoding="utf-8") as source_file:
         source = yaml.safe_load(source_file)
     if not isinstance(source, dict):
-        raise ValueError("App config must contain a YAML mapping")
+        raise TypeError("App config must contain a YAML mapping")
     chats = source.get("chats", [])
     if not isinstance(chats, list) or any(not isinstance(chat, dict) for chat in chats):
         raise ValueError("App chats must contain a list of YAML mappings")
@@ -105,27 +108,38 @@ def run(app_dir: Path, chat_id_text: str, destination: Path | None, limit: int |
                 temp_config = Path(temp_dir) / "config.yaml"
                 with temp_config.open("w", encoding="utf-8") as config_file:
                     yaml.safe_dump(config, config_file, sort_keys=False)
-                setattr(config_manager, "CONFIG_PATH", str(temp_config))
+                config_manager.CONFIG_PATH = str(temp_config)
                 media_downloader.main()
                 failed = len(set(media_downloader.FAILED_IDS.get(chat_id, [])))
                 if failed:
-                    raise RuntimeError(f"{failed} media downloads failed; saved files remain in {destination}")
+                    raise RuntimeError(
+                        f"{failed} media downloads failed; saved files remain in {destination}"
+                    )
                 if not media_downloader.DOWNLOADED_IDS.get(chat_id):
                     raise RuntimeError(f"No media downloaded to {destination}")
         finally:
-            setattr(config_manager, "CONFIG_PATH", old_config_path)
+            config_manager.CONFIG_PATH = old_config_path
     finally:
         os.chdir(old_cwd)
         sys.path[:] = old_path
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Download one Telegram chat with the configured downloader.")
+    parser = argparse.ArgumentParser(
+        description="Download one Telegram chat with the configured downloader."
+    )
     parser.add_argument("chat_id", nargs="?", help="Telegram chat or channel ID")
-    parser.add_argument("--chat-id", dest="chat_id_option", help="Telegram chat or channel ID")
+    parser.add_argument(
+        "--chat-id", dest="chat_id_option", help="Telegram chat or channel ID"
+    )
     parser.add_argument("--destination", type=Path, help="Download directory")
     parser.add_argument("--limit", type=int, help="Maximum number of media items")
-    parser.add_argument("--app-dir", type=Path, default=DEFAULT_APP_DIR, help="Telegram downloader directory")
+    parser.add_argument(
+        "--app-dir",
+        type=Path,
+        default=DEFAULT_APP_DIR,
+        help="Telegram downloader directory",
+    )
     args = parser.parse_args()
     chat_id = args.chat_id_option or args.chat_id
     if not chat_id:
@@ -138,7 +152,7 @@ def main() -> None:
         run(args.app_dir, chat_id, args.destination, args.limit)
     except yaml.YAMLError:
         parser.exit(1, "Invalid app YAML config\n")
-    except (OSError, ValueError, RuntimeError) as error:
+    except (OSError, TypeError, ValueError, RuntimeError) as error:
         parser.exit(1, f"{error}\n")
 
 

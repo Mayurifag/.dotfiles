@@ -7,4 +7,4 @@ else
     python="$app_dir/.venv/bin/python"
 fi
 
-exec "$python" "$HOME/.config/opencode/skills/download-telegram-media/scripts/download_telegram.py" "$@"
+exec "$python" "$HOME/.agents/skills/download-telegram-media/scripts/download_telegram.py" "$@"

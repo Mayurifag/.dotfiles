@@ -1,6 +1,8 @@
 # OpenCode
 
 - Use V2 `provider/model#variant` for agent reasoning profiles, not direct provider request fields.
+- Use the existing `build` agent and a skill for specialized workflows; add visible primary agents only when explicitly
+  requested.
 - OpenCode V2 reloads watched config automatically; verify effective behavior and use `/reload` if needed. Suggest a
   restart only for a diagnosed lifecycle issue or changes to unwatched dependencies; avoid interrupting active work. If
   manual checks remain, include a concise continuation prompt.

@@ -2,7 +2,7 @@
 # All other *.json files are validated as strict JSON.
 JSONC_FILES := .vscode/settings.json
 # MarkText's modify-template is chezmoi source, not a JSON document.
-JSON_EXCLUDES := -not -path "./browser-mcp-template/profile/*" -not -path "./.opencode/browser-mcp-profile/*" -not -path "./windows/powertoys-backup/PowerToys/PowerToys Run/Plugins/Everything/plugin.json" -not -path "./AppData/Roaming/marktext/modify_preferences.json"
+JSON_EXCLUDES := -not -path "./browser-mcp-template/profile/*" -not -path "./.opencode/browser-mcp-profile/*" -not -path "./AppData/Roaming/marktext/modify_preferences.json"
 JSONC_EXCLUDES := $(foreach f,$(JSONC_FILES),-not -path "./$(f)")
 SHELLCHECK := shellcheck -e SC2329
 
