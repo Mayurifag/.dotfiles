@@ -98,8 +98,11 @@ Paths are relative to `~/airules/`; keep this index complete.
   or clearer rule. For instruction changes, use `Possible rule: <file> — <exact text>`; prefer revising existing rules
   over duplicates.
 - Standalone `+` approves saving and applying all pending rule proposals in their appropriate source files.
-- Put project-only rules in project `AGENTS.md`, shared behavior in global instructions or an existing airule. Do not
-  persist task history, routine command lists, temporary state, or readily discoverable facts.
+- When a confirmed, durable project-specific decision or command is likely to recur and recording it would avoid
+  meaningful repeated research, propose concise instruction text and its location; ask the user for approval before
+  saving it. Put project-only rules in `AGENTS.md` or a topic-specific repository instruction file linked from
+  `AGENTS.md` with a clear loading trigger. Keep shared behavior in global instructions or an existing airule. Avoid
+  duplicating existing project documentation; do not persist task history, temporary state, or routine command lists.
 
 ## Cleanup
 

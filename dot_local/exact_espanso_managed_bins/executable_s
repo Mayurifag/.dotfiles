@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 import sys
-from urllib.parse import urlparse
 
 DEFAULT_MODE = "live"
 MODES = {
@@ -31,7 +30,7 @@ MODES = {
         ],
     },
 }
-BASE_STREAMLINK_ARGS = ["--retry-open", "3"]
+BASE_STREAMLINK_ARGS = ["--retry-open", "3", "--title", "{author} - {title}"]
 BASE_MPV_ARGS = [
     "--no-terminal",
     "--really-quiet",
@@ -46,7 +45,7 @@ BASE_MPV_ARGS = [
     "--hr-seek=yes",
     "--hr-seek-framedrop=yes",
 ]
-USAGE = "Usage: s <url> [balanced|live|buffer]"
+USAGE = "Usage: s <url> [balanced|live|buffer] [audio]"
 
 
 def find_mpv():
@@ -83,15 +82,6 @@ def stream_url(value):
     return f"https://www.twitch.tv/{value}"
 
 
-def title(value, url):
-    parsed = urlparse(url)
-    if parsed.netloc.lower().endswith("twitch.tv") and parsed.path.strip("/"):
-        return f"Twitch:{parsed.path.strip('/').split('/')[0]}"
-    if "://" not in value and "." not in value:
-        return f"Twitch:{value}"
-    return "Streamlink"
-
-
 def main(argv):
     if not argv:
         print(USAGE, file=sys.stderr)
@@ -99,13 +89,14 @@ def main(argv):
     if argv[0] in ("-h", "--help"):
         print(USAGE)
         return 0
-    if len(argv) > 2:
+    audio_only = len(argv) > 1 and argv[-1] == "audio"
+    mode_args = argv[1:-1] if audio_only else argv[1:]
+    if len(mode_args) > 1:
         print(USAGE, file=sys.stderr)
         return 1
 
     url = stream_url(argv[0])
-    mode = argv[1] if len(argv) == 2 else DEFAULT_MODE
-    options = MODES.get(mode)
+    options = MODES.get(mode_args[0] if mode_args else DEFAULT_MODE)
     if options is None:
         print(USAGE, file=sys.stderr)
         return 1
@@ -115,12 +106,6 @@ def main(argv):
         print("s: mpv not found; install it or add it to PATH", file=sys.stderr)
         return 1
 
-    mpv_args = [
-        *BASE_MPV_ARGS,
-        f"--title={title(argv[0], url)}",
-        *options["mpv"],
-        "{playerinput}",
-    ]
     args = [
         "streamlink",
         *BASE_STREAMLINK_ARGS,
@@ -128,9 +113,9 @@ def main(argv):
         player,
         *options["streamlink"],
         "--player-args",
-        " ".join(mpv_args),
+        " ".join([*BASE_MPV_ARGS, *options["mpv"], "{playerinput}"]),
         url,
-        "best",
+        "audio_only,audio" if audio_only else "best",
     ]
     try:
         subprocess.Popen(args, **popen_kwargs())

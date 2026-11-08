@@ -3,6 +3,8 @@
 ## Scope
 
 - Read affected code before editing; trace callers, tests, fixtures, configuration, and exports.
+- Before estimating migration effort or required user actions, check existing integration links, deployed configuration
+  when accessible and authorized, and built-in migration features. Mark unverified claims as uncertain.
 - Assess data loss, disclosure, and compatibility; ask before ambiguous broad changes.
 - Stop only if existing user changes conflict with the task.
 
