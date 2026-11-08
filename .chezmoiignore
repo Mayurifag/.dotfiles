@@ -30,8 +30,11 @@ Library/
 .config/kanata/
 {{- end }}
 
-{{ if ne .chezmoi.os "linux" -}}
+{{ if eq .chezmoi.os "windows" -}}
 .config/vicinae/
+{{- end }}
+
+{{ if ne .chezmoi.os "linux" -}}
 .local/share/vicinae/
 .config/fontconfig/
 .local/bin/qwen

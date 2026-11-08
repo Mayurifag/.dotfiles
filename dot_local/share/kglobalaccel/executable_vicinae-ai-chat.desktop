@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Vicinae Quick AI
+Exec=vicinae cmd launch ai:quick
+StartupNotify=false
+X-KDE-GlobalAccel-CommandShortcut=true
+X-KDE-Shortcuts=Alt+Space

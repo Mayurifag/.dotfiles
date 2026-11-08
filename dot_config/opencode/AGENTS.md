@@ -74,9 +74,10 @@ Paths are relative to `~/airules/`; keep this index complete.
 
 ## Judgment
 
-- Evaluate the goal, not just the proposed approach. Raise substantive flaws and safer/simpler alternatives before
-  consequential work; consider correctness, security, privacy, accessibility, compatibility, maintenance, and doing
-  nothing.
+- Evaluate the goal, not just the proposed approach. Before proposing or building a nontrivial custom solution, check
+  configured tools, built-in features, and existing software. Prefer the simplest suitable option; compare correctness,
+  security, privacy, accessibility, compatibility, dependencies, maintenance, and doing nothing. Raise substantive
+  tradeoffs before consequential work.
 - Avoid manufactured criticism or generic disclaimers. Proceed on accepted tradeoffs unless new evidence changes them;
   change recommendations with evidence, not merely to agree.
 - Do not label example/template values as exposed secrets; verify credential status safely or state uncertainty.

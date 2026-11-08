@@ -1,36 +1,39 @@
+{{- $buildModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual "effort" .aiModels.usual.buildEffort) -}}
+{{- $ultrathinkModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.ultrathink "effort" .aiModels.ultrathink.effort) -}}
+{{- $thinkModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.smart "effort" .aiModels.smart.effort) -}}
+{{- $lunaFastModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.fast "effort" .aiModels.fast.effort) -}}
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "openai/gpt-6.1-terra-fast",
+  "model": {{ includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual) | toJson }},
   "default_agent": "build",
   "policies": [
     { "action": "provider.use", "resource": "*", "effect": "deny" },
-    { "action": "provider.use", "resource": "openai", "effect": "allow" },
-    { "action": "provider.use", "resource": "xai", "effect": "allow" }
+    { "action": "provider.use", "resource": "openai", "effect": "allow" }
   ],
   "update": "disable",
   "agents": {
     "build": {
       "mode": "primary",
-      "model": "openai/gpt-6.1-terra-fast#max",
-      "description": "Build (GPT 6.1 Terra Fast Max)"
+      "model": {{ $buildModel | toJson }},
+      "description": {{ printf "Build (%s)" $buildModel | toJson }}
     },
     "ultrathink": {
       "mode": "primary",
-      "model": "openai/gpt-6-astra",
-      "description": "Ultrathink (GPT 6 Astra)"
+      "model": {{ $ultrathinkModel | toJson }},
+      "description": {{ printf "Ultrathink (%s)" $ultrathinkModel | toJson }}
     },
     "think": {
       "mode": "primary",
-      "model": "openai/gpt-6.1-sol#high",
-      "description": "Think (GPT 6.1 Sol)"
+      "model": {{ $thinkModel | toJson }},
+      "description": {{ printf "Think (%s)" $thinkModel | toJson }}
     },
-    "grok": {
+    "luna": {
       "mode": "primary",
-      "model": "xai/grok-4.7#xhigh",
-      "description": "Grok (Grok 4.7 XHigh)"
+      "model": {{ $lunaFastModel | toJson }},
+      "description": {{ printf "Luna Fast (%s)" $lunaFastModel | toJson }}
     },
     "title": {
-      "model": "openai/gpt-6-luna-fast#low"
+      "model": {{ $lunaFastModel | toJson }}
     },
     "plan": {
       "disabled": true

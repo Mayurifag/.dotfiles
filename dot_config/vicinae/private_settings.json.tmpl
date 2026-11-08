@@ -1,4 +1,7 @@
 {
+{{- if eq .chezmoi.os "windows" }}
+  "$schema": "https://vicinae.com/schemas/config.json",
+{{- end }}
   "telemetry": {
     "system_info": false
   },
@@ -31,6 +34,27 @@
     }
   },
   "providers": {
+    "ai": {
+      "preferences": {
+        "providers": {
+          "codex": {
+            "type": "codex",
+            "fields": {
+{{- if eq .chezmoi.os "windows" }}
+              "executable": {{ joinPath (env "LOCALAPPDATA") "mise" "shims" "codex.exe" | toJson }}
+{{- end }}
+            }
+          }
+        },
+        "defaultModel": {{ printf "codex:%s" .aiModels.usual.id | toJson }}
+      }{{ if ne .chezmoi.os "linux" }},
+      "entrypoints": {
+{{- if eq .chezmoi.os "windows" }}
+        "chat": {"enabled": false},
+{{- end }}
+        "quick": {"shortcut": "alt+SPACE"}
+      }{{ end }}
+    },
     "applications": {
       "entrypoints": {
         "cachyos-hello": {"enabled": false},
@@ -70,24 +94,6 @@
       }
     },
     "theme": {"enabled": false},
-    "wm": {"enabled": false},
-    "@ESHAYAT102/codex": {
-      "preferences": {
-        "openaiModel": "gpt-6.1-sol"
-      },
-      "entrypoints": {
-        "codex": {"alias": "gpt"}
-      }
-    },
-    "@tadassuksteris/prompt-deck": {
-      "preferences": {
-        "provider": "openai",
-        "baseURL": "http://127.0.0.1:18645/v1",
-        "openaiApiKey": {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).cliproxy_api_key | toJson }},
-        "model": "grok-4.7(low)",
-        "reasoningLevel": "",
-        "enableHistory": false
-      }
-    }
+    "wm": {"enabled": false}
   }
 }

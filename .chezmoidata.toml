@@ -3,6 +3,36 @@
 # Secrets (e.g. GEMINI_API_KEY) are NOT here — use ejsonDecrypt in templates.
 # Template conditions are NOT supported in this file — put OS conditions in fragments.
 
+# Shared AI models. Change these values, then run chezmoi apply on each machine.
+[aiModels.fast]
+provider = "openai"
+id = "gpt-6-luna"
+speed = "fast"
+effort = "low"
+
+[aiModels.usual]
+provider = "openai"
+id = "gpt-6.1-terra"
+speed = "fast"
+effort = "medium"
+buildEffort = "max"
+planEffort = "xhigh"
+
+[aiModels.smart]
+provider = "openai"
+id = "gpt-6.1-sol"
+speed = "standard"
+effort = "high"
+
+[aiModels.ultrathink]
+provider = "openai"
+id = "gpt-6-astra"
+speed = "standard"
+effort = ""
+
+[aiModels.geminiFallback]
+id = "gemini-flash-lite-latest"
+
 [sharedEnv]
 EDITOR = "vim"
 VISUAL = "code"

@@ -34,4 +34,4 @@ trzsz.tssh
 voidtools.Everything.Alpha
 # GitComet (Microsoft Store)
 XPFD182V1H793R
-# Vicinae is not yet on WinGet; use install/vicinae/install-windows.ps1.
+# Vicinae is managed by mise on Windows.

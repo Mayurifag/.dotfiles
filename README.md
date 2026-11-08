@@ -59,56 +59,33 @@ chezmoi apply
   Vicinae is not installed. The second apply enables the Linux user services and sets KDE shortcuts. Run the Make
   targets from this repository; `arch-packages` requires `yay` for Archfile packages.
 
-### Vicinae and Grok setup
+### AI model roles
 
-- Manually install the unmodified Vicinae extensions `@ESHAYAT102/codex` and `@tadassuksteris/prompt-deck`. Preferences
-  do not install extensions. There is no extension setup script or Make target. From a directory for source checkouts,
-  use the managed Git, Node.js, and npm tools:
+- Edit the `aiModels` entries in `.chezmoidata.toml`, then run `chezmoi apply` on each machine. The four shared roles
+  are `fast`, `usual`, `smart`, and `ultrathink`; the Gemini fallback has a separate entry.
+- `speed = "fast"` selects the OpenCode `-fast` model and the Codex Fast tier. Codex Fast mode consumes the included
+  allowance faster. The Codex and Vicinae Codex providers require models available through the signed-in account.
+- Local Qwen weights and Whisper transcription models are separate from these chat roles.
 
-```bash
-git clone https://github.com/ESHAYAT102/vicinae-codex-extension.git
-git -C vicinae-codex-extension checkout --detach 2d772ab114fbbfb7f85cbde09cf4154a1265ed32
-npm --prefix vicinae-codex-extension ci
-npm --prefix vicinae-codex-extension run build
+### Vicinae setup
 
-git clone https://github.com/vicinaehq/extensions.git vicinae-extensions
-git -C vicinae-extensions checkout --detach 0e3953058fb787d2a96e5ac0cec462440c07cd07
-npm --prefix vicinae-extensions/extensions/prompt-deck ci
-npm --prefix vicinae-extensions/extensions/prompt-deck run build
-```
-
-- The builds install directly into `${XDG_DATA_HOME:-$HOME/.local/share}/vicinae/extensions/codex` and `prompt-deck`.
-  They can overwrite existing local bundles. Keep these directory names: Vicinae derives provider IDs from them. Store
-  installs use different IDs and do not receive these managed preferences. Update local builds manually.
-- Codex uses an isolated home at `~/.local/share/vicinae/codex`, not the normal Codex home. Authenticate it separately:
+- Vicinae Quick AI uses the built-in Codex provider. `Alt+Space` opens it on Windows and KDE; on macOS use
+  `Option+Space`. KDE keeps KRunner on `Alt+F2`.
+- On Linux, Vicinae uses an isolated Codex home at `~/.local/share/vicinae/codex`. Authenticate it separately:
 
 ```bash
 CODEX_HOME="$HOME/.local/share/vicinae/codex" codex login
 ```
 
-- On Linux, the Vicinae service sets `CODEX_HOME`. For a manual/native launch, set the same variable in its environment.
-- Authorize CLIProxyAPI only with an approved account, in a private user terminal, not through an agent or shared log:
-
-```bash
-umask 077
-cli-proxy-api --config "$HOME/.config/cliproxyapi/config.yaml" --xai-login
-```
-
-- Complete OAuth yourself. Never paste tokens into chat or capture authentication output in logs. Management is
-  disabled; keep `MANAGEMENT_PASSWORD` unset or empty. Do not enable a management endpoint for login.
-- Native PromptDeck preferences already manage endpoint `http://127.0.0.1:18645/v1`, the API key, and model
-  `grok-4.7(low)`. Optionally create a native prompt; no custom installer or harness is needed.
-- KDE binds Vicinae to `Meta+Space` and Grok to `Meta+Alt+Space`. Grok currently launches the local Quicklink
-  `shortcuts:sct-54b9104c5398`, which exists only on the current host. On a fresh host, create a native Quicklink and
-  update the single `Exec` command in `dot_local/share/kglobalaccel/executable_grok-chat.desktop`, then apply;
-  alternatively, assign a KDE shortcut directly to the desired native command.
-- On Windows, install Vicinae with `pwsh -File install/vicinae/install-windows.ps1`; the signed installer enables
-  startup and Vicinae handles its own updates. Apply the managed settings before first launch to disable telemetry. The
+- The Linux Vicinae service sets `CODEX_HOME`. For a manual/native launch, set the same variable in its environment.
+  This isolated home does not inherit the normal Codex config or its Fast tier.
+- KDE binds Vicinae to `Meta+Space`.
+- On Windows, `make mise-packages` installs the portable Vicinae release. Run `chezmoi apply` again after installation
+  or an update to refresh its Start menu and startup shortcuts. Update its version in the managed mise config; the
+  portable build does not update itself. Apply the managed settings before first launch to disable telemetry. The
   launcher shortcut is `Win+Space`. On macOS, install a supported native Vicinae build manually. Windows settings come
   from `AppData/Local/vicinae/config/private_settings.json.tmpl`; macOS settings come from
-  `dot_config/vicinae/private_settings.json.tmpl` and render under `~/.config/vicinae/`. Start the proxy manually with
-  `MANAGEMENT_PASSWORD` unset or empty: `cli-proxy-api --config <home>/.config/cliproxyapi/config.yaml --local-model`
-  (replace `<home>` with your home path).
+  `dot_config/vicinae/private_settings.json.tmpl` and render under `~/.config/vicinae/`.
 
 ## Things to do after
 

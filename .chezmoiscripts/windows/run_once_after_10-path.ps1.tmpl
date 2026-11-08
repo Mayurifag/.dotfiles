@@ -15,6 +15,23 @@ $current = [System.Environment]::GetEnvironmentVariable('PATH', 'User')
 $entries = $current -split ';' | Where-Object { $_ -ne '' }
 $newEntries = $entries | Where-Object { $dirs -inotcontains $_ }
 $newEntries = $dirs + $newEntries
+
+# Keep mise shims ahead of WindowsApps aliases without reordering other entries.
+$miseShims = "$env:LOCALAPPDATA\mise\shims"
+$windowsApps = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
+$shimPlaced = $false
+$newEntries = @(foreach ($entry in $newEntries) {
+    if ($entry.TrimEnd('\') -ieq $miseShims) {
+        if ($shimPlaced) { continue }
+        $shimPlaced = $true
+    } elseif (-not $shimPlaced -and $entry.TrimEnd('\') -ieq $windowsApps) {
+        $miseShims
+        $shimPlaced = $true
+    }
+    $entry
+})
+if (-not $shimPlaced) { $newEntries += $miseShims }
+
 $newPath = $newEntries -join ';'
 $oldPath = $entries -join ';'
 

@@ -1,10 +1,13 @@
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 allow_login_shell = false
-model_reasoning_effort = "medium"
-model = "gpt-5.5"
+model_reasoning_effort = {{ .aiModels.usual.effort | toJson }}
+model = {{ .aiModels.usual.id | toJson }}
+{{- if eq .aiModels.usual.speed "fast" }}
+service_tier = "fast"
+{{- end }}
 personality = "none"
-plan_mode_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = {{ .aiModels.usual.planEffort | toJson }}
 suppress_unstable_features_warning = true
 
 [analytics]
@@ -12,6 +15,7 @@ enabled = false
 
 [features]
 apps = false
+fast_mode = true
 shell_snapshot = false
 undo = true
 
@@ -32,9 +36,6 @@ status_line = [
   "session-id",
 ]
 theme = "dracula"
-
-[tui.model_availability_nux]
-"gpt-5.5" = 4
 
 [mcp_servers.docmost]
 command = "npx"

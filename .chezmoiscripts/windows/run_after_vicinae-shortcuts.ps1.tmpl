@@ -1,0 +1,22 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+$mise = Get-Command mise -CommandType Application -ErrorAction SilentlyContinue
+if (-not $mise) { return }
+
+$installDir = & $mise.Source where --cd $HOME 'github:vicinaehq/vicinae' 2>$null
+if ($LASTEXITCODE -ne 0) { return }
+$server = Join-Path $installDir 'bin\vicinae-server.exe'
+if (-not (Test-Path -LiteralPath $server -PathType Leaf)) { return }
+
+$shell = New-Object -ComObject WScript.Shell
+foreach ($folder in @([Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('Startup'))) {
+    $shortcut = $shell.CreateShortcut((Join-Path $folder 'Vicinae.lnk'))
+    if ($shortcut.TargetPath -ne $server) {
+        $shortcut.TargetPath = $server
+        $shortcut.WorkingDirectory = Split-Path $server
+        $shortcut.Description = 'Vicinae (mise)'
+        $shortcut.Save()
+    }
+}
+{{- end }}

@@ -27,6 +27,7 @@
 ## Agent Behavior
 
 - Keep reusable rules in `exact_airules/`; update `dot_config/opencode/AGENTS.md` for additions/renames/removals. Apply changed rules and all shared AGENTS.md targets.
+- For AI model changes, use the shared `aiModels` roles in `.chezmoidata.toml` and follow the README’s AI model roles section.
 - In this repo, add permanent tests, mocks, or fixtures only on request; use existing checks or temporary self-checks.
 - Prefer configuration changes; explain maintenance costs before application patches/forks. Keep cleanup task-scoped unless broader refactoring is requested.
 - Verify old files and service state before migration or cleanup; source definitions alone do not prove deployment. If a

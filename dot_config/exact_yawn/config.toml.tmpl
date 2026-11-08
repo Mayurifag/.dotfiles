@@ -6,8 +6,8 @@ squash_auto_push = true
 wait_for_ssh_keys = true
 
 [providers.opencode_cli]
-model = "openai/gpt-6.1-terra-fast"
+model = {{ includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual) | toJson }}
 
 [providers.gemini]
 api_key = "{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).gemini_api_key }}"
-model = "gemini-flash-lite-latest"
+model = {{ .aiModels.geminiFallback.id | toJson }}

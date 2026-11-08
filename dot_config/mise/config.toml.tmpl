@@ -6,6 +6,11 @@ use_versions_host_track = false
 trusted_config_paths = ["/"]
 hook_env.cache_ttl = "10m"
 
+[% if eq .chezmoi.os "windows" -%]
+[tool_alias]
+eza = "cargo:eza"
+
+[% end -%]
 [tools]
 node = "26.2.0"
 go = "1.26.3"
@@ -48,7 +53,9 @@ ruff = "0.17.3"
 yamllint = "1.38.0"
 "github:pamburus/hl" = "0.36.5"
 "github:Mayurifag/yawn" = "0.1.2"
-"github:router-for-me/CLIProxyAPI" = { version = "8.0.29"[% if eq .chezmoi.os "linux" %], matching = "no-plugin"[% end %] }
+[%- if eq .chezmoi.os "windows" %]
+"github:vicinaehq/vicinae" = { version = "0.30.0", asset_pattern = "vicinae-x64-portable.zip" }
+[%- end %]
 [%- if eq .chezmoi.os "linux" %]
 "github:Mayurifag/conditional-launcher" = "0.1.8"
 [%- end %]
