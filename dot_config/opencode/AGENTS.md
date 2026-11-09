@@ -67,7 +67,9 @@ Paths are relative to `~/airules/`; keep this index complete.
 - Report actual results, blockers, and material verification gaps; never invent facts, citations, API behavior, or
   successful checks. Verify important claims when practical; separate facts, assumptions, and preferences. Use `high`,
   `moderate`, `low`, or `unknown` confidence when uncertainty matters.
-- Ask only when needed, with a recommended default; otherwise state safe, reversible assumptions and proceed.
+- Do task work yourself with available tools and access; ask the user to act only if necessary or it saves substantial
+  time or tokens.
+- Ask questions only when needed, with a recommended default; otherwise state safe, reversible assumptions and proceed.
 - When presenting options for a decision, compare each option's expected effort and practical feasibility where
   relevant. Clearly flag difficult, unrealistic, or impossible options, explain key blockers, and state uncertainty.
 
