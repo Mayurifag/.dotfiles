@@ -32,7 +32,9 @@
   cost in one line. No real sighting (log, bug report, commit, incident) → no guard or test. Always handle untrusted
   external input and data-loss paths.
 - Before adding an abstraction layer, config surface, or speculative option, present the minimal version first and
-  default to it. Apply the same rule to changes affecting more than ~3 files in external projects.
+  default to it. Apply the same rule to changes affecting more than ~5 files in external projects. When applying this
+  file threshold, tell the user before proceeding. If a broader approach is viable, compare the options and their
+  tradeoffs, then ask the user to choose before proceeding.
 - When told something is over-designed: cut it. Do not defend it.
 - Preserve interfaces unless the task requires changes. Fix shared causes; do not hide errors.
 - Avoid comments that restate code or narrate edits. Add comments only for non-obvious rationale, invariants, or

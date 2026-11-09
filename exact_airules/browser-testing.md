@@ -1,10 +1,18 @@
 # Browser Testing
 
-- Use `browser-test` only for userscript/userstyle/extension tests or explicitly requested browser runtime debugging;
-  never for general browsing, downloads, or unrelated verification. No browser MCP is registered.
+## Tool Choice
+
+- Use direct HTTP (`curl`/fetch) or a service-specific CLI when sufficient; follow the research and GitHub rules.
+- When a browser is needed for browsing, downloads, other extension tests, or general website/app tests/debugging, use
+  `agent-browser` with a named session; close it when finished. No browser MCP is registered.
+- Use `browser-test` only for UserJS/UserCSS runtime testing/debugging or maintenance of the tool/template; never for
+  general browsing, downloads, other extension or app tests/debugging, or as an `agent-browser` fallback.
+
+## browser-test
+
 - Identify the URL and local build/watch process; check dev servers with short timeouts before launch.
 
-## Chrome
+### Chrome
 
 - From the target repo, check `browser-test --status`; use `browser-test --launch <url>` if DevTools is unavailable.
 - For these tests/debugging sessions, use system Google Chrome only through `browser-test`, never manual
@@ -15,7 +23,7 @@
 - Store no passwords, personal cookies, or project state in the disposable profile. For missing/broken templates, use
   `~/.local/share/chezmoi/browser-mcp-template/GENERATE.md`.
 
-## Commands
+### Commands
 
 - `browser-test --pages` -> page/extension/service-worker targets; use exact IDs, never guesses.
 - `browser-test --target <id> --eval '<expression>'` -> DOM/storage/computed styles/app state; awaits promises, fails on
@@ -27,19 +35,21 @@
 - `browser-test --target <id> --screenshot <path>` -> PNG for visual checks.
 - Combine target actions as needed; inspection/navigation precede eval/screenshot. Navigation/reload/screenshots need
   page targets.
-- Prefer `browser-test --tampermonkey-install <url>` (reloads matching `@match`/`@include` tabs) and
-  `browser-test --tampermonkey-delete <exact name>` over manager pages.
+- Prefer `browser-test --tampermonkey-install <url>` and `browser-test --tampermonkey-delete <exact name>` over manager
+  pages. If the install result's `reloadedPages` omits the target, reload it before verification.
 - `browser-test --help` -> options and env vars.
 
-## Verification
+### Verification
 
 - Verify loaded script/extension version before debugging; script/style status needs only names/versions.
 - Test changed behavior; recheck stable setup only on setup failure.
 - Prefer console/network/DOM/storage/app-state evidence to sleeps; wait only for an observed async delay.
 - Login -> `~/airules/passwords.md`; use repo credentials when available.
+- `browser-test` automatically accepts observed JavaScript dialogs, including confirmations; avoid destructive actions
+  on live accounts unless the user explicitly authorizes them.
 - CAPTCHA/unautomatable Chrome permission -> ask the user to resolve in-browser, then confirm before continuing.
 - Stale/disconnected CDP -> close and launch one fresh session, not repeated identical failing calls.
 
-## Cleanup
+### Cleanup
 
 - Run `browser-test --close` when finished.

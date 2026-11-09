@@ -10,7 +10,7 @@ User does not use LSP; keep OpenCode LSP disabled/hidden unless asked otherwise.
 Paths are relative to `~/airules/`; keep this index complete.
 
 - `chezmoi.md` -> chezmoi repo, dotfiles, shell/app config, airules
-- `browser-testing.md` -> userscript, userstyle, extension tests, requested browser debugging
+- `browser-testing.md` -> web access, browser tool selection, browser tests/debugging
 - `context7.md` -> unresolved external API or version-specific questions requiring additional documentation
 - `css.md` -> CSS, styling, themes
 - `general-coding.md` -> coding, refactoring, dependencies
@@ -46,10 +46,6 @@ Paths are relative to `~/airules/`; keep this index complete.
   expand only for missing evidence or requested breadth. Fetch pages only when excerpts are insufficient. Stop when
   reliable sources answer the question. Preserve the GitHub access rules.
 - Use built-in web tools only if Exa fails, is unavailable, or a direct URL fetch suffices.
-- Use the simplest sufficient web-access method: direct HTTP (`curl`/fetch) or a service-specific CLI first;
-  `agent-browser` only when browser rendering or interaction is needed. Preserve the research and GitHub rules.
-- Reserve `browser-test` for userscript/userstyle/extension tests or explicitly requested browser runtime debugging
-  (`~/airules/browser-testing.md`); never use it for general browsing, downloads, or as a fallback for `agent-browser`.
 
 ## GitHub
 
