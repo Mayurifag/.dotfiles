@@ -32,9 +32,10 @@
 - “Perfect,” “long-term,” “generic,” or “must never break anything” do not authorize extra platforms, tiers, modes, or
   config surfaces. Implement the stated need; keep future ideas to one-line notes.
 - Validate once at the trusted boundary, not across layers.
-- Before race-condition, security, or hypothetical edge-case code/tests, state the failure, likelihood, and complexity
-  cost in one line. No real sighting (log, bug report, commit, incident) → no guard or test. Always handle untrusted
-  external input and data-loss paths.
+- Before adding race, retry, timeout, or defensive edge-case machinery beyond a stated requirement, identify the
+  observed failure, evidence, owning boundary, and simplest fix. Synthetic tests and hypothetical dependency behavior
+  alone are not evidence. Without a real sighting, do not add guards or tests; always handle untrusted input, credential
+  disclosure, and data-loss paths.
 - Before adding an abstraction layer, config surface, or speculative option, present the minimal version first and
   default to it. Apply the same rule to changes affecting more than ~5 files in external projects. When applying this
   file threshold, tell the user before proceeding. If a broader approach is viable, compare the options and their
@@ -46,8 +47,9 @@
 
 ## Verification
 
-- Before finishing, simplify the changed code: remove unnecessary state, branches, indirection, and repetition. Keep
-  intermediate names and helpers when they clarify meaning. Stay within scope and verify behavior after simplification.
+- Before finishing, map each new state machine, cache, retry, timeout, and cross-layer guard to a required behavior or
+  observed failure; remove unsupported ones. Prefer standard tools and an acceptable stale result over custom
+  synchronization when safety permits.
 - Before declaring verification unavailable, check WSL, containers, or remote hosts. Prefer existing suitable
   environments; temporary tools follow `installation.md`.
 - Reproduce bugs before fixing when practical. Prefer existing tests for focused regression coverage.
