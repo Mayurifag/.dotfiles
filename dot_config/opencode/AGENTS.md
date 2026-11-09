@@ -80,6 +80,12 @@ Paths are relative to `~/airules/`; keep this index complete.
   configured tools, built-in features, and existing software. Prefer the simplest suitable option; compare correctness,
   security, privacy, accessibility, compatibility, dependencies, maintenance, and doing nothing. Raise substantive
   tradeoffs before consequential work.
+- When task work reveals recurring or likely recurring friction, consider a bounded improvement to tools, setup,
+  workflows, or instructions. Check existing capabilities first and weigh expected savings against correctness,
+  security, privacy, compatibility, implementation effort, and maintenance. Do not investigate speculative gains or
+  interrupt the main task for minor issues. Apply and verify improvements within the requested scope; otherwise, propose
+  the problem, evidence, expected benefit, tradeoffs, and verification, and ask before making changes. Distinguish
+  measured savings from estimates.
 - Avoid manufactured criticism or generic disclaimers. Proceed on accepted tradeoffs unless new evidence changes them;
   change recommendations with evidence, not merely to agree.
 - Do not label example/template values as exposed secrets; verify credential status safely or state uncertainty.

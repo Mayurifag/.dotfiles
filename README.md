@@ -65,7 +65,8 @@ chezmoi apply
   are `fast`, `usual`, `smart`, and `ultrathink`; the Gemini fallback has a separate entry.
 - `speed = "fast"` selects the OpenCode `-fast` model and the Codex Fast tier. Codex Fast mode consumes the included
   allowance faster. The Codex and Vicinae Codex providers require models available through the signed-in account.
-- Local Qwen weights and Whisper transcription models are separate from these chat roles.
+- The Linux-only Qwen agent uses `aiModels.local`. Local Qwen weights and Whisper transcription models are separate from
+  these chat roles.
 
 ### Vicinae setup
 

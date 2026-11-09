@@ -33,6 +33,11 @@ effort = ""
 [aiModels.geminiFallback]
 id = "gemini-flash-lite-latest"
 
+[aiModels.local]
+provider = "halogen"
+id = "halogen-v2-abliterated"
+speed = "standard"
+
 [sharedEnv]
 EDITOR = "vim"
 VISUAL = "code"

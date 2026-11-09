@@ -2,15 +2,33 @@
 {{- $ultrathinkModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.ultrathink "effort" .aiModels.ultrathink.effort) -}}
 {{- $thinkModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.smart "effort" .aiModels.smart.effort) -}}
 {{- $lunaFastModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.fast "effort" .aiModels.fast.effort) -}}
+{{- $localModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.local) -}}
 {
   "$schema": "https://opencode.ai/config.json",
   "model": {{ includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual) | toJson }},
   "default_agent": "build",
   "policies": [
     { "action": "provider.use", "resource": "*", "effect": "deny" },
-    { "action": "provider.use", "resource": "openai", "effect": "allow" }
+    { "action": "provider.use", "resource": "openai", "effect": "allow" }{{ if eq .chezmoi.os "linux" }},
+    { "action": "provider.use", "resource": "halogen", "effect": "allow" }{{ end }}
   ],
   "update": "disable",
+  {{ if eq .chezmoi.os "linux" -}}
+  "providers": {
+    "halogen": {
+      "name": "Halogen (local)",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": { "baseURL": "http://127.0.0.1:8731/v1" },
+      "models": {
+        {{ .aiModels.local.id | toJson }}: {
+          "name": "Qwen3.8 Flash Next v2 Abliterated",
+          "capabilities": { "tools": true, "input": ["text"], "output": ["text"] },
+          "limit": { "context": 65536, "output": 8192 }
+        }
+      }
+    }
+  },
+  {{ end -}}
   "agents": {
     "build": {
       "mode": "primary",
@@ -32,6 +50,13 @@
       "model": {{ $lunaFastModel | toJson }},
       "description": {{ printf "Luna Fast (%s)" $lunaFastModel | toJson }}
     },
+    {{ if eq .chezmoi.os "linux" -}}
+    "qwen": {
+      "mode": "primary",
+      "model": {{ $localModel | toJson }},
+      "description": {{ printf "Local Qwen (%s)" $localModel | toJson }}
+    },
+    {{ end -}}
     "title": {
       "model": {{ $lunaFastModel | toJson }}
     },
