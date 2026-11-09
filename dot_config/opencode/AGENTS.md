@@ -13,6 +13,7 @@ Paths are relative to `~/airules/`; keep this index complete.
 - `browser-testing.md` -> web access, browser tool selection, browser tests/debugging
 - `context7.md` -> unresolved external API or version-specific questions requiring additional documentation
 - `css.md` -> CSS, styling, themes
+- `design.md` -> visual design, UI/UX, dashboards, images, graphics
 - `general-coding.md` -> coding, refactoring, dependencies
 - `review.md` -> code reviews, repository audits, technical debt
 - `git.md` -> commits, pushes, CI checks, GitHub Actions updates

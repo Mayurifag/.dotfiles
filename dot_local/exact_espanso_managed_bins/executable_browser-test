@@ -306,7 +306,7 @@ print(json.dumps(rows))
   }
 }
 
-function dedicatedBrowserPids(profile) {
+function dedicatedBrowserPids(profile, number) {
   const windows = process.platform === "win32";
   const paths = windows ? path.win32 : path;
   const normalize = (value) => windows ? paths.resolve(value).toLowerCase() : paths.resolve(value);
@@ -326,6 +326,11 @@ function dedicatedBrowserPids(profile) {
     const name = paths.basename(identity);
     if (!(windows ? /^chrome\.exe$/i : /^(chrome|google-chrome(?:-stable)?|Google Chrome)$/).test(name) &&
         !(process.env.OPENCODE_CHROME_PATH && normalize(identity) === normalize(expandHome(process.env.OPENCODE_CHROME_PATH)))) return false;
+    if (process.platform === "linux" && command.length === 1) {
+      // Recent Chrome rewrites its Linux argv as one string. Match only the exact command this tool launches.
+      const prefix = `${identity} --remote-debugging-address=${HOST} --remote-debugging-port=${number} --user-data-dir=${resolvedProfile} --no-first-run --no-default-browser-check --disable-session-crashed-bubble --window-size=1280,900 --new-window `;
+      return command[0].startsWith(prefix);
+    }
     const remainder = structured ? null : command.slice(executable.length);
     const args = structured ? command.slice(1) : (remainder.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) || []).map(unquote);
     const profiles = args.flatMap((arg, index) => arg === "--user-data-dir" ? [args[index + 1] || ""] : arg.startsWith("--user-data-dir=") ? [arg.slice(16)] : []);
@@ -356,10 +361,10 @@ async function terminateProfile(profile, number) {
       process.kill(pid, "SIGKILL");
     } catch {}
   }
-  await waitForBrowserExit(profile, number);
+  await waitForBrowserExit(profile, number, pids);
 }
 
-async function waitForBrowserExit(profile, number) {
+async function waitForBrowserExit(profile, number, stoppedPids = []) {
   const deadline = Date.now() + 5000;
   while (Date.now() < deadline) {
     if (!dedicatedBrowserPids(profile, number).length && (number == null || (await portFree(number)))) {
@@ -369,6 +374,16 @@ async function waitForBrowserExit(profile, number) {
       } catch (error) {
         if (error.code === "ENOENT") return;
         throw new Error(`Cannot establish profile lock state: ${error.message}`);
+      }
+      if (process.platform === "linux") {
+        const owner = stoppedPids.find((pid) => {
+          try { return fs.readlinkSync(lock) === `${os.hostname()}-${pid}` && !fs.existsSync(`/proc/${pid}`); }
+          catch { return false; }
+        });
+        if (owner) {
+          fs.unlinkSync(lock);
+          return;
+        }
       }
       throw new Error(`Cannot confirm Chrome closed: profile lock exists: ${lock}. Verify Chrome has exited before removing a stale lock.`);
     }

@@ -22,7 +22,7 @@
 
 ## Verify Edits
 
-- Run `timeout 2 chezmoi diff` and `timeout 2 chezmoi apply -v` when practical; on timeout, tell the user to run `czapply` manually for pending input.
+- Before finishing any chezmoi edit, check `chezmoi status` and `timeout 2 chezmoi diff`, then try `czapply` (or `timeout 2 chezmoi apply -v` when the alias is unavailable). If a full apply is unsafe, apply only task targets. Verify they are applied; report failures, timeouts, and remaining task work. Ask the user to run `czapply` if needed.
 
 ## Agent Behavior
 

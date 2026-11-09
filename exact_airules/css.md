@@ -1,10 +1,6 @@
 # CSS
 
-## Style
-
-- Avoid random gradients, glassmorphism, glows, neon shadows, and colored list-item accent bars.
-- Prefer hierarchy, spacing, typography, and contrast to decoration; preserve existing visual language unless redesign
-  is requested.
+Visual design -> `~/airules/design.md`.
 
 ## Structure
 

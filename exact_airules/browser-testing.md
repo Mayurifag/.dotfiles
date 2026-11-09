@@ -7,6 +7,8 @@
   `agent-browser` with a named session; close it when finished. No browser MCP is registered.
 - Use `browser-test` only for UserJS/UserCSS runtime testing/debugging or maintenance of the tool/template; never for
   general browsing, downloads, other extension or app tests/debugging, or as an `agent-browser` fallback.
+- Close task-opened tabs as soon as they are no longer needed, not just at session cleanup; leave pre-existing tabs open
+  unless asked otherwise. For `agent-browser`, use `tab close`.
 
 ## browser-test
 
