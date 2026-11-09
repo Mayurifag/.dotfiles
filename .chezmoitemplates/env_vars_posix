@@ -9,6 +9,7 @@ export CONTEXT7_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDec
 export EXA_API_KEY="{{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).exa_api_key }}"
 export FZF_DEFAULT_COMMAND='rg --files --hidden'
 export FZF_DEFAULT_OPTS='-m --height 50% --border=rounded'
+export CTX7_TELEMETRY_DISABLED=1
 export DO_NOT_TRACK=1
 export HOMEBREW_NO_ANALYTICS=1
 export NEXT_TELEMETRY_DISABLED=1

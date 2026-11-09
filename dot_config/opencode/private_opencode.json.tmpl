@@ -55,13 +55,6 @@
   ],
   "mcp": {
     "servers": {
-      "context7": {
-        "type": "remote",
-        "url": "https://mcp.context7.com/mcp",
-        "headers": {
-          "Authorization": "Bearer {{ (joinPath .chezmoi.sourceDir "keys.ejson" | ejsonDecrypt).context7_api_key }}"
-        }
-      },
       "exa": {
         "type": "remote",
         "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa",

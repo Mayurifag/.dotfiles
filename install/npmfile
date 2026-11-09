@@ -4,6 +4,7 @@
 agent-browser@latest
 actions-up@latest
 bash-language-server@latest
+ctx7@latest
 dockerfile-language-server-nodejs@latest
 eslint@latest
 npm@latest
