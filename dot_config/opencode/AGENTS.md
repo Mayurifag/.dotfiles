@@ -11,6 +11,7 @@ Paths are relative to `~/airules/`; keep this index complete.
 
 - `chezmoi.md` -> chezmoi repo, dotfiles, shell/app config, airules
 - `browser-testing.md` -> userscript, userstyle, extension tests, requested browser debugging
+- `context7.md` -> unresolved external API or version-specific questions requiring additional documentation
 - `css.md` -> CSS, styling, themes
 - `general-coding.md` -> coding, refactoring, dependencies
 - `review.md` -> code reviews, repository audits, technical debt
@@ -23,7 +24,7 @@ Paths are relative to `~/airules/`; keep this index complete.
 - `makefiles.md` -> Makefiles, make targets
 - `markdown.md` -> Markdown files
 - `opencode.md` -> OpenCode config, agents, skills, plugins, MCP, permissions
-- `passwords.md` -> password retrieval, credential use
+- `passwords.md` -> password retrieval, credential use, shared sudo entry
 - `pr-description.md` -> PR descriptions
 - `python.md` -> Python projects
 - `ruby.md` -> Ruby projects
@@ -36,13 +37,14 @@ Paths are relative to `~/airules/`; keep this index complete.
 
 ## Research
 
-- Use Context7 before coding against external libraries, frameworks, CLIs, SDKs, APIs, config schemas, or MCP servers;
-  skip if docs are in the repo/prompt, work is purely local, or no relevant library exists.
-- Prefer version-specific docs; resolve the library ID unless given an exact `/org/project` ID. Verify version-dependent
-  behavior against installed UI/API output, not generic examples alone.
+- Use existing project evidence and available official documentation first. Read `~/airules/context7.md` only when an
+  unresolved external API or version-specific question requires additional documentation.
+- Prefer version-specific docs; verify version-dependent behavior against installed UI/API output, not generic examples
+  alone.
 - Prefer GitHub source/docs for implementation, examples, release notes, and history.
-- Prefer Exa MCP for web search, current facts, comparisons, news, people/companies, unknown URLs, and research outside
-  Context7/GitHub. Fetch pages when snippets are insufficient; stop when reliable sources support the answer.
+- Use Exa for unresolved questions requiring web research. Reuse existing findings and known URLs. Start with 3 results;
+  expand only for missing evidence or requested breadth. Fetch pages only when excerpts are insufficient. Stop when
+  reliable sources answer the question. Preserve the GitHub access rules.
 - Use built-in web tools only if Exa fails, is unavailable, or a direct URL fetch suffices.
 - Use the simplest sufficient web-access method: direct HTTP (`curl`/fetch) or a service-specific CLI first;
   `agent-browser` only when browser rendering or interaction is needed. Preserve the research and GitHub rules.

@@ -9,6 +9,21 @@ const timeout = 120_000;
 const grace = 2_000;
 const maxOutput = 1024 * 1024;
 
+// Only static code is written to disk. The password goes to sudo's private
+// askpass pipe, never the tool output, command stdin, argv, or environment.
+const askpassSource = String.raw`#!/bin/sh
+kpxc-cli show https://sudo.invalid/ -j 2>/dev/null |
+  jq -es 'length == 1' >/dev/null || exit 1
+kpxc-cli show https://sudo.invalid/ -j -p 2>/dev/null |
+  jq -ers '
+    if length != 1 then error("Expected one shared sudo entry")
+    else .[0].password |
+      if type != "string" then error("Missing sudo password")
+      elif length == 0 or test("[\r\n\u0000]") then error("Invalid sudo password")
+      else . end
+    end'
+`;
+
 function run(command, cwd, askpass, supervisor, signal) {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
@@ -46,7 +61,7 @@ function run(command, cwd, askpass, supervisor, signal) {
     const kill = (signal) => {
       if (!child.pid) return;
       try {
-        // Include the askpass GUI; sudo forwards TERM to the root timeout,
+        // Include the credential helper; sudo forwards TERM to the root timeout,
         // which can escalate within its process group. This is not a tree sandbox.
         process.kill(-child.pid, signal);
       } catch {
@@ -138,8 +153,9 @@ export default {
         options: { codemode: false },
         description:
           "Run a shell command as root on Linux or macOS, without a leading sudo. " +
-          "Uses shell permissions and a graphical kdialog/osascript password prompt for each invocation " +
-          "when required by sudo policy. Does not use or refresh cached credentials. " +
+          "Uses shell permissions and the unique KeePassXC shared sudo entry at https://sudo.invalid/. " +
+          "Never opens a sudo password dialog; fails if the entry is unavailable. " +
+          "Does not use or refresh cached credentials. Requires jq and kpxc-cli on PATH. " +
           "Has a 120-second deadline, including authentication, plus termination grace; stdin is closed. " +
           "Requires /usr/bin/timeout on Linux or Homebrew gtimeout on macOS. Never provide a password.",
         input: {
@@ -210,17 +226,7 @@ export default {
             const directory = await mkdtemp(join(tmpdir(), "opencode-sudo-"));
             try {
               const askpass = join(directory, "askpass");
-              // Only static helper code touches disk. GUI stdout goes directly to
-              // sudo's private askpass pipe, never OpenCode or command stdin.
-              const prompt =
-                process.platform === "darwin"
-                  ? `/usr/bin/osascript -e 'text returned of (display dialog "Authentication is required to run a command as root" with title "OpenCode sudo" default answer "" hidden answer true buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel")'`
-                  : '/usr/bin/kdialog --title "OpenCode sudo" --password "Authentication is required to run a command as root"';
-              await writeFile(
-                askpass,
-                `#!/bin/sh\nexec ${prompt} 2>/dev/null\n`,
-                { mode: 0o700 },
-              );
+              await writeFile(askpass, askpassSource, { mode: 0o700 });
               signal.throwIfAborted();
               return await run(
                 input.command,

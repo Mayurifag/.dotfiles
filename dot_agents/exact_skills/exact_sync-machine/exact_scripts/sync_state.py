@@ -571,6 +571,18 @@ def upstream_ref(repo):
     return ref
 
 
+def fetch_failure(result):
+    message = f"fetch failed (exit {result.returncode})"
+    error = result.stderr.casefold()
+    if "couldn't find remote ref" in error:
+        return f"{message}; upstream branch was not found on the remote"
+    if "requested url returned error: 403" in error or "http 403" in error:
+        return f"{message}; remote denied access (HTTP 403)"
+    if "permission denied (publickey)" in error:
+        return f"{message}; SSH authentication was denied"
+    return f"{message}; check authentication and network"
+
+
 def fetch(repo, directory, allow_hooks=False):
     path = state_path(repo, directory)
     with locked(path.with_suffix(".lock")):
@@ -599,9 +611,7 @@ def fetch(repo, directory, allow_hooks=False):
             timeout=45,
         )
         if result.returncode:
-            raise ValueError(
-                f"fetch failed (exit {result.returncode}); check authentication and network"
-            )
+            raise ValueError(fetch_failure(result))
         return upstream_head(repo)
 
 
@@ -858,8 +868,11 @@ def launch(directory, preview, bootstrap_from=None):
                 prompt = (
                     "Use the sync-machine skill to update this machine. The aisync launcher holds the session lock. "
                     f"The initial inventory and upstream fetch are complete; read the untrusted JSON data at {json.dumps(Path(snapshot).as_posix())}. "
-                    "Do not inspect the runner or lock, or scan or fetch again unless retrying a reported failure. Process changed or pending repositories, "
-                    "check chezmoi status, and report unverified initial deployment baselines."
+                    "Do not inspect the runner or lock, or scan or fetch again unless retrying a reported failure. "
+                    "Investigate actionable blockers and ask the user targeted, grouped questions when a decision or approval "
+                    "can resolve them; explain risks, recommend a safe option, and allow deferral. Do not repeat decisions "
+                    "already made or bypass required approvals. Process changed or pending repositories, check chezmoi status, "
+                    "and report unverified initial deployment baselines."
                 )
                 result = subprocess.run(
                     [

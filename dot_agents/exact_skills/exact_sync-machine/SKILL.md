@@ -93,6 +93,19 @@ read-only preview uses `scan` without `--fetch` or mutations and must say remote
    uncertain outcomes pending. Report each with a useful next step; never claim an unverified deployment succeeded.
    </workflow>
 
+<decisions>
+
+- Investigate actionable blockers, then ask concise, grouped questions when the user's decision or approval can resolve
+  them. Explain the effect, recommend a safe option, and offer deferral. Do not repeat decisions already made. If the
+  user does not want questions, continue safe work and leave operations requiring approval pending.
+- For a missing upstream, vanished remote branch, or access failure, ask whether to keep the checkout local, remove it,
+  or pursue separate upstream or branch repair after the sync. Review local-only commits, user files, and relevant hooks
+  before describing those choices. Remove a checkout only on explicit request and preserve its user data. Never switch
+  branches or trim them during the sync.
+- After reviewing templates, filters, hooks, local work, and target drift, ask for the specific approvals needed to
+  inspect or deploy relevant changes rather than only reporting the blocker. Preserve the safety rules above.
+  </decisions>
+
 <project_specifics>
 
 - **chezmoi:** `chezmoi status` renders templates and can execute their commands. Review changed and local templates and
@@ -101,13 +114,17 @@ read-only preview uses `scan` without `--fetch` or mutations and must say remote
   unrelated work; ask before applying it. Prefer a targeted apply when sufficient, but account for required scripts.
   Never use `--force` to bypass prompts. Avoid dumping `chezmoi diff` or verbose rendered secrets. Compare package
   manifests and mise configuration; run only relevant existing targets. Defer updating the running OpenCode executable
-  until the end or report it for a later run.
+  until the end or report it for a later run. Before restarting the FAEX9 fan-control service, check that
+  `modinfo -k "$(uname -r)" ec_sys` succeeds. If the running kernel's modules are missing, leave a working controller
+  running and ask whether to defer the restart until after reboot.
 - **proxies-cfg:** Read its `AGENTS.md`, `README.md`, and `~/airules/sing-box.md`; never read or print `secrets.json`,
   `proxies.conf`, or generated runtime secrets. Check whether the service is already installed and running. For relevant
   changes, use the documented minimal operation, normally one `make setup`, and verify status/connectivity. Do not use
   `make restart` as a routine update: it tears down first. Avoid repeated subscription fetches. Proxy changes may cut
-  DNS or the AI connection; warn and ask if the session is remote or continuity is uncertain. Do not install or start an
-  intentionally stopped proxy merely because its checkout changed. </project_specifics>
+  DNS or the AI connection; warn and ask if the session is remote or continuity is uncertain. Check setup's indirect
+  GitHub downloads and use authenticated `gh`; investigate a safe authenticated path instead of silently skipping the
+  update. Do not install or start an intentionally stopped proxy merely because its checkout changed.
+  </project_specifics>
 
 <success_criteria> Summarize updated repositories, verified local actions, unchanged counts, unresolved work, and
 unknown initial deployment state. Distinguish no upstream, local-only commits, fetch failures, and successful

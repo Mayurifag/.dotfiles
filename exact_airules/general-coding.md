@@ -6,6 +6,8 @@
 - Before estimating migration effort or required user actions, check existing integration links, deployed configuration
   when accessible and authorized, and built-in migration features. Mark unverified claims as uncertain.
 - Assess data loss, disclosure, and compatibility; ask before ambiguous broad changes.
+- Turn explicit user constraints into a short checklist. Preserve required names, behavior, placement, file scope, and
+  exclusions; verify each before finishing.
 - Stop only if existing user changes conflict with the task.
 
 ## Changes
@@ -26,6 +28,8 @@
   version first and default to it.
 - When told something is over-designed: cut it. Do not defend it.
 - Preserve interfaces unless the task requires changes. Fix shared causes; do not hide errors.
+- Avoid comments that restate code or narrate edits. Add comments only for non-obvious rationale, invariants, or
+  required project conventions.
 
 ## Verification
 

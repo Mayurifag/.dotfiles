@@ -26,7 +26,7 @@ indent_style = space
 insert_final_newline = false
 
 # Orbstack overrides config with its own version so lets comply with it, I love its developer
-[dot_docker/config.json.tmpl]
+[private_dot_docker/private_config.json.tmpl]
 insert_final_newline = false
 indent_style = tab
 
