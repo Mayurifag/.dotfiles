@@ -4,18 +4,37 @@
 # selects words; Esc clears selection; Tab accepts autosuggestions or completes;
 # Up/Down search history by typed prefix.
 
-# --- Keybinding Fixes for Konsole/Yakuake ---
-# It is NOT or just partly needed in MacOS because iTerm2 works for those usecases out of box.
+# --- Zsh prompt key bindings ---
 
-# The following key sequences are what Konsole typically sends for these keys.
-# We bind them to the correct Zsh Line Editor (ZLE) functions. This makes
-# the command line behave as expected and often fixes issues inside other
-
-# Fix the Home and End keys
-# Binds '\e[1~' (Home) to `beginning-of-line`
+# Fix the Home and End keys in normal and application cursor modes.
 bindkey '\e[1~' beginning-of-line
-# Binds '\e[4~' (End) to `end-of-line`
+bindkey '\e[H' beginning-of-line
+bindkey '\eOH' beginning-of-line
 bindkey '\e[4~' end-of-line
+bindkey '\e[F' end-of-line
+bindkey '\eOF' end-of-line
+
+# Consume unused special keys instead of inserting their escape sequences.
+ignore-unused-key() { :; }
+zle -N ignore-unused-key
+() {
+  local key cap
+  local -a keys=( $'\e[2~' $'\e[5~' $'\e[6~' )
+
+  if zmodload -i zsh/terminfo; then
+    [[ -n ${terminfo[khome]} ]] && bindkey "${terminfo[khome]}" beginning-of-line
+    [[ -n ${terminfo[kend]} ]] && bindkey "${terminfo[kend]}" end-of-line
+    for cap in kich1 kpp knp kf{1..63}; do
+      [[ -n ${terminfo[$cap]} ]] && keys+=("${terminfo[$cap]}")
+    done
+  fi
+
+  for key in "${keys[@]}"; do
+    if [[ $(bindkey "$key") == *' undefined-key' ]]; then
+      bindkey "$key" ignore-unused-key
+    fi
+  done
+}
 
 # Fix the Delete key
 # Binds '\e[3~' (Delete) to `delete-char` (deletes character under the cursor)
