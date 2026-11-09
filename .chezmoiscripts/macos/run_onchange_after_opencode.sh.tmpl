@@ -4,8 +4,12 @@ set -eu
 
 # Service: {{ include "Library/private_LaunchAgents/local.opencode.plist.tmpl" | sha256sum }}
 # OpenCode: {{ regexFind `(?m)^"npm:@opencode/cli"[^\r\n]*` (include "dot_config/mise/config.toml.tmpl") | sha256sum }}
-mise install npm:@opencode/cli
 opencode="$HOME/.local/share/mise/shims/opencode"
+if [ ! -x "$opencode" ]; then
+  mise install npm:@opencode/cli
+fi
+{{ template "opencode_idle_guard_posix" . }}
+mise install npm:@opencode/cli
 domain="gui/$(id -u)"
 plist="$HOME/Library/LaunchAgents/local.opencode.plist"
 plutil -lint "$plist"

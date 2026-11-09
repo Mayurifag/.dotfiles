@@ -11,26 +11,32 @@ pollCommand() {
 }
 
 prg() {
-  git pull -a >/dev/null
+  git pull -a >/dev/null || return
 
-  local branches=$(git branch --list '*[^master][^main]' --format='%(refname:short)' | grep -v '^*')
-  branches=(${branches//;/ })
+  local current branch answer merged
+  local -a branches
+  current=$(git branch --show-current) || return
+  merged=$(git for-each-ref --merged=HEAD --format='%(refname:short)' refs/heads/) || return
+  for branch in "${(@f)merged}"; do
+    [[ -z $branch || $branch == "$current" || $branch == main || $branch == master ]] && continue
+    branches+=("$branch")
+  done
 
-  if [ -z $branches ]; then
+  if (( ${#branches} == 0 )); then
     echo 'No branches to delete.'
     return
   fi
 
-  echo $branches
-
-  echo 'Do you want to delete these merged branches? (y/n)'
-  read yn
-  case $yn in
-  [^Yy]*) return ;;
+  printf '%s\n' "${branches[@]}"
+  echo 'Delete these branches merged into the current branch? (y/N)'
+  read -r answer || return 1
+  case $answer in
+  [Yy] | [Yy][Ee][Ss]) ;;
+  *) return ;;
   esac
 
   git remote prune origin
-  echo $branches | xargs git branch -D
+  git branch -d -- "${branches[@]}"
 }
 
 if if_command_exists systemctl; then
@@ -72,8 +78,10 @@ knownrm() {
   re='^[0-9]+$'
   if ! [[ $1 =~ $re ]]; then
     echo "error: line number missing" >&2
+  elif [[ $OSTYPE == darwin* ]]; then
+    sed -i '' "${1}d" ~/.ssh/known_hosts
   else
-    sed -i '' "$1d" ~/.ssh/known_hosts
+    sed -i "${1}d" ~/.ssh/known_hosts
   fi
 }
 
@@ -183,8 +191,7 @@ cleaner() {
     local prompt="$1 (Y/n) "
     local response
     read "response?$prompt"
-    [[ "$response" == "n" || "$response" == "N" ]] && return 1
-    return 0
+    [[ "$response" != [nN] ]]
   }
 
   _cleaner_run() {

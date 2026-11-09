@@ -166,9 +166,12 @@ bindkey '^[[1;2B' select-down
 # --- Swap Tab and Right Arrow for autosuggestions and completions ---
 
 # Use Tab to accept autosuggestions if one is available, otherwise fall back to completion.
+ZSH_AUTOSUGGEST_IGNORE_WIDGETS+=(smart-tab-accept-or-complete)
 smart-tab-accept-or-complete() {
-  if [[ -n "${ZSH_AUTOSUGGEST_SUGGESTION-}" ]]; then
+  if [[ -n "${POSTDISPLAY-}" && $CURSOR -eq ${#BUFFER} ]]; then
     zle autosuggest-accept
+  elif zle -l fzf-completion >/dev/null 2>&1; then
+    zle fzf-completion
   else
     zle expand-or-complete
   fi

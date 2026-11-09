@@ -187,6 +187,8 @@ foreach ($dir in @($gnuMakeBin, $gitUsrBin, $gitMingwBin, $miseShims)) {
     $env:PATH = "$dir;$env:PATH"
   }
 }
+mise bootstrap services apply --yes
+if ($LASTEXITCODE -ne 0) { throw "Failed to apply mise services." }
 
 # Install language packages (npm, cargo, go, gem, uv)
 Write-Host "`n[15/16] Installing language packages..."

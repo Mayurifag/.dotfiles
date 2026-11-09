@@ -62,15 +62,7 @@ is_mise_runtime_tool() {
 }
 
 mise_tools_in_file() {
-  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*(?:\{\s*version\s*=\s*)?"([^"]+)"/' "$1"
-}
-
-mise_config_tools() {
-  mise_tools_in_file "$MISE_CONFIG"
-}
-
-mise_target_tools() {
-  mise_tools_in_file "$MISE_TARGET"
+  perl -ne 'if (/^\s*\[tools\]\s*$/) { $tools=1; next } if (/^\s*\[[A-Za-z0-9_.-]/) { $tools=0 } next unless $tools; next if /^\s*#/ || /\bauto_update\s*=/; print "$1 $2\n" if /^\s*"?([^"=]+?)"?\s*=\s*(?:\{\s*version\s*=\s*)?"([^"]+)"/' "$1"
 }
 
 ruby_protected_gems() {
@@ -98,9 +90,9 @@ pin_mise_tools() (
   tools=$(mktemp)
   trap 'rm -f "$tools"' EXIT INT TERM
 
-  mise_config_tools >"$tools"
+  mise_tools_in_file "$candidate" >"$tools"
   pin_mise_tool_file "$tools"
-
+  write_mise_config
   chezmoi apply "$MISE_TARGET"
 )
 
@@ -115,7 +107,7 @@ pin_mise_tool_file() {
       esac
     fi
     version=$(mise latest "$latest_tool")
-    MISE_TOOL="$tool" MISE_CURRENT="$current" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $current=$ENV{MISE_CURRENT}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*(?:\{\s*version\s*=\s*)?")\Q$current\E(")/$1$version$2/mg' "$MISE_CONFIG"
+    MISE_TOOL="$tool" MISE_CURRENT="$current" MISE_VERSION="$version" perl -0pi -e 'BEGIN { $tool=$ENV{MISE_TOOL}; $current=$ENV{MISE_CURRENT}; $version=$ENV{MISE_VERSION}; } s/^(\s*"?\Q$tool\E"?\s*=\s*(?:\{\s*version\s*=\s*)?")\Q$current\E(")/$1$version$2/mg' "$candidate"
   done <"$tools"
 }
 
@@ -123,12 +115,28 @@ mise_sync() (
   sync_mode=${1:-all}
   sync_tmp=$(mktemp -d)
   backup=$sync_tmp/config
+  candidate=$sync_tmp/candidate
+  expected=$sync_tmp/expected
   cp "$MISE_CONFIG" "$backup"
+  cp "$backup" "$candidate"
+  cp "$backup" "$expected"
+  write_mise_config() {
+    if ! cmp -s "$MISE_CONFIG" "$backup"; then
+      printf 'error: %s changed during the sync; leaving it unchanged\n' "$MISE_CONFIG" >&2
+      return 1
+    fi
+    cp "$candidate" "$expected"
+    cp "$candidate" "$MISE_CONFIG"
+  }
   restore_mise_config() {
     status=$?
     if [ "$status" -ne 0 ]; then
-      cp "$backup" "$MISE_CONFIG"
-      chezmoi apply "$MISE_TARGET" || true
+      if ! cmp -s "$MISE_CONFIG" "$expected"; then
+        printf 'error: %s changed during the sync; leaving it unchanged\n' "$MISE_CONFIG" >&2
+      elif ! cmp -s "$backup" "$expected"; then
+        cp "$backup" "$MISE_CONFIG"
+        chezmoi apply "$MISE_TARGET" || true
+      fi
     fi
     rm -rf "$sync_tmp"
     exit "$status"
@@ -145,15 +153,17 @@ mise_sync() (
     mise_install
     mise exec -- sh "$0" update-rubygems
     mise exec -- sh "$0" install-language-packages
+    mise bootstrap services apply --yes
     prune_mise_installs
   else
     tools=$sync_tmp/tools
     chezmoi apply "$MISE_TARGET"
-    mise_target_tools | while read -r tool version; do
+    mise_tools_in_file "$MISE_TARGET" | while read -r tool version; do
       [ -n "$version" ] || continue
       is_mise_runtime_tool "$tool" || printf '%s %s\n' "$tool" "$version"
     done >"$tools"
     pin_mise_tool_file "$tools"
+    write_mise_config
     chezmoi apply "$MISE_TARGET"
     while read -r tool version; do
       [ -n "$version" ] || continue
@@ -184,6 +194,7 @@ install_language_packages() {
 mise_packages() {
   mise_install
   mise exec -- sh "$0" install-language-packages
+  mise bootstrap services apply --yes
 }
 
 node_inventory() {
@@ -276,12 +287,7 @@ go_install() {
 
 uv_install() {
   awk 'NF && $1 !~ /^#/ { print }' "$DOTFILES_DIR/install/uv-file" | while IFS= read -r spec; do
-    pkg=$(printf '%s\n' "$spec" | uv_package_names)
-    if grep -qxF "$pkg" "$tmp/have"; then
-      printf '%s\n' "$spec" | xargs uv tool install
-    else
-      printf '%s\n' "$spec" | xargs uv tool install --force
-    fi
+    printf '%s\n' "$spec" | xargs uv tool install
   done
 }
 

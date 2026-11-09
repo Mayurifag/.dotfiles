@@ -1,0 +1,15 @@
+status=$("$opencode" service status)
+case "$status" in
+  stopped) ;;
+  http://* | https://*)
+    active=$("$opencode" api get /api/session/active)
+    if ! printf '%s\n' "$active" | python3 -c 'import json, sys; data = json.load(sys.stdin)["data"]; sys.exit(not isinstance(data, dict) or bool(data))'; then
+      printf '%s\n' 'OpenCode has active sessions or an invalid status; retry when idle.' >&2
+      exit 1
+    fi
+    ;;
+  *)
+    printf '%s\n' 'Cannot verify OpenCode service status; leaving it running.' >&2
+    exit 1
+    ;;
+esac

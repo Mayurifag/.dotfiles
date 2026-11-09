@@ -2,7 +2,6 @@
 """Quiet daily fan control for FEVM FAEX9, BIOS 1.04, EC 1.6."""
 
 import argparse
-import math
 import os
 import signal
 import socket
@@ -14,16 +13,13 @@ from pathlib import Path
 EC = "/sys/kernel/debug/ec/ec0/io"
 UNIT = "faex9-fan-quiet"
 FAN_REGISTERS = (0x33, 0x34)
-CURVE = ((65, 15), (70, 25), (75, 55), (80, 100))
-
-
-def validate_temperature(temperature):
-    if not math.isfinite(temperature) or not 5 <= temperature <= 120:
-        raise ValueError("Invalid temperature")
+CURVE = ((50, 15), (60, 25), (70, 45), (75, 65), (80, 100))
+POLL_SECONDS = 2
+COOLDOWN_SECONDS = 5
+DUTY_DROP = 4
 
 
 def duty_for(temperature):
-    validate_temperature(temperature)
     if temperature <= CURVE[0][0]:
         return CURVE[0][1]
     for (lower, low_duty), (upper, high_duty) in pairwise(CURVE):
@@ -35,10 +31,14 @@ def duty_for(temperature):
     return 100
 
 
-def control_duty(temperature, held_temperature):
-    if temperature >= held_temperature or temperature <= held_temperature - 3:
-        held_temperature = temperature
-    return duty_for(held_temperature), held_temperature
+def control_duty(temperature, duty, decrease_at, now):
+    requested = duty_for(temperature)
+    if requested >= duty:
+        return requested, now + COOLDOWN_SECONDS
+    if now < decrease_at:
+        return duty, decrease_at
+    # Limit each decrease; a delayed poll must not cause a large speed drop.
+    return max(requested, duty - DUTY_DROP), now + POLL_SECONDS
 
 
 def notify(message):
@@ -90,8 +90,8 @@ def telemetry(fd, sensors):
     if len(raw) != 1:
         raise ValueError("Incomplete controller temperature")
     temperatures = [raw[0]] + [int(path.read_text()) / 1000 for path in sensors]
-    for temperature in temperatures:
-        validate_temperature(temperature)
+    if any(not 5 <= temperature <= 120 for temperature in temperatures):
+        raise ValueError(f"Invalid temperatures: {temperatures}")
     return max(temperatures), rpm
 
 
@@ -104,24 +104,22 @@ def run_controller(fd, sensors, initial_temperature):
 
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, stop)
-    held_temperature = initial_temperature
+    duty = duty_for(initial_temperature)
+    decrease_at = time.monotonic() + COOLDOWN_SECONDS
     logged_duty = None
     logged_at = 0
     try:
         while not stopped:
             temperature, rpm = telemetry(fd, sensors)
-            duty, held_temperature = control_duty(temperature, held_temperature)
+            now = time.monotonic()
+            duty, decrease_at = control_duty(temperature, duty, decrease_at, now)
             write_fans(fd, 0x80 | duty)
             message = f"temperature={temperature:.1f}C duty={duty}% fan1={rpm[0]}RPM fan2={rpm[1]}RPM"
             notify("READY=1\nWATCHDOG=1\nSTATUS=" + message)
-            if (
-                duty != logged_duty
-                or temperature >= 85
-                or time.monotonic() - logged_at >= 30
-            ):
+            if duty != logged_duty or temperature >= 85 or now - logged_at >= 30:
                 print(message, flush=True)
-                logged_duty, logged_at = duty, time.monotonic()
-            time.sleep(2)
+                logged_duty, logged_at = duty, now
+            time.sleep(POLL_SECONDS)
     finally:
         write_fans(fd, 0)
 

@@ -20,15 +20,32 @@ def main(args):
         r"(?:https?://github\.com/|git@github\.com:|ssh://git@github\.com/)?([^/:\\]+/[^/:\\]+)",
         repo,
     )
+    gh = shutil.which("gh")
+    if github and repo == github[1] and not Path(repo).exists():
+        protocol = (
+            subprocess.run(
+                [gh, "config", "get", "git_protocol", "--host", "github.com"],
+                capture_output=True,
+                text=True,
+                check=False,
+            ).stdout.strip()
+            if gh
+            else "https"
+        )
+        repo = (
+            f"git@github.com:{repo}"
+            if protocol == "ssh"
+            else f"https://github.com/{repo}"
+        )
     threshold = os.environ.get("GCD_LARGE_REPO_KB", "256000")
     threshold = (
         int(threshold) if threshold.isascii() and threshold.isdigit() else 256000
     )
     size = ""
-    if github and shutil.which("gh"):
+    if github and gh:
         result = subprocess.run(
             [
-                "gh",
+                gh,
                 "repo",
                 "view",
                 github[1].removesuffix(".git"),

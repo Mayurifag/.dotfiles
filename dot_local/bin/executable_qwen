@@ -12,6 +12,7 @@ if (($#)); then
 fi
 
 model_id=halogen-v2-abliterated
+context=262144
 api_url=http://127.0.0.1:8731
 webui_url=https://qwen.home.mayurifag.ru
 webui_host=100.113.81.105
@@ -48,8 +49,8 @@ if [[ "$(docker inspect -f '{{.State.Running}}' halogen 2>/dev/null || true)" !=
         --group-add "$(getent group render | cut -d: -f3)" \
         --ipc=host --ulimit memlock=-1:-1 \
         -e HALOGEN_WEIGHTS_LOCK=1 \
-        -e HALOGEN_CTX=65536 \
-        -e HALOGEN_KV_POOL_POSITIONS=65536 \
+        -e "HALOGEN_CTX=$context" \
+        -e "HALOGEN_KV_POOL_POSITIONS=$context" \
         -e HALOGEN_KV_SLOTS=1 \
         -e HALOGEN_MAX_TOK=8192 \
         -e HALOGEN_TEMPERATURE=1.0 \

@@ -1,5 +1,5 @@
 [Unit]
-Description=Check for approved mise tool updates daily
+Description=Check for OpenCode updates daily
 
 [Timer]
 OnCalendar=*-*-* 03:30:00

@@ -23,7 +23,7 @@
         {{ .aiModels.local.id | toJson }}: {
           "name": "Qwen3.8 Flash Next v2 Abliterated",
           "capabilities": { "tools": true, "input": ["text"], "output": ["text"] },
-          "limit": { "context": 65536, "output": 8192 }
+          "limit": { "context": 262144, "output": 8192 }
         }
       }
     }
@@ -99,7 +99,7 @@
     },
     "shfmt": {
       "command": ["shfmt", "-w", "$FILE"],
-      "extensions": [".sh", ".bash", ".zsh"]
+      "extensions": [".sh", ".bash"]
     },
     "dprint": {
       "command": ["dprint", "fmt", "--config", {{ joinPath .chezmoi.homeDir ".dprint.json" | toJson }}, "$FILE"],

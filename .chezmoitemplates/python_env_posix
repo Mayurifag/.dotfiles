@@ -1,0 +1,6 @@
+{{- /* Shared Python bytecode settings for POSIX shells. */ -}}
+{{- if eq .chezmoi.os "windows" -}}
+export PYTHONPYCACHEPREFIX="${PYTHONPYCACHEPREFIX:-$(cygpath -w "${XDG_CACHE_HOME:-$HOME/.cache}/python/pycache")}"
+{{- else -}}
+export PYTHONPYCACHEPREFIX="${PYTHONPYCACHEPREFIX:-${XDG_CACHE_HOME:-$HOME/.cache}/python/pycache}"
+{{- end }}

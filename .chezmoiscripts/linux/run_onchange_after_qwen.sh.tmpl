@@ -13,4 +13,5 @@ sudo install -m 644 "$HOME/.local/share/systemd/system/qwen.service" /etc/system
 sudo install -m 644 "$HOME/.local/share/systemd/system/qwen.timer" /etc/systemd/system/qwen.timer
 sudo systemctl daemon-reload
 sudo systemctl enable --now qwen.timer
+printf '%s\n' 'Qwen launcher changes take effect on its next restart.'
 {{- end }}

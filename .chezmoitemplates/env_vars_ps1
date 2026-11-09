@@ -16,6 +16,9 @@ $env:VSCODE_TELEMETRY_LEVEL = "off"
 $env:POWERSHELL_TELEMETRY_OPTOUT = "1"
 $env:OMO_SEND_ANONYMOUS_TELEMETRY = "0"
 $env:OMO_DISABLE_POSTHOG = "1"
+if (-not $env:PYTHONPYCACHEPREFIX) {
+    $env:PYTHONPYCACHEPREFIX = if ($env:XDG_CACHE_HOME) { "$env:XDG_CACHE_HOME\python\pycache" } else { "$HOME\.cache\python\pycache" }
+}
 $env:PROXIES_CFG = "$HOME\Code\proxies-cfg"
 {{- if eq .chezmoi.os "darwin" }}
 $env:COPYFILE_DISABLE = "1"

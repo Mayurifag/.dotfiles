@@ -1,5 +1,5 @@
 [Unit]
-Description=Update approved mise tools and OpenCode
+Description=Update OpenCode
 Wants=network-online.target
 After=network-online.target
 

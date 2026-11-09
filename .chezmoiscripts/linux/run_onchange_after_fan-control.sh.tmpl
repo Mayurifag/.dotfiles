@@ -9,12 +9,22 @@ set -euo pipefail
 [[ -r /sys/devices/virtual/dmi/id/product_name ]] || exit 0
 [[ "$(</sys/devices/virtual/dmi/id/product_name)" == "FAEX9" ]] || exit 0
 
+# A kernel upgrade can remove the running kernel's modules before reboot.
+modinfo -k "$(uname -r)" ec_sys >/dev/null
+
+restart=false
+if systemctl is-enabled --quiet faex9-fan-quiet.service || systemctl is-active --quiet faex9-fan-quiet.service; then
+    restart=true
+    # Restore firmware control with the old executable before replacing it.
+    sudo systemctl stop faex9-fan-quiet.service
+fi
+
 sudo install -m 755 "$HOME/.local/bin/fanctl" /usr/local/bin/faex9-fanctl
 sudo install -m 644 "$HOME/.local/share/systemd/system/faex9-fan-quiet.service" /etc/systemd/system/faex9-fan-quiet.service
 sudo install -m 755 "$HOME/.local/share/systemd/system-sleep/faex9-fans" /usr/lib/systemd/system-sleep/faex9-fans
 sudo systemctl daemon-reload
 # Preserve an explicit switch back to firmware control across future applies.
-if systemctl is-enabled --quiet faex9-fan-quiet.service; then
-    sudo systemctl restart faex9-fan-quiet.service
+if "$restart"; then
+    sudo systemctl start faex9-fan-quiet.service
 fi
 {{- end }}
