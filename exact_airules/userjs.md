@@ -9,7 +9,7 @@ Load `~/airules/userjs-usercss.md`.
 
 ## README
 
-- Include concise Tampermonkey install instructions and raw userscript link.
+- When adding README installation instructions, keep them concise and link the raw userscript for Tampermonkey.
 
 ## Local Development
 

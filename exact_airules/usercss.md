@@ -9,7 +9,8 @@ Load `~/airules/userjs-usercss.md`.
 
 ## README
 
-- Document dark-theme features/fixed CSS problems; include concise Stylus install instructions and raw UserCSS link.
+- When adding README feature descriptions, keep them concise and describe dark-theme features and CSS fixes. When adding
+  installation instructions, keep them concise and link the raw UserCSS for Stylus.
 
 ## Browser Testing
 

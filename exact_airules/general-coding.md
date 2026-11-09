@@ -12,20 +12,27 @@
 
 ## Changes
 
-- Optimize end-to-end design within scope, not diff size. Trace affected flows; prefer clear responsibilities, less
-  duplication, and minimal correct, maintainable code. Reconsider boundaries that add needless complexity.
+- Identify the target project using the user’s instructions, Git remotes, and available upstream metadata. A user-owned
+  fork does not make its upstream project user-owned. If ownership is uncertain, use the external-contribution default.
+- **User-owned projects:** Optimize the design within the requested scope, not for diff size. Large changes are
+  acceptable when they serve the request.
+- **External projects:** Make the smallest correct, maintainable change that fulfills the request and project
+  requirements. Follow project conventions and keep the diff easy to review. Avoid unrelated refactoring, formatting
+  churn, dependencies, and speculative work. Include necessary tests and documentation. Ask before expanding scope or
+  making an unrequested breaking change.
 - Add abstractions, wrappers, layers, options, or files only to reduce complexity or duplication, or match project
   patterns—not for speculative needs or hypothetical cases.
-- No backward-compatibility shims, migration layers, legacy fallbacks, or old-data handling unless explicitly requested.
-  Breaking changes are acceptable by default.
+- For user-owned projects, do not add backward-compatibility shims, migration layers, legacy fallbacks, or old-data
+  handling unless requested. Breaking changes are acceptable when required by the task. For external projects, follow
+  the project’s compatibility requirements.
 - “Perfect,” “long-term,” “generic,” or “must never break anything” do not authorize extra platforms, tiers, modes, or
   config surfaces. Implement the stated need; keep future ideas to one-line notes.
 - Validate once at the trusted boundary, not across layers.
 - Before race-condition, security, or hypothetical edge-case code/tests, state the failure, likelihood, and complexity
   cost in one line. No real sighting (log, bug report, commit, incident) → no guard or test. Always handle untrusted
   external input and data-loss paths.
-- Before adding an abstraction layer, config surface, more than ~5 files, or any speculative option, present the minimal
-  version first and default to it.
+- Before adding an abstraction layer, config surface, or speculative option, present the minimal version first and
+  default to it. Apply the same rule to changes affecting more than ~3 files in external projects.
 - When told something is over-designed: cut it. Do not defend it.
 - Preserve interfaces unless the task requires changes. Fix shared causes; do not hide errors.
 - Avoid comments that restate code or narrate edits. Add comments only for non-obvious rationale, invariants, or
