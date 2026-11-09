@@ -6,6 +6,7 @@ squash_auto_push = true
 wait_for_ssh_keys = true
 
 [providers.opencode_cli]
+# OpenCode V2 uses a private server with tools disabled; models without a #variant use #low.
 model = {{ includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual) | toJson }}
 
 [providers.gemini]

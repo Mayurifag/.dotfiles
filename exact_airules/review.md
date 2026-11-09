@@ -2,8 +2,9 @@
 
 When the user says “review” (or equivalent):
 
-- Recheck coding, design, and verification rules. Remove bloat, useless tests, impossible-case error handling,
-  speculative solutions, and over-abstractions.
+- Recheck coding, design, and verification rules. Prefer fewer concepts and clearer control flow, not merely fewer
+  lines. Remove unnecessary layers, state, branches, speculative behavior, and tests that do not protect required
+  behavior.
 - Determine scope first:
   - Unstaged/staged changes or commits ahead of base (not in main/master) -> review the diff and related callers,
     callees, tests, and config.

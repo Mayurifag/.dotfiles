@@ -8,10 +8,10 @@ jobs:
   ci:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check encrypted files
         uses: Mayurifag/encrypted-files-guard-action@master
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: lts/*
       - name: Install npm tools
@@ -21,8 +21,8 @@ jobs:
       - name: Install Ruff
         uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
         with:
-          version: "0.17.3"
-          checksum: "2b0890f5a55900af741f133918c2656919bbf18c2ab7741b4ca8403a90e647a9"
+          version: "0.17.4"
+          checksum: "3ab2b34aeacdbc1ea5c529cdbda3e05792633d587228123fd09f3b5a0facb27a"
           args: "--version"
       - name: Run CI checks
         run: make ci

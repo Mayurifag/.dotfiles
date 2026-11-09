@@ -1,5 +1,6 @@
 # Installation and Deployment
 
+- Do not update CleanShot X via a package manager or its app updater unless the user explicitly asks to update it.
 - Prefer isolated temporary tools and clean up task-owned artifacts. Treat explicit requests as approval for routine
   downloads, installs, upgrades, and privileged commands; do not ask again. Ask before destructive, irreversible, or
   otherwise high-impact actions, and state the specific risk.

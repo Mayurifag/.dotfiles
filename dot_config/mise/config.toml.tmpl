@@ -13,7 +13,7 @@ eza = "cargo:eza"
 [% end -%]
 [tools]
 node = "26.13.0"
-go = "1.27.3"
+go = { version = "1.27.3", postinstall = { run = "go telemetry off", when = "always" } }
 python = "3.15.2"
 [% if eq .chezmoi.os "windows" -%]
 ruby = "4.0.9"
@@ -27,7 +27,7 @@ chezmoi = "2.74.0"
 fzf = "0.75.0"
 lazygit = "0.66.3"
 starship = "1.27.0"
-"npm:@opencode/cli" = { version = "2.2.5", allow_builds = ["@opencode/cli"] }
+"npm:@opencode/cli" = { version = "2.2.6", allow_builds = ["@opencode/cli"] }
 markdownlint-cli2 = "0.24.0"
 prettier = "3.9.10"
 dust = "1.2.7"

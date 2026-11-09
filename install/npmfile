@@ -1,6 +1,6 @@
 @prantlf/jsonlint@latest
 @ansible/ansible-language-server@latest
-@openai/codex@0.162.1
+@openai/codex@0.167.0
 agent-browser@latest
 actions-up@latest
 bash-language-server@latest

@@ -74,7 +74,7 @@ mise_target_tools() {
 }
 
 ruby_protected_gems() {
-  ruby -rrubygems -e 'names = Gem::Specification.select(&:default_gem?).map(&:name); begin; require "bundled_gems"; names += Gem::BUNDLED_GEMS.const_defined?(:SINCE) ? Gem::BUNDLED_GEMS::SINCE.keys : []; names += Gem::BUNDLED_GEMS.const_defined?(:EXACT) ? Gem::BUNDLED_GEMS::EXACT.values : []; names += Gem::BUNDLED_GEMS.const_defined?(:PREFIXED) ? Gem::BUNDLED_GEMS::PREFIXED.keys : []; rescue LoadError; end; names += %w[debug rake minitest power_assert rbs repl_type_completor rexml rss rubygems-update test-unit typeprof]; puts names.uniq' | tr -d '\r'
+  ruby -rrubygems -e 'names = Gem::Specification.select(&:default_gem?).map(&:name); begin; require "bundled_gems"; names += Gem::BUNDLED_GEMS.const_defined?(:SINCE) ? Gem::BUNDLED_GEMS::SINCE.keys : []; names += Gem::BUNDLED_GEMS.const_defined?(:EXACT) ? Gem::BUNDLED_GEMS::EXACT.values : []; names += Gem::BUNDLED_GEMS.const_defined?(:PREFIXED) ? Gem::BUNDLED_GEMS::PREFIXED.keys : []; rescue LoadError; end; names += %w[debug matrix minitest net-ftp net-imap net-pop net-smtp power_assert prime rake rbs readline repl_type_completor rexml rss rubygems-update test-unit typeprof]; puts names.uniq' | tr -d '\r'
 }
 
 ruby_wanted_gems() {

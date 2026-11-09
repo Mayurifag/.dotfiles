@@ -5,11 +5,16 @@ set -eu
 
 echo "[chezmoi] running posix/antidote"
 
-PLUGINS_FILE="$HOME/zsh/plugins.txt"
-BUNDLE_FILE="$HOME/zsh/.zsh_plugins.sh"
+if command -v zsh >/dev/null 2>&1 && [ -f "$HOME/zsh/plugins.txt" ] && [ -r "$HOME/zsh/00-managers.zsh" ]; then
+  zsh -f <<'ZSH'
+source "$HOME/zsh/00-managers.zsh"
+(( $+functions[antidote] )) || exit 0
 
-if command -v antidote >/dev/null 2>&1 && [ -f "$PLUGINS_FILE" ]; then
-  mkdir -p "$(dirname "$BUNDLE_FILE")"
-  antidote bundle <"$PLUGINS_FILE" >"$BUNDLE_FILE"
+bundle="$HOME/zsh/.zsh_plugins.sh"
+tmp=$(mktemp "$bundle.XXXXXX") || exit
+trap 'rm -f "$tmp"' EXIT
+trap 'exit 1' HUP INT TERM
+antidote bundle <"$HOME/zsh/plugins.txt" >"$tmp" && mv "$tmp" "$bundle"
+ZSH
 fi
 {{- end }}

@@ -12,6 +12,9 @@
 
 ## Changes
 
+- Aim for lapidary code: the smallest clear implementation of the required behavior. Prefer direct control flow, precise
+  names, and idiomatic constructs. Reduce concepts and special cases before reducing lines. Never trade correctness or
+  readability for brevity.
 - Identify the target project using the user’s instructions, Git remotes, and available upstream metadata. A user-owned
   fork does not make its upstream project user-owned. If ownership is uncertain, use the external-contribution default.
 - **User-owned projects:** Optimize the design within the requested scope, not for diff size. Large changes are
@@ -20,8 +23,9 @@
   requirements. Follow project conventions and keep the diff easy to review. Avoid unrelated refactoring, formatting
   churn, dependencies, and speculative work. Include necessary tests and documentation. Ask before expanding scope or
   making an unrequested breaking change.
-- Add abstractions, wrappers, layers, options, or files only to reduce complexity or duplication, or match project
-  patterns—not for speculative needs or hypothetical cases.
+- Add abstractions, wrappers, layers, options, or files only when they make the required implementation easier to
+  understand and change. Removing repetition alone is not sufficient; keep small duplication when sharing would require
+  flags, callbacks, or unrelated coupling. Follow mandatory project conventions.
 - For user-owned projects, do not add backward-compatibility shims, migration layers, legacy fallbacks, or old-data
   handling unless requested. Breaking changes are acceptable when required by the task. For external projects, follow
   the project’s compatibility requirements.
@@ -42,6 +46,8 @@
 
 ## Verification
 
+- Before finishing, simplify the changed code: remove unnecessary state, branches, indirection, and repetition. Keep
+  intermediate names and helpers when they clarify meaning. Stay within scope and verify behavior after simplification.
 - Before declaring verification unavailable, check WSL, containers, or remote hosts. Prefer existing suitable
   environments; temporary tools follow `installation.md`.
 - Reproduce bugs before fixing when practical. Prefer existing tests for focused regression coverage.

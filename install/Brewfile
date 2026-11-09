@@ -2,6 +2,7 @@ tap "browsers-software/tap", trusted: true
 tap "dracula/install", trusted: true
 tap "krishkrosh/apps", trusted: true
 tap "mietzen/tap", trusted: true
+tap "netbirdio/tap", trusted: true
 brew "antidote"
 brew "aom"
 brew "bandwhich"
@@ -13,7 +14,6 @@ brew "cryptography"
 brew "curl"
 brew "dive"
 brew "dysk"
-brew "editorconfig-checker"
 brew "fd"
 brew "ffmpeg"
 brew "fortune"
@@ -45,6 +45,7 @@ brew "mise"
 brew "mosh"
 brew "nano"
 brew "neovim"
+brew "netbirdio/tap/netbird"
 brew "openblas"
 brew "openjpeg"
 brew "openssl@3"
