@@ -1,0 +1,43 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/bin/sh
+set -eu
+
+# Mount: {{ includeTemplate "dot_local/share/boot-config/nas.mount.tmpl" . | sha256sum }}
+# Automount: {{ includeTemplate "dot_local/share/boot-config/nas.automount.tmpl" . | sha256sum }}
+source="$HOME/.local/share/boot-config"
+mountpoint="$HOME/NAS"
+mount_unit=$(systemd-escape --path --suffix=mount "$mountpoint")
+automount_unit=$(systemd-escape --path --suffix=automount "$mountpoint")
+
+for unit in "$mount_unit" "$automount_unit"; do
+  target="/etc/systemd/system/$unit"
+  if [ -L "$target" ] || { [ -e "$target" ] && ! grep -Fxq '# managed by chezmoi: NAS' "$target"; }; then
+    echo "$target is not managed by chezmoi; refusing to replace it." >&2
+    exit 1
+  fi
+done
+if ! systemctl is-active --quiet "$automount_unit"; then
+  if [ -L "$mountpoint" ] || findmnt -rn --mountpoint "$mountpoint" >/dev/null; then
+    echo "$mountpoint is a symlink or existing mount; refusing to cover it." >&2
+    exit 1
+  fi
+  if [ -e "$mountpoint" ]; then
+    if [ ! -d "$mountpoint" ]; then
+      echo "$mountpoint is not an empty directory; refusing to cover it." >&2
+      exit 1
+    fi
+    contents=$(find "$mountpoint" -mindepth 1 -maxdepth 1 -print -quit)
+    if [ -n "$contents" ]; then
+      echo "$mountpoint is not an empty directory; refusing to cover it." >&2
+      exit 1
+    fi
+  fi
+fi
+
+if ! cmp -s "$source/nas.mount" "/etc/systemd/system/$mount_unit" && systemctl is-active --quiet "$mount_unit"; then
+  echo 'NAS is mounted; changed mount settings take effect after a safe unmount or reboot.' >&2
+fi
+sudo install -m 644 "$source/nas.mount" "/etc/systemd/system/$mount_unit"
+sudo install -m 644 "$source/nas.automount" "/etc/systemd/system/$automount_unit"
+sudo systemctl enable --now "$automount_unit"
+{{- end }}

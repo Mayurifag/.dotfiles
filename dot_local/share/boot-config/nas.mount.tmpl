@@ -1,0 +1,9 @@
+# managed by chezmoi: NAS
+[Unit]
+Description=Home NAS share
+
+[Mount]
+What=//nas.test/Public
+Where={{ .chezmoi.homeDir }}/NAS
+Type=cifs
+Options=guest,username=guest,uid={{ .chezmoi.username }},gid={{ output "id" "-gn" | trim }},file_mode=0664,dir_mode=0775,_netdev,nosuid,nodev

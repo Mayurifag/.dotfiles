@@ -4,3 +4,5 @@
 .config/opencode/.caveman-opencode-ownership.json
 .config/opencode/.caveman-opencode-backups
 .config/opencode/opencode.json.bak
+.local/bin/nas
+.local/bin/nas.cmd

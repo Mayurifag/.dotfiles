@@ -1,0 +1,9 @@
+# managed by chezmoi: NAS
+[Unit]
+Description=Home NAS automount
+
+[Automount]
+Where={{ .chezmoi.homeDir }}/NAS
+
+[Install]
+WantedBy=multi-user.target

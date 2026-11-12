@@ -1,0 +1,65 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+# NAS map: {{ includeTemplate "dot_local/share/automount/auto_nas.tmpl" . | sha256sum }}
+source="$HOME/.local/share/automount/auto_nas"
+target=/etc/auto_nas
+master=/etc/auto_master
+entry='/- auto_nas # managed by chezmoi: NAS'
+mountpoint="$HOME/NAS"
+
+trigger_active() {
+  mount -t autofs | grep -Fq "map auto_nas on $mountpoint ("
+}
+
+if [ -L "$target" ] || { [ -e "$target" ] && ! grep -Fxq '# managed by chezmoi: NAS' "$target"; }; then
+  echo "$target is not managed by chezmoi; refusing to replace it." >&2
+  exit 1
+fi
+if grep -Eq '^[[:space:]]*/-[[:space:]]+auto_nas([[:space:]]|$)' "$master" && ! grep -Fxq "$entry" "$master"; then
+  echo "$master already has an unmanaged auto_nas entry." >&2
+  exit 1
+fi
+created=
+cleanup() {
+  if [ -n "$created" ]; then
+    rmdir "$mountpoint" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+if ! trigger_active; then
+  if [ -L "$mountpoint" ] || mount | grep -Fq " on $mountpoint ("; then
+    echo "$mountpoint is a symlink or existing mount; refusing to cover it." >&2
+    exit 1
+  fi
+  if [ -e "$mountpoint" ]; then
+    if [ ! -d "$mountpoint" ]; then
+      echo "$mountpoint is not a directory; refusing to cover it." >&2
+      exit 1
+    fi
+    contents=$(find "$mountpoint" -mindepth 1 -maxdepth 1 -print -quit)
+    if [ -n "$contents" ]; then
+      echo "$mountpoint is not empty; refusing to cover it." >&2
+      exit 1
+    fi
+  else
+    mkdir "$mountpoint"
+    created=1
+  fi
+fi
+
+if ! cmp -s "$source" "$target" && mount -t smbfs | grep -Fq " on $mountpoint ("; then
+  echo 'NAS is mounted; changed mount settings take effect after a safe unmount or reboot.' >&2
+fi
+sudo install -m 644 "$source" "$target"
+if ! grep -Fxq "$entry" "$master"; then
+  printf '%s\n' "$entry" | sudo tee -a "$master" >/dev/null
+fi
+sudo automount -c
+if ! trigger_active; then
+  echo "The NAS automount did not become active." >&2
+  exit 1
+fi
+created=
+{{- end }}

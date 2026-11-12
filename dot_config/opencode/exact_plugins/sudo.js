@@ -12,16 +12,28 @@ const maxOutput = 1024 * 1024;
 // Only static code is written to disk. The password goes to sudo's private
 // askpass pipe, never the tool output, command stdin, argv, or environment.
 const askpassSource = String.raw`#!/bin/sh
-kpxc-cli show https://sudo.invalid/ -j 2>/dev/null |
-  jq -es 'length == 1' >/dev/null || exit 1
-kpxc-cli show https://sudo.invalid/ -j -p 2>/dev/null |
+for dependency in kpxc-cli jq; do
+  if ! command -v "$dependency" >/dev/null 2>&1; then
+    printf 'OpenCode sudo: %s is not available on PATH.\n' "$dependency" >&2
+    exit 1
+  fi
+done
+if ! kpxc-cli show https://sudo.invalid/ -j 2>/dev/null |
+  jq -es 'length == 1' >/dev/null 2>&1; then
+  printf '%s\n' 'OpenCode sudo: KeePassXC did not return exactly one shared sudo entry. Check that KeePassXC is running, unlocked, and associated, and that https://sudo.invalid/ matches one entry.' >&2
+  exit 1
+fi
+if ! kpxc-cli show https://sudo.invalid/ -j -p 2>/dev/null |
   jq -ers '
     if length != 1 then error("Expected one shared sudo entry")
     else .[0].password |
       if type != "string" then error("Missing sudo password")
       elif length == 0 or test("[\r\n\u0000]") then error("Invalid sudo password")
       else . end
-    end'
+    end' 2>/dev/null; then
+  printf '%s\n' 'OpenCode sudo: Unable to retrieve a valid password from the shared KeePassXC entry.' >&2
+  exit 1
+fi
 `;
 
 function run(command, cwd, askpass, supervisor, signal) {
@@ -143,7 +155,7 @@ export default {
     await ctx.shell.hook("create.before", (event) => {
       if (/^\s*(?:\/usr\/bin\/|\/bin\/)?sudo(?:\s|$)/.test(event.command))
         throw new Error(
-          "Use the sudo tool instead of running sudo through shell.",
+          "Use the sudo tool with the command only, without sudo; it retrieves the password from KeePassXC.",
         );
     });
 
@@ -153,8 +165,9 @@ export default {
         options: { codemode: false },
         description:
           "Run a shell command as root on Linux or macOS, without a leading sudo. " +
-          "Uses shell permissions and the unique KeePassXC shared sudo entry at https://sudo.invalid/. " +
-          "Never opens a sudo password dialog; fails if the entry is unavailable. " +
+          "Uses shell permissions and automatically retrieves the unique KeePassXC shared sudo entry at https://sudo.invalid/; the user does not need to provide the sudo password. " +
+          "If KeePassXC is locked, unlock or approve access directly in KeePassXC. " +
+          "Never opens a sudo password dialog; fails with diagnostic information if the entry is unavailable. " +
           "Does not use or refresh cached credentials. Requires jq and kpxc-cli on PATH. " +
           "Has a 120-second deadline, including authentication, plus termination grace; stdin is closed. " +
           "Requires /usr/bin/timeout on Linux or Homebrew gtimeout on macOS. Never provide a password.",

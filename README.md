@@ -119,15 +119,15 @@ gpg> quit
 
 ## Home NAS
 
-Run `nas` to open the public share on the home LAN. It is unavailable away from home. The share is guest-writable:
-everyone on the home LAN can change or delete files. Windows uses saved NAS credentials for signed SMB connections; the
-launcher does not change Windows security settings. LAN SMB is not encrypted.
+On the home LAN, macOS and Linux mount the public share when `~/NAS` is accessed. The share is guest-writable: everyone
+on the home LAN can change or delete files. LAN SMB is not encrypted.
 
-On Windows, `czapply` maps the native `N:` drive to `\\nas.test\Public` when the letter is free. Windows retains that
-LAN mapping, and no background route switching is used. An existing unrelated `N:` drive is never replaced. Run
-`nas --mount` to retry manually. If UAC separates drive mappings, use the same logon and elevation as Explorer. If `N:`
-still uses the old NetBird NAS mapping, close files on the drive, run `net use N: /delete`, then run `nas --mount` in
-that same logon and elevation.
+Windows retains its persistent `N:` mapping to `\\nas.test\Public` and uses saved NAS credentials for signed SMB. On a
+new installation, map it once from the same desktop session and elevation as Explorer:
+
+```powershell
+net use N: '\\nas.test\Public' /persistent:yes
+```
 
 ## Sidenotes for MacOS
 

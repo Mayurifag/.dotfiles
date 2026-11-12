@@ -20,6 +20,11 @@
 - Use `.tmpl` only for host-specific values/secrets; prefer app env vars plus env templates when `${VAR}` expansion works.
 - Use `exact_` only for fully source-owned directories, not app roots with credentials/state/dependencies; make managed subdirectories exact.
 
+## Removed Files
+
+- Add every deleted chezmoi-managed file's target path to `.chezmoiremove`. Ensure `.chezmoiignore` does not suppress
+  removal on affected machines.
+
 ## Verify Edits
 
 - Before finishing any chezmoi edit, check `chezmoi status` and `timeout 2 chezmoi diff`, then try `czapply` (or `timeout 2 chezmoi apply -v` when the alias is unavailable). If a full apply is unsafe, apply only task targets. Verify they are applied; report failures, timeouts, and remaining task work. Ask the user to run `czapply` if needed.
