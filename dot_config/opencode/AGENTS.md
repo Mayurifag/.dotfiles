@@ -10,7 +10,6 @@ User does not use LSP; keep OpenCode LSP disabled/hidden unless asked otherwise.
 Paths are relative to `~/airules/`; keep this index complete.
 
 - `chezmoi.md` -> chezmoi repo, dotfiles, shell/app config, airules
-- `browser-testing.md` -> web access, browser tool selection, browser tests/debugging
 - `context7.md` -> unresolved external API or version-specific questions requiring additional documentation
 - `css.md` -> CSS, styling, themes
 - `design.md` -> visual design, UI/UX, dashboards, images, graphics
@@ -26,15 +25,18 @@ Paths are relative to `~/airules/`; keep this index complete.
 - `markdown.md` -> Markdown files
 - `opencode.md` -> OpenCode config, agents, skills, plugins, MCP, permissions
 - `passwords.md` -> password retrieval, credential use, shared sudo entry
+- `performance.md` -> performance investigations, profiling, optimization of apps and services
 - `pr-description.md` -> PR descriptions
 - `python.md` -> Python projects
 - `ruby.md` -> Ruby projects
 - `rust.md` -> Rust projects
 - `screenshots.md` -> GitHub app screenshots
 - `sing-box.md` -> system proxy routing, sing-box, Docker/UFW connectivity
+- `ui-testing.md` -> UI testing/debugging, web access, browser tool selection and downloads
 - `userjs-usercss.md` -> shared UserJS/UserCSS versioning, README, browser testing
 - `usercss.md` -> UserCSS projects
 - `userjs.md` -> UserJS projects
+- `writing.md` -> all AI-authored prose, including replies, docs, comments, and UI copy
 
 ## Research
 

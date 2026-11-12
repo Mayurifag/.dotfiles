@@ -8,7 +8,7 @@
 provider = "openai"
 id = "gpt-6-luna"
 speed = "fast"
-effort = "low"
+effort = "none"
 
 [aiModels.usual]
 provider = "openai"

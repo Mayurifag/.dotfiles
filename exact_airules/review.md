@@ -10,6 +10,10 @@ When the user says “review” (or equivalent):
     callees, tests, and config.
   - Clean tree, no commits ahead of base -> review the relevant codebase: entry points, high-risk flows,
     packages/modules.
+- Find compensating code within the review scope: workarounds, duplicated state, adapters, and special cases that patch
+  underlying design problems. Trace each to its cause, then propose a first-principles redesign that meets actual
+  requirements without needing that code. State what disappears, tradeoffs, and migration effort; distinguish necessary
+  boundary handling from avoidable compensation. Propose redesigns rather than implementing them unless requested.
 - Fix bloat and clear rule violations by default; report other defects without editing unless fixes are requested.
 - Prioritize correctness, security, data loss, races, failure handling, and risky untested behavior. Require concrete
   failure scenarios or maintenance costs. Separate defects, uncertainty, and optional improvements.

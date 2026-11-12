@@ -16,4 +16,4 @@
 
 ## Browser Testing
 
-- Runtime verification -> `~/airules/browser-testing.md`.
+- Runtime verification -> `~/airules/ui-testing.md`.

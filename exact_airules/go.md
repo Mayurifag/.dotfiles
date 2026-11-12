@@ -7,3 +7,5 @@
   suppress findings just to pass CI.
 - For concurrency changes, run relevant tests with `-race` when supported and practical.
 - Use Go tooling for dependency and `go.sum` updates; review `go.mod` and `go.sum` for unrelated churn.
+- Call `context` cancellation functions when their owner is done; use `defer` for cleanup when the enclosing function’s
+  scope matches the resource lifetime.

@@ -1,4 +1,14 @@
-# Browser Testing
+# UI Testing and Browser Access
+
+## Non-disruptive Testing
+
+- For browser and desktop UI testing or debugging, prefer headless, non-activating, or isolated sessions when they
+  provide valid test coverage.
+- Avoid covering the active window, stealing system focus, moving the real pointer, sending system-wide keyboard or
+  mouse input, switching desktops, changing the shared clipboard, or producing visible or audible notifications. Do not
+  assume a minimized or off-screen window is isolated.
+- If a necessary test is likely to interrupt the user, explain the expected impact and ask before proceeding. If
+  approval is unavailable or denied, report the verification gap.
 
 ## Tool Choice
 
@@ -16,7 +26,8 @@
 
 ### Chrome
 
-- From the target repo, check `browser-test --status`; use `browser-test --launch <url>` if DevTools is unavailable.
+- From the target repo, check `browser-test --status`; use `browser-test --launch <url>` if DevTools is unavailable,
+  subject to the non-disruptive testing rule above.
 - For these tests/debugging sessions, use system Google Chrome only through `browser-test`, never manual
   profiles/debugging ports. Keep one headed window (tabs allowed), not `about:blank`.
 - Launch replaces disposable `.opencode/browser-mcp-profile/` from

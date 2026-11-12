@@ -5,6 +5,11 @@ $attachmentManager = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\A
 New-Item -Path $attachmentManager -Force | Out-Null
 New-ItemProperty -Path $attachmentManager -Name 'SaveZoneInformation' -PropertyType DWord -Value 1 -Force | Out-Null
 
+$imeConfig = Join-Path '{{ .chezmoi.sourceDir | replace "'" "''" }}' 'windows\ime-mode-persistence.reg'
+if (-not (Test-Path -LiteralPath $imeConfig -PathType Leaf)) { throw "IME configuration not found: $imeConfig" }
+& reg.exe import $imeConfig | Out-Null
+if ($LASTEXITCODE -ne 0) { throw "Failed to import IME configuration: $imeConfig" }
+
 $qBittorrentConfig = Join-Path $env:APPDATA 'qBittorrent\qBittorrent.ini'
 $qBittorrentDirectory = Split-Path -Parent $qBittorrentConfig
 New-Item -ItemType Directory -Path $qBittorrentDirectory -Force | Out-Null
