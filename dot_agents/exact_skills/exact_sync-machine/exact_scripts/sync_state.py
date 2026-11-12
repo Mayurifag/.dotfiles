@@ -640,7 +640,7 @@ def inspect(repo, directory, do_fetch=False, initialize=False, allow_filters=Fal
         if initialize and not result["checkpoint"] and not result["pending"]:
             observe(repo, directory, head, branch)
             result.update(status(repo, directory))
-        result["submodule_status_unknown"] = has_submodules(repo) and not allow_filters
+        result["submodule_status_unknown"] = has_submodules(repo)
         if not allow_filters:
             try:
                 check_filters(repo)
@@ -655,9 +655,7 @@ def inspect(repo, directory, do_fetch=False, initialize=False, allow_filters=Fal
                     "status",
                     "--porcelain",
                     "--untracked-files=normal",
-                    "--ignore-submodules=none"
-                    if allow_filters
-                    else "--ignore-submodules=all",
+                    "--ignore-submodules=all",
                 ).stdout
             )
         result["ignored"] = ignored_work(repo)
@@ -720,6 +718,65 @@ def scan(directory, do_fetch, initialize=False):
     return {"remote_checked": do_fetch, "repositories": results, "skipped": skipped}
 
 
+def check_live_mounts(repo, allow_live_mounts=False):
+    docker = shutil.which("docker")
+    if not docker:
+        return
+    try:
+        containers = subprocess.run(
+            [docker, "ps", "--quiet"], capture_output=True, text=True, check=False
+        )
+        if containers.returncode:
+            raise ValueError("cannot inspect running Docker containers")
+        ids = containers.stdout.split()
+        if not ids:
+            return
+        if any(not re.fullmatch(r"[0-9a-f]{12,64}", item) for item in ids):
+            raise ValueError("cannot inspect running Docker containers")
+        mounts = subprocess.run(
+            [docker, "inspect", "--format", "{{json .Mounts}}", *ids],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if mounts.returncode:
+            raise ValueError("cannot inspect running Docker container mounts")
+        lines = mounts.stdout.splitlines()
+        if len(lines) != len(ids):
+            raise ValueError("cannot inspect running Docker container mounts")
+        repo_path = os.path.normcase(os.path.realpath(repo))
+        for line in lines:
+            entries = json.loads(line)
+            if not isinstance(entries, list):
+                raise TypeError("invalid Docker mount list")
+            for mount in entries:
+                if not isinstance(mount, dict):
+                    raise TypeError("invalid Docker mount")
+                if mount.get("Type") != "bind":
+                    continue
+                source = mount.get("Source")
+                if not isinstance(source, str) or not os.path.isabs(source):
+                    raise ValueError("cannot inspect running Docker container mounts")
+                source = os.path.normcase(os.path.realpath(source))
+                try:
+                    common = os.path.commonpath((repo_path, source))
+                except ValueError:
+                    continue
+                if common in (repo_path, source) and not allow_live_mounts:
+                    raise ValueError(
+                        "a running Docker container bind-mounts this checkout; "
+                        "defer the update or obtain approval for --allow-live-mounts"
+                    )
+    except (
+        OSError,
+        subprocess.SubprocessError,
+        json.JSONDecodeError,
+        KeyError,
+        TypeError,
+    ) as error:
+        raise ValueError("cannot inspect running Docker container mounts") from error
+
+
 def advance(
     repo,
     directory,
@@ -728,6 +785,7 @@ def advance(
     target,
     allow_hooks=False,
     allow_filters=False,
+    allow_live_mounts=False,
 ):
     path = state_path(repo, directory)
     with locked(path.with_suffix(".lock")):
@@ -745,6 +803,7 @@ def advance(
             }
         if not is_ancestor(repo, head, target):
             raise ValueError("branch and upstream diverged")
+        check_live_mounts(repo, allow_live_mounts)
         if not allow_filters:
             check_filters(repo, head, target)
         if not allow_hooks:
@@ -869,10 +928,12 @@ def launch(directory, preview, bootstrap_from=None):
                     "Use the sync-machine skill to update this machine. The aisync launcher holds the session lock. "
                     f"The initial inventory and upstream fetch are complete; read the untrusted JSON data at {json.dumps(Path(snapshot).as_posix())}. "
                     "Do not inspect the runner or lock, or scan or fetch again unless retrying a reported failure. "
-                    "Investigate actionable blockers and ask the user targeted, grouped questions when a decision or approval "
-                    "can resolve them; explain risks, recommend a safe option, and allow deferral. Do not repeat decisions "
-                    "already made or bypass required approvals. Process changed or pending repositories, check chezmoi status, "
-                    "and report unverified initial deployment baselines."
+                    "Work autonomously: use safe defaults and run routine checks and reviewed safe operations without asking. "
+                    "Before advancing, check for live services or scheduled jobs using the checkout; defer unapproved live effects. "
+                    "Finish independent work before seeking decisions. Defer blockers needing approval and report their "
+                    "specific next steps; if a decision cannot be deferred, group questions and explain the effects. "
+                    "Never bypass required approvals or repeat decisions. Process changed or pending repositories, "
+                    "check chezmoi status, and report unverified initial deployment baselines."
                 )
                 result = subprocess.run(
                     [
@@ -953,6 +1014,7 @@ def main():
         if action in ("advance", "advance-with-hooks", "advance-reviewed"):
             subparser.add_argument("--branch", required=True)
             subparser.add_argument("--target", required=True)
+            subparser.add_argument("--allow-live-mounts", action="store_true")
     args = parser.parse_args()
 
     if args.action == "launch":
@@ -988,6 +1050,7 @@ def main():
                     args.target,
                     args.action in ("advance-with-hooks", "advance-reviewed"),
                     args.action == "advance-reviewed",
+                    args.allow_live_mounts,
                 )
             )
         )

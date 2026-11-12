@@ -33,16 +33,24 @@ read-only preview uses `scan` without `--fetch` or mutations and must say remote
   `--ff-only --no-autostash
   --no-overwrite-ignore`. A failed fetch is not evidence that a repository is up to date.
   Continue past failures.
+- Before advancing a checkout, check whether running services or scheduled jobs bind-mount, watch, or execute its files.
+  If the update can reload live code or change a scheduled operation, defer it unless the user specifically approved
+  that live effect. A clean worktree does not make a live update safe. When Docker is available, the helper refuses an
+  advance if a running container bind-mounts the checkout or Docker inspection fails. After reviewing the live effects
+  and obtaining explicit approval, add `--allow-live-mounts` to the appropriate `advance` command. This does not bypass
+  a failed Docker inspection; review non-Docker services and scheduled jobs separately.
 - If a hook blocks a fetch or advance, inspect its current and incoming behavior. Use the per-repository
-  `fetch-with-hooks` or `advance-with-hooks` only after explicit approval; never disable the hook or approve an
-  unexplained side effect. Approve individual operations, not a persistent broad shell rule. Do not change branches
+  `fetch-with-hooks` or `advance-with-hooks` without asking when its reviewed effects are safe and within the sync's
+  scope. Ask before consequential, unrelated, or unexplained effects; never disable the hook. Do not change branches
   concurrently with a sync.
-- Git clean, smudge, and process filters can run code even during `git status` or a fast-forward. The helper skips
-  unapproved filtered status checks and refuses filtered advances. Inspect configured filters, attributes, and their
-  current and incoming scripts without executing them. Only after explicit approval use `inspect-reviewed` to run a
-  status check or `advance-reviewed` to advance; the latter also permits hooks, so review those too. Submodule status is
-  omitted until reviewed, since submodules can have their own filters. Avoid ad hoc `git status` until filters in the
-  repository and its initialized submodules are reviewed.
+- Git clean, smudge, and process filters can run code even during `git status` or a fast-forward. By default, the helper
+  skips filtered status checks and refuses filtered advances. Inspect configured filters, attributes, and their current
+  and incoming scripts without executing them. After review, use `inspect-reviewed` to run a status check or
+  `advance-reviewed` to advance without asking if the effects are safe and within the sync's scope; the latter also
+  permits hooks, so review those too. Ask before consequential, unrelated, or unexplained effects. Submodule status is
+  omitted until reviewed, since submodules can have their own filters. `inspect-reviewed` checks only the parent and
+  reports `submodule_status_unknown`. Review filters and attributes in every initialized submodule before checking it
+  separately; unknown submodule status is not a clean result.
 - Investigate conflicts and offer an AI-assisted resolution. Ask before changing existing edits or staging, or before
   non-fast-forward merge, rebase, stash, or other invasive work. Preserve the original work; do not claim an unperformed
   resolution. Check repository instructions and relevant `~/airules/` before changing or deploying that repository.
@@ -81,8 +89,8 @@ read-only preview uses `scan` without `--fetch` or mutations and must say remote
    required permission. On successful command exit, use `action-done` with the same arguments; verify the resulting
    system state separately. Action names must be short, nonsecret identifiers such as `proxy-setup` or `mise-packages`.
 5. If an action is still `started` after interruption, its outcome is unknown. Inspect actual state before deciding what
-   remains; never blindly repeat a potentially disruptive action. Ask the user if the outcome cannot be verified. An
-   action marked `done` still needs verification. If HEAD changed, use
+   remains; never blindly repeat a potentially disruptive action. If the outcome cannot be verified, leave it pending
+   and report the decision needed. An action marked `done` still needs verification. If HEAD changed, use
    `action-resolve --repo REPO --head CURRENT_HEAD
    --action-name NAME --action-head RECORDED_HEAD --result done|not-applied`
    only after evidence or explicit approval. Re-evaluate the full pending range; rerun an action if needed. If the
@@ -95,36 +103,36 @@ read-only preview uses `scan` without `--fetch` or mutations and must say remote
 
 <decisions>
 
-- Investigate actionable blockers, then ask concise, grouped questions when the user's decision or approval can resolve
-  them. Explain the effect, recommend a safe option, and offer deferral. Do not repeat decisions already made. If the
-  user does not want questions, continue safe work and leave operations requiring approval pending.
-- For a missing upstream, vanished remote branch, or access failure, ask whether to keep the checkout local, remove it,
-  or pursue separate upstream or branch repair after the sync. Review local-only commits, user files, and relevant hooks
-  before describing those choices. Remove a checkout only on explicit request and preserve its user data. Never switch
-  branches or trim them during the sync.
-- After reviewing templates, filters, hooks, local work, and target drift, ask for the specific approvals needed to
-  inspect or deploy relevant changes rather than only reporting the blocker. Preserve the safety rules above.
+- Run routine checks and reviewed safe operations without asking. Use safe, reversible defaults and finish independent
+  work before seeking decisions. When a blocker needs approval, leave it pending and report the specific next step
+  rather than interrupting work that can proceed safely. If a decision cannot be deferred, group questions, explain the
+  effect, recommend a safe option, and allow deferral. Never bypass required approvals or repeat decisions already made.
+- For a missing upstream, vanished remote branch, or access failure, keep the checkout local and report the issue; do
+  not ask to remove it or repair its branch during the sync. Remove a checkout only on explicit request and preserve its
+  user data. Never switch branches or trim them during the sync.
+- Investigate blockers without stopping independent work. Report unresolved work and the specific approvals needed.
   </decisions>
 
 <project_specifics>
 
 - **chezmoi:** `chezmoi status` renders templates and can execute their commands. Review changed and local templates and
-  their effects, then obtain explicit approval before running it; if that cannot be reviewed, leave status unverified.
-  Inspect target drift, host-specific scripts, removals, and locally modified targets. A dirty source can contain
-  unrelated work; ask before applying it. Prefer a targeted apply when sufficient, but account for required scripts.
-  Never use `--force` to bypass prompts. Avoid dumping `chezmoi diff` or verbose rendered secrets. Compare package
-  manifests and mise configuration; run only relevant existing targets. Defer updating the running OpenCode executable
-  until the end or report it for a later run. Before restarting the FAEX9 fan-control service, check that
+  their effects, then run it without asking when those effects are safe and within the sync's scope. If effects are
+  unsafe or cannot be reviewed, leave status unverified and ask only when the user can resolve the risk. Inspect target
+  drift, host-specific scripts, removals, and locally modified targets. A dirty source can contain unrelated work; ask
+  before applying it. Prefer a targeted apply when sufficient, but account for required scripts. Never use `--force` to
+  bypass prompts. Avoid dumping `chezmoi diff` or verbose rendered secrets. Compare package manifests and mise
+  configuration; run only relevant existing targets. Defer updating the running OpenCode executable until the end or
+  report it for a later run. Before restarting the FAEX9 fan-control service, check that
   `modinfo -k "$(uname -r)" ec_sys` succeeds. If the running kernel's modules are missing, leave a working controller
-  running and ask whether to defer the restart until after reboot.
+  running, defer its restart until after reboot, and report it.
 - **proxies-cfg:** Read its `AGENTS.md`, `README.md`, and `~/airules/sing-box.md`; never read or print `secrets.json`,
   `proxies.conf`, or generated runtime secrets. Check whether the service is already installed and running. For relevant
   changes, use the documented minimal operation, normally one `make setup`, and verify status/connectivity. Do not use
   `make restart` as a routine update: it tears down first. Avoid repeated subscription fetches. Proxy changes may cut
-  DNS or the AI connection; warn and ask if the session is remote or continuity is uncertain. Check setup's indirect
-  GitHub downloads and use authenticated `gh`; investigate a safe authenticated path instead of silently skipping the
-  update. Do not install or start an intentionally stopped proxy merely because its checkout changed.
-  </project_specifics>
+  DNS or the AI connection; if the session is remote or continuity is uncertain, defer the update and report the needed
+  approval. Check setup's indirect GitHub downloads and use authenticated `gh`; investigate a safe authenticated path
+  instead of silently skipping the update. Do not install or start an intentionally stopped proxy merely because its
+  checkout changed. </project_specifics>
 
 <success_criteria> Summarize updated repositories, verified local actions, unchanged counts, unresolved work, and
 unknown initial deployment state. Distinguish no upstream, local-only commits, fetch failures, and successful

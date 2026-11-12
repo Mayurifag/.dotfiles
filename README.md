@@ -136,7 +136,6 @@ that same logon and elevation.
 - iCloud — delete all the syncs (needs guide)
 - Sudo with TouchID <https://sixcolors.com/post/2020/11/quick-tip-enable-touch-id-for-sudo/>
 - Setup karabiner-elements
-- Scroll acceleration mouse fix <https://github.com/emreyolcu/discrete-scroll>
 - After orbstack installation check docker commands working for regular user
 - [Put iTerm and other terminal apps to Developer Tools in Privacy settings](https://x.com/steipete/status/2003925293665337501)
 - iTerm2 prefs backed up at `macos/iterm/com.googlecode.iterm2.plist` (not chezmoi-managed). Restore: Prefs → General →
