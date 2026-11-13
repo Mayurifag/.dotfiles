@@ -92,6 +92,7 @@ grep = { cmd = "grep --color=auto", ps_cmd = "grep.exe --color=auto" }
 df = { cmd = "df -h", ps_cmd = "df.exe -h" }
 du = { cmd = "du -c -h", ps_cmd = "du.exe -c -h" }
 myip = { cmd = "command myip", ps_cmd = "myip.cmd" }
+open = { cmd = "xdg-open", os = "linux" }
 pkill = { cmd = "killport" }
 
 [sharedAliases."Python scripts"]

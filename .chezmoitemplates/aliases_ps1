@@ -12,17 +12,13 @@ function ... { Set-Location ..\.. }
 function .... { Set-Location ..\..\.. }
 
 {{- /* Generated simple aliases — mapped by category */}}
-{{- $groups := keys .sharedAliases | sortAlpha }}
-{{- range $groupName := $groups }}
+{{- range $groupName, $groupData := .sharedAliases }}
 
 ## {{ $groupName }}
-{{- $groupData := index $.sharedAliases $groupName }}
-{{- $aliasNames := keys $groupData | sortAlpha }}
-{{- range $aliasName := $aliasNames }}
-{{- $data := index $groupData $aliasName }}
-{{- $body := $data.cmd }}
-{{- if hasKey $data "ps_cmd" }}{{- $body = $data.ps_cmd }}{{- end }}
-function {{ $aliasName }} { {{ $body }} @args }
+{{- range $aliasName, $data := $groupData }}
+{{- if or (not (hasKey $data "os")) (eq $.chezmoi.os $data.os) }}
+function {{ $aliasName }} { {{ dig "ps_cmd" $data.cmd $data }} @args }
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -30,12 +26,8 @@ function {{ $aliasName }} { {{ $body }} @args }
 {{- if $privateAliases }}
 
 ## Private
-{{- $privateAliasNames := keys $privateAliases | sortAlpha }}
-{{- range $aliasName := $privateAliasNames }}
-{{- $data := index $privateAliases $aliasName }}
-{{- $body := $data.cmd }}
-{{- if hasKey $data "ps_cmd" }}{{- $body = $data.ps_cmd }}{{- end }}
-function {{ $aliasName }} { {{ $body }} @args }
+{{- range $aliasName, $data := $privateAliases }}
+function {{ $aliasName }} { {{ dig "ps_cmd" $data.cmd $data }} @args }
 {{- end }}
 {{- end }}
 

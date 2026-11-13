@@ -1,3 +1,5 @@
+using namespace Microsoft.PowerShell
+
 # Match the ConsoleHost profile's Tab behavior across PowerShell sessions.
 if ($Host.Name -eq 'ConsoleHost' -and [Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
     Set-PSReadLineKeyHandler -Chord Tab -BriefDescription SmartTab -ScriptBlock {
@@ -7,17 +9,36 @@ if ($Host.Name -eq 'ConsoleHost' -and [Environment]::UserInteractive -and -not [
             if ($encoding.CodePage -ne 65001) { [Console]::OutputEncoding = [Text.Encoding]::UTF8 }
             $line = $null
             $cursor = 0
-            [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+            [PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+
+            if ($line -ceq 'cd ' -and $cursor -eq $line.Length -and
+                (Get-Command __zoxide_bin -CommandType Function -ErrorAction SilentlyContinue) -and
+                (Get-Command fzf -CommandType Application -ErrorAction SilentlyContinue)) {
+                $current = __zoxide_pwd
+                $exclude = if ($null -ne $current) { @('--exclude', $current) } else { @() }
+                $previousExitCode = $global:LASTEXITCODE
+                try {
+                    $target = __zoxide_bin query --interactive @exclude
+                    if ($LASTEXITCODE -eq 0) {
+                        $quoted = "'" + $target.Replace("'", "''") + "'"
+                        [PSConsoleReadLine]::Replace(0, $line.Length, "cd $quoted")
+                    }
+                } finally {
+                    [PSConsoleReadLine]::InvokePrompt()
+                    $global:LASTEXITCODE = $previousExitCode
+                }
+                return
+            }
 
             if ($cursor -eq $line.Length) {
-                [Microsoft.PowerShell.PSConsoleReadLine]::AcceptSuggestion()
+                [PSConsoleReadLine]::AcceptSuggestion()
                 $updatedLine = $null
                 $updatedCursor = 0
-                [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$updatedLine, [ref]$updatedCursor)
+                [PSConsoleReadLine]::GetBufferState([ref]$updatedLine, [ref]$updatedCursor)
                 if ($updatedLine -cne $line) { return }
             }
 
-            [Microsoft.PowerShell.PSConsoleReadLine]::TabCompleteNext()
+            [PSConsoleReadLine]::TabCompleteNext()
         } finally {
             if ($encoding.CodePage -ne 65001) { [Console]::OutputEncoding = $encoding }
         }

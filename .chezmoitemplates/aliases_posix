@@ -6,15 +6,13 @@ alias ...='builtin cd ../..'
 alias ....='builtin cd ../../..'
 
 {{- /* Generated simple aliases — mapped by category */}}
-{{- $groups := keys .sharedAliases | sortAlpha }}
-{{- range $groupName := $groups }}
+{{- range $groupName, $groupData := .sharedAliases }}
 
 ## {{ $groupName }}
-{{- $groupData := index $.sharedAliases $groupName }}
-{{- $aliasNames := keys $groupData | sortAlpha }}
-{{- range $aliasName := $aliasNames }}
-{{- $data := index $groupData $aliasName }}
+{{- range $aliasName, $data := $groupData }}
+{{- if or (not (hasKey $data "os")) (eq $.chezmoi.os $data.os) }}
 alias {{ $aliasName }}='{{ $data.cmd }}'
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -22,9 +20,7 @@ alias {{ $aliasName }}='{{ $data.cmd }}'
 {{- if $privateAliases }}
 
 ## Private
-{{- $privateAliasNames := keys $privateAliases | sortAlpha }}
-{{- range $aliasName := $privateAliasNames }}
-{{- $data := index $privateAliases $aliasName }}
+{{- range $aliasName, $data := $privateAliases }}
 {{ $aliasName }}() { {{ $data.cmd }} "$@"; }
 {{- end }}
 {{- end }}

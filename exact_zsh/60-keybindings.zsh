@@ -184,10 +184,18 @@ bindkey '^[[1;2B' select-down
 
 # --- Swap Tab and Right Arrow for autosuggestions and completions ---
 
-# Use Tab to accept autosuggestions if one is available, otherwise fall back to completion.
+# Bare cd opens zoxide's picker; other input accepts suggestions or completes.
 ZSH_AUTOSUGGEST_IGNORE_WIDGETS+=(smart-tab-accept-or-complete)
 smart-tab-accept-or-complete() {
-  if [[ -n "${POSTDISPLAY-}" && $CURSOR -eq ${#BUFFER} ]]; then
+  if [[ $BUFFER == 'cd ' && $CURSOR -eq ${#BUFFER} ]] && (( $+functions[__zoxide_pwd] && $+commands[fzf] )); then
+    local directory
+    POSTDISPLAY=
+    if directory=$(command zoxide query --interactive --exclude "$(__zoxide_pwd)"); then
+      BUFFER="cd ${(q)directory}"
+      CURSOR=${#BUFFER}
+    fi
+    zle reset-prompt
+  elif [[ -n "${POSTDISPLAY-}" && $CURSOR -eq ${#BUFFER} ]]; then
     zle autosuggest-accept
   elif zle -l fzf-completion >/dev/null 2>&1; then
     zle fzf-completion
