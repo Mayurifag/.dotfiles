@@ -4,6 +4,8 @@
 -- This script skips sponsored segments of YouTube videos
 -- using data from https://github.com/ajayyy/SponsorBlock
 
+local utils = require 'mp.utils'
+
 local options = {
     API = "https://sponsor.ajay.app/api/skipSegments",
     -- Categories to fetch and skip
@@ -23,33 +25,35 @@ function getranges()
     }
     local sponsors = mp.command_native({name = "subprocess", capture_stdout = true, playback_only = false, args = args})
 
-    if string.match(sponsors.stdout, "%[(.-)%]") then
-        ranges = {}
-        for i in string.gmatch(string.sub(sponsors.stdout, 2, -2), "%[(.-)%]") do
-            k, v = string.match(i, "(%d+.?%d*),(%d+.?%d*)")
-            ranges[k] = v
+    ranges = {}
+    local data = utils.parse_json(sponsors.stdout)
+    if sponsors.status == 0 and type(data) == 'table' then
+        for _, entry in ipairs(data) do
+            local segment = type(entry) == 'table' and entry.segment
+            if type(segment) == 'table' and type(segment[1]) == 'number' and type(segment[2]) == 'number' then
+                table.insert(ranges, segment)
+            end
         end
     end
-    return
 end
 
 function skip_ads(name, pos)
     if pos ~= nil then
-        for k, v in pairs(ranges) do
-            if tonumber(k) <= pos and tonumber(v) > pos then
+        for _, segment in ipairs(ranges) do
+            local start_time, end_time = segment[1], segment[2]
+            if start_time <= pos and end_time > pos then
                 --this message may sometimes be wrong
                 --it only seems to be a visual thing though
                 mp.osd_message(
-                    "[sponsorblock] skipping forward " .. math.floor(tonumber(v) - mp.get_property("time-pos")) .. "s"
+                    "[sponsorblock] skipping forward " .. math.floor(end_time - mp.get_property("time-pos")) .. "s"
                 )
                 --need to do the +0.01 otherwise mpv will start spamming skip sometimes
                 --example: https://www.youtube.com/watch?v=4ypMJzeNooo
-                mp.set_property("time-pos", tonumber(v) + 0.01)
+                mp.set_property("time-pos", end_time + 0.01)
                 return
             end
         end
     end
-    return
 end
 
 function file_loaded()
@@ -76,19 +80,16 @@ function file_loaded()
     youtube_id = string.sub(youtube_id, 1, 11)
 
     getranges()
-    if ranges then
+    if #ranges > 0 then
         ON = true
         mp.add_key_binding("b", "sponsorblock", toggle)
         mp.observe_property("time-pos", "native", skip_ads)
     end
-    return
 end
 
 function end_file()
-    if not ON then
-        return
-    end
     mp.unobserve_property(skip_ads)
+    mp.remove_key_binding("sponsorblock")
     ranges = nil
     ON = false
 end
@@ -97,13 +98,11 @@ function toggle()
     if ON then
         mp.unobserve_property(skip_ads)
         mp.osd_message("[sponsorblock] off")
-        ON = false
-        return
+    else
+        mp.observe_property("time-pos", "native", skip_ads)
+        mp.osd_message("[sponsorblock] on")
     end
-    mp.observe_property("time-pos", "native", skip_ads)
-    mp.osd_message("[sponsorblock] on")
-    ON = true
-    return
+    ON = not ON
 end
 
 mp.register_event("file-loaded", file_loaded)

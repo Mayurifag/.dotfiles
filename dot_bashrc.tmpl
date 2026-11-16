@@ -28,6 +28,9 @@ export PS1="$ "
 # Using shims fallback instead.
 export PATH="$(cygpath -u "$LOCALAPPDATA")/mise/shims:$PATH"
 {{- else }}
+{{- if eq .chezmoi.hostname "steamdeck" }}
+export PATH="$HOME/.local/bin:$PATH"
+{{- end }}
 eval "$(mise activate bash)"
 {{- end }}
 

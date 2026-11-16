@@ -45,7 +45,8 @@ hooks_dir="${script_path%/*}"
 hook_name="${script_path##*/}"
 
 run_chain() {
-  local rc=0 git_dir="${GIT_DIR:-.git}" candidate
+  local rc=0 git_dir candidate
+  git_dir=$(git rev-parse --git-common-dir) || return
   [[ "$git_dir" == /* ]] || git_dir="$PWD/$git_dir"
 
   for candidate in "$PWD/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do

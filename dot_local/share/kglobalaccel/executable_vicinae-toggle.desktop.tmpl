@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Toggle Vicinae
+Exec={{ if eq .chezmoi.hostname "steamdeck" }}{{ .chezmoi.homeDir }}/.local/bin/vicinae{{ else }}vicinae{{ end }} toggle
+StartupNotify=false
+X-KDE-GlobalAccel-CommandShortcut=true
+X-KDE-Shortcuts=Meta+Space

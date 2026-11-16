@@ -1,0 +1,12 @@
+[Unit]
+Description=Shared Windows game library
+
+[Mount]
+What=/dev/disk/by-uuid/01DB94C211A53E90
+Where=/var/mnt/shared
+Type=ntfs3
+Options=rw,exec,nosuid,nodev,nofail,uid=1000,gid=1000,umask=022,noatime
+TimeoutSec=5
+
+[Install]
+WantedBy=multi-user.target

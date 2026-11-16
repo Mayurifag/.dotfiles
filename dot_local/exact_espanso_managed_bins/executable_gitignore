@@ -48,9 +48,9 @@ if len(sys.argv) > 1:
         ).returncode
     )
 
-excludes_file = output("git", "config", "--get", "core.excludesFile")
+excludes_file = output("git", "config", "--path", "--get", "core.excludesFile")
 if excludes_file:
-    excludes = Path(os.path.expanduser(excludes_file))
+    excludes = Path(excludes_file)
 elif os.environ.get("XDG_CONFIG_HOME"):
     excludes = Path(os.environ["XDG_CONFIG_HOME"]) / "git" / "ignore"
 else:

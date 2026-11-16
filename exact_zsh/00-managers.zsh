@@ -5,5 +5,13 @@ safe_source() {
 }
 
 [[ -f /opt/homebrew/bin/brew ]] && eval "$(/opt/homebrew/bin/brew shellenv)"
-safe_source "${HOMEBREW_PREFIX:-}"/opt/antidote/share/antidote/antidote.zsh
-safe_source /usr/share/zsh-antidote/antidote.zsh
+for antidote_path in \
+  "${HOMEBREW_PREFIX:-}/opt/antidote/share/antidote/antidote.zsh" \
+  /usr/share/zsh-antidote/antidote.zsh \
+  "$HOME/.local/share/antidote/antidote.zsh"
+do
+  if [[ -r "$antidote_path" ]]; then
+    source "$antidote_path"
+    break
+  fi
+done

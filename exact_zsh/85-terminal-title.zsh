@@ -3,6 +3,21 @@ typeset -g _terminal_title_last_pwd=""
 typeset -g _terminal_title_last_title=""
 typeset -gA _terminal_title_repo_names
 
+_terminal_report_cwd() {
+  [[ -n "$KONSOLE_DBUS_SESSION" && -n "$FLATPAK_TTY_PROGRESS" ]] || return
+
+  local LC_ALL=C cwd="$PWD" char encoded=""
+  local -i i
+  for ((i = 1; i <= ${#cwd}; i++)); do
+    char="$cwd[i]"
+    case "$char" in
+      [a-zA-Z0-9/._~-]) encoded+="$char" ;;
+      *) printf -v char '%%%02X' "'$char"; encoded+="$char" ;;
+    esac
+  done
+  printf '\033]7;file://%s%s\007' "$HOST" "$encoded"
+}
+
 _terminal_title_cwd() {
   local title git_root remote_url repo_name
   local -a remotes
@@ -42,4 +57,6 @@ _terminal_title_cwd() {
 }
 
 autoload -Uz add-zsh-hook
+add-zsh-hook chpwd _terminal_report_cwd
+add-zsh-hook precmd _terminal_report_cwd
 add-zsh-hook precmd _terminal_title_cwd

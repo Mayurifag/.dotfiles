@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=OpenCloud Desktop
+Comment=Synchronize files with OpenCloud
+Exec="{{ .chezmoi.homeDir }}/.local/bin/mise" exec github:opencloud-eu/desktop -- opencloud --show
+Icon=folder-sync
+Terminal=false
+Categories=Network;FileTransfer;
+StartupWMClass=opencloud
