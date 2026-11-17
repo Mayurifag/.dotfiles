@@ -57,14 +57,18 @@ yamllint = "1.38.0"
 "github:Mayurifag/yawn" = "0.1.3"
 "cargo:cargo-update" = "20.0.0"
 "cargo:git-trim" = "0.4.4"
-"cargo:killport" = "2.0.2"
-"cargo:llmfit" = "0.9.23"
-"cargo:watchexec-cli" = "2.8.0"
+killport = "2.0.2"
+llmfit = "0.9.23"
+watchexec = "2.8.0"
 [%- if eq .chezmoi.os "windows" %]
 "github:vicinaehq/vicinae" = { version = "0.30.0", asset_pattern = "vicinae-x64-portable.zip" }
 [%- end %]
 [%- if eq .chezmoi.os "linux" %]
 "github:Mayurifag/conditional-launcher" = "0.1.8"
+[%- if eq .chezmoi.hostname "steamdeck" %]
+gh = "2.103.3"
+"github:opencloud-eu/desktop" = { version = "4.0.0", asset_pattern = "OpenCloud_Desktop-v*-linux-gcc-x86_64.AppImage", format = "raw", bin = "opencloud" }
+[%- end %]
 [%- end %]
 rust = "1.99.1"
 

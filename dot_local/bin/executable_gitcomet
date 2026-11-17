@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "$HOME/Applications/GitComet.AppImage" "$@" >/dev/null 2>&1 &

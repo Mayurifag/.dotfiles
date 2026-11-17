@@ -18,6 +18,9 @@
 
 ## Changes
 
+- Do not vendor third-party files (code, assets, binaries, or dependency trees) into repositories unless the user
+  explicitly requests it. Use package managers or pinned upstream fetches instead; store dependency declarations and
+  project-owned overrides, not downloaded payloads.
 - Aim for lapidary code: the smallest clear implementation of the required behavior. Prefer direct control flow, precise
   names, and idiomatic constructs. Reduce concepts and special cases before reducing lines. Never trade correctness or
   readability for brevity.

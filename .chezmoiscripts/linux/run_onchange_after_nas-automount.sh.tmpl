@@ -3,6 +3,9 @@ set -eu
 
 # Mount: {{ includeTemplate "dot_local/share/boot-config/nas.mount.tmpl" . | sha256sum }}
 # Automount: {{ includeTemplate "dot_local/share/boot-config/nas.automount.tmpl" . | sha256sum }}
+{{ if eq .chezmoi.hostname "steamdeck" -}}
+# Update preservation: {{ includeTemplate "dot_local/share/boot-config/nas.keep.conf.tmpl" . | sha256sum }}
+{{ end -}}
 source="$HOME/.local/share/boot-config"
 mountpoint="$HOME/NAS"
 mount_unit=$(systemd-escape --path --suffix=mount "$mountpoint")
@@ -36,6 +39,26 @@ fi
 if ! cmp -s "$source/nas.mount" "/etc/systemd/system/$mount_unit" && systemctl is-active --quiet "$mount_unit"; then
   echo 'NAS is mounted; changed mount settings take effect after a safe unmount or reboot.' >&2
 fi
-sudo install -m 644 "$source/nas.mount" "/etc/systemd/system/$mount_unit"
-sudo install -m 644 "$source/nas.automount" "/etc/systemd/system/$automount_unit"
-sudo systemctl enable --now "$automount_unit"
+changed=false
+for unit in "$mount_unit" "$automount_unit"; do
+  case "$unit" in
+    *.automount) template=nas.automount ;;
+    *.mount) template=nas.mount ;;
+  esac
+  if ! cmp -s "$source/$template" "/etc/systemd/system/$unit"; then
+    sudo install -m 644 "$source/$template" "/etc/systemd/system/$unit"
+    changed=true
+  fi
+done
+if "$changed"; then
+  sudo systemctl daemon-reload
+fi
+{{ if eq .chezmoi.hostname "steamdeck" -}}
+if ! cmp -s "$source/nas.keep.conf" /etc/atomic-update.conf.d/nas.conf; then
+  sudo install -m 644 "$source/nas.keep.conf" /etc/atomic-update.conf.d/nas.conf
+fi
+{{ end -}}
+if ! systemctl is-enabled --quiet "$automount_unit" || ! systemctl is-active --quiet "$automount_unit"; then
+  sudo systemctl enable --now "$automount_unit"
+fi
+{{- end }}

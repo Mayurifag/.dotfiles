@@ -16,7 +16,7 @@ run_chain() {
   hook_name=$(basename "$0")
   self="$HOOKS_DIR/$hook_name"
   top_dir=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
-  git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 0
+  git_dir=$(git rev-parse --git-common-dir 2>/dev/null) || return 0
   [[ "$git_dir" != /* ]] && git_dir="$top_dir/$git_dir"
   for candidate in "$top_dir/.githooks/$hook_name" "$git_dir/hooks/$hook_name"; do
     if [[ -x "$candidate" && "$candidate" != "$self" ]]; then

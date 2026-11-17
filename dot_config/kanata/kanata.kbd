@@ -1,20 +1,13 @@
-{{- /* kanata.kbd — cross-platform key remapping */ -}}
-{{- /* Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd.tmpl */ -}}
-;; kanata.kbd — cross-platform key remapping
-;; Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd.tmpl
+;; kanata.kbd — Linux key remapping
+;; Managed by chezmoi — edit at ~/.local/share/chezmoi/dot_config/kanata/kanata.kbd
 ;;
 ;; Deploys to: ~/.config/kanata/kanata.kbd
-;; Platforms:  Linux (systemd user service) + Windows (registry Run key via kanata_gui)
+;; Platform: Linux (systemd user service)
 ;;
 ;; RAlt typography layer: 18 Birman layout unicode mappings.
-;; CapsLock is in defsrc with passthrough (_) so it reaches AHK on Windows
-;; without needing process-unmapped-keys (which would re-inject all keys via
-;; SendInput and break espanso's Win32Source keystroke detection).
+;; CapsLock passes through without remapping.
 
 (defcfg
-{{- if eq .chezmoi.os "windows" }}
-  windows-altgr cancel-lctl-press
-{{- end }}
 )
 
 (defsrc

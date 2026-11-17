@@ -1,0 +1,12 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "steamdeck") -}}
+#!/bin/bash
+set -euo pipefail
+
+archive="$(mktemp)"
+trap 'rm -f "$archive"' EXIT
+gh api repos/PapirusDevelopmentTeam/arc-kde/tarball/b67cdb76ccbe33bdb47e82ecbdd0eed3c0cea29e > "$archive"
+
+skins="$HOME/.var/app/org.kde.yakuake/data/yakuake/skins"
+mkdir -p "$skins"
+tar -xzf "$archive" -C "$skins" --strip-components=3 --wildcards '*/yakuake/skins/arc-dark/*'
+{{- end }}

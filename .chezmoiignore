@@ -18,6 +18,7 @@ keys.ejson
 zsh/.zsh_plugins.sh
 .config/windows-terminal/
 .config/karabiner/karabiner_keyboard_modifications.js
+.var/app/org.kde.yakuake/data/yakuake/skins/arc-dark/
 
 # Script directories are virtual; use /** to exclude their contents.
 {{ if ne .chezmoi.os "darwin" -}}
@@ -36,6 +37,7 @@ Library/
 {{ if ne .chezmoi.os "linux" -}}
 .chezmoiscripts/linux/**
 .local/share/vicinae/
+.local/share/flatpak/
 .config/fontconfig/
 .local/bin/qwen
 .local/bin/fanctl
@@ -47,6 +49,25 @@ Library/
 .local/share/konsole/
 .local/share/systemd/
 .local/share/gitcomet/
+{{- end }}
+
+{{ if not (and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "steamdeck")) -}}
+.config/environment.d/10-steamdeck-mise.conf
+.config/powerdevilrc
+.local/bin/gitcomet
+.local/bin/vicinae
+.local/share/applications/gitcomet.desktop
+.local/share/applications/vicinae.desktop
+.local/share/applications/opencloud-appimage.desktop
+.local/share/applications/helium.desktop
+.local/share/systemd/user/vicinae.service
+.local/share/systemd/system/var-mnt-shared.mount
+.local/share/systemd/system/steamdeck-boot-mode.service
+.local/share/systemd/steamdeck-shared.tmpfiles.conf
+.local/share/systemd/steamdeck-shared.keep.conf
+.local/share/boot-config/nas.keep.conf
+.local/share/flatpak/overrides/org.kde.yakuake
+.var/app/org.kde.yakuake/
 {{- end }}
 
 {{ if eq .chezmoi.os "windows" -}}

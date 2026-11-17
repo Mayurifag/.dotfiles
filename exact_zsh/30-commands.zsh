@@ -311,7 +311,6 @@ make() {
   done
   echo "No Makefile found in current or parent directories." >&2
   command make "$@"
-  return 1
 }
 
 function cd {

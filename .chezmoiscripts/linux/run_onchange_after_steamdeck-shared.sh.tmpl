@@ -1,0 +1,52 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "steamdeck") -}}
+#!/bin/bash
+set -euo pipefail
+
+# Mount: {{ include "dot_local/share/systemd/system/var-mnt-shared.mount" | sha256sum }}
+# Library path: {{ include "dot_local/share/systemd/steamdeck-shared.tmpfiles.conf" | sha256sum }}
+# Update preservation: {{ include "dot_local/share/systemd/steamdeck-shared.keep.conf" | sha256sum }}
+source_dir="{{ .chezmoi.homeDir }}/.local/share/systemd"
+prefixes="{{ .chezmoi.homeDir }}/.local/share/Steam/steamapps/compatdata"
+link=/var/mnt/shared/SteamLibrary/steamapps/compatdata
+
+if (( EUID != 0 )); then
+    exec sudo /bin/bash "$0"
+fi
+
+install -m 644 "$source_dir/system/var-mnt-shared.mount" /etc/systemd/system/var-mnt-shared.mount
+install -m 644 "$source_dir/steamdeck-shared.tmpfiles.conf" /etc/tmpfiles.d/steamdeck-shared.conf
+install -m 644 "$source_dir/steamdeck-shared.keep.conf" /etc/atomic-update.conf.d/steamdeck-shared.conf
+systemctl daemon-reload
+if [[ ( -e /run/media/deck/shared || -L /run/media/deck/shared ) &&
+    ! ( -L /run/media/deck/shared && "$(readlink /run/media/deck/shared)" == /var/mnt/shared ) ]]; then
+    echo 'Shared library path conflicts with /run/media/deck/shared.' >&2
+    exit 1
+fi
+
+if ! findmnt -rn --mountpoint /var/mnt/shared >/dev/null; then
+    if [[ ! -e /dev/disk/by-uuid/01DB94C211A53E90 ]]; then
+        echo 'Shared game partition is not present; mount setup is saved but not enabled.' >&2
+        exit 1
+    fi
+    systemctl start var-mnt-shared.mount
+fi
+systemctl enable var-mnt-shared.mount
+[[ -d /var/mnt/shared/SteamLibrary/steamapps ]] || {
+    echo 'Shared Steam library not found on the mounted partition.' >&2
+    exit 1
+}
+systemd-tmpfiles --create /etc/tmpfiles.d/steamdeck-shared.conf
+install -d -m 755 -o "{{ .chezmoi.username }}" -g "{{ .chezmoi.username }}" "$prefixes"
+case "$(findmnt -n -o FSTYPE -T "$prefixes")" in
+    ext4|btrfs) ;;
+    *) echo 'Proton prefixes must be on a Linux filesystem.' >&2; exit 1 ;;
+esac
+if [[ -L "$link" && "$(readlink "$link")" == "$prefixes" ]]; then
+    exit 0
+fi
+if [[ -e "$link" || -L "$link" ]]; then
+    echo "Refusing to replace existing Proton data: $link" >&2
+    exit 1
+fi
+ln -sT "$prefixes" "$link"
+{{- end }}

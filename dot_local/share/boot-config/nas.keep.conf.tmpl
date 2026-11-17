@@ -1,0 +1,3 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "steamdeck") -}}
+/etc/systemd/system/{{ output "systemd-escape" "--path" "--suffix=automount" (joinPath .chezmoi.homeDir "NAS") | trim }}
+{{ end -}}

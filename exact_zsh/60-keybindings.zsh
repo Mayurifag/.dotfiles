@@ -36,17 +36,9 @@ zle -N ignore-unused-key
   done
 }
 
-# Fix the Delete key
-# Binds '\e[3~' (Delete) to `delete-char` (deletes character under the cursor)
-bindkey '\e[3~' delete-char
-
 # Fix Ctrl + Left/Right Arrow for word-wise movement
 bindkey '\e[1;5D' backward-word
 bindkey '\e[1;5C' forward-word
-
-# This is a fallback for other terminals that might send different codes.
-bindkey '^[[1;5D' backward-word
-bindkey '^[[1;5C' forward-word
 
 if (( ${zle_highlight[(I)region:*]:-0} == 0 )); then
   zle_highlight+=(region:standout)
@@ -102,7 +94,6 @@ delete-region-or-char() {
 }
 zle -N delete-region-or-char
 bindkey '\e[3~' delete-region-or-char
-bindkey '^[[3~' delete-region-or-char
 
 kill-region-or-word() {
   if (( REGION_ACTIVE )); then
@@ -113,7 +104,6 @@ kill-region-or-word() {
 }
 zle -N kill-region-or-word
 bindkey '\e[3;5~' kill-region-or-word
-bindkey '^[[3;5~' kill-region-or-word
 
 clear-active-region() {
   REGION_ACTIVE=0
@@ -130,7 +120,6 @@ select-left() {
 }
 zle -N select-left
 bindkey '\e[1;2D' select-left
-bindkey '^[[1;2D' select-left
 
 select-right() {
   (( REGION_ACTIVE )) || MARK=$CURSOR
@@ -140,7 +129,6 @@ select-right() {
 }
 zle -N select-right
 bindkey '\e[1;2C' select-right
-bindkey '^[[1;2C' select-right
 
 select-word-left() {
   (( REGION_ACTIVE )) || MARK=$CURSOR
@@ -150,7 +138,6 @@ select-word-left() {
 }
 zle -N select-word-left
 bindkey '\e[1;6D' select-word-left
-bindkey '^[[1;6D' select-word-left
 
 select-word-right() {
   (( REGION_ACTIVE )) || MARK=$CURSOR
@@ -160,7 +147,6 @@ select-word-right() {
 }
 zle -N select-word-right
 bindkey '\e[1;6C' select-word-right
-bindkey '^[[1;6C' select-word-right
 
 select-up() {
   (( REGION_ACTIVE )) || MARK=$CURSOR
@@ -170,7 +156,6 @@ select-up() {
 }
 zle -N select-up
 bindkey '\e[1;2A' select-up
-bindkey '^[[1;2A' select-up
 
 select-down() {
   (( REGION_ACTIVE )) || MARK=$CURSOR
@@ -180,7 +165,6 @@ select-down() {
 }
 zle -N select-down
 bindkey '\e[1;2B' select-down
-bindkey '^[[1;2B' select-down
 
 # --- Swap Tab and Right Arrow for autosuggestions and completions ---
 

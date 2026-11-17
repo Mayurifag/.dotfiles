@@ -1,0 +1,19 @@
+[Unit]
+Description=Select Steam Deck boot session from the external display connection
+After=systemd-user-sessions.service
+Before=sddm.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Only select once per boot, so normal Desktop/Gaming Mode switching still works.
+ExecStart=/usr/bin/bash -euc '\
+    session=gamescope-wayland.desktop; \
+    if /usr/bin/grep -qFxs connected /sys/class/drm/card*-DP-*/status /sys/class/drm/card*-HDMI-A-*/status; then \
+        session=plasma.desktop; \
+    fi; \
+    /usr/bin/kwriteconfig6 --file /etc/sddm.conf.d/zz-holo-autologin.conf --group Autologin --key Session "$$session"; \
+    echo "Boot session: $$session"'
+
+[Install]
+WantedBy=sddm.service

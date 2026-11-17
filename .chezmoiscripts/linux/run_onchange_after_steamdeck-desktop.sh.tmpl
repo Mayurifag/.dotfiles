@@ -1,0 +1,16 @@
+{{- if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "steamdeck") -}}
+#!/bin/bash
+set -euo pipefail
+
+# Boot selection: {{ include "dot_local/share/systemd/system/steamdeck-boot-mode.service" | sha256sum }}
+
+if ((EUID != 0)); then
+    exec sudo /bin/bash "$0"
+fi
+
+# SteamOS already preserves /etc/systemd/system/*.service and *.wants/**.
+install -m 644 "{{ .chezmoi.homeDir }}/.local/share/systemd/system/steamdeck-boot-mode.service" \
+    /etc/systemd/system/steamdeck-boot-mode.service
+systemctl daemon-reload
+systemctl enable steamdeck-boot-mode.service
+{{- end }}
