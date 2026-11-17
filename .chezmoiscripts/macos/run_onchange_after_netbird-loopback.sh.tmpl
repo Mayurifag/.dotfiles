@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 set -eu
 
@@ -11,4 +10,3 @@ if ! cmp -s "$source" "$target"; then
     do shell script "/usr/bin/install -o root -g wheel -m 644 " & quoted form of (item 1 of argv) & " /Library/LaunchDaemons/local.netbird-loopback.plist && { /bin/launchctl bootout system/local.netbird-loopback 2>/dev/null || true; } && /bin/launchctl bootstrap system /Library/LaunchDaemons/local.netbird-loopback.plist" with administrator privileges
   end run' "$source"
 fi
-{{- end }}

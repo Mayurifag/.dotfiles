@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 
 set -eu
@@ -33,4 +32,3 @@ defaults write onebadidea.Swift-Quit SwiftQuitExcludedApps -array \
 killall "Swift Quit" 2>/dev/null || true
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "/Applications/Swift Quit.app"
 open -a "Swift Quit"
-{{- end }}

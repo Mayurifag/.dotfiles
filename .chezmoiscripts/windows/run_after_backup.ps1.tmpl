@@ -1,7 +1,6 @@
-{{- if eq .chezmoi.os "windows" -}}
 Write-Host '[chezmoi] running windows/backup'
 
-$script = Join-Path $env:USERPROFILE '.local\share\chezmoi\windows\windhawk\backup.ps1'
+$script = {{ template "windows-checkout-path" (dict "chezmoi" .chezmoi "path" "windows/windhawk/backup.ps1" "quote" "'") }}
 
 if (-not (Test-Path 'C:\Program Files\Windhawk\windhawk.exe')) {
     Write-Host '[windhawk-backup] Not installed - skipping.' -ForegroundColor Yellow
@@ -13,4 +12,3 @@ if (-not (Test-Path 'C:\Program Files\Windhawk\windhawk.exe')) {
         Write-Host '[windhawk-backup] OK' -ForegroundColor Green
     }
 }
-{{- end }}

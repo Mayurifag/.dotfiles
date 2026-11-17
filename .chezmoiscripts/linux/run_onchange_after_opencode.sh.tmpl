@@ -1,6 +1,10 @@
-{{- if eq .chezmoi.hostname "cachyos-faex9" -}}
 #!/usr/bin/env sh
 set -eu
+listen_address=$(netbird status --ipv4)
+if [ -z "$listen_address" ]; then
+  printf '%s\n' 'Cannot determine the local NetBird address.' >&2
+  exit 1
+fi
 
 # Service: {{ include "dot_local/share/systemd/user/opencode.service" | sha256sum }}
 # OpenCode: {{ regexFind `(?m)^"npm:@opencode/cli"[^\r\n]*` (include "dot_config/mise/config.toml.tmpl") | sha256sum }}
@@ -14,11 +18,10 @@ mise install npm:@opencode/cli
 systemctl --user daemon-reload
 systemctl --user stop opencode.service
 "$opencode" service stop
-if [ "$("$opencode" service get hostname)" != "100.113.81.105" ]; then
-  "$opencode" service set hostname 100.113.81.105
+if [ "$("$opencode" service get hostname)" != "$listen_address" ]; then
+  "$opencode" service set hostname "$listen_address"
 fi
 if [ "$("$opencode" service get port)" != "49374" ]; then
   "$opencode" service set port 49374
 fi
 systemctl --user enable --now opencode.service
-{{- end }}

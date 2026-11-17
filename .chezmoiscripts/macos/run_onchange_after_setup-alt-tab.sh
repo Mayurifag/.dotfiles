@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 
 set -eu
@@ -40,4 +39,3 @@ defaults write com.lwouis.alt-tab-macos updatePolicy -int 2
 defaults write com.lwouis.alt-tab-macos windowDisplayDelay -int 0
 defaults write com.lwouis.alt-tab-macos windowMaxWidthInRow -int 30
 defaults write com.lwouis.alt-tab-macos windowMinWidthInRow -int 15
-{{- end }}

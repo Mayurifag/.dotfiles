@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -27,4 +26,3 @@ sudo systemctl daemon-reload
 if "$restart"; then
     sudo systemctl start faex9-fan-quiet.service
 fi
-{{- end }}

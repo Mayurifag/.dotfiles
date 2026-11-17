@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -11,4 +10,3 @@ sudo install -m 644 "$HOME/.local/share/boot-config/nsswitch.conf" /etc/nsswitch
 sudo install -d /etc/systemd/resolved.conf.d
 sudo install -m 644 "$HOME/.local/share/boot-config/60-mdns.conf" /etc/systemd/resolved.conf.d/60-mdns.conf
 sudo systemctl try-restart systemd-resolved.service avahi-daemon.service
-{{- end }}

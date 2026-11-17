@@ -19,7 +19,9 @@ zsh/.zsh_plugins.sh
 .config/windows-terminal/
 .config/karabiner/karabiner_keyboard_modifications.js
 
+# Script directories are virtual; use /** to exclude their contents.
 {{ if ne .chezmoi.os "darwin" -}}
+.chezmoiscripts/macos/**
 .config/macos/
 .config/karabiner/
 .local/share/automount/
@@ -31,11 +33,8 @@ Library/
 .config/kanata/
 {{- end }}
 
-{{ if eq .chezmoi.os "windows" -}}
-.config/vicinae/
-{{- end }}
-
 {{ if ne .chezmoi.os "linux" -}}
+.chezmoiscripts/linux/**
 .local/share/vicinae/
 .config/fontconfig/
 .local/bin/qwen
@@ -51,18 +50,20 @@ Library/
 {{- end }}
 
 {{ if eq .chezmoi.os "windows" -}}
+.chezmoiscripts/posix/**
+.config/vicinae/
 .config/btop/
 .config/yakuakerc
 .config/konsolerc
 .config/ghostty/
 .config/waystt/
 .config/kanata/
-.local/bin/mise-auto-update
 .zshrc
 zsh/
 {{- end }}
 
 {{- if ne .chezmoi.os "windows" }}
+.chezmoiscripts/windows/**
 AppData/
 Documents/
 .local/bin/python3

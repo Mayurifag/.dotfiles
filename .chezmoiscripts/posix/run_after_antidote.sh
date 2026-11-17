@@ -1,4 +1,3 @@
-{{- if ne .chezmoi.os "windows" -}}
 #!/bin/sh
 
 set -eu
@@ -17,4 +16,3 @@ trap 'exit 1' HUP INT TERM
 antidote bundle <"$HOME/zsh/plugins.txt" >"$tmp" && mv "$tmp" "$bundle"
 ZSH
 fi
-{{- end }}

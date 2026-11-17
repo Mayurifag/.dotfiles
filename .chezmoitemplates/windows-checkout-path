@@ -1,0 +1,15 @@
+{{- /* Preserve home-relative commands and quoting so existing run_once hashes stay valid. */ -}}
+{{- $quote := default "\"" (get . "quote") -}}
+{{- $path := joinPath .chezmoi.sourceDir .path | replace "/" "\\" -}}
+{{- $home := printf "%s\\" (.chezmoi.homeDir | replace "/" "\\") -}}
+{{- if hasPrefix $home $path -}}
+{{- $path = trimPrefix $home $path -}}
+{{- if eq $quote "'" -}}
+{{- $path = replace "'" "''" $path -}}
+{{- else -}}
+{{- $path = $path | replace "`" "``" | replace "$" "`$" | replace "\"" "`\"" -}}
+{{- end -}}
+Join-Path $env:USERPROFILE {{ $quote }}{{ $path }}{{ $quote }}
+{{- else -}}
+'{{ $path | replace "'" "''" }}'
+{{- end -}}

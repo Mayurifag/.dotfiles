@@ -7,14 +7,14 @@
 [aiModels.fast]
 provider = "openai"
 id = "gpt-6-luna"
-speed = "fast"
+speed = "standard"
 effort = "none"
 
 [aiModels.usual]
 provider = "openai"
 id = "gpt-6.1-terra"
-speed = "fast"
-effort = "medium"
+speed = "standard"
+effort = "xhigh"
 buildEffort = "max"
 planEffort = "xhigh"
 

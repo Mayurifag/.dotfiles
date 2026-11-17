@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
 $ErrorActionPreference = 'Stop'
 
 Write-Host '[chezmoi] running windows/60-mpv-config'
@@ -36,4 +35,3 @@ if ($needsLink) {
         exit 1
     }
 }
-{{- end }}

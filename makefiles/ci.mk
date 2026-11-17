@@ -62,7 +62,7 @@ shellcheck:
 		[ -f "$$file" ] || continue; \
 		tmp_file="$$tmp_dir/rendered/$$file"; \
 		mkdir -p "$$(dirname "$$tmp_file")"; \
-		sed '/^{{.*}}$$/d' "$$file" > "$$tmp_file"; \
+		sed -e '/^{{.*}}$$/d' -e 's/{{[^}]*}}/template/g' "$$file" > "$$tmp_file"; \
 		$(SHELLCHECK) "$$tmp_file" || status=$$?; \
 	done < "$$templates"; \
 	exit "$$status"

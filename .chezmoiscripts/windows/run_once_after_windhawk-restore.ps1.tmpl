@@ -1,11 +1,10 @@
-{{- if eq .chezmoi.os "windows" -}}
 $ErrorActionPreference = 'Stop'
 
 Write-Host '[chezmoi] running windows/windhawk-restore'
 
 $windhawkExe = 'C:\Program Files\Windhawk\windhawk.exe'
 $windhawkData = 'C:\ProgramData\Windhawk'
-$sourceDir = Join-Path $env:USERPROFILE '.local\share\chezmoi\windows\windhawk'
+$sourceDir = {{ template "windows-checkout-path" (dict "chezmoi" .chezmoi "path" "windows/windhawk" "quote" "'") }}
 
 if (-not (Test-Path $windhawkExe)) {
     Write-Host '[windhawk-restore] Windhawk not installed yet - skipping restore.' -ForegroundColor Yellow
@@ -47,4 +46,3 @@ if (Test-Path $regSrc) {
 
 Write-Host ''
 Write-Host '[windhawk-restore] Done. Restart Windhawk for settings to take effect.' -ForegroundColor Green
-{{- end }}

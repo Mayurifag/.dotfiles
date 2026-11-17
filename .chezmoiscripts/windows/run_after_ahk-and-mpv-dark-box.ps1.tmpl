@@ -1,7 +1,6 @@
-{{- if eq .chezmoi.os "windows" -}}
 Write-Host '[chezmoi] running windows/ahk-and-mpv-dark-box'
 
-$ahkScript = Join-Path $env:USERPROFILE ".local\share\chezmoi\windows\ahkv2.ahk"
+$ahkScript = {{ template "windows-checkout-path" (dict "chezmoi" .chezmoi "path" "windows/ahkv2.ahk") }}
 $ahkExe = Join-Path $env:ProgramFiles "AutoHotkey\v2\AutoHotkey.exe"
 foreach ($path in @($ahkScript, $ahkExe)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
@@ -48,4 +47,3 @@ if (Test-Path $darkBoxSource) {
 } else {
     Write-Host "[mpv-dark-box] WARNING: $darkBoxSource missing - clone may have failed" -ForegroundColor Yellow
 }
-{{- end }}

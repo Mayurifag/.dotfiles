@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
 $ErrorActionPreference = 'Stop'
 
 $mise = Get-Command mise -CommandType Application -ErrorAction SilentlyContinue
@@ -19,4 +18,3 @@ foreach ($folder in @([Environment]::GetFolderPath('Programs'), [Environment]::G
         $shortcut.Save()
     }
 }
-{{- end }}

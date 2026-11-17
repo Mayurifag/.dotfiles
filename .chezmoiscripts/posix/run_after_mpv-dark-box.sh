@@ -1,4 +1,3 @@
-{{- if ne .chezmoi.os "windows" -}}
 #!/bin/sh
 
 set -eu
@@ -14,4 +13,3 @@ if [ -f "$SOURCE_FILE" ]; then
 elif [ -L "$DEST_FILE" ] && [ ! -e "$DEST_FILE" ]; then
   rm -f "$DEST_FILE"
 fi
-{{- end }}

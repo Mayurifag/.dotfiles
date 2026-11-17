@@ -1,30 +1,49 @@
-{{- if and (eq .chezmoi.os "windows") (eq .chezmoi.hostname "DESKTOP-7DQ9CMG") -}}
 #Requires -Version 7.4
 #Requires -RunAsAdministrator
 $ErrorActionPreference = 'Stop'
 $PSNativeCommandUseErrorActionPreference = $true
+$listenAddress = ([ipaddress]((& netbird status --ipv4 | Out-String).Trim())).ToString()
 
 # OpenCode: {{ regexFind `(?m)^"npm:@opencode/cli"[^\r\n]*` (include "dot_config/mise/config.toml.tmpl") | sha256sum }}
-mise install npm:@opencode/cli
-$opencode = Join-Path (& mise where npm:@opencode/cli) 'node_modules/@opencode/cli/bin/opencode.exe'
+$opencode = Join-Path $env:LOCALAPPDATA 'mise/shims/opencode.exe'
 $taskName = 'OpenCode Server'
+
+if (-not (Test-Path -LiteralPath $opencode)) {
+    if (@(Get-CimInstance Win32_Process -Filter "Name = 'opencode.exe' OR Name = 'opencode-pty.exe'").Count -gt 0) {
+        throw 'OpenCode may be running without its mise shim; leaving it alone.'
+    }
+    mise install npm:@opencode/cli
+}
 
 $status = (& $opencode service status | Out-String).Trim()
 if ($status -match '^https?://') {
-    $active = (& $opencode api get /api/session/active | ConvertFrom-Json).data
-    if ($null -eq $active -or $active -isnot [PSCustomObject]) {
-        throw 'Cannot verify OpenCode sessions; leaving the service running.'
-    }
-    if (@($active.PSObject.Properties).Count -gt 0) {
-        throw 'OpenCode has active sessions; retry when idle.'
-    }
+    $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    $rule = Get-NetFirewallRule -Name 'OpenCode-NetBird-Proxy' -ErrorAction SilentlyContinue
+    $address = $rule | Get-NetFirewallAddressFilter
+    $port = $rule | Get-NetFirewallPortFilter
+    $program = $rule | Get-NetFirewallApplicationFilter
+    $configured = $task.Actions.Count -eq 1 -and $task.Actions[0].Execute -eq $opencode -and
+        $task.Actions[0].Arguments -eq 'serve --service' -and $rule.Enabled -eq 'True' -and
+        $rule.Direction -eq 'Inbound' -and $rule.Action -eq 'Allow' -and $program.Program -eq 'Any' -and
+        $address.LocalAddress -eq $listenAddress -and $address.RemoteAddress -eq '100.113.201.147' -and
+        $port.Protocol -eq 'TCP' -and $port.LocalPort -eq '49374' -and
+        (& $opencode service get hostname | Out-String).Trim() -eq $listenAddress -and
+        (& $opencode service get port | Out-String).Trim() -eq '49374' -and
+        (& $opencode service get remote | Out-String).Trim() -eq 'false'
+    if ($configured) { return }
+    throw 'OpenCode is running; configure the service after stopping it.'
 } elseif ($status -ne 'stopped') {
     throw 'Cannot verify OpenCode service status; leaving it running.'
 }
 
-& $opencode service stop
-Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue | Stop-ScheduledTask
-& $opencode service set hostname 100.113.95.177
+if (@(Get-CimInstance Win32_Process -Filter "Name = 'opencode.exe' OR Name = 'opencode-pty.exe'").Count -gt 0) {
+    throw 'OpenCode or its persistent terminals may be in use; leaving them alone.'
+}
+if ((Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue).State -eq 'Running') {
+    throw 'The OpenCode scheduled task is running; retry after it stops.'
+}
+mise install npm:@opencode/cli
+& $opencode service set hostname $listenAddress
 & $opencode service set port 49374
 & $opencode service set remote false
 
@@ -32,7 +51,7 @@ $ruleName = 'OpenCode-NetBird-Proxy'
 Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 New-NetFirewallRule -Name $ruleName -DisplayName 'OpenCode from homelab proxy only' `
     -Direction Inbound -Action Allow -Protocol TCP -LocalPort 49374 `
-    -LocalAddress 100.113.95.177 -RemoteAddress 100.113.201.147 -Program $opencode -Profile Any | Out-Null
+    -LocalAddress $listenAddress -RemoteAddress 100.113.201.147 -Profile Any | Out-Null
 
 $action = New-ScheduledTaskAction -Execute $opencode -Argument 'serve --service' -WorkingDirectory $HOME
 $principal = New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType S4U -RunLevel Limited
@@ -41,4 +60,3 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
 Register-ScheduledTask -TaskName $taskName -Action $action -Principal $principal -Settings $settings `
     -Trigger @((New-ScheduledTaskTrigger -AtStartup), (New-ScheduledTaskTrigger -AtLogOn -User $principal.UserId)) -Force | Out-Null
 Start-ScheduledTask -TaskName $taskName
-{{- end }}

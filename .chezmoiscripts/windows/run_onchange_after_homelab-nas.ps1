@@ -1,4 +1,3 @@
-{{- if and (eq .chezmoi.os "windows") (eq .chezmoi.hostname "DESKTOP-7DQ9CMG") -}}
 #Requires -Version 7.4
 #Requires -RunAsAdministrator
 $ErrorActionPreference = 'Stop'
@@ -28,4 +27,3 @@ if ($updated -cne $content) {
     [IO.File]::WriteAllText($path, $updated, [Text.UTF8Encoding]::new($false))
     Clear-DnsClientCache
 }
-{{- end }}

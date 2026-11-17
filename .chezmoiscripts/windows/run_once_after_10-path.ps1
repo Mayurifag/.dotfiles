@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
 $ErrorActionPreference = 'Stop'
 
 Write-Host '[chezmoi] running windows/10-path'
@@ -41,4 +40,3 @@ if ($newPath -ine $oldPath) {
 } else {
     Write-Host '[path] User PATH already up to date.'
 }
-{{- end }}

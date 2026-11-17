@@ -1,29 +1,32 @@
 #!/usr/bin/env python3
-import fcntl
+import contextlib
 import json
-import logging
 import os
 import re
 import subprocess
 import sys
-import tempfile
+import time
+import tomllib
 from pathlib import Path
+from urllib.parse import urlencode
 
-logger = logging.getLogger(__name__)
-TOOL = "npm:@opencode/cli"
-PIN = re.compile(
-    r'(^[ \t]*"npm:@opencode/cli"[ \t]*=[ \t]*\{[ \t]*version[ \t]*=[ \t]*")(\d+\.\d+\.\d+)(")',
-    re.MULTILINE,
-)
-VERSION = re.compile(r"\d+\.\d+\.\d+")
 HOME = Path.home()
-MISE_TARGET = HOME / ".config/mise/config.toml"
+TOOL = "npm:@opencode/cli"
+VERSION = re.compile(r"\d+\.\d+\.\d+")
+CONFIG = HOME / ".config/mise/config.toml"
+PIN = HOME / ".config/mise/config.local.toml"
+PIN_PATTERN = re.compile(
+    r"# mise-auto-update: temporary live-version pin\n"
+    r"\[tools\]\n"
+    r'"npm:@opencode/cli" = \{ version = "(\d+\.\d+\.\d+)", '
+    r'allow_builds = \["@opencode/cli"\] \}\n'
+)
 
 
-def run(*args, cwd=HOME, capture=False, timeout=120):
+def run(*args, capture=False, timeout=120):
     return subprocess.run(
         args,
-        cwd=cwd,
+        cwd=HOME,
         check=True,
         text=True,
         capture_output=capture,
@@ -31,217 +34,414 @@ def run(*args, cwd=HOME, capture=False, timeout=120):
     ).stdout
 
 
-def pin(text):
-    matches = list(PIN.finditer(text))
-    if len(matches) != 1:
-        raise RuntimeError("expected exactly one version pin for OpenCode")
-    return matches[0].group(2)
+def mise_command():
+    if os.name == "nt":
+        path = Path(os.environ["LOCALAPPDATA"]) / "Microsoft/WinGet/Links/mise.exe"
+        if path.is_file():
+            return str(path)
+    return "mise"
 
 
-def replace_pin(text, version):
-    pin(text)
-    return PIN.sub(
-        lambda match: match.group(1) + version + match.group(3), text, count=1
+def opencode_command():
+    if os.name == "nt":
+        return str(Path(os.environ["LOCALAPPDATA"]) / "mise/shims/opencode.exe")
+    return str(HOME / ".local/share/mise/shims/opencode")
+
+
+def parse_version(value):
+    if not VERSION.fullmatch(value):
+        raise RuntimeError(f"unexpected OpenCode version: {value!r}")
+    return tuple(map(int, value.split(".")))
+
+
+def read_pin():
+    if not PIN.exists():
+        return None
+    text = PIN.read_text(encoding="utf-8")
+    match = PIN_PATTERN.fullmatch(text)
+    if not match:
+        raise RuntimeError(f"{PIN} is not owned by mise-auto-update; leaving it alone")
+    return match.group(1)
+
+
+def hold_version(version):
+    parse_version(version)
+    existing = read_pin()
+    if existing is not None:
+        if existing != version:
+            raise RuntimeError("the temporary pin does not match the running server")
+        return
+    text = (
+        "# mise-auto-update: temporary live-version pin\n"
+        "[tools]\n"
+        f'"npm:@opencode/cli" = {{ version = "{version}", '
+        'allow_builds = ["@opencode/cli"] }\n'
+    )
+    with PIN.open("x", encoding="utf-8", newline="\n") as file:
+        file.write(text)
+
+
+def release_version(version):
+    if read_pin() != version:
+        raise RuntimeError("the temporary pin changed; leaving it alone")
+    PIN.unlink()
+
+
+def require_latest_config():
+    with CONFIG.open("rb") as file:
+        config = tomllib.load(file)
+    entry = config.get("tools", {}).get(TOOL)
+    version = entry.get("version") if isinstance(entry, dict) else entry
+    if version != "latest":
+        raise RuntimeError("apply the mise config with OpenCode set to latest first")
+
+
+def persistent_terminals_running():
+    if os.name == "nt":
+        script = (
+            "$ErrorActionPreference='Stop'; "
+            "$items=@(Get-CimInstance Win32_Process -Filter \"Name = 'opencode-pty.exe'\"); "
+            "if ($items.Count -gt 0) { 'running' } else { 'idle' }"
+        )
+        status = run(
+            "pwsh", "-NoProfile", "-NonInteractive", "-Command", script, capture=True
+        ).strip()
+        if status not in ("idle", "running"):
+            raise RuntimeError("cannot verify persistent OpenCode terminals")
+        return status == "running"
+
+    return any(
+        Path(line.strip()).name == "opencode-pty"
+        for line in run("ps", "-axo", "comm=", capture=True).splitlines()
     )
 
 
-def write_if_unchanged(path, before, after):
-    if path.read_text() != before:
-        raise RuntimeError(f"{path} changed during the update; leaving it alone")
-    mode = path.stat().st_mode & 0o777
-    name = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            mode="w", dir=path.parent, delete=False
-        ) as file:
-            name = file.name
-            os.fchmod(file.fileno(), mode)
-            file.write(after)
-        if path.read_text() != before:
-            raise RuntimeError(f"{path} changed during the update; leaving it alone")
-        os.replace(name, path)
-    finally:
-        if name and os.path.exists(name):
-            os.unlink(name)
-
-
-def require_no_pending_changes(*targets):
-    for target in targets:
-        if run("chezmoi", "diff", "--no-pager", str(target), capture=True):
-            raise RuntimeError(
-                f"unapplied changes in {target}; apply them before updating"
-            )
-
-
-# shortcut: session.active excludes background-only jobs; revisit when OpenCode exposes a global activity API.
-def foreground_sessions_running():
-    opencode = str(HOME / ".local/share/mise/shims/opencode")
-    status = run(opencode, "service", "status", capture=True).strip()
-    if not status.startswith(("http://", "https://")):
-        raise RuntimeError(
-            "cannot verify active sessions: OpenCode service is unavailable"
+def opencode_processes_running():
+    if os.name == "nt":
+        script = (
+            "$ErrorActionPreference='Stop'; "
+            "$items=@(Get-CimInstance Win32_Process -Filter \"Name = 'opencode.exe'\"); "
+            "if ($items.Count -gt 0) { 'running' } else { 'idle' }"
         )
-    try:
+        status = run(
+            "pwsh", "-NoProfile", "-NonInteractive", "-Command", script, capture=True
+        ).strip()
+        if status not in ("idle", "running"):
+            raise RuntimeError("cannot verify OpenCode processes")
+        return status == "running"
+
+    return any(
+        Path(line.strip()).name == "opencode"
+        for line in run("ps", "-axo", "comm=", capture=True).splitlines()
+    )
+
+
+def server_children_running(pid):
+    if os.name == "nt":
+        script = (
+            "$ErrorActionPreference='Stop'; "
+            f'$items=@(Get-CimInstance Win32_Process -Filter "ParentProcessId = {pid}" '
+            "| Where-Object { $_.Name -notin @('OpenConsole.exe', 'conhost.exe', 'opencode-pty.exe') }); "
+            "if ($items.Count -gt 0) { 'running' } else { 'idle' }"
+        )
+        status = run(
+            "pwsh", "-NoProfile", "-NonInteractive", "-Command", script, capture=True
+        ).strip()
+        if status not in ("idle", "running"):
+            raise RuntimeError("cannot verify OpenCode child processes")
+        return status == "running"
+
+    for line in run("ps", "-axo", "pid=,ppid=,comm=", capture=True).splitlines():
+        _, parent, command = line.strip().split(maxsplit=2)
+        if int(parent) == pid and Path(command).name != "opencode-pty":
+            return True
+    return False
+
+
+def plugin_terminals_running(opencode, query):
+    # Session-scoped RPCs also need old sessions whose terminal output is retained.
+    params = {"limit": "100"}
+    while True:
         response = json.loads(
-            run(opencode, "api", "get", "/api/session/active", capture=True)
+            run(
+                opencode,
+                "api",
+                "get",
+                f"/api/session?{urlencode(params)}",
+                capture=True,
+            )
         )
-        active = response["data"]
-        if not isinstance(active, dict) or any(
-            not isinstance(item, dict) or item.get("type") != "running"
-            for item in active.values()
+        sessions = response["data"]
+        if not isinstance(sessions, list) or any(
+            not isinstance(session, dict) or not isinstance(session.get("id"), str)
+            for session in sessions
         ):
-            raise ValueError("invalid active session response")
-    except (KeyError, TypeError, ValueError) as error:
-        raise RuntimeError("cannot verify active OpenCode sessions") from error
-    return bool(active)
+            raise TypeError("cannot verify OpenCode sessions for terminal checks")
+        for session in sessions:
+            terminals = json.loads(
+                run(
+                    opencode,
+                    "api",
+                    "post",
+                    f"/api/rpc/makcimbx.opencode-pty/list?{query}",
+                    "--data",
+                    json.dumps({"input": {"sessionID": session["id"]}}),
+                    capture=True,
+                )
+            )["output"]
+            if not isinstance(terminals, list):
+                raise TypeError("cannot verify OpenCode plugin terminals")
+            if terminals:
+                return True
+        cursor = response["cursor"].get("next")
+        if cursor is not None and not isinstance(cursor, str):
+            raise TypeError("cannot verify OpenCode session pagination")
+        if not sessions or cursor is None:
+            return False
+        params["cursor"] = cursor
 
 
-def stage_install(version, config_line):
-    with tempfile.TemporaryDirectory(prefix="mise-update-") as directory:
-        directory = Path(directory)
-        (directory / ".mise.toml").write_text(f"[tools]\n{config_line}\n")
-        run("mise", "install", "--yes", TOOL, cwd=directory, timeout=900)
-        output = run(
-            "mise",
-            "exec",
-            TOOL,
-            "--",
-            "opencode",
-            "--version",
-            cwd=directory,
-            capture=True,
+def terminals_running(opencode, pid):
+    locations = json.loads(
+        run(opencode, "api", "get", "/api/debug/location", capture=True)
+    )
+    if not isinstance(locations, list):
+        raise TypeError("cannot verify OpenCode locations")
+    for location in locations:
+        if not isinstance(location, dict) or not isinstance(
+            location.get("directory"), str
+        ):
+            raise TypeError("cannot verify OpenCode locations")
+        query = urlencode({"location[directory]": location["directory"]})
+        response = json.loads(
+            run(opencode, "api", "get", f"/api/pty?{query}", capture=True)
         )
-        if output.strip() != f"opencode v{version}":
-            raise RuntimeError(f"installed OpenCode version did not match {version}")
+        terminals = response["data"]
+        if not isinstance(terminals, list) or any(
+            not isinstance(terminal, dict)
+            or terminal.get("status") not in ("running", "exited")
+            for terminal in terminals
+        ):
+            raise TypeError("cannot verify OpenCode terminals")
+        if terminals:
+            return True
+        plugins = json.loads(
+            run(opencode, "api", "get", f"/api/plugin?{query}", capture=True)
+        )["data"]
+        if not isinstance(plugins, list) or any(
+            not isinstance(plugin, dict)
+            or not isinstance(plugin.get("id"), str)
+            or not isinstance(plugin.get("state"), dict)
+            for plugin in plugins
+        ):
+            raise TypeError("cannot verify OpenCode terminal plugins")
+        if any(
+            plugin["id"] == "makcimbx.opencode-pty" for plugin in plugins
+        ) and plugin_terminals_running(opencode, query):
+            return True
+    return persistent_terminals_running() or server_children_running(pid)
 
 
-def apply_pin_update(source, original, updated, script):
-    write_if_unchanged(source, original, updated)
-    try:
+def active_work_running(opencode):
+    sessions = json.loads(
+        run(opencode, "api", "get", "/api/session/active", capture=True)
+    )["data"]
+    jobs = json.loads(
+        run(opencode, "api", "get", "/api/experimental/job", capture=True)
+    )["data"]
+    if not isinstance(sessions, dict) or not isinstance(jobs, list):
+        raise TypeError("cannot verify active OpenCode sessions and jobs")
+    if any(
+        not isinstance(job, dict)
+        or job.get("status") not in ("running", "completed", "error", "cancelled")
+        for job in jobs
+    ):
+        raise RuntimeError("cannot verify active OpenCode jobs")
+    return bool(sessions) or any(job["status"] == "running" for job in jobs)
+
+
+def service_state(opencode):
+    status = run(opencode, "service", "status", capture=True).strip()
+    if status == "stopped":
+        return None, persistent_terminals_running() or opencode_processes_running()
+    if not status.startswith(("http://", "https://")):
+        raise RuntimeError("cannot verify OpenCode service status")
+    info = json.loads(run(opencode, "api", "get", "/api/info", capture=True))
+    version = info["version"]
+    parse_version(version)
+    pid = info["pid"]
+    if not isinstance(pid, int) or pid <= 0:
+        raise TypeError("cannot verify the OpenCode process")
+    # Terminal inventory can take minutes; do not reuse activity checked before it.
+    return version, (
+        active_work_running(opencode)
+        or terminals_running(opencode, pid)
+        or active_work_running(opencode)
+    )
+
+
+def stop_service(opencode):
+    if os.name == "nt":
         run(
-            "chezmoi",
-            "apply",
-            "--no-tty",
-            "--source-path",
-            str(source),
-            str(script),
-            timeout=600,
+            "pwsh",
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "$ErrorActionPreference='Stop'; "
+            "$task=Get-ScheduledTask -TaskName 'OpenCode Server'; "
+            "if ($task.State -eq 'Running') { $task | Stop-ScheduledTask }",
         )
-    except Exception:
-        try:
-            write_if_unchanged(source, updated, original)
-            run("chezmoi", "apply", "--no-tty", "--source-path", str(source))
-        except Exception:
-            logger.exception("OpenCode update rollback failed")
-        try:
-            recover_service()
-        except Exception:
-            logger.exception("OpenCode service recovery failed")
-        raise
+    elif sys.platform == "darwin":
+        domain = f"gui/{os.getuid()}"
+        if not subprocess.run(
+            ["launchctl", "print", f"{domain}/local.opencode"],
+            capture_output=True,
+            check=False,
+        ).returncode:
+            run("launchctl", "bootout", f"{domain}/local.opencode")
+    else:
+        run("systemctl", "--user", "stop", "opencode.service")
+    run(opencode, "service", "stop")
 
 
-def read_pin(extra_targets=()):
-    source = Path(run("chezmoi", "source-path", str(MISE_TARGET), capture=True).strip())
-    require_no_pending_changes(MISE_TARGET, *extra_targets)
-    original = source.read_text()
-    target_text = MISE_TARGET.read_text()
-    current = pin(original)
-    if pin(target_text) != current:
-        raise RuntimeError("the active mise config and source pin differ for OpenCode")
-    return source, original, target_text, current
+def start_service():
+    if os.name == "nt":
+        run(
+            "pwsh",
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "$ErrorActionPreference='Stop'; Start-ScheduledTask -TaskName 'OpenCode Server'",
+        )
+    elif sys.platform == "darwin":
+        run(
+            "launchctl",
+            "bootstrap",
+            f"gui/{os.getuid()}",
+            str(HOME / "Library/LaunchAgents/local.opencode.plist"),
+        )
+    else:
+        run("systemctl", "--user", "start", "opencode.service")
 
 
-def latest_version(current):
-    latest = run("mise", "latest", TOOL, capture=True).strip()
-    if not VERSION.fullmatch(latest):
-        raise RuntimeError(f"unexpected version for {TOOL}: {latest!r}")
-    if tuple(map(int, latest.split("."))) <= tuple(map(int, current.split("."))):
-        print(f"OpenCode {current} is up to date", flush=True)
-        return
-    return latest
-
-
-def recover_service():
-    opencode = str(HOME / ".local/share/mise/shims/opencode")
+def recover_service(opencode, version):
+    hold_version(version)
     status = run(opencode, "service", "status", capture=True).strip()
     if status.startswith(("http://", "https://")):
         return
     if status != "stopped":
         raise RuntimeError("cannot verify OpenCode service status during recovery")
-    if sys.platform == "darwin":
-        domain = f"gui/{os.getuid()}"
-        if subprocess.run(
-            ["launchctl", "print", f"{domain}/local.opencode"],
-            capture_output=True,
-            check=False,
-        ).returncode:
-            run(
-                "launchctl",
-                "bootstrap",
-                domain,
-                str(HOME / "Library/LaunchAgents/local.opencode.plist"),
-            )
-    else:
-        run("systemctl", "--user", "start", "opencode.service")
+    start_service()
+    verify_service(opencode, version)
+
+
+def verify_service(opencode, expected):
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        status = run(opencode, "service", "status", capture=True).strip()
+        if status.startswith(("http://", "https://")):
+            info = json.loads(run(opencode, "api", "get", "/api/info", capture=True))
+            if not isinstance(info, dict):
+                raise TypeError("cannot verify the updated OpenCode service")
+            if info.get("version") == expected:
+                return
+        elif status != "stopped":
+            raise RuntimeError("cannot verify the updated OpenCode service")
+        time.sleep(1)
+    raise RuntimeError(f"OpenCode {expected} did not start")
 
 
 def update():
-    source_root = Path(run("chezmoi", "source-path", capture=True).strip())
-    if sys.platform == "darwin":
-        service = HOME / "Library/LaunchAgents/local.opencode.plist"
-        script = (
-            source_root / ".chezmoiscripts/macos/run_onchange_after_opencode.sh.tmpl"
-        )
-    elif sys.platform == "linux":
-        service = HOME / ".local/share/systemd/user/opencode.service"
-        script = (
-            source_root / ".chezmoiscripts/linux/run_onchange_after_opencode.sh.tmpl"
-        )
-    else:
-        raise RuntimeError(
-            "automatic OpenCode updates are not supported on this platform"
-        )
-
-    source, original, target_text, current = read_pin(extra_targets=(service,))
-    latest = latest_version(current)
-    if latest is None:
-        return
-
-    if foreground_sessions_running():
-        print("Skipping OpenCode update: a session is running", flush=True)
-        return
-
-    print(f"Installing OpenCode {current} -> {latest}", flush=True)
-    tool_line = next(line for line in target_text.splitlines() if PIN.search(line))
-    stage_install(latest, replace_pin(tool_line, latest))
-
-    require_no_pending_changes(MISE_TARGET, service)
-    if foreground_sessions_running():
-        print(
-            "Skipping OpenCode update: a session started during installation",
-            flush=True,
-        )
-        return
-    updated = replace_pin(original, latest)
-    apply_pin_update(source, original, updated, script)
-    print(f"Updated OpenCode to {latest}", flush=True)
-
-
-def main():
-    lock = HOME / ".local/state/mise/auto-update.lock"
-    lock.parent.mkdir(parents=True, exist_ok=True)
-    with lock.open("w") as file:
-        try:
-            fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError:
-            print("mise auto-update already running", flush=True)
+    require_latest_config()
+    opencode = opencode_command()
+    mise = mise_command()
+    latest = run(mise, "latest", TOOL, capture=True).strip()
+    latest_number = parse_version(latest)
+    if not Path(opencode).is_file():
+        if persistent_terminals_running() or opencode_processes_running():
+            print(
+                "OpenCode may be running without its mise shim; deferring installation"
+            )
             return
-        update()
+        run(mise, "install", "--yes", f"{TOOL}@{latest}", timeout=900)
+        print(f"Installed OpenCode {latest}")
+        return
+    version, busy = service_state(opencode)
+    if busy:
+        print(
+            f"OpenCode latest is {latest}; deferring update because sessions, "
+            "jobs, or terminals may be in use"
+        )
+        return
+
+    current = version or run(mise, "current", TOOL, capture=True).strip()
+    current_number = parse_version(current)
+    if latest_number <= current_number:
+        if version is None and read_pin() is not None:
+            release_version(current)
+        print(f"OpenCode {current} is up to date")
+        return
+
+    # A temporary global override keeps every mise shim on the running version
+    # while installation moves mise's latest alias.
+    hold_version(current)
+    run(mise, "install", "--yes", f"{TOOL}@{latest}", timeout=900)
+    checked_version, busy = service_state(opencode)
+    if busy or checked_version != version:
+        print("OpenCode activity changed during installation; retrying when idle")
+        return
+
+    stop_attempted = False
+    try:
+        if version is not None:
+            stop_attempted = True
+            stop_service(opencode)
+        release_version(current)
+        if stop_attempted:
+            start_service()
+            verify_service(opencode, latest)
+    except Exception:
+        if stop_attempted:
+            try:
+                recover_service(opencode, current)
+            except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+                print(f"OpenCode service recovery failed: {error}", file=sys.stderr)
+        raise
+    print(f"Updated OpenCode {current} -> {latest}")
+
+
+@contextlib.contextmanager
+def update_lock():
+    path = HOME / ".local/state/mise/auto-update.lock"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a+b") as file:
+        if os.name == "nt":
+            import msvcrt
+
+            file.seek(0)
+            if not file.read(1):
+                file.write(b"0")
+                file.flush()
+            file.seek(0)
+            msvcrt.locking(file.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        yield
 
 
 if __name__ == "__main__":
     try:
-        main()
-    except (OSError, RuntimeError, subprocess.SubprocessError) as error:
-        print(f"mise auto-update failed: {error}", file=sys.stderr, flush=True)
+        with update_lock():
+            update()
+    except (
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+        subprocess.SubprocessError,
+    ) as error:
+        print(f"mise auto-update failed: {error}", file=sys.stderr)
         sys.exit(1)

@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "linux" -}}
 #!/bin/sh
 
 set -eu
@@ -14,11 +13,10 @@ kwriteconfig6 --file kdeglobals --group General --key toolBarFont 'SF Pro Text,1
 kwriteconfig6 --file kdeglobals --group General --key fixed 'JuliaMono Nerd Font Mono,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1'
 
 for version in 3.0 4.0; do
-    file="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-$version/settings.ini"
-    kwriteconfig6 --file "$file" --group Settings --key gtk-font-name 'SF Pro Text 11'
-    kwriteconfig6 --file "$file" --group Settings --key gtk-xft-antialias 1
-    kwriteconfig6 --file "$file" --group Settings --key gtk-xft-hinting 1
-    kwriteconfig6 --file "$file" --group Settings --key gtk-xft-hintstyle hintfull
-    kwriteconfig6 --file "$file" --group Settings --key gtk-xft-rgba none
+  file="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-$version/settings.ini"
+  kwriteconfig6 --file "$file" --group Settings --key gtk-font-name 'SF Pro Text 11'
+  kwriteconfig6 --file "$file" --group Settings --key gtk-xft-antialias 1
+  kwriteconfig6 --file "$file" --group Settings --key gtk-xft-hinting 1
+  kwriteconfig6 --file "$file" --group Settings --key gtk-xft-hintstyle hintfull
+  kwriteconfig6 --file "$file" --group Settings --key gtk-xft-rgba none
 done
-{{- end }}

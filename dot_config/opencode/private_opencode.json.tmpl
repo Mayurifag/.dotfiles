@@ -1,7 +1,7 @@
 {{- $buildModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual "effort" .aiModels.usual.buildEffort) -}}
 {{- $ultrathinkModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.ultrathink "effort" .aiModels.ultrathink.effort) -}}
 {{- $thinkModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.smart "effort" .aiModels.smart.effort) -}}
-{{- $lunaFastModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.fast "effort" .aiModels.fast.effort) -}}
+{{- $lunaModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.fast "effort" .aiModels.fast.effort) -}}
 {{- $localModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.local) -}}
 {
   "$schema": "https://opencode.ai/config.json",
@@ -47,8 +47,8 @@
     },
     "luna": {
       "mode": "primary",
-      "model": {{ $lunaFastModel | toJson }},
-      "description": {{ printf "Luna Fast (%s)" $lunaFastModel | toJson }}
+      "model": {{ $lunaModel | toJson }},
+      "description": {{ printf "Luna (%s)" $lunaModel | toJson }}
     },
     {{ if eq .chezmoi.os "linux" -}}
     "qwen": {
@@ -58,7 +58,7 @@
     },
     {{ end -}}
     "title": {
-      "model": {{ $lunaFastModel | toJson }}
+      "model": {{ $lunaModel | toJson }}
     },
     "plan": {
       "disabled": true

@@ -1,9 +1,8 @@
-{{- if eq .chezmoi.os "windows" -}}
 $ErrorActionPreference = 'Stop'
 
 Write-Host '[chezmoi] running windows/20-windows-terminal'
 
-$source = Join-Path $env:USERPROFILE ".local\share\chezmoi\dot_config\windows-terminal\settings.json"
+$source = {{ template "windows-checkout-path" (dict "chezmoi" .chezmoi "path" "dot_config/windows-terminal/settings.json") }}
 $wtLocalState = Join-Path $env:LOCALAPPDATA "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState"
 $target = Join-Path $wtLocalState "settings.json"
 
@@ -58,4 +57,3 @@ if (Test-Path $target) {
     Write-Host "     Try running: cmd /c mklink `"$target`" `"$source`"" -ForegroundColor Red
     exit 1
 }
-{{- end }}

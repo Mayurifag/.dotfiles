@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
 
 set -euo pipefail
@@ -34,4 +33,3 @@ echo "  kanata setup complete."
 echo "  If kanata failed to start, LOG OUT and LOG BACK IN, then run:"
 echo "    systemctl --user start kanata"
 echo "======================================================================"
-{{- end }}

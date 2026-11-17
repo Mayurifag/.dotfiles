@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+# OpenCode: {{ regexFind `(?m)^"npm:@opencode/cli"[^\r\n]*` (include "dot_config/mise/config.toml.tmpl") | sha256sum }}
+opencode="$HOME/.local/share/mise/shims/opencode"
+if [ ! -x "$opencode" ]; then
+  processes=$(ps -axo comm=)
+  if printf '%s\n' "$processes" | grep -Eq '(^|/)(opencode|opencode-pty)$'; then
+    printf '%s\n' 'OpenCode may be running without its mise shim; leaving it alone.' >&2
+    exit 1
+  fi
+  exit 0
+fi
+
+"$HOME/.local/share/mise/shims/python3" - {{ .chezmoi.sourceDir | shellQuote }}/dot_local/bin/executable_mise-auto-update <<'PY'
+import json
+import runpy
+import sys
+
+updater = runpy.run_path(sys.argv[1])
+opencode = updater["opencode_command"]()
+run = updater["run"]
+status = run(opencode, "service", "status", capture=True).strip()
+if status.startswith(("http://", "https://")):
+    version = json.loads(run(opencode, "api", "get", "/api/info", capture=True))["version"]
+elif status == "stopped":
+    if not (updater["persistent_terminals_running"]() or updater["opencode_processes_running"]()):
+        sys.exit(0)
+    version = run(updater["mise_command"](), "current", updater["TOOL"], capture=True).strip()
+else:
+    raise RuntimeError("cannot verify OpenCode service status")
+updater["hold_version"](version)
+PY

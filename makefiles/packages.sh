@@ -99,6 +99,7 @@ pin_mise_tools() (
 pin_mise_tool_file() {
   tools=$1
   while read -r tool current; do
+    [ "$current" = latest ] && continue
     latest_tool=$tool
     if [ "$tool" = ruby ]; then
       case "$current" in
@@ -167,9 +168,11 @@ mise_sync() (
     chezmoi apply "$MISE_TARGET"
     while read -r tool version; do
       [ -n "$version" ] || continue
+      [ "$tool" = npm:@opencode/cli ] && continue
       mise install --yes "$tool"
     done <"$tools"
     mise reshim
+    update_opencode
   fi
 )
 
@@ -181,8 +184,13 @@ prune_mise_installs() {
 
 mise_install() {
   mise install --yes
-  mise upgrade --yes
+  mise upgrade --yes --exclude npm:@opencode/cli
   mise reshim
+  update_opencode
+}
+
+update_opencode() {
+  MISE_AUTO_INSTALL=0 mise exec -- python "$DOTFILES_DIR/dot_local/bin/executable_mise-auto-update"
 }
 
 install_language_packages() {
