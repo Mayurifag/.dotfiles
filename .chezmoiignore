@@ -34,6 +34,10 @@ Library/
 .config/kanata/
 {{- end }}
 
+{{ if and (eq .chezmoi.os "linux") (eq .chezmoi.hostname "steamdeck") -}}
+.chezmoiscripts/linux/run_once_setup-kanata.sh
+{{- end }}
+
 {{ if ne .chezmoi.os "linux" -}}
 .chezmoiscripts/linux/**
 .local/share/vicinae/

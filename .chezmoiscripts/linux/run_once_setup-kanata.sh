@@ -1,4 +1,3 @@
-{{- if and (eq .chezmoi.os "linux") (ne .chezmoi.hostname "steamdeck") -}}
 #!/usr/bin/env bash
 
 set -euo pipefail

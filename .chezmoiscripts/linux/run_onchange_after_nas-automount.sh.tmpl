@@ -61,4 +61,3 @@ fi
 if ! systemctl is-enabled --quiet "$automount_unit" || ! systemctl is-active --quiet "$automount_unit"; then
   sudo systemctl enable --now "$automount_unit"
 fi
-{{- end }}
