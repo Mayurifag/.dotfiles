@@ -1,45 +1,113 @@
 #!/usr/bin/env python3
+import json
 import os
-import shutil
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 
-def output(*cmd):
-    p = subprocess.run(cmd, capture_output=True, text=True, check=False)
-    return p.stdout.strip() if p.returncode == 0 else ""
+def chezmoi(*args):
+    return subprocess.run(["chezmoi", *args], capture_output=True, check=False)
 
 
 def resolve(path):
-    src = output("chezmoi", "source-path", path)
-    if not src:
-        added = subprocess.run(
-            ["chezmoi", "add", "--force", path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        )
-        if added.returncode != 0:
-            print(f"czsrc: {path} not managed", file=sys.stderr)
-            return None
-        src = output("chezmoi", "source-path", path)
-    if not src:
-        print(f"czsrc: {path} not managed", file=sys.stderr)
+    managed = chezmoi("managed", "--include=files", "--path-style=absolute", "--", path)
+    if managed.returncode:
+        print(f"czsrc: could not check whether {path} is managed", file=sys.stderr)
         return None
-    return src
+    if not managed.stdout.strip():
+        print(
+            f"czsrc: {path} is not managed; add it explicitly after checking for secrets",
+            file=sys.stderr,
+        )
+        return None
+    source = chezmoi("source-path", "--", path)
+    if source.returncode or not source.stdout.strip():
+        print(f"czsrc: could not resolve the source of {path}", file=sys.stderr)
+        return None
+    return Path(os.fsdecode(source.stdout.strip()))
+
+
+def contains_credentials(data):
+    try:
+        obj = json.loads(data)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return bool(
+            re.search(
+                rb'(?i)\b[a-z0-9_-]*(?:auths?|authorization|password|passwd|token|secret|credentials?|api[_-]?key|(?:private|access)[_-]?key(?:[_-]?id)?)\b["\']?\s*[:=]',
+                data,
+            )
+        )
+
+    def scan(value):
+        if isinstance(value, dict):
+            return any(
+                (
+                    re.sub(r"[^a-z0-9]", "", key.lower()).endswith(
+                        (
+                            "auth",
+                            "auths",
+                            "authorization",
+                            "password",
+                            "passwd",
+                            "token",
+                            "secret",
+                            "credential",
+                            "credentials",
+                            "apikey",
+                            "privatekey",
+                            "accesskey",
+                            "accesskeyid",
+                        )
+                    )
+                    and bool(item)
+                )
+                or scan(item)
+                for key, item in value.items()
+            )
+        return isinstance(value, list) and any(scan(item) for item in value)
+
+    return scan(obj)
+
+
+def private_source(src):
+    return any(
+        part.lower().startswith("private_") or "_private_" in part.lower()
+        for part in src.parts
+    )
+
+
+def same_content(rendered, target):
+    if rendered == target:
+        return True
+    try:
+        return json.dumps(json.loads(rendered), sort_keys=True) == json.dumps(
+            json.loads(target), sort_keys=True
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return False
+
+
+def confirm(question):
+    try:
+        return input(f"czsrc: {question} [y/N] ").strip().lower() in ("y", "yes")
+    except EOFError:
+        return False
 
 
 def run_ai(tmpl, dest):
     model = os.environ.get("CZSRC_AI_MODEL")
-    srcdir = output("chezmoi", "source-path") or str(
-        Path.home() / ".local" / "share" / "chezmoi"
-    )
+    source_dir = chezmoi("source-path")
+    if source_dir.returncode or not source_dir.stdout.strip():
+        print("czsrc: could not resolve the chezmoi source directory", file=sys.stderr)
+        return 1
+    srcdir = os.fsdecode(source_dir.stdout.strip())
     prompt = (
         f"Read chezmoi template {tmpl} and destination {dest}. "
         f"Run chezmoi diff {dest}, then edit the template to match the destination. "
         "Preserve all conditionals, includes, loops, and OS checks. "
-        "Do not edit the destination."
+        "Do not edit the destination, run chezmoi add, or replace the template."
     )
     return subprocess.run(
         [
@@ -54,54 +122,113 @@ def run_ai(tmpl, dest):
 
 
 def sync(dest_path):
+    dest_path = str(Path(dest_path).expanduser())
     src = resolve(dest_path)
-    if not src:
+    if src is None:
         return 1
-    if src.endswith(".tmpl"):
-        print(f"{dest_path} -> {src} (AI)")
-        return run_ai(src, str(Path(dest_path).expanduser().resolve()))
-    print(f"{dest_path} -> {src}")
     try:
-        shutil.copy2(Path(dest_path).expanduser(), src)
+        target = Path(dest_path).read_bytes()
+        source = src.read_bytes()
     except OSError as e:
-        print(f"  failed: {e}")
+        print(f"czsrc: could not read {dest_path} or its source: {e}", file=sys.stderr)
         return 1
-    print("  copied")
+    if src.name.endswith(".tmpl"):
+        rendered = chezmoi("cat", "--", dest_path)
+        if rendered.returncode:
+            print(f"czsrc: could not render {src}", file=sys.stderr)
+            return 1
+        if same_content(rendered.stdout, target):
+            print(f"{dest_path} -> {src} (already in sync)")
+            return 0
+        # Let chezmoi detect secret functions, including those in nested templates.
+        without_secrets = chezmoi("cat", "--skip-secrets", "--", dest_path)
+        expressions = re.findall(rb"{{.*?}}", source, flags=re.DOTALL)
+        sensitive = (
+            without_secrets.returncode
+            or without_secrets.stdout != rendered.stdout
+            or private_source(src)
+            or contains_credentials(target)
+            or any(
+                re.search(
+                    rb"(?i)ejsondecrypt|secret|credential|password|token|private.?key",
+                    expr,
+                )
+                for expr in expressions
+            )
+        )
+        if sensitive:
+            print(
+                f"czsrc: {dest_path} may contain credentials; edit {src} locally instead of sending it to AI",
+                file=sys.stderr,
+            )
+            return 1
+        if not confirm(
+            f"send {dest_path}, {src}, and possibly related files to AI after checking them for secrets?"
+        ):
+            print("czsrc: AI sync cancelled", file=sys.stderr)
+            return 1
+        print(f"{dest_path} -> {src} (AI)")
+        return run_ai(src, str(Path(dest_path).resolve()))
+    encrypted = chezmoi(
+        "managed", "--include=encrypted", "--path-style=absolute", "--", dest_path
+    )
+    if encrypted.returncode:
+        print(
+            f"czsrc: could not check whether {dest_path} is encrypted", file=sys.stderr
+        )
+        return 1
+    if not encrypted.stdout.strip():
+        if contains_credentials(target):
+            print(
+                f"czsrc: refusing to copy possible credentials into {src}",
+                file=sys.stderr,
+            )
+            return 1
+        if not confirm(
+            f"copy {dest_path} as plaintext into {src} after checking it for secrets?"
+        ):
+            print("czsrc: plaintext sync cancelled", file=sys.stderr)
+            return 1
+    print(f"{dest_path} -> {src}")
+    result = chezmoi("re-add", "--", dest_path)
+    if result.returncode:
+        print(f"czsrc: could not re-add {dest_path}", file=sys.stderr)
+        return 1
+    print("  synced")
     return 0
 
 
-if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
-    print("Usage: czsrc [path ...]")
-    raise SystemExit(0)
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] in ("-h", "--help"):
+        print("Usage: czsrc [path ...]")
+        return 0
 
-if len(sys.argv) > 1:
-    paths = sys.argv[1:]
-else:
-    p = subprocess.run(
-        ["chezmoi", "status", "--include=files", "--path-style=absolute"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if p.returncode != 0:
-        sys.stderr.write(p.stderr)
-        raise SystemExit(p.returncode)
-    paths = []
-    for line in p.stdout.splitlines():
-        if len(line) < 4 or line[0] not in "AM" or line[1] == "D":
-            continue
-        dest = line[3:]
-        if output("chezmoi", "source-path", dest):
-            paths.append(dest)
+    if len(sys.argv) > 1:
+        paths = sys.argv[1:]
+    else:
+        p = subprocess.run(
+            ["chezmoi", "status", "--include=files", "--path-style=absolute"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if p.returncode != 0:
+            sys.stderr.write(p.stderr)
+            return p.returncode
+        paths = [
+            line[3:]
+            for line in p.stdout.splitlines()
+            if len(line) >= 4 and line[0] in "AM" and line[1] != "D"
+        ]
 
-if not paths:
-    print("No edited home files to sync.")
-    raise SystemExit(0)
+    if not paths:
+        print("No edited home files to sync.")
+        return 0
 
-failed = 0
-for path in paths:
-    if sync(path) != 0:
-        failed += 1
+    failed = sum(sync(path) != 0 for path in paths)
+    print(f"Done: {len(paths) - failed} files synced, {failed} failed")
+    return int(failed != 0)
 
-print(f"Done: {len(paths) - failed} files synced, {failed} failed")
-raise SystemExit(1 if failed else 0)
+
+if __name__ == "__main__":
+    raise SystemExit(main())
