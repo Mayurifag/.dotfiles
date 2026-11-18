@@ -62,6 +62,7 @@ llmfit = "0.9.23"
 watchexec = "2.8.0"
 [%- if eq .chezmoi.os "windows" %]
 "github:vicinaehq/vicinae" = { version = "0.30.0", asset_pattern = "vicinae-x64-portable.zip" }
+"github:krisgfx9/Wireless-Device-Battery-Monitor" = { version = "1.0.8", asset_pattern = "WirelessBattery-*-portable.zip" }
 [%- end %]
 [%- if eq .chezmoi.os "linux" %]
 "github:Mayurifag/conditional-launcher" = "0.1.8"
