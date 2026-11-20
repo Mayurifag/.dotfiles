@@ -4,6 +4,8 @@
   safe retrieval/use path exists, ask them to authenticate directly in the app or system, not disclose the secret.
 - Before declaring an API key missing, check encrypted field names and env-var presence without values; distinguish
   stored credentials from those actually passed to the service.
+- Inspect inventories, rendered config, auth, and service files only through explicit non-secret key allowlists; never
+  dump secret-bearing files or search them broadly.
 - Use `kpxc-cli`, not upstream `keepassxc-cli`. Check `kpxc-cli status`; KeePassXC must run with Browser Integration. If
   locked, notify the user and run `kpxc-cli unlock`; let them complete any biometric/password prompt in KeePassXC, never
   request or handle the master password. If still unassociated, use `kpxc-cli setup`; let them approve prompts.

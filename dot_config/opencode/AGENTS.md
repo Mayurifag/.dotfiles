@@ -19,12 +19,12 @@ Paths are relative to `~/airules/`; keep this index complete.
 - `git-crypt.md` -> encrypted secrets, ejson, git-crypt
 - `go.md` -> Go projects
 - `homelab.md` -> homelab, home router/LAN, Proxmox, Home Assistant, Immich, private DNS/TLS, NetBird
-- `installation.md` -> software installs, deployments, upgrades; telemetry research and opt-outs
+- `installation.md` -> software installs, deployments, upgrades, package ownership; telemetry research and opt-outs
 - `javascript.md` -> JavaScript projects
-- `makefiles.md` -> Makefiles, make targets
-- `markdown.md` -> Markdown files
+- `makefiles.md` -> build/test/lint/install/generation commands in repositories with Makefiles; Makefile edits
+- `markdown.md` -> Markdown files; authoring or editing agent instructions, airules, and skills
 - `opencode.md` -> OpenCode config, agents, skills, plugins, MCP, permissions
-- `passwords.md` -> password retrieval, credential use, shared sudo entry
+- `passwords.md` -> password retrieval, credential use, secret-safe config/auth inspection, shared sudo entry
 - `performance.md` -> performance investigations, profiling, optimization of apps and services
 - `pr-description.md` -> PR descriptions
 - `python.md` -> Python projects
@@ -36,6 +36,7 @@ Paths are relative to `~/airules/`; keep this index complete.
 - `userjs-usercss.md` -> shared UserJS/UserCSS versioning, README, browser testing
 - `usercss.md` -> UserCSS projects
 - `userjs.md` -> UserJS projects
+- `windows.md` -> Windows software, app execution, user/service sessions
 - `writing.md` -> all AI-authored prose, including replies, docs, comments, and UI copy
 
 ## Research

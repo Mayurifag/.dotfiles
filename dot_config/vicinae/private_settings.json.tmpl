@@ -57,6 +57,17 @@
     },
     "applications": {
       "entrypoints": {
+{{- if eq .chezmoi.os "windows" }}
+{{- $heliumShortcut := joinPath (env "APPDATA") "Microsoft" "Windows" "Start Menu" "Programs" "Helium.lnk" }}
+{{- if stat $heliumShortcut }}
+{{- $heliumId := output "pwsh.exe" "-NoProfile" "-NonInteractive" "-Command" `(New-Object -ComObject Shell.Application).NameSpace("$env:APPDATA\Microsoft\Windows\Start Menu\Programs").ParseName('Helium.lnk').ExtendedProperty('System.AppUserModel.ID')` | trim | lower }}
+{{- if $heliumId }}
+        {{ printf "win32:aumid:%s" $heliumId | toJson }}: {"shortcut": "super+X"},
+{{- end }}
+{{- end }}
+{{- else if eq .chezmoi.os "darwin" }}
+        "net.imput.helium": {"shortcut": "alt+X"},
+{{- end }}
         "cachyos-hello": {"enabled": false},
         "com.ayugram": {"alias": "telegram"}
       }

@@ -32,6 +32,7 @@ kwriteconfig6 --file kglobalshortcutsrc --group services --group org.kde.krunner
 kwriteconfig6 --file kglobalshortcutsrc --group services --group vicinae-toggle.desktop --key _launch 'Meta+Space'
 # Keep the existing KDE desktop ID while changing its command to Quick AI.
 kwriteconfig6 --file kglobalshortcutsrc --group services --group vicinae-ai-chat.desktop --key _launch 'Alt+Space'
+kwriteconfig6 --file kglobalshortcutsrc --group services --group vicinae-helium.desktop --key _launch 'Meta+X'
 
 if busctl --user status org.kde.kglobalaccel >/dev/null 2>&1; then
   busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel setForeignShortcut asai \
@@ -52,4 +53,11 @@ if busctl --user status org.kde.kglobalaccel >/dev/null 2>&1; then
     4 vicinae-ai-chat.desktop _launch 'Vicinae Quick AI' 'Vicinae Quick AI' 1 134217760 6
   test "$(busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel action i 134217760)" = \
     'as 4 "vicinae-ai-chat.desktop" "_launch" "Vicinae Quick AI" "Vicinae Quick AI"'
+  busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel doRegister as \
+    4 vicinae-helium.desktop _launch 'Open Helium' 'Open Helium'
+  # Qt Meta+X; flags 6 set the shortcut and activate it without loading old keys.
+  busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel setShortcut asaiu \
+    4 vicinae-helium.desktop _launch 'Open Helium' 'Open Helium' 1 268435544 6
+  test "$(busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel action i 268435544)" = \
+    'as 4 "vicinae-helium.desktop" "_launch" "Open Helium" "Open Helium"'
 fi

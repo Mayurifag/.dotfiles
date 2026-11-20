@@ -35,6 +35,8 @@ else {
 $wirelessBattery = & mise which --cd $HOME WirelessBattery.exe 2>$null
 if ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $wirelessBattery)) {
     $run = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
-    New-Item -Path $run -Force | Out-Null
+    if (-not (Test-Path -LiteralPath $run)) {
+        New-Item -Path $run | Out-Null
+    }
     New-ItemProperty -Path $run -Name 'WirelessBattery' -Value "`"$wirelessBattery`"" -PropertyType String -Force | Out-Null
 }

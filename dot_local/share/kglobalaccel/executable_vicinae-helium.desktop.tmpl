@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Open Helium
+Exec={{ if eq .chezmoi.hostname "steamdeck" }}{{ .chezmoi.homeDir }}/.local/bin/vicinae{{ else }}vicinae{{ end }} cmd launch applications:helium

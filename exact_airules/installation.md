@@ -16,6 +16,15 @@
   report collection found, opt-outs and locations, unsupported opt-outs, unavoidable/enabled collection, and uncertainty
   or verification gaps. If none was found, name sources checked rather than asserting absence.
 
+## Package Ownership
+
+- Before OS dependencies, check ignored packages and mise runtimes. Never override `IgnorePkg` without approval or
+  duplicate a mise-owned runtime.
+- Give each package one owner. Prefer cross-platform tool/language managers; use OS managers for OS-specific apps,
+  system libraries, GUI apps, drivers, fonts, or unsuitable/unavailable tools.
+- When moving/removing packages, update the old manager file and uninstall/prune from the current machine.
+- This machine's managed package lists and install commands -> `~/airules/chezmoi.md`.
+
 ## Steam Deck / SteamOS
 
 - Treat the SteamOS system image as immutable. Do not disable read-only protection, modify vendor system files, or use

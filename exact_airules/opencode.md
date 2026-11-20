@@ -10,6 +10,5 @@
 - Treat `permissions` as the tool-access boundary. Add narrow `ask`/`deny` rules for consequential actions and preserve
   required workflows with specific exceptions; test effective permissions after changes. Prompts are guidance, not
   enforcement, and `--auto` approves requests that are not explicitly denied.
-- Inspect inventories/rendered config, auth, and service files only through explicit non-secret key allowlists; never
-  dump secret-bearing files or search them broadly.
+- Secret-safe inspection of inventories, rendered config, auth, and service files -> `~/airules/passwords.md`.
 - Pin the live mise version before staging major upgrades; installs can move `latest` aliases before config applies.
