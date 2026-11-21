@@ -22,7 +22,7 @@ indent_size = 4
 insert_final_newline = false
 indent_style = space
 
-[dot_config/mpv/scripts/dark-box.lua]
+[dot_config/exact_mpv/scripts/dark-box.lua]
 insert_final_newline = false
 
 # Orbstack overrides config with its own version so lets comply with it, I love its developer

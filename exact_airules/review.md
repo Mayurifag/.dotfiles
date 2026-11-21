@@ -17,8 +17,15 @@ When the user says “review” (or equivalent):
 - Fix bloat and clear rule violations by default; report other defects without editing unless fixes are requested.
 - Prioritize correctness, security, data loss, races, failure handling, and risky untested behavior. Require concrete
   failure scenarios or maintenance costs. Separate defects, uncertainty, and optional improvements.
-- Findings first, by severity: `path:line`, trigger, consequence, smallest adequate fix. Skip cosmetic nits. Say if no
-  findings. State material coverage gaps without implying proof of correctness.
+- Compare candidates by root cause; merge duplicates without hiding distinct impacts or fixes.
+- Novelty claims -> check accessible prior findings and relevant public advisories; report search gaps.
+- Security findings -> trace entry point, trust boundary, prerequisites, and impact. Use authorized, harmless
+  reproductions and negative controls when practical; label unverified impact.
+- Findings first, numbered by severity; keep numbers stable in follow-ups. For each, explain `path:line`, cause and
+  realistic trigger, what can go wrong and who or what is affected, evidence or uncertainty, and the smallest adequate
+  fix. When asking for a decision, reference the finding number, explain why the user's input is needed, compare
+  relevant consequences and tradeoffs, and recommend a default when possible. Skip cosmetic nits. Say if no findings.
+  State material coverage gaps without implying proof of correctness.
 - Before declaring code unused, check callers, tests, config, fixtures, generated integrations, and dynamic references.
 
 ## Repository Audits

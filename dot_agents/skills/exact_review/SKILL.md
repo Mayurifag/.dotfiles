@@ -29,6 +29,9 @@ Review changes for concrete defects and apply equivalent simplifications within 
 
 ## Report
 
-Lead with findings by severity (impact and likelihood): `path:line`, trigger, consequence, evidence or reproduction, and
-smallest adequate fix. Separate optional improvements; skip cosmetic nits. List applied simplifications and verification
-results, including gaps. If no findings, say so without implying proof of correctness.
+Lead with numbered findings by severity (impact and likelihood); keep numbers stable in follow-ups. For each, explain
+`path:line`, cause and realistic trigger, what can go wrong and who or what is affected, evidence or uncertainty, and
+the smallest adequate fix. When asking for a decision, reference the finding number, explain why the user's input is
+needed, compare relevant consequences and tradeoffs, and recommend a default when possible. Separate optional
+improvements; skip cosmetic nits. List applied simplifications and verification results, including gaps. If no findings,
+say so without implying proof of correctness.

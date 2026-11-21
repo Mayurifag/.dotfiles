@@ -1,73 +1,41 @@
 # Chezmoi Managed Home
 
-## Core Rule
+- Edit source in `{{ .chezmoi.sourceDir }}`, then apply; never edit managed home targets directly.
+- Check ownership with `chezmoi managed <path>` or source mappings; prefer managing unmanaged targets.
+- Sources: `~/airules` -> `exact_airules`; `~/.gitconfig` -> `dot_gitconfig.tmpl`; `~/.zshrc` -> `dot_zshrc.tmpl`;
+  Git post-checkout -> `dot_config/git/exact_hooks/executable_post-checkout`.
+- `dot_` -> leading dot; `.tmpl` -> Go template; `executable_` -> executable. Use templates only for host values/secrets;
+  prefer app env vars plus env templates when `${VAR}` works. Use `exact_` for source-owned directories/subdirectories,
+  not app roots containing credentials, state, or dependencies.
+- Deleted managed files -> add target paths to `.chezmoiremove`; ensure `.chezmoiignore` permits removal on affected hosts.
 
-- Edit source in `{{ .chezmoi.sourceDir }}`, then apply; never edit managed home targets directly (apply overwrites them).
-- Prefer adding unmanaged targets to chezmoi. Check ownership with `chezmoi managed <path>` or source mappings.
+## Task References
 
-## Common Sources
+Paths below are relative to `~/airules/`; load only matching references.
 
-- `~/.config/git/hooks/post-checkout` -> `dot_config/git/exact_hooks/executable_post-checkout`
-- `~/.gitconfig` -> `dot_gitconfig.tmpl`
-- `~/.zshrc` -> `dot_zshrc.tmpl`
-- `~/airules` -> `exact_airules`
-- `run_*` scripts -> `.chezmoiscripts/{posix,macos,linux,windows}/`
+- Package installs/moves/removals, manager manifests -> `chezmoi/packages.md`
+- Shell/env/alias changes -> `chezmoi/shell.md`
+- Setup scripts, script marking/removal -> `chezmoi/scripts.md`
+- AI models -> shared `aiModels` roles in `.chezmoidata.toml` and README's AI model roles section
 
-## Conventions
+## Repository Work
 
-- `dot_foo` -> `~/.foo`; `dot_config/` -> `~/.config/`; `.tmpl` -> Go template; `executable_` -> executable target.
-- `run_once_` / `run_after_` -> run by `chezmoi apply`.
-- Use `.tmpl` only for host-specific values/secrets; prefer app env vars plus env templates when `${VAR}` expansion works.
-- Use `exact_` only for fully source-owned directories, not app roots with credentials/state/dependencies; make managed subdirectories exact.
+- Keep reusable rules in `exact_airules/`; update the parent index for subfiles and `dot_config/opencode/AGENTS.md` for
+  root topics. Apply changed rules and all shared AGENTS.md targets.
+- Add permanent tests/mocks/fixtures only on request; use existing checks or temporary self-checks.
+- Prefer config changes; explain maintenance costs before app patches/forks. Keep cleanup task-scoped.
+- Before migration/cleanup, verify old files and live service state; source definitions are not deployment evidence.
+  Ask if a relevant host is inaccessible. Assume one user/app state and one cleanup suffice; mention repeat cleanup
+  in the summary and ask before adding it.
+- Find `one-off:` comments and `one-off` script filenames, including hidden scripts. Remove proven obsolete scripts and
+  temporary artifacts, preserving outputs and setup needed on future hosts. Verify affected hosts and future install/
+  upgrade needs; a successful run alone is not proof. If proof/access is missing, ask before removal.
+- OS-specific behavior and cleanup -> `general-coding.md`; Windows commands -> `windows.md`.
 
-## Removed Files
+## Verification
 
-- Add every deleted chezmoi-managed file's target path to `.chezmoiremove`. Ensure `.chezmoiignore` does not suppress
-  removal on affected machines.
-
-## Verify Edits
-
-- Before finishing any chezmoi edit, check `chezmoi status` and `timeout 2 chezmoi diff`, then try `czapply` (or `timeout 2 chezmoi apply -v` when the alias is unavailable). If a full apply is unsafe, apply only task targets. Verify they are applied; report failures, timeouts, and remaining task work. Ask the user to run `czapply` if needed.
-
-## Agent Behavior
-
-- Keep reusable rules in `exact_airules/`; update `dot_config/opencode/AGENTS.md` for additions/renames/removals. Apply changed rules and all shared AGENTS.md targets.
-- For AI model changes, use the shared `aiModels` roles in `.chezmoidata.toml` and follow the README’s AI model roles section.
-- In this repo, add permanent tests, mocks, or fixtures only on request; use existing checks or temporary self-checks.
-- Prefer configuration changes; explain maintenance costs before application patches/forks. Keep cleanup task-scoped unless broader refactoring is requested.
-- Verify old files and service state before migration or cleanup; source definitions alone do not prove deployment. If a
-  relevant host is inaccessible, ask instead of assuming. Keep cleanup minimal: assume one user/app state and one
-  completed cleanup is enough. Mention repeat cleanup in the summary and ask before adding it.
-- Before finishing tasks that run commands, check `git status --short` for unexpected generated files or edits.
-- Before finishing tasks that spawn background processes, check `pty_list` and kill task-owned sessions.
-
-## Packages
-
-- Package ownership and manager migrations -> `~/airules/installation.md`.
-- `install/*file` (`npmfile`, `Brewfile`, `Wingetfile`, `uv-file`, `Gofile`, etc.) is authoritative; `make mise-packages` should prune unlisted globals.
-- Add permanent packages to the matching managed file before installing, even if upstream prescribes global installs.
-  Exception: Steam Deck AppImage/Flatpak installs follow `installation.md`; do not create unused package manifests.
-  Temporary tools -> `installation.md`.
-- Winget: add ID to `install/Wingetfile`, then `make winget-packages`. Hand-run `winget install` only if that target is unavailable or being debugged, with
-  `--silent --disable-interactivity --accept-package-agreements --accept-source-agreements`.
-
-## Cross-Platform
-
-- Keep Arch/macOS/Win11 consistent where possible. Windows commands -> `~/airules/windows.md`.
-- Windows MinGW: use `winget install --id BrechtSanders.WinLibs.POSIX.UCRT --exact --silent --disable-interactivity --accept-package-agreements --accept-source-agreements`, not MSYS2 `pacman`.
-- Check `.chezmoitemplates/env_vars_ps1` and `env_vars_posix`, including aliases and env-backed app config.
-- Put simple aliases in `.chezmoidata.toml` `[sharedAliases]`, not shell templates.
-
-## Scripts
-
-- Mark temporary scripts with `one-off:` in a source comment describing their purpose, affected hosts, and a verifiable
-  completion condition. Do not mark per-machine setup still needed on new hosts. For an already-run `run_once_` script,
-  `one-off` in its filename is an alternative if references, ordering, and rendered content remain safe.
-- When working in this repo, look for `one-off:` comments and `one-off` script filenames, including hidden scripts.
-  Verify actual results on affected hosts and whether future installs/upgrades still need the script; a successful run
-  alone is not proof. Remove completed, obsolete scripts and their temporary artifacts, preserving intended outputs. If
-  proof or host access is missing, ask before removing.
-- Changing rendered `run_once_`/`run_onchange_` content, including comments, can rerun a script. Use non-rendered template
-  comments and verify unchanged rendered bytes when marking existing scripts; do not edit already-run non-template scripts
-  just to add a marker.
-- Prefer Python (available on every target) for nontrivial cross-platform alias utilities when compilation is unwanted.
+- Check `chezmoi status` and `timeout 2 chezmoi diff`, then try `czapply` or `timeout 2 chezmoi apply -v` if unavailable.
+  If full apply is unsafe, scope diff/apply to task targets. Verify applied state; report failures, timeouts, and remaining
+  work. Ask the user to run `czapply` if needed.
+- After commands, check `git status --short` for unexpected changes. After background processes, check `pty_list` and
+  terminate task-owned sessions.

@@ -1,3 +1,4 @@
+.config/ghostty/config
 .config/opencode/tui.json
 .config/opencode/yakuake-status.mjs
 .config/opencode/.caveman-active
@@ -6,3 +7,5 @@
 .config/opencode/opencode.json.bak
 .local/bin/nas
 .local/bin/nas.cmd
+.local/bin/toggle_dictation.sh
+.config/waystt/.env

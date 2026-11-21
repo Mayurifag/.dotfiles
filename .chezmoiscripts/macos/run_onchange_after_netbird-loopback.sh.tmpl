@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-# Service: {{ include "dot_local/share/launchd/local.netbird-loopback.plist" | sha256sum }}
+# Service: {{ include "dot_local/share/exact_launchd/local.netbird-loopback.plist" | sha256sum }}
 source="$HOME/.local/share/launchd/local.netbird-loopback.plist"
 target="/Library/LaunchDaemons/local.netbird-loopback.plist"
 plutil -lint "$source"

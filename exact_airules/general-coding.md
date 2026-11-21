@@ -2,101 +2,105 @@
 
 ## Scope
 
-- Read affected code before editing; trace callers, tests, fixtures, configuration, and exports.
-- Before estimating migration effort or required user actions, check existing integration links, deployed configuration
-  when accessible and authorized, and built-in migration features. Mark unverified claims as uncertain.
-- Assess data loss, disclosure, and compatibility; ask before ambiguous broad changes.
-- Resolve behavior-changing assumptions from requirements and existing code. If a consequential choice remains
-  ambiguous, explain its impact and ask before implementing it.
-- Turn explicit user constraints into a short checklist. Preserve required names, behavior, placement, file scope, and
-  exclusions; verify each before finishing.
-- For larger work, identify dependencies and, when practical, finish and verify end-to-end slices before starting the
-  next. Record incidental findings without expanding scope.
-- For concurrent work, give each task its own branch and worktree; isolate shared resources too. If task changes depend
-  on each other or isolation is unsafe, work sequentially. Reverify the combined result after integration.
-- Stop only if existing user changes conflict with the task.
+- Read affected code and trace callers, tests, fixtures, config, and exports before editing.
+- Before migration estimates/user actions, check integration links, accessible authorized deployed config, and built-in
+  migration features. Mark unverified claims uncertain.
+- Assess data loss, disclosure, and compatibility. Resolve behavior-changing assumptions from requirements/code; explain
+  and ask before consequential ambiguous choices or broad changes.
+- Checklist explicit constraints: names, behavior, placement, file scope, exclusions. Verify each before finishing.
+- For larger work, identify dependencies; finish and verify end-to-end slices when practical. Record incidental findings
+  without expanding scope.
+- Concurrent tasks -> separate branches/worktrees; isolate shared resources too. If dependent or unsafe to isolate, work
+  sequentially. Reverify after integration.
+- Preserve existing user changes. Continue past unrelated edits; if user edits conflict with the task, pause only the
+  work that depends on resolving the conflict.
 
 ## Changes
 
-- Do not vendor third-party files (code, assets, binaries, or dependency trees) into repositories unless the user
-  explicitly requests it. Use package managers or pinned upstream fetches instead; store dependency declarations and
-  project-owned overrides, not downloaded payloads.
-- Aim for lapidary code: the smallest clear implementation of the required behavior. Prefer direct control flow, precise
-  names, and idiomatic constructs. Reduce concepts and special cases before reducing lines. Never trade correctness or
-  readability for brevity.
-- Identify the target project using the user’s instructions, Git remotes, and available upstream metadata. A user-owned
-  fork does not make its upstream project user-owned. If ownership is uncertain, use the external-contribution default.
-- **User-owned projects:** Optimize the design within the requested scope, not for diff size. Large changes are
-  acceptable when they serve the request.
-- **External projects:** Make the smallest correct, maintainable change that fulfills the request and project
-  requirements. Follow project conventions and keep the diff easy to review. Avoid unrelated refactoring, formatting
-  churn, dependencies, and speculative work. Include necessary tests and documentation. Ask before expanding scope or
-  making an unrequested breaking change.
-- Add abstractions, wrappers, layers, options, or files only when they make the required implementation easier to
-  understand and change. Removing repetition alone is not sufficient; keep small duplication when sharing would require
-  flags, callbacks, or unrelated coupling. Follow mandatory project conventions.
-- For user-owned projects, do not add backward-compatibility shims, migration layers, legacy fallbacks, or old-data
-  handling unless requested. Breaking changes are acceptable when required by the task. For external projects, follow
-  the project’s compatibility requirements.
-- “Perfect,” “long-term,” “generic,” or “must never break anything” do not authorize extra platforms, tiers, modes, or
-  config surfaces. Implement the stated need; keep future ideas to one-line notes.
-- Use named choices or domain types when they prevent plausible confusion. Enforce invariants at the trusted boundary
-  and prevent later mutation from bypassing them; keep passive data simple. Validate once, not across layers.
-- Before adding race, retry, timeout, or defensive edge-case machinery beyond a stated requirement, identify the
-  observed failure, evidence, owning boundary, and simplest fix. Synthetic tests and hypothetical dependency behavior
-  alone are not evidence. Without a real sighting, do not add guards or tests; always handle untrusted input, credential
-  disclosure, and data-loss paths.
-- Before adding an abstraction layer, config surface, or speculative option, present the minimal version first and
-  default to it. Apply the same rule to changes affecting more than ~5 files in external projects. When applying this
-  file threshold, tell the user before proceeding. If a broader approach is viable, compare the options and their
-  tradeoffs, then ask the user to choose before proceeding.
-- When told something is over-designed: cut it. Do not defend it.
-- Preserve interfaces unless the task requires changes. Fix shared causes; do not hide errors.
-- Handle recoverable failures using language idioms. Add useful context and preserve causes where appropriate; do not
-  expose secrets in errors, logs, or debug output.
-- Release resources deterministically using the language’s scoped-cleanup mechanisms. Make cleanup failures observable
-  when callers need to handle them.
-- When observable order is part of the contract, use an API with the required guarantees or sort explicitly; do not rely
-  on unspecified iteration order.
-- When supported inputs can overflow or lose required precision, use suitable types or checks and make lossy conversions
-  explicit.
-- Keep lock scopes as short as correctness permits; avoid unknown callbacks or suspension while locked unless necessary.
-  Keep blocking work off event loops when responsiveness matters.
-- Use standard interfaces or protocols when they fit, and honor the language’s equality, ordering, and hashing
-  contracts.
-- When porting, preserve observable behavior, failure semantics, and ordering unless a change is requested. Use existing
-  tests as a reference and report deliberate differences.
-- Use project tools to update dependency lockfiles and generated checksum files. Prefer targeted updates, avoid
-  unrelated churn, and keep code, dependencies, and tooling compatible with supported language and runtime versions.
-- Avoid comments that restate code or narrate edits. Add comments only for non-obvious rationale, invariants, or
-  required project conventions.
+- Do not vendor third-party code/assets/binaries/dependency trees unless explicitly requested. Use package managers or
+  pinned upstream fetches; store declarations and project-owned overrides, not downloaded payloads.
+- Vendor-specific assets (e.g. Apple emoji) -> prefer native assets, a CDN, a package, or a pinned fetch over repository
+  copies. For any rare exception, compare alternatives and tradeoffs, explain why a copy is proposed, verify
+  redistribution rights, and ask the user to explicitly approve adding the specific files to the repository, even if
+  requested.
+- Use the smallest clear implementation: direct control flow, precise names, idiomatic code. Reduce concepts/special
+  cases before lines; never sacrifice correctness or readability.
+- Keep behavior consistent across supported OSes and prefer shared code. Use OS-specific code or exclusions only for an
+  explicit requirement or a verified platform constraint; explain why. Do not skip an OS merely because a cleanup target
+  is usually absent there if removal already handles missing targets.
+- Determine target ownership from instructions, remotes, and upstream metadata. A user-owned fork does not make upstream
+  user-owned; uncertain ownership -> external-contribution rules.
+- User-owned -> optimize design within scope, not diff size. Make breaking changes only when the task requires them.
+  Before discarding existing user data or making it unreadable, explain the impact and get approval. Do not add
+  compatibility shims, migration layers, or legacy fallbacks unless requested.
+- External -> smallest correct, maintainable, reviewable change following project conventions/compatibility. Include
+  necessary tests/docs; avoid unrelated refactoring, formatting, dependencies, and speculation. Ask before scope
+  expansion or unrequested breaking changes.
+- Add abstractions/wrappers/layers/options/files only to clarify required implementation and maintenance, not just
+  remove repetition. Keep small duplication rather than flags, callbacks, or unrelated coupling; follow mandatory
+  conventions.
+- Default to the minimal in-scope approach. For external changes touching more than about five files, notify the user
+  before editing. If a broader approach is worth considering, explain the tradeoffs and get approval before taking it.
+- “Perfect,” “long-term,” “generic,” or “must never break anything” do not authorize extra platforms/tiers/modes/config.
+  Implement the stated need; future ideas -> one-line notes.
+- Use named choices/domain types against plausible confusion. Validate invariants once at the trusted boundary; prevent
+  mutation bypasses and keep passive data simple.
+- Add state machines, caches, race handling, retries, timeouts, or other guards only when a requirement, observed
+  failure, or verified contract or constraint shows a need. Identify where the handling belongs and use the simplest
+  fix. Synthetic tests and hypothetical dependencies alone do not justify guards or tests. Always handle untrusted
+  input, credential disclosure, and data-loss paths.
+- When told something is over-designed, remove unnecessary complexity. If simplifying would drop required behavior,
+  explain the tradeoff and ask before dropping it.
+- Preserve interfaces unless changes are required; fix shared causes and never hide errors.
+- Use idiomatic failure handling with useful context/preserved causes; expose no secrets in errors, logs, or debug
+  output.
+- Use deterministic scoped resource cleanup; expose cleanup failures when callers need them.
+- Required observable order -> guaranteed API or explicit sort, never unspecified iteration.
+- Supported-input overflow/precision risks -> suitable types/checks and explicit lossy conversions.
+- Keep locks short; avoid unknown callbacks/suspension while locked unless necessary. Keep blocking work off event loops
+  when responsiveness matters.
+- Use fitting standard interfaces/protocols; honor equality, ordering, and hashing contracts.
+- Ports -> preserve observable behavior, failures, and order unless asked otherwise. Use existing tests; report
+  deliberate differences.
+- Update lockfiles/checksums with project tools, target changes, avoid unrelated churn, and preserve supported runtime/
+  language compatibility across code, dependencies, and tooling.
+- Comments -> non-obvious rationale, invariants, or required conventions; do not restate code or narrate edits.
 
 ## Verification
 
-- Before finishing, map each new state machine, cache, retry, timeout, and cross-layer guard to a required behavior or
-  observed failure; remove unsupported ones. Prefer standard tools and an acceptable stale result over custom
-  synchronization when safety permits.
-- Before declaring verification unavailable, check WSL, containers, or remote hosts. Prefer existing suitable
-  environments; temporary tools follow `installation.md`.
-- Choose checks from the requirements before implementation. When safe and practical, verify changed user-facing
-  scenarios through the real interface; unit checks alone do not establish end-to-end behavior.
-- Reproduce bugs before fixing when practical. For uncertain causes, separate observations from hypotheses and use
-  discriminating experiments when practical. Recheck the original scenario when possible; prefer existing regression
-  tests.
-- For intermittent failures, record reproduction conditions and sample counts. Compare failure rates before and after
-  when practical; a few successful runs do not establish a fix.
-- For refactors, identify checks for the observable contract and, when practical, establish a baseline before editing;
-  repeat the checks afterward.
-- Test concrete, plausible, observable failures—not implementation spelling, duplicated logic, behavior-bypassing mocks,
-  or “must never happen” cases with no real instance.
-- Derive expected results from requirements or established behavior, independently of the implementation. Do not weaken
-  checks just to make a change pass; explain intentional changes to their criteria.
-- Use the smallest meaningful verification: prefer existing checks or direct execution. In projects without tests, add
-  permanent tests, frameworks, mocks, or fixtures only on explicit request.
-- Fix lint findings rather than bypassing them. Where project rules permit a justified exception, keep it narrowly
-  scoped and explain it.
-- Test relevant supported configurations when practical; do not assume optional features can all be enabled together.
-- Measure before nontrivial performance optimization when practical; prefer simpler code when performance is sufficient.
-- Review task changes for missed requirements, unintended edits, and plausible regressions; confirm findings with
-  evidence.
-- Run standard repository checks; report unavailable services, excessive cost, failures, and skipped coverage honestly.
+- Prefer standard tools and acceptable stale results over custom synchronization when safe.
+- Before declaring verification unavailable, check WSL, containers, or remote hosts; prefer existing environments.
+  Temporary tools -> `~/airules/installation.md`.
+- Choose requirement-based checks before implementation. Verify changed user-facing scenarios through the real interface
+  when safe/practical; unit checks alone do not prove end-to-end behavior.
+- Before additional verification, identify the distinct, plausible failure it can expose or the decision it can change.
+  Skip checks that only duplicate evidence. Stop when required checks and proportionate risk-based verification are
+  complete; report material gaps.
+- Bugs -> reproduce first when practical; separate observations/hypotheses and use discriminating experiments for
+  uncertain causes. Recheck the original scenario when possible; prefer existing regression tests.
+- Intermittent failures -> record conditions/sample counts; compare before/after rates when practical. A few passes are
+  not proof of a fix.
+- Refactors -> observable-contract checks, practical pre-edit baseline, then repeat afterward.
+- Tests -> required observable behavior, established contracts, or concrete regressions. Derive expectations from these
+  sources, not the implementation under test.
+- Before adding a test, identify the realistic defect it catches. Skip duplicate protection, repeated implementation
+  logic, and unseen “must never happen” cases.
+- Bug fixes -> when practical, confirm the regression test fails for the intended reason before the fix and passes
+  afterward. Otherwise, check that a plausible incorrect implementation fails it; report if unverified.
+- Extend existing tests before adding files/fixtures/helpers/dependencies. Use the smallest meaningful setup; do not
+  build test infrastructure for a small change.
+- Use the lowest-cost interface that exposes the failure. Use integration/end-to-end tests for interaction defects. Mock
+  external boundaries only when needed; never mock away the behavior under test.
+- Do not add tests to meet count, line, or coverage targets. Stop when required behaviors and distinct, realistic
+  failure modes are protected.
+- Never weaken assertions, change expectations, or bypass behavior merely to pass. Explain requirement-driven
+  expectation changes.
+- In untested projects, add permanent tests/frameworks/mocks/fixtures only on explicit request; use direct verification
+  otherwise.
+- Summarize what checks protect and material gaps. Passing tests alone do not establish correctness.
+- Fix lint rather than bypass it; explain narrowly scoped, justified exceptions permitted by project rules.
+- Check relevant supported configurations when practical; optional features may be mutually exclusive.
+- Measure before nontrivial optimization when practical. Prefer simpler code when performance is sufficient, unless
+  project rules or explicit requirements prioritize further performance gains.
+- Review for missed requirements, unintended edits, and plausible regressions; confirm findings with evidence.
+- Run standard repository checks; report unavailable services, excessive cost, failures, and skipped coverage.

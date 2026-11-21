@@ -80,8 +80,6 @@ Library/
 .config/btop/
 .config/yakuakerc
 .config/konsolerc
-.config/ghostty/
-.config/waystt/
 .config/kanata/
 .zshrc
 zsh/

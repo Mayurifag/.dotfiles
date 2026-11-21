@@ -20,13 +20,13 @@ planEffort = "xhigh"
 
 [aiModels.smart]
 provider = "openai"
-id = "gpt-6.1-sol"
+id = "gpt-6.2-sol"
 speed = "standard"
 effort = "high"
 
 [aiModels.ultrathink]
 provider = "openai"
-id = "gpt-6-astra"
+id = "gpt-6.2-astra"
 speed = "standard"
 effort = ""
 

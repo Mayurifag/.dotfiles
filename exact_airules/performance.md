@@ -7,8 +7,8 @@
   narrow the bottleneck. Distinguish CPU, allocation/GC, I/O, locks/waits, network, rendering, and external services as
   relevant; for prompt flows, separate client, tool, network, and provider time where possible.
 - Base recommendations on observed evidence, not code shape or guesses. Treat hot spots as leads until their impact on
-  the target metric is verified. After changes, repeat the same workload when practical and report before/after results,
-  noise, and remaining bottlenecks.
+  the target metric is verified. After changes, repeat the workload when practical and, if feasible, the profile or
+  trace. Report before/after target metric results, noise, and remaining bottlenecks.
 - Keep the measurement method and correctness criteria consistent; if they change, remeasure the baseline. Bound a
   multi-attempt optimization search by time or cost.
 - If profiling is unavailable, check other suitable environments and, when appropriate, try an isolated temporary tool

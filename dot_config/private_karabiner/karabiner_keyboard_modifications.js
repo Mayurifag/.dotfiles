@@ -60,6 +60,13 @@ var ONLY_CHROMIUM_BROWSER_APPLICATIONS = [
   },
 ];
 
+var ONLY_GITCOMET = [
+  {
+    type: "frontmost_application_if",
+    bundle_identifiers: ["^ai\\.autoexplore\\.gitcomet$"],
+  },
+];
+
 var EXTERNAL_KEYBOARD = [
   {
     type: "device_unless",
@@ -150,6 +157,29 @@ var RULES = [
     from: trigger("e", { modifiers: COMMAND }),
     to: shell("open -a 'Finder.app'"),
     conditions: UNLESS_REMOTE_APPLICATIONS,
+  }),
+  rule({
+    description: "GitComet: Ctrl+Tab -> Command+Option+Right",
+    from: trigger("tab", { modifiers: CTRL }),
+    to: press("right_arrow", { modifiers: LEFT_COMMAND_OPTION }),
+    conditions: ONLY_GITCOMET,
+  }),
+  rule({
+    description: "GitComet: Ctrl+Shift+Tab -> Command+Option+Left",
+    from: trigger("tab", { modifiers: CTRL_SHIFT }),
+    to: press("left_arrow", { modifiers: LEFT_COMMAND_OPTION }),
+    conditions: ONLY_GITCOMET,
+  }),
+  rule({
+    description: "iTerm2: Ctrl+Shift+C -> Command+C",
+    from: trigger("c", { modifiers: CTRL_SHIFT, optional: ANY }),
+    to: press("c", { modifiers: LEFT_COMMAND }),
+    conditions: [
+      {
+        type: "frontmost_application_if",
+        bundle_identifiers: ITERM_APPLICATIONS,
+      },
+    ],
   }),
   rule({
     description: "Ctrl+Shift+C -> Command+Shift+C",

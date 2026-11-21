@@ -1,7 +1,3 @@
-{{ if eq .chezmoi.os "linux" -}}
-export YDOTOOL_SOCKET=/tmp/.ydotool_socket
-{{- end }}
-
 # System
 {{ template "env_vars_posix" . }}
 # Homebrew
