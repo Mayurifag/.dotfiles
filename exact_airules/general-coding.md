@@ -66,6 +66,16 @@
   language compatibility across code, dependencies, and tooling.
 - Comments -> non-obvious rationale, invariants, or required conventions; do not restate code or narrate edits.
 
+## Workarounds
+
+- Record new workarounds, including rule or check suppressions, and undocumented workarounds found in affected files in
+  the repository's existing workaround ADR or root `WORKAROUNDS-ADR.md`, creating it if needed. Include locations,
+  reasons, affected versions and upstream issues if known, and verifiable removal conditions.
+- On every project dependency update, including tooling and transitive updates, check every active recorded workaround
+  against current versions and supported environments, even if unrelated to the updated dependency. Remove those
+  confirmed unnecessary, verify affected behavior and checks, and remove or mark their records resolved. Keep and report
+  any whose applicability cannot be verified; update retained records when findings change.
+
 ## Verification
 
 - Prefer standard tools and acceptable stale results over custom synchronization when safe.

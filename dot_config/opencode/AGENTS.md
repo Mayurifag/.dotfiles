@@ -15,7 +15,7 @@ rules apply to code/tooling work, not merely being in a language's repository.
 - Unresolved external API/version documentation -> `context7.md`
 - CSS, styling, themes -> `css.md`
 - Visual design, UI/UX, images -> `design.md`
-- Coding, refactoring, dependencies, vendor-specific assets -> `general-coding.md`
+- Coding, refactoring, dependencies, workarounds, vendor-specific assets -> `general-coding.md`
 - Reviews, audits, technical debt -> `review.md`
 - Commits, pushes, CI, GitHub Actions -> `git.md`
 - Encrypted secrets, ejson, git-crypt -> `git-crypt.md`
