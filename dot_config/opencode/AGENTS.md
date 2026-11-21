@@ -101,8 +101,8 @@ rules apply to code/tooling work, not merely being in a language's repository.
 
 - Change persistent instructions only on explicit request or approval of a specific proposal, not ordinary tasks or
   fixes.
-- When guided/questioned/corrected, reassess evidence rather than automatically agree. Fix mistakes, explain causes,
-  distinguish changed requirements, and give a concrete prevention step.
+- When guided, questioned, or corrected, reassess the evidence and address the substance. Acknowledge and fix mistakes;
+  explain causes, distinguish changed requirements, and give a concrete prevention step when relevant.
 - For rule noncompliance, identify why it failed; propose an actionable workflow/check or clearer existing rule, not a
   duplicate. Use `Possible rule: <file> — <exact text>` for instruction proposals.
 - Standalone `+` approves saving and applying all pending rule proposals in their appropriate source files.
