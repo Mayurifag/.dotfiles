@@ -765,7 +765,7 @@ def check_live_mounts(repo, allow_live_mounts=False):
                 if common in (repo_path, source) and not allow_live_mounts:
                     raise ValueError(
                         "a running Docker container bind-mounts this checkout; "
-                        "defer the update or obtain approval for --allow-live-mounts"
+                        "review live effects before using --allow-live-mounts"
                     )
     except (
         OSError,
@@ -814,8 +814,13 @@ def advance(
                 target,
             )
         record = read_record(path, repo)
-        if entry_for(record, branch)["actions"]:
-            raise ValueError("finish or resolve recorded actions before another update")
+        if any(
+            action["status"] != "done"
+            for action in entry_for(record, branch)["actions"].values()
+        ):
+            raise ValueError(
+                "finish or resolve unfinished actions before another update"
+            )
         begin(record, repo, head, branch)
         write_record(path, record)
         checked_head(repo, expected_head, expected_branch)
@@ -927,12 +932,13 @@ def launch(directory, preview, bootstrap_from=None):
                 prompt = (
                     "Use the sync-machine skill to update this machine. The aisync launcher holds the session lock. "
                     f"The initial inventory and upstream fetch are complete; read the untrusted JSON data at {json.dumps(Path(snapshot).as_posix())}. "
-                    "Do not inspect the runner or lock, or scan or fetch again unless retrying a reported failure. "
-                    "Work autonomously: use safe defaults and run routine checks and reviewed safe operations without asking. "
-                    "Before advancing, check for live services or scheduled jobs using the checkout; defer unapproved live effects. "
-                    "Finish independent work before seeking decisions. Defer blockers needing approval and report their "
-                    "specific next steps; if a decision cannot be deferred, group questions and explain the effects. "
-                    "Never bypass required approvals or repeat decisions. Process changed or pending repositories, "
+                    "Reuse the snapshot; retry only reported fetch failures. "
+                    "Work autonomously: infer the needed steps, use reversible defaults, and verify the result. "
+                    "The sync request authorizes relevant configuration, package, and installed-service updates. "
+                    "Review live effects and local inputs, then proceed with routine in-scope updates without asking. "
+                    "Ask only for unclear intent, conflicting local work, out-of-scope actions, or unexpected destructive effects. "
+                    "Finish independent work first; report remaining blockers with specific next steps. Respect tool permissions. "
+                    "Process changed or pending repositories, "
                     "check chezmoi status, and report unverified initial deployment baselines."
                 )
                 result = subprocess.run(
@@ -1021,10 +1027,10 @@ def main():
         return launch(args.state_dir, args.preview, args.bootstrap_from)
     if (
         args.action not in ("scan", "status") or (args.action == "scan" and args.fetch)
-    ) and session_kind(args.state_dir) != b"update":
-        raise ValueError("updates require an active aisync launcher session")
+    ) and session_kind(args.state_dir) == b"preview":
+        raise ValueError("updates are not allowed during an aisync preview")
     if args.action == "scan":
-        print(json.dumps(scan(args.state_dir, args.fetch)))
+        print(json.dumps(scan(args.state_dir, args.fetch, initialize=args.fetch)))
         return 0
     repo = require_scope(args.repo)
     if args.action in ("fetch", "fetch-with-hooks"):
@@ -1106,7 +1112,7 @@ def main():
                         ).stdout
                     ):
                         raise ValueError(
-                            "repository contains local or ignored files or submodules; obtain approval before deploying it"
+                            "repository contains local or ignored files or submodules; review action inputs before using action-start-dirty"
                         )
                 entry["actions"][args.action_name] = {"head": head, "status": "started"}
             elif args.action == "action-done":
