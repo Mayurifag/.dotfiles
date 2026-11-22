@@ -45,6 +45,8 @@
 ## Cargo and Verification
 
 - Update `Cargo.lock` through Cargo. Set the MSRV deliberately; keep dependencies and lint syntax compatible with it.
+- Do not add dummy reads or calls to silence `dead_code`. Remove truly unused code or explain why an exception is
+  needed.
 - For justified lint exceptions, prefer `#[expect(..., reason = "...")]` when the MSRV supports it. Keep
   warnings-as-errors in CI, not `#![deny(warnings)]`.
 - Run repository checks; normally `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, and `cargo test`.

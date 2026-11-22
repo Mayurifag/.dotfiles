@@ -1,6 +1,8 @@
 # Git
 
 - Before commit messages, read `git log -10` and repo guidance; match format, prefixes/scopes, language, and detail.
+- Before pushing, check whether the target branch triggers a production deployment or publishes an artifact. Treat the
+  push as that action and ask if the request did not clearly authorize that effect.
 - On requested commit/push, wait for pushed-commit CI. Inspect failures, fix change-related ones, commit/push, and
   reverify; then mark related repository GitHub failure notifications done.
 - Retry transient infrastructure failures when possible; report unrelated failures/blockers.

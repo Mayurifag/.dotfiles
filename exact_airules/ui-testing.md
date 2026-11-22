@@ -1,5 +1,8 @@
 # UI Testing and Browser Access
 
+- When changing a dialog, verify that it has an accessible name and that keyboard focus enters on open, stays inside
+  while modal, and returns to the trigger on close.
+
 ## Non-disruptive Testing
 
 - For browser and desktop UI testing or debugging, prefer headless, non-activating, or isolated sessions when they

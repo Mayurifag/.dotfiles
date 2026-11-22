@@ -62,6 +62,12 @@
 - Use fitting standard interfaces/protocols; honor equality, ordering, and hashing contracts.
 - Ports -> preserve observable behavior, failures, and order unless asked otherwise. Use existing tests; report
   deliberate differences.
+- Config keys, flags, and defaults -> trace affected loaders, examples, CI, deployment, tests, and docs. Update in-scope
+  references and report any required operator migration or docs change left out of scope.
+- Once a migration has shipped or run in a persistent or shared environment, fix forward with a new migration. For
+  schema changes, verify fresh setup and upgrade from representative prior data on a disposable database when practical.
+- Before adding a dependency, verify its exact registry name and confirm that its publisher and source match the
+  intended project.
 - Update lockfiles/checksums with project tools, target changes, avoid unrelated churn, and preserve supported runtime/
   language compatibility across code, dependencies, and tooling.
 - Comments -> non-obvious rationale, invariants, or required conventions; do not restate code or narrate edits.
@@ -118,4 +124,5 @@
 - Measure before nontrivial optimization when practical. Prefer simpler code when performance is sufficient, unless
   project rules or explicit requirements prioritize further performance gains.
 - Review for missed requirements, unintended edits, and plausible regressions; confirm findings with evidence.
-- Run standard repository checks; report unavailable services, excessive cost, failures, and skipped coverage.
+- Run standard repository checks. Before reporting a pass, inspect the runner's summary, not just its exit code. Report
+  failures, relevant skips, and checks not run with the reason.
