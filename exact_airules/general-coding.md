@@ -110,6 +110,11 @@
 - Summarize what checks protect and material gaps. Passing tests alone do not establish correctness.
 - Fix lint rather than bypass it; explain narrowly scoped, justified exceptions permitted by project rules.
 - Check relevant supported configurations when practical; optional features may be mutually exclusive.
+- New features with plausible performance/resource costs -> when practical, capture a baseline before coding and use
+  existing tools to compare a representative workload after, or with the feature off/on, under comparable conditions.
+  Report relevant metrics (e.g. latency in ms, CPU, memory, bundle size, network requests), values and deltas, workload/
+  environment, sample counts, and noise where applicable. If comparison is infeasible, report available measurements and
+  the blocker. Flag material or avoidable costs; distinguish feature overhead from proven waste.
 - Measure before nontrivial optimization when practical. Prefer simpler code when performance is sufficient, unless
   project rules or explicit requirements prioritize further performance gains.
 - Review for missed requirements, unintended edits, and plausible regressions; confirm findings with evidence.
