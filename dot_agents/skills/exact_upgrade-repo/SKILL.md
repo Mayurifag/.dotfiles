@@ -68,8 +68,9 @@ configuration, not unrelated checkouts, global packages, the operating system, o
    Keep local development, CI, containers, and deployment definitions consistent. Do not replace reproducible pins with
    floating `latest`. Advance clean submodules to verified stable upstream releases for user-authored or maintained
    projects when safe; ask before advancing external or dirty submodules and never discard their changes. If a newer
-   release cannot satisfy project requirements after feasible migrations, use the newest verified compatible release and
-   explain the blocker rather than silently skipping it.
+   release cannot satisfy project requirements after feasible migrations, use the newest verified compatible release.
+   Group blockers by cause and identify who can resolve them. Check upstream issues, pull requests, milestones, and
+   release notes via authenticated `gh` on GitHub.
 7. Apply required source, configuration, fixture, and test migrations. Use official codemods when suitable and inspect
    their output. Remove deprecated usage affected by upgrades, but avoid unrelated rewrites, formatting churn, or
    feature changes. Do not bump the project's own release version or edit a README unless requested.
@@ -94,8 +95,15 @@ configuration, not unrelated checkouts, global packages, the operating system, o
 
 ## Report
 
-Summarize upgraded groups, language/runtime minimum and support changes, significant major migrations, checks
-passed/failed/skipped, and remaining pins or blockers with reasons. Distinguish pre-existing failures from regressions.
+Summarize upgraded groups, runtime minimums and support changes, major migrations, and checks passed, failed, or
+skipped. Distinguish pre-existing failures from regressions.
+
+For each blocker or group, report the retained and target versions, cause, when to retry, and how to verify the fix.
+Distinguish local pins, confirmed upstream blockers, and unchecked cases. For upstream blockers, link evidence, give its
+status (open, draft, closed without a fix, merged but unreleased, released, or no tracker found), and state the
+maintainer-confirmed release target or ETA, or say none is public. Verify compatibility with a stable release, not just
+a merge, prerelease, or milestone.
+
 State when current versions or supported environments could not be verified; never claim everything is latest or working
 without evidence. Separately report actionable research recommendations with source links, expected benefits, tradeoffs,
 feasibility, and estimated effort; say if none were found. Summarize research coverage and list unchecked dependencies

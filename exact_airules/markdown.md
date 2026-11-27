@@ -12,7 +12,9 @@
 
 ## Code Blocks
 
-Use `~~~` in responses; preserve existing backtick fences when editing files.
+- Use `~~~` in responses. In Markdown files, keep the existing fence character (`~~~` or backticks) on every edited
+  block. Do not convert fences in either direction, including with a formatter. For new blocks, match the surrounding
+  style; use `~~~` if there is no local style.
 
 ## CI
 

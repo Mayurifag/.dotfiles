@@ -23,6 +23,17 @@
 - Close task-opened tabs as soon as they are no longer needed, not just at session cleanup; leave pre-existing tabs open
   unless asked otherwise. For `agent-browser`, use `tab close`.
 
+## Signed-in Browsing
+
+- Default to a separate signed-out session. Use the local signed-in Chrome profile
+  `~/.agent-browser/profiles/personal-maps` only when the task needs account access. Open it with
+  `agent-browser --session personal-maps --profile <absolute-profile-path>`.
+- If a service needs a new sign-in, let the user sign in directly. Ask before opening a headed window unless the user
+  already requested it. Never use the user's regular browser profile, capture credentials, export browser state, or sync
+  the profile.
+- Use the shared profile for one task at a time. Close task tabs and the browser when done; keep the profile on disk so
+  logins can persist. Using the profile does not authorize account changes beyond the user's request.
+
 ## Task References
 
 - UserJS/UserCSS runtime testing/debugging or browser-test tool/template maintenance ->

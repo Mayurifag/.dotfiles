@@ -2,11 +2,11 @@
 
 - Locate the user's OpenCloud-synced vault from the Obsidian registry and OpenCloud sync configuration, or other local
   evidence. Verify the match; if unavailable or ambiguous, ask rather than create a second vault.
-- Save clearly useful, durable knowledge from conversations by default, including X links. Skip transient chat, task
-  logs, and duplicates; tell the user what changed.
+- Save conversation material, including X links, only on request or approval of a specific proposal. Skip transient
+  chat, task logs, and duplicates; tell the user what changed.
 - Search relevant notes first. Extend an existing note when suitable; otherwise create a focused note in the existing
-  folder structure. Match its style, links, tags, and frontmatter. Match the existing note's language; for new notes,
-  use the conversation language unless requested otherwise.
+  folder structure. Match its style, links, tags, and frontmatter. Use English for new note names, titles, and content
+  unless the user requests another language. Keep an existing note's language unless asked to change it.
 - Make new and edited notes searchable by relevant Russian terms. Use aliases for alternate note names and natural text
   for other terms; avoid redundant tags and keyword lists.
 - Prefer a few short bullets or sentences: keep the takeaway, essential details and caveats, and source links. Add

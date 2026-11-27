@@ -25,6 +25,8 @@
   requested.
 - Use the smallest clear implementation: direct control flow, precise names, idiomatic code. Reduce concepts/special
   cases before lines; never sacrifice correctness or readability.
+- Never create a project folder named `utils` or use another vague catch-all name such as `helpers` or `misc`. Name
+  folders for the feature, domain, or responsibility they contain.
 - Keep behavior consistent across supported OSes and prefer shared code. Use OS-specific code or exclusions only for an
   explicit requirement or a verified platform constraint; explain why. Do not skip an OS merely because a cleanup target
   is usually absent there if removal already handles missing targets.
@@ -70,13 +72,17 @@
   intended project.
 - Update lockfiles/checksums with project tools, target changes, avoid unrelated churn, and preserve supported runtime/
   language compatibility across code, dependencies, and tooling.
+- Declare project tool versions once in the owning manifest when practical; reuse the pin in CI and Docker. Prefer tools
+  bundled with base images. Install extra tools only where a build, test, or runtime workflow needs them.
 - Comments -> non-obvious rationale, invariants, or required conventions; do not restate code or narrate edits.
 
 ## Workarounds
 
-- Record new workarounds, including rule or check suppressions, and undocumented workarounds found in affected files in
-  the repository's existing workaround ADR or root `WORKAROUNDS-ADR.md`, creating it if needed. Include locations,
-  reasons, affected versions and upstream issues if known, and verifiable removal conditions.
+- Use the repository's workaround ADR (default: root `WORKAROUNDS-ADR.md`) only for temporary measures with a specific
+  change that would make them obsolete and a check that proves it. Include the location, reason, affected versions, and
+  any known upstream issue. Apply the same test to rule or check suppressions.
+- Document standing policies, platform safeguards, and other measures without a concrete removal trigger next to the
+  code or in the relevant maintenance docs, not in the workaround ADR.
 - On every project dependency update, including tooling and transitive updates, check every active recorded workaround
   against current versions and supported environments, even if unrelated to the updated dependency. Remove those
   confirmed unnecessary, verify affected behavior and checks, and remove or mark their records resolved. Keep and report
