@@ -1,4 +1,8 @@
+.agents/skills/day-plan
+.agents/skills/review
 .config/ghostty/config
+.config/opencode/commands/day-plan.md
+.config/opencode/tui-plugins/iterm-tabs
 .config/opencode/tui.json
 .config/opencode/yakuake-status.mjs
 .config/opencode/.caveman-active
@@ -7,5 +11,10 @@
 .config/opencode/opencode.json.bak
 .local/bin/nas
 .local/bin/nas.cmd
+.local/bin/oc-tabs
+.local/bin/ocrestore
+.local/bin/ocsave
 .local/bin/toggle_dictation.sh
+.local/share/launchd/local.netbird-loopback.plist
+.local/state/opencode/iterm-tabs.json
 .config/waystt/.env

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-# Service: {{ include "Library/private_LaunchAgents/local.opencode.plist.tmpl" | sha256sum }}
+# Service: {{ include "Library/private_LaunchAgents/private_local.opencode.plist.tmpl" | sha256sum }}
 # OpenCode: {{ regexFind `(?m)^"npm:@opencode/cli"[^\r\n]*` (include "dot_config/mise/config.toml.tmpl") | sha256sum }}
 opencode="$HOME/.local/share/mise/shims/opencode"
 if [ ! -x "$opencode" ]; then
@@ -14,8 +14,8 @@ plist="$HOME/Library/LaunchAgents/local.opencode.plist"
 plutil -lint "$plist"
 launchctl bootout "$domain/local.opencode" 2>/dev/null || true
 "$opencode" service stop
-if [ "$("$opencode" service get hostname)" != "100.113.30.31" ]; then
-  "$opencode" service set hostname 100.113.30.31
+if [ "$("$opencode" service get hostname)" != "127.0.0.1" ]; then
+  "$opencode" service set hostname 127.0.0.1
 fi
 if [ "$("$opencode" service get port)" != "49374" ]; then
   "$opencode" service set port 49374

@@ -5,8 +5,8 @@
 {{- $localModel := includeTemplate "ai-model-opencode" (dict "model" .aiModels.local) -}}
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": {{ includeTemplate "ai-model-opencode" (dict "model" .aiModels.usual) | toJson }},
-  "default_agent": "build",
+  "model": {{ includeTemplate "ai-model-opencode" (dict "model" .aiModels.smart) | toJson }},
+  "default_agent": "think",
   "policies": [
     { "action": "provider.use", "resource": "*", "effect": "deny" },
     { "action": "provider.use", "resource": "openai", "effect": "allow" }{{ if eq .chezmoi.os "linux" }},
@@ -30,20 +30,20 @@
   },
   {{ end -}}
   "agents": {
-    "build": {
+    "think": {
       "mode": "primary",
-      "model": {{ $buildModel | toJson }},
-      "description": {{ printf "Build (%s)" $buildModel | toJson }}
+      "model": {{ $thinkModel | toJson }},
+      "description": {{ printf "Think (%s)" $thinkModel | toJson }}
     },
     "ultrathink": {
       "mode": "primary",
       "model": {{ $ultrathinkModel | toJson }},
       "description": {{ printf "Ultrathink (%s)" $ultrathinkModel | toJson }}
     },
-    "think": {
+    "build": {
       "mode": "primary",
-      "model": {{ $thinkModel | toJson }},
-      "description": {{ printf "Think (%s)" $thinkModel | toJson }}
+      "model": {{ $buildModel | toJson }},
+      "description": {{ printf "Build (%s)" $buildModel | toJson }}
     },
     "luna": {
       "mode": "primary",
@@ -103,7 +103,7 @@
     },
     "dprint": {
       "command": ["dprint", "fmt", "--config", {{ joinPath .chezmoi.homeDir ".dprint.json" | toJson }}, "$FILE"],
-      "extensions": [".json", ".jsonc", ".md", ".yaml", ".yml"]
+      "extensions": [".json", ".jsonc", ".yaml", ".yml"]
     },
     "taplo": {
       "command": ["taplo", "format", "$FILE"],
