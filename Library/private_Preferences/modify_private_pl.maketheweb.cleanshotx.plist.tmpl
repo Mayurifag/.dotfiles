@@ -4,6 +4,8 @@ import plistlib
 import sys
 
 settings = plistlib.loads(base64.b64decode({{ include ".chezmoitemplates/cleanshot-settings.plist" | b64enc | quote }}))
+# Sparkle owns the last update check timestamp; do not restore the exported value.
+settings.pop("SULastCheckTime", None)
 original = sys.stdin.buffer.read()
 preferences = plistlib.loads(original) if original else {}
 updated = preferences | settings

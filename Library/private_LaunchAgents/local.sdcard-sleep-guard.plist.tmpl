@@ -1,0 +1,17 @@
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.hostname "hostname") -}}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>local.sdcard-sleep-guard</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>{{ .chezmoi.homeDir | html }}/.local/libexec/local.sdcard-sleep-guard</string>
+    <string>/Volumes/sdcard</string>
+  </array>
+  <key>KeepAlive</key>
+  <true/>
+</dict>
+</plist>
+{{- end }}

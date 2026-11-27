@@ -1,0 +1,292 @@
+#!/usr/bin/env python3
+"""Import missing tracks from OpenCloud without removing tracks from Music."""
+
+import argparse
+import fcntl
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from collections import Counter
+from datetime import datetime
+from hashlib import file_digest
+from pathlib import Path
+from urllib.parse import unquote, urlsplit
+
+HOME = Path.home()
+SOURCE = Path("/Volumes/sdcard/Personal/Music")
+LIBRARY = HOME / "Music/mus/Music Library.musiclibrary"
+MEDIA = (HOME / "Music/mus/Media.localized", HOME / "Music/Music/Media.localized")
+STATE_DIR = HOME / "Library/Application Support/mus-music-sync"
+AUDIO = {".aac", ".aif", ".aiff", ".m4a", ".mp3", ".wav"}
+UNSUPPORTED = {".flac", ".ogg", ".opus"}
+
+READ_CATALOG = """
+ObjC.import('iTunesLibrary');
+const library = $.ITLibrary.libraryWithAPIVersionError('1.0', Ref());
+if (!library || library.isNil()) throw Error('Cannot read Music library');
+const items = library.allMediaItems;
+const paths = [];
+for (let i = 0; i < Number(items.count); i++) {
+  const item = items.objectAtIndex(i);
+  const location = item.location;
+  if (!location || location.isNil()) throw Error('Music contains a nonlocal track');
+  paths.push(ObjC.unwrap(location.path));
+}
+JSON.stringify(paths);
+"""
+
+ADD_TRACKS = """
+on run argv
+  set incoming to {}
+  repeat with filename in argv
+    set end of incoming to POSIX file (contents of filename) as alias
+  end repeat
+  tell application "Music"
+    add incoming to first library playlist
+  end tell
+  return ""
+end run
+"""
+
+
+def run(*args, script=None, timeout=15):
+    result = subprocess.run(
+        args, input=script, text=True, capture_output=True, check=False, timeout=timeout
+    )
+    if result.returncode:
+        raise RuntimeError(
+            result.stderr.strip() or f"{args[0]} returned {result.returncode}"
+        )
+    return result.stdout.strip()
+
+
+def check_library():
+    url = run("/usr/bin/defaults", "read", "com.apple.Music", "library-url")
+    if not LIBRARY.is_dir() or Path(unquote(urlsplit(url).path)).resolve() != LIBRARY:
+        raise RuntimeError("The mus Music library is not selected; no changes made")
+
+
+def fingerprint(path, previous=None):
+    before = signature(path.stat())
+    if previous and previous["signature"] == before:
+        return previous
+    with path.open("rb") as stream:
+        digest = file_digest(stream, "sha256").hexdigest()
+        opened = signature(os.fstat(stream.fileno()))
+    if before != opened or before != signature(path.stat()):
+        raise RuntimeError("A music file is still changing; retrying next run")
+    return {"signature": before, "digest": digest}
+
+
+def signature(stat):
+    return [
+        stat.st_dev,
+        stat.st_ino,
+        stat.st_birthtime,
+        stat.st_size,
+        stat.st_mtime_ns,
+        stat.st_ctime_ns,
+    ]
+
+
+def scan(previous):
+    if not SOURCE.is_dir() or not SOURCE.parents[1].is_mount():
+        raise RuntimeError("The OpenCloud music volume is not mounted")
+    current = {}
+    unsupported = 0
+    for root, _, filenames in os.walk(SOURCE, onerror=raise_error):
+        for name in filenames:
+            path = Path(root) / name
+            if path.is_symlink():
+                continue
+            ext = path.suffix.lower()
+            if ext in UNSUPPORTED:
+                unsupported += 1
+            if ext in AUDIO:
+                relative = str(path.relative_to(SOURCE))
+                current[relative] = fingerprint(path, previous.get(relative))
+    if not current:
+        raise RuntimeError("The OpenCloud music folder is empty; no changes made")
+    return current, unsupported
+
+
+def raise_error(error):
+    raise error
+
+
+def catalog(cache):
+    check_library()
+    tracks = []
+    for location in json.loads(
+        run("/usr/bin/osascript", "-l", "JavaScript", script=READ_CATALOG)
+    ):
+        path = Path(location).resolve(strict=True)
+        if not any(path.is_relative_to(root) for root in MEDIA):
+            raise RuntimeError(
+                f"Music contains a file outside the expected Media folders: {path}"
+            )
+        tracks.append({"path": str(path), **fingerprint(path, cache.get(str(path)))})
+    return tracks
+
+
+def counts(entries):
+    return Counter(entry["digest"] for entry in entries)
+
+
+def media_cache(tracks):
+    return {track["path"]: track for track in tracks}
+
+
+def save_state(path, source, tracks):
+    state = {
+        "source": source,
+        "media": media_cache(tracks),
+    }
+    pending = path.with_suffix(".tmp")
+    pending.write_text(json.dumps(state), encoding="utf-8")
+    pending.replace(path)
+
+
+def clean_imports(tracks):
+    # If a prior AppleScript timed out, leave its inputs intact until Music
+    # has had time to settle and we can read its catalog again.
+    paths = [Path(track["path"]) for track in tracks]
+    cutoff = time.time() - 600
+    for stage in import_root().glob("run-*"):
+        if (
+            stage.is_dir()
+            and not stage.is_symlink()
+            and stage.stat().st_mtime < cutoff
+            and not any(path.is_relative_to(stage) for path in paths)
+        ):
+            shutil.rmtree(stage)
+
+
+def import_root():
+    root = MEDIA[0] / ".mus-sync-imports"
+    if root.is_symlink():
+        raise RuntimeError("The Music import folder must not be a symlink")
+    return root
+
+
+def import_tracks(incoming, tracks, desired):
+    root = import_root()
+    root.mkdir(mode=0o700, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix="run-", dir=root))
+    indexed = tracks
+    try:
+        copies = []
+        for number, (name, digest) in enumerate(incoming):
+            target = staging / str(number) / Path(name).name
+            target.parent.mkdir()
+            shutil.copyfile(SOURCE / name, target)
+            if fingerprint(target)["digest"] != digest:
+                raise RuntimeError("An OpenCloud file changed during import")
+            copies.append(str(target))
+        for start in range(0, len(copies), 50):
+            check_library()
+            indexed = None
+            run(
+                "/usr/bin/osascript",
+                "-",
+                *copies[start : start + 50],
+                script=ADD_TRACKS,
+                timeout=180,
+            )
+        refreshed = catalog(media_cache(tracks))
+        if desired - counts(refreshed):
+            raise RuntimeError("Music has not indexed every import; retrying next run")
+        indexed = refreshed
+        return indexed
+    finally:
+        # Music may reference these files instead of copying them. If the
+        # catalog is unavailable, leave them for the next verified scan.
+        if indexed is not None and not any(
+            Path(track["path"]).is_relative_to(staging) for track in indexed
+        ):
+            shutil.rmtree(staging)
+
+
+def status(message, preview=False):
+    print(message, flush=True)
+    if not preview:
+        stamp = datetime.now().astimezone().isoformat(timespec="seconds")
+        (STATE_DIR / "last-run.txt").write_text(
+            f"{stamp} {message}\n", encoding="utf-8"
+        )
+
+
+def sync(state_path, preview, force):
+    state = (
+        json.loads(state_path.read_text(encoding="utf-8"))
+        if state_path.exists()
+        else {}
+    )
+    previous = state.get("source", {})
+    current, unsupported = scan(previous)
+    warning = f"; {unsupported} unsupported audio files skipped" if unsupported else ""
+    if not preview and not force and previous == current:
+        status(f"{len(current)} source tracks; no changes{warning}")
+        return
+    check_library()
+    run("/usr/bin/open", "-gj", "-a", "Music")
+    tracks = catalog(state.get("media", {}))
+    desired = counts(current.values())
+    actual = counts(tracks)
+    missing = desired - actual
+    incoming = []
+    for name, entry in sorted(current.items()):
+        digest = entry["digest"]
+        if missing[digest]:
+            missing[digest] -= 1
+            incoming.append((name, digest))
+    excess = sum((actual - desired).values())
+    summary = (
+        f"{len(current)} source tracks, {len(tracks)} Music tracks; "
+        f"{len(incoming)} to import, {excess} extra copies kept{warning}"
+    )
+    if preview:
+        status(summary, preview=True)
+        return
+    if not previous and actual != desired:
+        raise RuntimeError(
+            "Cannot initialize: the source and Music library do not match"
+        )
+    clean_imports(tracks)
+    if incoming:
+        tracks = import_tracks(incoming, tracks, desired)
+    save_state(state_path, current, tracks)
+    status(summary)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--preview", action="store_true", help="show the plan without changing Music"
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="inspect Music even if the source is unchanged",
+    )
+    args = parser.parse_args()
+    STATE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with (STATE_DIR / "lock").open("a", encoding="utf-8") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return 0
+        try:
+            sync(STATE_DIR / "state.json", args.preview, args.force)
+        except (OSError, RuntimeError, subprocess.TimeoutExpired, ValueError) as error:
+            status(f"mus-music-sync: {error}", preview=args.preview)
+            return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

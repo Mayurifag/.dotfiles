@@ -1,0 +1,28 @@
+{{- if eq .chezmoi.hostname "hostname" -}}
+#!/bin/sh
+set -eu
+umask 077
+
+# Source: {{ include "macos/finedisplay-external.m" | sha256sum }}
+# Agent: {{ include "Library/private_LaunchAgents/local.finedisplay-external.plist.tmpl" | sha256sum }}
+label="local.finedisplay-external"
+domain="gui/$(id -u)"
+plist="$HOME/Library/LaunchAgents/$label.plist"
+directory="$HOME/.local/libexec"
+source_dir={{ .chezmoi.sourceDir | shellQuote }}
+
+plutil -lint "$plist"
+mkdir -p "$directory"
+pending=$(mktemp "$directory/$label.XXXXXXXX")
+trap 'rm -f "$pending"' EXIT
+/usr/bin/clang -Wall -Wextra -Werror -O2 -fobjc-arc \
+    -framework AppKit -framework CoreGraphics \
+    "$source_dir/macos/finedisplay-external.m" -o "$pending"
+chmod 700 "$pending"
+mv -f "$pending" "$directory/$label"
+launchctl bootout "$domain/$label" 2>/dev/null || true
+launchctl bootstrap "$domain" "$plist" || {
+    sleep 0.5
+    launchctl bootstrap "$domain" "$plist"
+}
+{{- end }}

@@ -1,0 +1,28 @@
+{{- if eq .chezmoi.hostname "hostname" -}}
+#!/bin/sh
+set -eu
+umask 077
+
+# Source: {{ include "macos/sdcard-sleep-guard.c" | sha256sum }}
+# Agent: {{ include "Library/private_LaunchAgents/local.sdcard-sleep-guard.plist.tmpl" | sha256sum }}
+label="local.sdcard-sleep-guard"
+domain="gui/$(id -u)"
+plist="$HOME/Library/LaunchAgents/$label.plist"
+directory="$HOME/.local/libexec"
+source_dir={{ .chezmoi.sourceDir | shellQuote }}
+
+plutil -lint "$plist"
+mkdir -p "$directory"
+pending=$(mktemp "$directory/$label.XXXXXXXX")
+trap 'rm -f "$pending"' EXIT
+/usr/bin/clang -Wall -Wextra -Werror -O2 \
+    -framework CoreFoundation -framework DiskArbitration -framework IOKit \
+    "$source_dir/macos/sdcard-sleep-guard.c" -o "$pending"
+chmod 700 "$pending"
+mv -f "$pending" "$directory/$label"
+launchctl bootout "$domain/$label" 2>/dev/null || true
+launchctl bootstrap "$domain" "$plist" || {
+    sleep 0.5
+    launchctl bootstrap "$domain" "$plist"
+}
+{{- end }}
