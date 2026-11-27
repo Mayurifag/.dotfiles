@@ -1,0 +1,10 @@
+[Unit]
+Description=Update Node and clean developer caches
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h
+Environment="PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin"
+Environment=MISE_AUTO_INSTALL=0 MISE_NOT_FOUND_AUTO_INSTALL=0
+ExecStart=%h/.local/share/mise/shims/python3 %h/.local/bin/dev-cleanup --scheduled
+UMask=0077

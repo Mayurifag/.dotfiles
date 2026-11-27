@@ -5,6 +5,10 @@ MISE_PACKAGE := mise exec -- $(PACKAGE)
 .PHONY: mise-sync mise-sync-only-software clean-mise-installs mise-packages mise-install
 .PHONY: node-packages rust-packages ruby-packages go-packages uv-packages
 .PHONY: clean-node-packages clean-rust-packages clean-ruby-packages clean-go-packages clean-uv-packages
+.PHONY: dev-cleanup
+
+dev-cleanup:
+	MISE_AUTO_INSTALL=0 MISE_NOT_FOUND_AUTO_INSTALL=0 mise --dry-run exec -- python "$(DOTFILES_DIR)/dot_local/bin/executable_dev-cleanup" $(CLEANUP_ARGS)
 
 mise-sync:
 	$(PACKAGE) mise-sync

@@ -1,0 +1,329 @@
+#!/usr/bin/env python3
+"""Refresh Node and managed npm packages, then prune unused Node installs and caches."""
+
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+HOME = Path.home()
+MANAGED_SPEC = re.compile(
+    r"((?:@[a-z0-9][a-z0-9._-]*/)?[a-z0-9][a-z0-9._-]*)"
+    r"@(latest|[0-9]+\.[0-9]+\.[0-9]+)"
+)
+
+
+def mise_path():
+    if os.name == "nt":
+        link = Path(os.environ["LOCALAPPDATA"]) / "Microsoft/WinGet/Links/mise.exe"
+        if link.is_file():
+            return str(link)
+    return shutil.which("mise")
+
+
+def is_link(path):
+    return path.is_symlink() or path.is_junction()
+
+
+def package_version(directory, name):
+    package = directory / name
+    if not package.is_dir() or is_link(package) or is_link(package.parent):
+        return None
+    try:
+        metadata = json.loads((package / "package.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if isinstance(metadata, dict) and metadata.get("name") == name:
+        version = metadata.get("version")
+        if isinstance(version, str) and version:
+            return version
+    return None
+
+
+def managed_packages(specs, npm_root):
+    available = {}
+    for spec in specs:
+        match = MANAGED_SPEC.fullmatch(spec)
+        if not match:
+            continue
+        name, pin = match.groups()
+        version = package_version(npm_root, name)
+        if version and (pin == "latest" or version == pin):
+            available[name] = pin
+    return available
+
+
+def reproducible_global(directory, name, available):
+    pin = available.get(name)
+    if pin is None:
+        return False
+    version = package_version(directory, name)
+    return version is not None and (pin == "latest" or version == pin)
+
+
+def has_extra_globals(install, available):
+    # npm puts globals in lib/node_modules on Unix and node_modules on Windows.
+    # Also check custom prefixes inside the install; external prefixes survive pruning.
+    bundled_dirs = {install / "lib/node_modules", install / "node_modules"}
+
+    def raise_error(error):
+        raise error
+
+    if not install.is_dir() or is_link(install):
+        return True
+    for directory, dirs, files in install.walk(on_error=raise_error):
+        # walk lists directory symlinks as files when it does not follow them.
+        if "node_modules" in files or (
+            os.name == "nt" and any((directory / name).is_junction() for name in dirs)
+        ):
+            return True
+        if directory.name != "node_modules":
+            continue
+        if files:
+            return True
+        if directory in bundled_dirs:
+            for name in set(dirs) - {"npm", "corepack"}:
+                names = (
+                    (
+                        f"{name}/{package.name}"
+                        for package in (directory / name).iterdir()
+                    )
+                    if name.startswith("@")
+                    else (name,)
+                )
+                if any(
+                    not reproducible_global(directory, item, available)
+                    for item in names
+                ):
+                    return True
+        elif dirs:
+            return True
+        dirs.clear()
+    return False
+
+
+def prunable_node_versions(invoke, output, packages):
+    def paths_by_version(*args, **overrides):
+        installs = {}
+        result = invoke(*args, "--json", "node", capture=True, **overrides)
+        for item in json.loads(result.stdout):
+            if re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", item["version"]):
+                installs.setdefault(item["version"], set()).add(
+                    Path(item["install_path"])
+                )
+        return installs
+
+    # The root --dry-run skips deferred removals while we opt Node into the scan.
+    prunable = paths_by_version("--dry-run", "ls", "--prunable", MISE_PRUNE_EXCLUDE="")
+    if not prunable:
+        return []
+    installed = paths_by_version("--dry-run", "ls", "--installed")
+    npm_root = None
+    available = {}
+    if packages:
+        result = invoke(
+            "--dry-run", "exec", "--", "npm", "root", "--global", capture=True
+        )
+        reported = Path(result.stdout.strip())
+        if not reported.is_absolute():
+            raise ValueError("npm did not report an absolute global package directory")
+        npm_root = reported.resolve()
+        available = managed_packages(packages, npm_root)
+    eligible = []
+    for version, paths in prunable.items():
+        # Avoid uninstalling by version if it names multiple installations.
+        if len(paths) != 1 or installed.get(version) != paths:
+            print(f"Keeping Node {version}: ambiguous installation", file=output)
+            continue
+        (path,) = paths
+        if npm_root is not None and npm_root.is_relative_to(path.resolve()):
+            print(
+                f"Keeping Node {version}: contains the active npm prefix", file=output
+            )
+        elif has_extra_globals(path, available):
+            print(
+                f"Keeping Node {version}: unverified global packages or unknown layout",
+                file=output,
+            )
+        else:
+            eligible.append(version)
+    return eligible
+
+
+def clean(apply, output):
+    mise = mise_path()
+    if not mise:
+        print("mise not found", file=output)
+        return 1
+
+    env = {**os.environ, "MISE_AUTO_INSTALL": "0", "MISE_NOT_FOUND_AUTO_INSTALL": "0"}
+
+    def invoke(*args, capture=False, **overrides):
+        return subprocess.run(
+            [mise, *args],
+            cwd=HOME,
+            env={**env, **overrides},
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE if capture else output,
+            stderr=output,
+            encoding="utf-8",
+            timeout=300,
+            check=True,
+        )
+
+    def run(label, *args, **overrides):
+        print(f"\n{label}", file=output, flush=True)
+        try:
+            invoke(*args, **overrides)
+        except (OSError, subprocess.SubprocessError) as error:
+            print(f"Failed: {error}", file=output)
+            return 1
+        return 0
+
+    print(
+        f"{datetime.now().astimezone():%Y-%m-%d %H:%M:%S %Z} Developer cleanup",
+        file=output,
+    )
+    status = 0
+    packages = []
+    try:
+        specs = (HOME / ".config/mise/npmfile").read_text(encoding="utf-8")
+        packages = [
+            line.split()[0]
+            for line in specs.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+    except (OSError, UnicodeError) as error:
+        print(f"Cannot read managed npm packages: {error}", file=output)
+        status = 1
+
+    if apply and not status:
+        status = run("Update Node", "upgrade", "--global", "--no-prune", "node")
+        if packages and not status:
+            status = run(
+                "Refresh managed npm packages",
+                "exec",
+                "--",
+                "npm",
+                "install",
+                "--global",
+                "--",
+                *packages,
+            )
+            if not status:
+                status = run("Refresh mise shims", "--dry-run", "reshim")
+
+    print("\nUnused mise Node versions", file=output, flush=True)
+    try:
+        versions = prunable_node_versions(invoke, output, packages)
+        if not versions:
+            print("No Node versions to prune", file=output)
+        elif not apply:
+            print("Would prune: " + ", ".join(versions), file=output)
+        elif status:
+            print("Skipping Node pruning after an update failure", file=output)
+        else:
+            # Recheck active processes and project pins before removing exact versions.
+            with TemporaryDirectory(prefix="dev-cleanup-mise-") as directory:
+                config = Path(directory) / "mise.toml"
+                config.write_text(
+                    f"[tools]\nnode = {json.dumps(versions)}\n", encoding="utf-8"
+                )
+                status |= run(
+                    "Prune inspected Node versions",
+                    "--dry-run",
+                    "unuse",
+                    "--yes",
+                    "--path",
+                    str(config),
+                    *(f"node@{version}" for version in versions),
+                    MISE_PRUNE_EXCLUDE="",
+                )
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        subprocess.SubprocessError,
+    ) as error:
+        print(f"Cannot verify unused Node versions: {error}", file=output)
+        status = 1
+
+    if not apply:
+        status |= run(
+            "Installed mise Python and Rust versions",
+            "--dry-run",
+            "ls",
+            "--installed",
+            "python",
+            "rust",
+        )
+        status |= run("Old mise cache files (preview)", "cache", "prune", "--dry-run")
+        print(
+            "\nApply mode also updates Node and managed npm packages, prunes the uv cache, and runs Cargo's global cache cleanup.",
+            file=output,
+        )
+        return status
+
+    status |= run("Prune old mise cache files", "cache", "prune")
+    status |= run(
+        "Prune dangling uv cache entries",
+        "exec",
+        "--",
+        "uv",
+        "cache",
+        "prune",
+        "--offline",
+    )
+    # Cargo's stable GC runs during fetch. A dependency-free package avoids touching any project.
+    with TemporaryDirectory(prefix="dev-cleanup-cargo-") as directory:
+        package = Path(directory)
+        (package / "Cargo.toml").write_text(
+            '[package]\nname = "dev-cleanup"\nversion = "0.0.0"\nedition = "2024"\n'
+            '[lib]\npath = "lib.rs"\n',
+            encoding="utf-8",
+        )
+        (package / "lib.rs").touch()
+        status |= run(
+            "Run Cargo's global cache cleanup",
+            "exec",
+            "--",
+            "cargo",
+            "fetch",
+            "--manifest-path",
+            str(package / "Cargo.toml"),
+        )
+    return status
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--apply",
+        action="store_true",
+        help="update Node and npm packages and run cleanup",
+    )
+    mode.add_argument(
+        "--scheduled",
+        action="store_true",
+        help="update and clean up, and replace the last-run log",
+    )
+    args = parser.parse_args()
+    if not args.scheduled:
+        return clean(args.apply, sys.stdout)
+
+    state = HOME / ".local/state/dev-cleanup"
+    state.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with (state / "latest.log").open("w", encoding="utf-8") as output:
+        return clean(True, output)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

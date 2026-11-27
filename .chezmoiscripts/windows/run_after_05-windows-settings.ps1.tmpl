@@ -1,5 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
+[Environment]::SetEnvironmentVariable('GH_TELEMETRY', 'false', 'User')
+
 $attachmentManager = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Attachments'
 New-Item -Path $attachmentManager -Force | Out-Null
 New-ItemProperty -Path $attachmentManager -Name 'SaveZoneInformation' -PropertyType DWord -Value 1 -Force | Out-Null
@@ -31,12 +33,3 @@ else {
 }
 
 [System.IO.File]::WriteAllText($qBittorrentConfig, $config)
-
-$wirelessBattery = & mise which --cd $HOME WirelessBattery.exe 2>$null
-if ($LASTEXITCODE -eq 0 -and (Test-Path -LiteralPath $wirelessBattery)) {
-    $run = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
-    if (-not (Test-Path -LiteralPath $run)) {
-        New-Item -Path $run | Out-Null
-    }
-    New-ItemProperty -Path $run -Name 'WirelessBattery' -Value "`"$wirelessBattery`"" -PropertyType String -Force | Out-Null
-}

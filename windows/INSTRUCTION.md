@@ -71,18 +71,28 @@ key are all ready, then runs `chezmoi init git@github.com:Mayurifag/.dotfiles.gi
 
 ## After chezmoi init
 
+Run `chezmoi apply` below from an elevated PowerShell session under your own account. This registers the daily
+**Developer Cleanup** task, which runs without elevation. See [Developer cleanup](../install/MAINTENANCE.md) for its log
+and scope.
+
 ~~~powershell
 chezmoi diff    # preview changes
 chezmoi apply   # apply dotfiles
 mise install    # install any tools added by chezmoi config
 ~~~
 
-Authenticate GitHub CLI (token stored in Windows Credential Manager):
+The apply script disables GitHub CLI telemetry for new terminals. Set the opt-out in this terminal before you
+authenticate (Windows Credential Manager stores the token):
 
 ~~~powershell
+$env:GH_TELEMETRY = 'false'
 gh auth login
 # → GitHub.com → SSH → Login with a web browser
 ~~~
+
+Chezmoi registers the portable [KJ-BatteryHub](https://github.com/Kjerne/KJ-BatteryHub) for the next sign-in. Mise
+verifies the ZIP against a pinned SHA-256 hash. The executable is unsigned, and setup does not run it. If you installed
+the separate BatteryHub Taskbar Rust rewrite, disable its startup entry to avoid running both apps.
 
 ## Other
 

@@ -1,5 +1,5 @@
 @ansible/ansible-language-server@latest
-@openai/codex@0.167.0
+@openai/codex@0.172.0
 agent-browser@latest
 bash-language-server@latest
 dockerfile-language-server-nodejs@latest
@@ -7,7 +7,6 @@ eslint@latest
 npm@latest
 oxlint@latest
 pyright@latest
-svelte-language-server@latest
 typescript@latest
 typescript-language-server@latest
 vscode-langservers-extracted@latest

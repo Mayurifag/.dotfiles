@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+# Agent: {{ include "Library/private_LaunchAgents/local.dev-cleanup.plist.tmpl" | sha256sum }}
+domain="gui/$(id -u)"
+plist="$HOME/Library/LaunchAgents/local.dev-cleanup.plist"
+plutil -lint "$plist"
+launchctl bootout "$domain/local.dev-cleanup" 2>/dev/null || true
+launchctl bootstrap "$domain" "$plist"

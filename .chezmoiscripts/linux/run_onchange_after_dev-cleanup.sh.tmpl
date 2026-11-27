@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# Service: {{ include "dot_local/share/systemd/user/dev-cleanup.service" | sha256sum }}
+# Timer: {{ include "dot_local/share/systemd/user/dev-cleanup.timer" | sha256sum }}
+systemctl --user daemon-reload
+systemctl --user enable --now dev-cleanup.timer

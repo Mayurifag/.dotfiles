@@ -11,6 +11,7 @@ scripts/
 .ruff_cache/
 windows/
 README.md
+WORKAROUNDS-ADR.md
 browser-mcp-template/
 keys.ejson
 **/__pycache__/
@@ -25,6 +26,7 @@ zsh/.zsh_plugins.sh
 .chezmoiscripts/macos/**
 .config/macos/
 .config/karabiner/
+.local/bin/mus-music-sync
 .local/share/automount/
 .local/share/launchd/
 Library/
@@ -81,6 +83,7 @@ Library/
 .config/yakuakerc
 .config/konsolerc
 .config/kanata/
+.config/zed/
 .zshrc
 zsh/
 {{- end }}
